@@ -1,8 +1,9 @@
+import React from 'react'
 
-
-export default function Home() {
+const Dnemee = () => {
   return (
-    <div>deneme
-    </div>
-  );
+    <div>Dnemee</div>
+  )
 }
+
+export default Dnemee
