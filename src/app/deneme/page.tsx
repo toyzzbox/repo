@@ -2,7 +2,7 @@ import React from 'react'
 
 const Deneme = () => {
   return (
-    <div>Deneme yaptıkl</div>
+    <div>Deneme yaptık oldu mu?</div>
   )
 }
 
