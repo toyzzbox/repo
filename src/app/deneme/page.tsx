@@ -1,17 +1,10 @@
 import React from 'react'
 
-const Deneme = () => {
+const Denemeyim = () => {
   return (
-<<<<<<< HEAD
-    <div>Deneme yaptık oldu mu?</div>
+    <div>Denemeyim oluşturmak</div>
   )
 }
 
-export default Deneme
-=======
-    <div>Deneme</div>
   )
-}
-
-export default Deneme
->>>>>>> 19c38f280bfae5c06de3a91ea95dce21086cacac
+export default Denemeyim
