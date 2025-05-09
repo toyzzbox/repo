@@ -1,8 +1,14 @@
+import Link from 'next/link'
 import React from 'react'
 
 const TopBar = () => {
   return (
-    <div>TopBar</div>
+    <div>
+        <Link href="/hakkimizda">Hakkımızda</Link>
+        <Link href="/hakkimizda">İletişim</Link>
+        <Link href="/hakkimizda">Yardım</Link>
+
+    </div>
   )
 }
 
