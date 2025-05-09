@@ -8,7 +8,7 @@ const Header = () => {
   return (
     <div>
        <TopBar/>
-       <div>
+       <div className='flex justify-between'>
        <Logo/>
        <Search/>
 
