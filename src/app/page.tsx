@@ -1,6 +1,11 @@
-export default function Home() {
+import React from 'react'
+
+const Home = () => {
   return (
-    <div>denemeler burada değişiklikleri algılasın istiyorum kabul olsun ol
-</div>
-);
+    <div>
+Deneme oluşturulmuş
+    </div>
+  )
 }
+
+export default Home

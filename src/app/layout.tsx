@@ -26,7 +26,7 @@ export default function RootLayout({
     <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >deneme2112212121
+      >oluşturdum
         {children}
       </body>
     </html>
