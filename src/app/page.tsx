@@ -43,6 +43,7 @@ export default async function Home() {
           </p>
         )}
       </div>
+      deneme
     </main>
   );
 }
