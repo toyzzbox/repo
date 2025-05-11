@@ -1,13 +1,24 @@
-import React from 'react'
-import Cart from './(frontend)/Cart'
+// app/page.tsx
+import { getProducts } from "@/actions/getProduct";
+import ProductCard from "@/components/(frontend)/product/ProductCard";
 
-const Home = () => {
+export default async function Home() {
+  const products = await getProducts();
+
   return (
-    <div>
-<h1 className='font-bold text-2xl'>En Popüler Oyuncaklar</h1>
-<Cart/>
-    </div>
-  )
+    <main className="m-2">
+      <h1 className="text-2xl font-bold text-center p-5">En Popüler Ürünler</h1>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+        {products.length > 0 ? (
+          products.map((product) => (
+            <ProductCard key={product.id} product={product} />
+          ))
+        ) : (
+          <p className="text-center col-span-full text-gray-500">
+            Hiç ürün bulunamadı.
+          </p>
+        )}
+      </div>
+    </main>
+  );
 }
-
-export default Home
