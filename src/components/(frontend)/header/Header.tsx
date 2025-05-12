@@ -6,7 +6,6 @@ import Menu from './Menu'
 import Favorites from './Favorites'
 import CartCount from './CartCount'
 import UserMenu from './UserMenu'
-import HamburgerMenu from './HamburgerMenu';
 import MobileHeader from './MobileHeader'
 const Header = () => {
   return (
