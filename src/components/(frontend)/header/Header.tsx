@@ -7,26 +7,28 @@ import Favorites from './Favorites'
 import CartCount from './CartCount'
 import UserMenu from './UserMenu'
 import HamburgerMenu from './HamburgerMenu';
+import MobileHeader from './MobileHeader'
 const Header = () => {
   return (
-    <div>
-       <TopBar/>
-       <div>
-          <HamburgerMenu/>
-        </div>
-       <div className='flex justify-around items-center gap-3'>
-       <Logo/>
-       <Search/>
-        <div className='flex justify-center gap-2 hidden sm:block'>
-          <Favorites/>
-          <CartCount/>
-          <UserMenu/>
-        </div>
-       </div>
-       <div className='flex items-center justify-center border-b-1 border-gray-150'>
-        <Menu />
-        </div>
+   <> <div className='hidden sm:block'>
+   <TopBar/>
+  
+   <div className='flex justify-around items-center gap-3'>
+   <Logo/>
+   <Search/>
+    <div className='flex justify-center gap-2 hidden sm:block'>
+      <Favorites/>
+      <CartCount/>
+      <UserMenu/>
     </div>
+   </div>
+   <div className='flex items-center justify-center border-b-1 border-gray-150'>
+    <Menu />
+    </div>
+</div>
+<MobileHeader/>
+   
+   </>
   )
 }
 
