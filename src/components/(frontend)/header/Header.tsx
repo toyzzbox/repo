@@ -6,11 +6,14 @@ import Menu from './Menu'
 import Favorites from './Favorites'
 import CartCount from './CartCount'
 import UserMenu from './UserMenu'
-
+import HamburgerMenu from './HamburgerMenu';
 const Header = () => {
   return (
     <div>
        <TopBar/>
+       <div>
+          <HamburgerMenu/>
+        </div>
        <div className='flex justify-around items-center gap-3'>
        <Logo/>
        <Search/>
