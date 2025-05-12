@@ -22,7 +22,7 @@ interface ProductDetailsProps {
 
 const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
 
-  const router = useRouter();
+
   const [quantity, setQuantity] = useState(1);
 
   // useEffect kullanarak product değerini loglayalım
