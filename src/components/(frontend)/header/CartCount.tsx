@@ -28,7 +28,7 @@ const CartCount = () => {
       >
      0
       </span>
-      <span className="ml-2">Sepetim</span>
+      <span className="ml-2 hidden md:block">Sepetim</span>
     </div>
   );
 };
