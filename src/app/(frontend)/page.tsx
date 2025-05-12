@@ -1,5 +1,6 @@
 // app/page.tsx
 import { getProducts } from "@/actions/getProduct";
+import MobileFooter from "@/components/(frontend)/header/MobileFooter";
 import ProductCard from "@/components/(frontend)/product/ProductCard";
 
 export default async function Home() {
@@ -43,7 +44,7 @@ export default async function Home() {
           </p>
         )}
       </div>
-      deneme
+      <MobileFooter/>
     </main>
   );
 }
