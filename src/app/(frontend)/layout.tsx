@@ -37,7 +37,10 @@ export default function RootLayout({
           </main>
 
           {/* Footer */}
+          <footer className="hidden sm:block">
           <Footer />
+          </footer>
+        
   
 </div>
      

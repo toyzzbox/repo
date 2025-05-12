@@ -14,7 +14,7 @@ const Header = () => {
        <div className='flex justify-around items-center gap-3'>
        <Logo/>
        <Search/>
-        <div className='flex justify-center gap-2'>
+        <div className='flex justify-center gap-2 hidden sm:block'>
           <Favorites/>
           <CartCount/>
           <UserMenu/>

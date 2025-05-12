@@ -3,7 +3,7 @@ import React from 'react'
 
 const Footer = () => {
   return (
-    <div className='flex justify-between'>
+    <div className='flex justify-between max-w-[1280] mx-auto gap-10 m-2'>
         <div className='flex flex-col'>
             <h2>Kategoriler</h2>
             <Link href="/">Oyuncaklar</Link>
