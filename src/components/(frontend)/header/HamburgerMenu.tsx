@@ -1,18 +1,28 @@
 "use client";
+import { useState } from "react";
+import Link from "next/link";
+import { Menu, ChevronDown, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Menu } from "lucide-react";
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import { ChevronDown, ChevronRight } from "lucide-react";
-import { useState } from "react";
-import Link from "next/link";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
+type SubCategory = {
+  title: string;
+  href: string;
+};
+
+type Category = {
+  title: string;
+  icon?: string;
+  subCategories: SubCategory[];
+};
+
 // Menü öğeleri verileri
-const menuItems = [
+const menuItems: Category[] = [
   {
     title: "Oyuncaklar",
     icon: "💻",
@@ -24,7 +34,6 @@ const menuItems = [
   },
   {
     title: "Anne & Bebek",
-
     subCategories: [
       { title: "Erkek", href: "/giyim/erkek" },
       { title: "Kadın", href: "/giyim/kadin" },
@@ -33,7 +42,6 @@ const menuItems = [
   },
   {
     title: "Okul & Kırtasiye",
-
     subCategories: [
       { title: "Mobilya", href: "/ev-yasam/mobilya" },
       { title: "Mutfak", href: "/ev-yasam/mutfak" },
@@ -51,7 +59,7 @@ const menuItems = [
 ];
 
 // Kategori bileşeni
-const CategoryItem = ({ item }: { item: any }) => {
+const CategoryItem = ({ item }: { item: Category }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -62,7 +70,6 @@ const CategoryItem = ({ item }: { item: any }) => {
     >
       <div className="flex items-center justify-between p-2 hover:bg-gray-100 rounded-md">
         <div className="flex items-center gap-2">
-
           <span className="font-medium">{item.title}</span>
         </div>
         <CollapsibleTrigger asChild>
@@ -73,7 +80,7 @@ const CategoryItem = ({ item }: { item: any }) => {
       </div>
       <CollapsibleContent>
         <div className="pl-10 py-2 space-y-2">
-          {item.subCategories.map((subCategory: any, index: number) => (
+          {item.subCategories.map((subCategory, index) => (
             <a
               key={index}
               href={subCategory.href}
@@ -88,22 +95,22 @@ const CategoryItem = ({ item }: { item: any }) => {
   );
 };
 
-
-
 const MobileSidebar = () => {
   return (
     <Sheet>
       <SheetTrigger asChild>
         <Button variant="ghost" size="mobile" className="md:hidden">
-          <Menu className="text-2xl"/>
+          <Menu className="text-2xl" />
           <span className="sr-only">Menüyü Aç</span>
         </Button>
       </SheetTrigger>
       <SheetContent side="left" className="w-[80%] max-w-xs">
         <div className="py-6">
-        <div className="mt-6 px-2">
+          <div className="mt-6 px-2">
             <Link href="/login">
-              <Button variant="link" className="w-full">Giriş Yap</Button>
+              <Button variant="link" className="w-full">
+                Giriş Yap
+              </Button>
             </Link>
           </div>
           <div className="space-y-1">
@@ -111,9 +118,6 @@ const MobileSidebar = () => {
               <CategoryItem key={index} item={item} />
             ))}
           </div>
-
-          {/* Giriş Yap Butonu */}
-        
         </div>
       </SheetContent>
     </Sheet>
