@@ -1,6 +1,6 @@
 
-import ProductDetails from "@/components/products/ProductDetails";
-import prisma from "@/lib/prisma";
+import ProductDetails from "@/components/(frontend)/product/ProductDetails";
+import { prisma } from "@/lib/prisma";
 
 
 export default async function ProductPage({ params }: { params: { slug: string } }) {
@@ -18,13 +18,7 @@ export default async function ProductPage({ params }: { params: { slug: string }
       name: true,
       description: true,
       price: true,
-      urls: true,
-      categories: {
-        select: {
-          id: true,
-          name: true,
-        },
-      },
+     
     },
   });
 
