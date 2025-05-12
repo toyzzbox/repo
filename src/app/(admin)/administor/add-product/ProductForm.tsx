@@ -22,6 +22,7 @@ export default function ProductForm() {
           className="py-2 px-3 rounded-sm" 
           required 
         />
+        deneme
   
         <input 
           type="text" 

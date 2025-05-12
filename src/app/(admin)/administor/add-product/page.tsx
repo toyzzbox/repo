@@ -1,9 +1,8 @@
-import React from 'react'
+import ProductForm from "./ProductForm";
 
-const AddProduct = () => {
-  return (
-    <div>AddProduct</div>
-  )
+export default async function Page() {
+
+    return (
+        <ProductForm/> // ProductForm kullan ve media verisini ilet
+    );
 }
-
-export default AddProduct
