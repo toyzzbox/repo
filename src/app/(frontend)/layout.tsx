@@ -5,7 +5,7 @@ import { ReduxProvider } from "@/components/providers/ReduxProvider";
 import { Geist, Geist_Mono } from "next/font/google";
 import type { Metadata } from "next";
 import PageContainer from "@/components/(frontend)/container/PageContainer";
-
+import "../globals.css";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
