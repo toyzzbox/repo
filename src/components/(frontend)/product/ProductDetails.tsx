@@ -1,35 +1,52 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import { useAppDispatch } from "@/hooks/redux";
+import { addToCart } from "@/redux/cartSlice";
+import { useRouter } from "next/navigation";
+import React, { useState, useEffect } from "react"; // useEffect'i ekledik
 import Link from "next/link";
 
-interface Product {
-  id: string;
-  slug: string;
-  name: string;
-  description: string;
-  price: number;
-}
+const Horizontal = () => <hr className="w-[30%] my-2" />;
 
 interface ProductDetailsProps {
-  product: Product;
+  product: {
+    id: string;
+    slug: string; // slug değerini ekledik
+    name: string;
+    description: string;
+    price: number;
+
+  },
 }
 
-const Horizontal: React.FC = () => <hr className="w-[30%] my-2" />;
-
 const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
-  const [quantity, setQuantity] = useState<number>(1);
+  const dispatch = useAppDispatch();
+  const router = useRouter();
+  const [quantity, setQuantity] = useState(1);
 
+  // useEffect kullanarak product değerini loglayalım
   useEffect(() => {
     console.log("Current Product:", product);
   }, [product]);
 
-  const incrementQuantity = (): void => {
-    setQuantity((prevQuantity) => prevQuantity + 1);
+  const handleAddToCart = () => {
+    console.log("Adding to cart:", { ...product, quantity });
+    dispatch(addToCart({ ...product, quantity }));
   };
 
-  const decrementQuantity = (): void => {
-    setQuantity((prevQuantity) => (prevQuantity > 1 ? prevQuantity - 1 : 1));
+  const handleBuyNow = () => {
+    dispatch(addToCart({ ...product, quantity }));
+    router.push("/cart");
+  };
+
+  const incrementQuantity = () => {
+    setQuantity(quantity + 1);
+  };
+
+  const decrementQuantity = () => {
+    if (quantity > 1) {
+      setQuantity(quantity - 1);
+    }
   };
 
   return (
@@ -39,11 +56,18 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
         <Link href="/" className="text-gray-600 hover:text-gray-800">
           Home
         </Link>
+        <span className="mx-2 text-gray-400">/</span>
+       kategori
+         
+          <div>Kategori Yok</div>
+  
+        <span className="mx-2 text-gray-400">/</span>
         <span className="text-gray-700">{product.name}</span>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mt-4">
-        <div>foto</div>
+        <div>resim
+        </div>
         <div className="flex flex-col gap-1 text-slate-500 text-sm">
           <h2 className="text-3xl font-medium text-slate-700">{product.name}</h2>
           <div className="flex items-center gap-2">
@@ -54,7 +78,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
           <Horizontal />
 
           {/* Quantity Selector */}
-          <span className="flex items-center text-lg font-medium rounded-md bg-gray-200 px-4 py-1 mt-2">
+           <span className="flex items-center text-lg font-medium rounded-md bg-gray-200 px-4 py-1 mt-2">
             <button onClick={decrementQuantity} className="cursor-pointer mr-4">
               -
             </button>
@@ -66,9 +90,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
 
           {/* Price Display */}
           <div className="text-right">
-            <h1 className="font-bold text-2xl">
-              {`$${(product.price * quantity).toFixed(2)}`}
-            </h1>
+            <h1 className="font-bold text-2xl">{`$${(product.price * quantity).toFixed(2)}`}</h1>
             <p className="text-xs text-gray-500">
               TL: <span className="line-through">indirimli fiyat</span>
             </p>
@@ -77,15 +99,17 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
 
           {/* Cart Buttons */}
           <div className="max-w-[300px]">
-            <button className="bg-blue-500 text-white py-2 px-4 rounded">
+            <button onClick={handleAddToCart} className="bg-blue-500 text-white py-2 px-4 rounded">
               Add to Cart
             </button>
-            <button className="bg-green-500 text-white py-2 px-4 rounded ml-2">
+            <button onClick={handleBuyNow} className="bg-green-500 text-white py-2 px-4 rounded ml-2">
               Buy Now
             </button>
           </div>
+
         </div>
       </div>
+description
     </div>
   );
 };

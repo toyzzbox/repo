@@ -1,11 +1,13 @@
 "use client";
 
-
+import { useAppSelector } from "@/hooks/redux";
+import { getCart } from "@/redux/cartSlice";
 import { useRouter } from "next/navigation";
 import { CiShoppingCart } from "react-icons/ci";
 
 const CartCount = () => {
   const router = useRouter();
+  const cart = useAppSelector(getCart);
 
   return (
     <div
@@ -26,9 +28,9 @@ const CartCount = () => {
         rounded-full 
         flex items-center justify-center text-sm"
       >
-     0
+        {cart.length}
       </span>
-      <span className="ml-2 hidden md:block">Sepetim</span>
+      <span className="ml-2">Sepetim</span>
     </div>
   );
 };
