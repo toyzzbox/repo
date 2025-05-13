@@ -2,11 +2,12 @@ import React from 'react'
 import Logo from './Logo'
 import TopBar from './TopBar'
 import Search from './Search'
-import Menu from './Menu'
+
 import Favorites from './Favorites'
 import CartCount from './CartCount'
 import UserMenu from './UserMenu'
 import MobileHeader from './MobileHeader'
+import { MenuBar } from './Menu'
 const Header = () => {
   return (
    <> <div className='hidden sm:block'>
@@ -22,7 +23,7 @@ const Header = () => {
     </div>
    </div>
    <div className='flex items-center justify-center border-b-1 border-gray-150'>
-    <Menu />
+    <MenuBar />
     </div>
 </div>
 <MobileHeader/>
