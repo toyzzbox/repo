@@ -41,20 +41,12 @@ export const ShoppingCart = () => {
             key={`${product.id || product.slug}-${index}`}
           >
             <div className="flex items-center">
-              {/* Ürün görseli */}
-              {product.urls && product.urls.length > 0 ? (
-                <img
-                  src={product.urls[0]}
-                  width={100}
-                  height={100}
-                  alt={product.name}
-                  className="rounded-md"
-                />
-              ) : (
+         
+              
                 <div className="w-24 h-24 bg-gray-300 flex items-center justify-center rounded-md">
                   <span className="text-sm text-gray-600">No Image</span>
                 </div>
-              )}
+            
               <div className="ml-4">
                 <h1 className="font-medium text-lg">{product.name}</h1>
                 <p className="text-green-500 text-sm">Stokta</p>
