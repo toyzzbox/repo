@@ -5,13 +5,22 @@ import { decrementQuantity, getCart, incrementQuantity, removeFromTheCart } from
 import Image from "next/image";
 import React from "react";
 
+interface CartItem {
+  id: string;
+  slug: string;
+  name: string;
+  price: number;
+  quantity: number;
+  urls?: string[];
+}
+
 export const ShoppingCart = () => {
-  const cart = useAppSelector(getCart); // Sepet öğelerini Redux store'dan alıyoruz
-  const dispatch = useAppDispatch(); // Redux işlemleri için dispatch fonksiyonu
+  const cart = useAppSelector(getCart) as CartItem[];
+  const dispatch = useAppDispatch();
 
   let totalPrice = 0;
 
-  cart.forEach((item: any) => {
+  cart.forEach((item) => {
     totalPrice += item.price * item.quantity;
   });
 
@@ -23,17 +32,16 @@ export const ShoppingCart = () => {
       </div>
 
       {cart.length > 0 ? (
-        cart.map((product: any, index: number) => { // İndeksi de alıyoruz
+        cart.map((product, index) => {
           return (
             <div
               className="mt-4 flex justify-between items-center border-b border-gray-200 py-4"
-              key={`${product.id || product.slug}-${index}`} // Benzersiz key
+              key={`${product.id || product.slug}-${index}`}
             >
               <div className="flex items-center">
-                {/* İlk fotoğrafı gösteriyoruz */}
                 {product?.urls && product.urls.length > 0 ? (
                   <Image
-                    src={product.urls[0]} // İlk fotoğrafı alıyoruz
+                    src={product.urls[0]}
                     width={100}
                     height={100}
                     alt={product?.name || "Ürün görseli"}
@@ -56,9 +64,25 @@ export const ShoppingCart = () => {
                 </div>
               </div>
               <div className="flex items-center text-lg font-medium rounded-md bg-gray-200 px-4 py-1 mt-2">
-                <div onClick={() => { product.quantity > 1 && dispatch(decrementQuantity(product)) }} className="cursor-pointer mr-4">-</div>
+                <div
+                  onClick={() => {
+                    if (product.quantity > 1) {
+                      dispatch(decrementQuantity(product));
+                    }
+                  }}
+                  className="cursor-pointer mr-4"
+                >
+                  -
+                </div>
                 <span>{product.quantity}</span>
-                <div onClick={() => { dispatch(incrementQuantity(product)) }} className="cursor-pointer ml-4">+</div>
+                <div
+                  onClick={() => {
+                    dispatch(incrementQuantity(product));
+                  }}
+                  className="cursor-pointer ml-4"
+                >
+                  +
+                </div>
               </div>
               <div className="text-right">
                 <h1 className="font-bold text-2xl">{`$${product.price}`}</h1>
@@ -74,7 +98,10 @@ export const ShoppingCart = () => {
           <h1 className="text-gray-500 text-xl">Sepetiniz boş!</h1>
         </div>
       )}
-      <h1 className="text-right">{`Subtotal (${cart.length} items): `}<span className="font-bold">{totalPrice}</span> </h1>
+      <h1 className="text-right">
+        {`Subtotal (${cart.length} items): `}
+        <span className="font-bold">{totalPrice}</span>
+      </h1>
     </div>
   );
 };
