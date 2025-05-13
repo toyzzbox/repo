@@ -1,9 +1,11 @@
 import Link from 'next/link'
 import React from 'react'
+import MobileFooter from './MobileFooter'
 
 const Footer = () => {
   return (
-    <div className='flex justify-between max-w-[1280] mx-auto gap-10 m-2'>
+   <>
+<div className='flex justify-between max-w-screen-xl mx-auto gap-10 m-2 hidden sm:block'>
         <div className='flex flex-col'>
             <h2>Kategoriler</h2>
             <Link href="/">Oyuncaklar</Link>
@@ -41,6 +43,9 @@ const Footer = () => {
             <Link href="/">Oyuncak Araba ve Setleri</Link>
         </div>
     </div>
+    <div>
+    <MobileFooter/>
+    </div></>
   )
 }
 

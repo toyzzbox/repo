@@ -1,6 +1,5 @@
 import Footer from "@/components/(frontend)/footer/Footer";
 import Header from "@/components/(frontend)/header/Header";
-import Mobile from "@/components/(frontend)/header/MobileFooter";
 import { ReduxProvider } from "@/components/providers/ReduxProvider";
 import { Geist, Geist_Mono } from "next/font/google";
 import type { Metadata } from "next";
@@ -38,7 +37,7 @@ export default function RootLayout({
             </main>
             <footer>
               <Footer />
-              <Mobile />
+      
             </footer>
           </div>
         </ReduxProvider>
