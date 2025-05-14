@@ -34,7 +34,7 @@ export const login = async (data: z.infer<typeof LoginSchema>) => {
     });
 
     return { success: "Kullanıcı başarıyla giriş yaptı" };
-  } catch (error: any) {
+  } catch (error: unknown) {
     // Hata mesajını kontrol et
     if (error.message === "CredentialsSignin") {
       return { error: "Geçersiz e-posta veya şifre" };
