@@ -3,7 +3,7 @@ import React from 'react'
 
 const TopBar = () => {
   return (
-    <div className='flex justify-end gap-2 hidden sm:block'>
+    <div className='flex justify-end gap-2'>
         <Link href="/hakkimizda">Hakkımızda</Link>
         <Link href="/iletisim">İletişim</Link>
         <Link href="/hakkimizda">Yardım</Link>
