@@ -1,7 +1,3 @@
-// app/page.tsx
-import { getProducts } from "@/actions/getProduct";
-import ProductCard from "@/components/(frontend)/product/ProductCard";
-import { ProductSection } from "@/components/(frontend)/product/ProductSection";
 
 export default async function Home() {
   // const products = await getProducts();
