@@ -1,10 +1,10 @@
 "use server";
 
 import * as z from "zod";
-import { prisma } from "../../prisma/prisma";
 import { signIn } from "@/auth";
 import  AuthError  from 'next-auth';
 import { LoginSchema } from "@/schema";
+import { prisma } from "@/lib/prisma";
 
 
 export const login = async (data: z.infer<typeof LoginSchema>) => {

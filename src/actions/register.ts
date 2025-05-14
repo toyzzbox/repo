@@ -1,9 +1,9 @@
 "use server";
 
 import * as z from "zod";
-import { prisma } from "../../prisma/prisma";
 import bcrypt from "bcryptjs";
 import { RegisterSchema } from "@/schema";
+import { prisma } from "@/lib/prisma";
 
 export const register = async (data: z.infer<typeof RegisterSchema>) => {
   try {
