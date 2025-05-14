@@ -14,7 +14,7 @@ export const authConfig: AuthConfig = {
         email: { label: "Email", type: "text" },
         password: { label: "Password", type: "password" },
       },
-      async authorize(_credentials) {
+      async authorize() {
         return null;
       },
     }),
