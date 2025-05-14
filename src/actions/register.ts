@@ -4,7 +4,7 @@
 import * as z from "zod"
 import {prisma} from "../../prisma/prisma";
 import bcrypt from "bcryptjs";
-import { RegisterSchema} from "../../schema";
+import { RegisterSchema } from "@/schema";
 
 
 
