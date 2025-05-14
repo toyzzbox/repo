@@ -4,17 +4,15 @@ import React, { useState } from 'react'
 import CardWrapper from './card-wrapper';
 import {   useForm } from 'react-hook-form';
 import {Form, FormControl, FormField, FormDescription, FormLabel, FormItem,FormMessage } from '../ui/form';
-import { LoginSchema } from '../../../schema';
-import { Input } from '../ui/input';
 import {z} from "zod";
-import { Button } from '../ui/button';
 import {FormError} from "./form-error";
 import {FormSuccess} from "./form-success";
 import {zodResolver} from "@hookform/resolvers/zod"
-import { register } from '@/actions/register';
-import { login } from '@/actions/login';
 import Link from 'next/link';
 import GoogleLogin from './google-button';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { LoginSchema } from '@/schema';
 
 
 
