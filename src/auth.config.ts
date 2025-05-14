@@ -1,7 +1,7 @@
 // auth.config.ts
 
-import Google from "auth/providers/google";
-import Credentials from "auth/providers/credentials";
+import Google from "next-auth/providers/google";
+import Credentials from "next-auth/providers/credentials";
 import type { NextAuthConfig } from "auth";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { prisma } from "../prisma/prisma";
