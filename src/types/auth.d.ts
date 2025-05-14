@@ -20,13 +20,13 @@ declare module "auth" {
     const GoogleProvider: (options: {
       clientId: string;
       clientSecret: string;
-    }) => OAuthConfig<any>;
+    }) => OAuthConfig<string>;
     export default GoogleProvider;
   }
   
   declare module "auth/providers/credentials" {
     import { CredentialsConfig } from "next-auth/providers";
-    const CredentialsProvider: (config: CredentialsConfig<any>) => CredentialsConfig<any>;
+    const CredentialsProvider: (config: CredentialsConfig<string>) => CredentialsConfig<string>;
     export default CredentialsProvider;
   }
   
