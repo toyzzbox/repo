@@ -5,8 +5,9 @@ import MobileFooter from './MobileFooter'
 const Footer = () => {
   return (
    <>
-<div className='flex justify-between max-w-screen-xl mx-auto gap-10 m-2 hidden sm:block'>
-        <div className='flex flex-col'>
+<div className='hidden sm:block'>
+       <div className='flex justify-between max-w-screen-xl mx-auto gap-10 m-2'>
+       <div className='flex flex-col'>
             <h2>Kategoriler</h2>
             <Link href="/">Oyuncaklar</Link>
             <Link href="/">Anne & Bebek</Link>
@@ -43,6 +44,8 @@ const Footer = () => {
             <Link href="/">Oyuncak Araba ve Setleri</Link>
         </div>
     </div>
+       </div>
+    
     <div>
     <MobileFooter/>
     </div></>
