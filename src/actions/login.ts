@@ -3,7 +3,7 @@
 import * as z from "zod";
 import { prisma } from "../../prisma/prisma";
 import { signIn } from "@/auth";
-import { AuthError } from "next-auth";
+import  AuthError  from 'next-auth';
 import { LoginSchema } from "@/schema";
 
 
