@@ -1,9 +1,11 @@
 'use client';
 
+
 import { googleAutheticate } from "@/actions/google-login";
+import { Button } from "@/components/ui/button";
 import { useActionState } from "react";
 import {BsGoogle} from "react-icons/bs";
-import { Button } from "../ui/button";
+
 
 
 const GoogleLogin = ()=> {
