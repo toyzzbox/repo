@@ -34,12 +34,15 @@ export const login = async (data: z.infer<typeof LoginSchema>) => {
     });
 
     return { success: "Kullanıcı başarıyla giriş yaptı" };
-  } catch (error: unknown) {
-    // Hata mesajını kontrol et
-    if (error.message === "CredentialsSignin") {
-      return { error: "Geçersiz e-posta veya şifre" };
+  }catch (error: unknown) {
+    if (error instanceof Error) {
+      if (error.message === "CredentialsSignin") {
+        return { error: "Geçersiz e-posta veya şifre" };
+      } else {
+        return { error: "Giriş sırasında bir hata oluştu" };
+      }
     } else {
-      return { error: "Giriş sırasında bir hata oluştu" };
+      return { error: "Bilinmeyen bir hata oluştu" };
     }
   }
 };
