@@ -2,52 +2,44 @@
 
 import * as z from "zod";
 import { signIn } from "@/auth";
-import  AuthError  from 'next-auth';
 import { LoginSchema } from "@/schema";
 import { prisma } from "@/lib/prisma";
 
-
 export const login = async (data: z.infer<typeof LoginSchema>) => {
-  
-    const validatedData = LoginSchema.parse(data);
+  // Giriş verilerini doğrula
+  const validatedData = LoginSchema.safeParse(data);
+  if (!validatedData.success) {
+    return { error: "Geçersiz giriş verileri" };
+  }
 
-    if (!validatedData) {
-      return { error: "Invalid input data" };
-    }
+  const { email, password } = validatedData.data;
 
-    const { email, password } = validatedData;
+  // Kullanıcının varlığını kontrol et
+  const userExists = await prisma.user.findFirst({
+    where: {
+      email: email,
+    },
+  });
 
-    const userExists = await prisma.user.findFirst({
-      where: {
-        email: email,
-      },
+  if (!userExists || !userExists.password || !userExists.email) {
+    return { error: "Kullanıcı bilgileri hatalı girildi" };
+  }
+
+  try {
+    // Sunucu tarafında kimlik doğrulama
+    await signIn("credentials", {
+      email: userExists.email,
+      password: password,
+      redirect: false, // Yönlendirmeyi manuel olarak kontrol etmek için
     });
 
-    if (!userExists || !userExists.password || !userExists.email) {
-      return { error: "Kullanıcı bilgileri hatalı girildi" };
+    return { success: "Kullanıcı başarıyla giriş yaptı" };
+  } catch (error: any) {
+    // Hata mesajını kontrol et
+    if (error.message === "CredentialsSignin") {
+      return { error: "Geçersiz e-posta veya şifre" };
+    } else {
+      return { error: "Giriş sırasında bir hata oluştu" };
     }
-
-    try {
-      await signIn('credentials', {
-        email: userExists.email,
-        password: password,
-        redirectTo: "/dashboard", // redirectTo yerine redirect kullanın
-      });
-    } catch (error) {
-      if (error instanceof AuthError) {
-        switch (error.type) {
-          case "CredentialsSignin":
-            return { error: "Invalid credentials" };
-          default:
-            return {
-              error: "Please confirm your email address"
-            }
-        }
-      }
-      throw error;
-    }
-
-    return {success: "User logged in succesfully"};
-  };
-
-
+  }
+};
