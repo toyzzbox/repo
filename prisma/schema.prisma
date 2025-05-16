@@ -68,6 +68,20 @@ model VerificationToken {
   @@map("verification_tokens")
 }
 
+model Media {
+  id        String    @id @default(cuid())
+  type      MediaType
+  fileUrl   String?
+  urls      String[]
+  createdAt DateTime  @default(now())
+}
+
+enum MediaType {
+  image
+  video
+}
+
+
 
 model Product {
   id          String      @id @default(cuid())
