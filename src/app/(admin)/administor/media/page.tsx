@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { twMerge } from "tailwind-merge";
 import { getSignedUrl } from "./action";
+import Image from "next/image";
 
 export default function Media() {
   const [files, setFiles] = useState<File[]>([]);
@@ -107,7 +108,7 @@ export default function Media() {
               key={index}
               className="relative w-20 h-20 rounded-lg overflow-hidden border border-neutral-500"
             >
-              <img
+              <Image
                 src={url}
                 alt={`Preview ${index + 1}`}
                 className="object-cover w-full h-full"
