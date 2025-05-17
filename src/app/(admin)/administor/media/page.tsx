@@ -108,6 +108,8 @@ export default function Media() {
             >
               <Image
                 src={url}
+                width={100}
+                height={100}
                 alt={`Preview ${index + 1}`}
                 className="object-cover w-full h-full"
               />
