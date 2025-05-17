@@ -143,13 +143,12 @@ export default function Media() {
               accept="image/*,video/*"
               onChange={handleFileChange}
               multiple
-              hidden
             />
           </label>
         </div>
       </div>
 
-      <div className="flex justify-between items-center mt-5">
+      <div className="flex justifdy-between items-center mt-5">
         <div className="text-neutral-500">Files: {files.length}</div>
         <button
           type="submit"
