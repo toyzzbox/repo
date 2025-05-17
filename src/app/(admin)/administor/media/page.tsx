@@ -4,7 +4,7 @@ import { useState } from "react";
 import { twMerge } from "tailwind-merge";
 import { getSignedUrl } from "./action";
 
-export default function Guide() {
+export default function Media() {
   const [files, setFiles] = useState<File[]>([]);
   const [fileUrls, setFileUrls] = useState<string[]>([]);
   const [statusMessage, setStatusMessage] = useState("");
