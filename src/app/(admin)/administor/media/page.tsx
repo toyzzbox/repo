@@ -31,25 +31,23 @@ export default function Media() {
       setLoading(false);
       return;
     }
-
     try {
       const mediaIds: string[] = [];
-
+    
       for (const file of files) {
         setStatusMessage(`Generating signed URL for ${file.name}...`);
-
+    
         const checksum = await computeSHA256(file);
         const signedUrlResult = await getSignedUrl(file.type, file.size, checksum);
-
+    
         if (signedUrlResult.failure !== undefined) {
           setStatusMessage(`Failed to generate signed URL for ${file.name}`);
-          setLoading(false);
           throw new Error(signedUrlResult.failure);
         }
-
+    
         const { url } = signedUrlResult.success;
         const mediaId = signedUrlResult.success.mediaId;
-
+    
         setStatusMessage(`Uploading file ${file.name}...`);
         const uploadRes = await fetch(url, {
           method: "PUT",
@@ -58,27 +56,27 @@ export default function Media() {
             "Content-Type": file.type,
           },
         });
-
+    
         if (uploadRes.ok) {
           mediaIds.push(mediaId);
         } else {
-          setStatusMessage(`File upload failed for ${file.name}`);
-          setLoading(false);
-          throw new Error("File upload failed");
+          throw new Error(`File upload failed for ${file.name}`);
         }
       }
-
+    
       setStatusMessage("All files uploaded successfully!");
       setFiles([]);
-
-    } catch (error: any) { // error tipini any olarak belirttik
-      setStatusMessage(`Error: ${error.message}`);
-      setLoading(false);
+    } catch (error) {
+      if (error instanceof Error) {
+        setStatusMessage(`Error: ${error.message}`);
+      } else {
+        setStatusMessage("Bilinmeyen bir hata oluştu.");
+      }
     } finally {
       setLoading(false);
     }
   };
-
+  
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = e.target.files;
     if (selectedFiles) {
