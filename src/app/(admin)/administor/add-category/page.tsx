@@ -13,7 +13,7 @@ export default async function Page() {
     const categories = await getCategories(); // await ile getCategories çağrısı
 
 
-    return <CategoryForm categories={categories} media={media}/>;
+    return <CategoryForm categories={categories} />;
 }
 
 
