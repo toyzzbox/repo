@@ -7,7 +7,7 @@ type CategoryCardProps = {
     name: string;
     id?: string | null;
     slug?: string | null; 
-    price: number;
+
   };
 };
 
