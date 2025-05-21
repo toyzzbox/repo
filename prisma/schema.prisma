@@ -89,6 +89,8 @@ model Product {
   name        String
   description String
   price       Float
+  brands      Brand[]    @relation("ProductBrand")
+
 }
 
 model Brand {
@@ -96,6 +98,8 @@ model Brand {
   name        String
   slug        String    @unique
   description String?
+  products    Product[] @relation("ProductBrand")
+
   createdAt   DateTime  @default(now())
 
 }
