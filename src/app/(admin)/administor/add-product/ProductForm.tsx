@@ -5,12 +5,17 @@ import { createProduct } from "./action";
 
 
 
+interface Brand {
+  id: string;
+  name: string;
+}
 
+interface ProductFormProps {
+  brands: Brand[];
+}
 
-
-export default function ProductForm() {
+export default function ProductForm({ brands }: ProductFormProps) {
   const [error, action, isPending] = useActionState(createProduct, null);
-
   return (
     <main className="mx-auto max-w-lg">
       <h1>Ürün Yönetim Sayfası</h1>
@@ -31,6 +36,12 @@ export default function ProductForm() {
           className="py-2 px-3 rounded-sm" 
           required 
         />
+              <select name="brandIds[]" multiple className="py-2 px-3 rounded-sm">
+        <option value="">Marka Seç</option>
+          {brands.map((brand) => (
+            <option key={brand.id} value={brand.id}>{brand.name}</option>
+          ))}
+        </select>
         <input 
           type="number" 
           name="price" 
