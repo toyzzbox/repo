@@ -91,7 +91,7 @@ model Product {
   price       Float
   brands      Brand[]    @relation("ProductToBrand")
   categories  Category[] @relation("ProductToCategory") // Burada doğru relation adı
-  medias      Media[]    @relation("ProductToMedia", references: [id])
+  medias      Media[]    @relation("ProductToMedia")
   createdAt   DateTime   @default(now())
   updatedAt   DateTime @updatedAt @default(now())  // 🔧 bu satır önemli
 }
