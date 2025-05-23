@@ -27,6 +27,7 @@ importers:
         specifier: ^6.7.0
         version: 6.7.0(@neondatabase/serverless@1.0.0)
       '@prisma/client':
+<<<<<<< HEAD
         specifier: ^6.7.0
         version: 6.7.0(prisma@6.7.0(typescript@5.8.3))(typescript@5.8.3)
       '@radix-ui/react-accordion':
@@ -68,6 +69,13 @@ importers:
       lucide-react:
         specifier: ^0.509.0
         version: 0.509.0(react@19.1.0)
+=======
+        specifier: 6.7.0
+        version: 6.7.0(prisma@6.7.0(typescript@5.8.2))(typescript@5.8.2)
+      clsx:
+        specifier: ^2.1.1
+        version: 2.1.1
+>>>>>>> a43be9aa (Test: README dosyası güncellendi)
       next:
         specifier: 15.2.4
         version: 15.2.4(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -82,6 +90,7 @@ importers:
         version: 19.1.0
       react-dom:
         specifier: ^19.0.0
+<<<<<<< HEAD
         version: 19.1.0(react@19.1.0)
       react-hook-form:
         specifier: ^7.56.3
@@ -98,6 +107,12 @@ importers:
       zod:
         specifier: ^3.24.4
         version: 3.24.4
+=======
+        version: 19.0.0(react@19.0.0)
+      tailwind-merge:
+        specifier: ^3.2.0
+        version: 3.2.0
+>>>>>>> a43be9aa (Test: README dosyası güncellendi)
     devDependencies:
       '@eslint/eslintrc':
         specifier: ^3
@@ -1915,10 +1930,13 @@ packages:
   client-only@0.0.1:
     resolution: {integrity: sha512-IV3Ou0jSMzZrd3pZ48nLkT9DA7Ag1pnPzaiQhpW7c3RbcqqzvzzVu+L8gfqMp/8IM2MQtSiqaCxrrcfu8I8rMA==}
 
+<<<<<<< HEAD
   clipboardy@4.0.0:
     resolution: {integrity: sha512-5mOlNS0mhX0707P2I0aZ2V/cmHUEO/fL7VFLqszkhUsxt7RwnmrInf/eEQKlf5GzvYeHIjT+Ov1HRfNmymlG0w==}
     engines: {node: '>=18'}
 
+=======
+>>>>>>> a43be9aa (Test: README dosyası güncellendi)
   clsx@2.1.1:
     resolution: {integrity: sha512-eYm0QWBtUrBWZWG0d386OGAw16Z995PiOVo2B7bjWSbHedGl5e0ZWaq65kOGgUSNesEIDkB9ISbTg/JK9dhCZA==}
     engines: {node: '>=6'}
@@ -3452,6 +3470,7 @@ packages:
     resolution: {integrity: sha512-ot0WnXS9fgdkgIcePe6RHNk1WA8+muPa6cSjeR3V8K27q9BB1rTE3R1p7Hv0z1ZyAc8s6Vvv8DIyWf681MAt0w==}
     engines: {node: '>= 0.4'}
 
+<<<<<<< HEAD
   system-architecture@0.1.0:
     resolution: {integrity: sha512-ulAk51I9UVUyJgxlv9M6lFot2WP3e7t8Kz9+IS6D4rVba1tR9kON+Ey69f+1R4Q8cd45Lod6a4IcJIxnzGc/zA==}
     engines: {node: '>=18'}
@@ -3461,6 +3480,13 @@ packages:
 
   tailwindcss@4.1.6:
     resolution: {integrity: sha512-j0cGLTreM6u4OWzBeLBpycK0WIh8w7kSwcUsQZoGLHZ7xDTdM69lN64AgoIEEwFi0tnhs4wSykUa5YWxAzgFYg==}
+=======
+  tailwind-merge@3.2.0:
+    resolution: {integrity: sha512-FQT/OVqCD+7edmmJpsgCsY820RTD5AkBryuG5IUqR5YQZSdj5xlH5nLgH7YPths7WsLPSpSBNneJdM8aS8aeFA==}
+
+  tailwindcss@4.0.17:
+    resolution: {integrity: sha512-OErSiGzRa6rLiOvaipsDZvLMSpsBZ4ysB4f0VKGXUrjw2jfkJRd6kjRKV2+ZmTCNvwtvgdDam5D7w6WXsdLJZw==}
+>>>>>>> a43be9aa (Test: README dosyası güncellendi)
 
   tapable@2.2.1:
     resolution: {integrity: sha512-GNzQvQTOIP6RyTfE2Qxb8ZVlNmw0n88vp1szwWRimP02mnTsx3Wtn5qRdqY9w2XduFNUgvOwhNnQsjwCp+kqaQ==}
@@ -5792,12 +5818,15 @@ snapshots:
 
   client-only@0.0.1: {}
 
+<<<<<<< HEAD
   clipboardy@4.0.0:
     dependencies:
       execa: 8.0.1
       is-wsl: 3.1.0
       is64bit: 2.0.0
 
+=======
+>>>>>>> a43be9aa (Test: README dosyası güncellendi)
   clsx@2.1.1: {}
 
   color-convert@2.0.1:
@@ -7516,11 +7545,17 @@ snapshots:
 
   supports-preserve-symlinks-flag@1.0.0: {}
 
+<<<<<<< HEAD
   system-architecture@0.1.0: {}
 
   tailwind-merge@3.2.0: {}
 
   tailwindcss@4.1.6: {}
+=======
+  tailwind-merge@3.2.0: {}
+
+  tailwindcss@4.0.17: {}
+>>>>>>> a43be9aa (Test: README dosyası güncellendi)
 
   tapable@2.2.1: {}
 
