@@ -2,14 +2,13 @@
 
 import { prisma } from "@/lib/prisma";
 
-// Basit bir slugify fonksiyonu
 function slugify(text: string): string {
   return text
     .toLowerCase()
     .trim()
-    .replace(/\s+/g, "-") // Boşlukları tire ile değiştir
-    .replace(/[^\w\-]+/g, "") // Alfanümerik olmayan karakterleri kaldır
-    .replace(/\-\-+/g, "-"); // Birden fazla tireyi tek tireye indir
+    .replace(/\s+/g, "-")
+    .replace(/[^\w\-]+/g, "")
+    .replace(/\-\-+/g, "-");
 }
 
 export async function createProduct(_previousState: unknown, formData: FormData) {
@@ -17,8 +16,10 @@ export async function createProduct(_previousState: unknown, formData: FormData)
     const name = formData.get("name") as string;
     const description = formData.get("description") as string;
     const price = parseFloat(formData.get("price") as string);
+    const categoryIds = formData.getAll("categoryIds[]") as string[];
+    const brandIds = formData.getAll("brandIds[]") as string[];
+    const mediaIds = formData.getAll("mediaIds[]") as string[]; // ✅ burası yeni
 
-    // slug değerini oluştur
     const slug = slugify(name);
 
     await prisma.product.create({
@@ -27,6 +28,15 @@ export async function createProduct(_previousState: unknown, formData: FormData)
         description,
         price,
         slug,
+        brands: {
+          connect: brandIds.map((id) => ({ id })),
+        },
+        categories: {
+          connect: categoryIds.map((id) => ({ id })),
+        },
+        medias: {
+          connect: mediaIds.map((id) => ({ id })), // ✅ medya ilişkisi burada kuruluyor
+        },
       },
     });
 

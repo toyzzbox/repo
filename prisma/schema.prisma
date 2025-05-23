@@ -70,10 +70,11 @@ model VerificationToken {
 model Media {
   id        String    @id @default(cuid())
   type      MediaType
-  fileUrl   String?
   urls      String[]
+  products  Product[] @relation("ProductMedia")
   createdAt DateTime  @default(now())
   updatedAt   DateTime @updatedAt @default(now())  // 🔧 bu satır önemli
+
 }
 
 
@@ -90,6 +91,7 @@ model Product {
   price       Float
   brands      Brand[]    @relation("ProductToBrand")
   categories  Category[] @relation("ProductToCategory") // Burada doğru relation adı
+  medias      Media[]    @relation("ProductToMedia", references: [id])
   createdAt   DateTime   @default(now())
   updatedAt   DateTime @updatedAt @default(now())  // 🔧 bu satır önemli
 }
