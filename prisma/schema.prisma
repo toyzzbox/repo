@@ -89,7 +89,7 @@ model Product {
   brands      Brand[]    @relation("ProductToBrand")
   categories  Category[] @relation("ProductToCategory") // Burada doğru relation adı
   createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  updatedAt   DateTime @updatedAt @default(now())  // 🔧 bu satır önemli
 }
 
 model Brand {
@@ -99,7 +99,7 @@ model Brand {
   description String?
   products    Product[] @relation("ProductToBrand")
   createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  updatedAt   DateTime @updatedAt @default(now())  // 🔧 bu satır önemli
 }
 
 model Category {
@@ -112,5 +112,5 @@ model Category {
   children    Category[] @relation("CategoryHierarchy")
   products    Product[]  @relation("ProductToCategory")
   createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  updatedAt   DateTime @updatedAt @default(now())  // 🔧 bu satır önemli
 }
