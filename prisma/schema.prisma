@@ -73,7 +73,9 @@ model Media {
   fileUrl   String?
   urls      String[]
   createdAt DateTime  @default(now())
+  updatedAt   DateTime @updatedAt @default(now())  // 🔧 bu satır önemli
 }
+
 
 enum MediaType {
   image
@@ -112,5 +114,9 @@ model Category {
   children    Category[] @relation("CategoryHierarchy")
   products    Product[]  @relation("ProductToCategory")
   createdAt   DateTime   @default(now())
-  updatedAt   DateTime @updatedAt @default(now())  // 🔧 bu satır önemli
+  updatedAt   DateTime @updatedAt @default(now())  
+  // 🔧 bu satır önemli
 }
+
+
+
