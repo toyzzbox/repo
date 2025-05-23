@@ -10,11 +10,17 @@ interface Brand {
   name: string;
 }
 
-interface ProductFormProps {
-  brands: Brand[];
+interface Category {
+  id: string;
+  name: string;
 }
 
-export default function ProductForm({ brands }: ProductFormProps) {
+interface ProductFormProps {
+  brands: Brand[];
+  categories: Category[];
+}
+
+export default function ProductForm({ brands, categories}: ProductFormProps) {
   const [error, action, isPending] = useActionState(createProduct, null);
   return (
     <main className="mx-auto max-w-lg">
@@ -41,6 +47,14 @@ export default function ProductForm({ brands }: ProductFormProps) {
   {brands && brands.map((brand) => (
     <option key={brand.id} value={brand.id}>
       {brand.name}
+    </option>
+  ))}
+</select>
+<select name="categoryIds[]" multiple className="py-2 px-3 rounded-sm">
+  <option value="">Kategori Seç</option>
+  {categories && categories.map((category) => (
+    <option key={category.id} value={category.id}>
+      {category.name}
     </option>
   ))}
 </select>
