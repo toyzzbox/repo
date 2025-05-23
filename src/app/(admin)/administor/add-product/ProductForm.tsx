@@ -36,12 +36,14 @@ export default function ProductForm({ brands }: ProductFormProps) {
           className="py-2 px-3 rounded-sm" 
           required 
         />
-              <select name="brandIds[]" multiple className="py-2 px-3 rounded-sm">
-        <option value="">Marka Seç</option>
-          {brands.map((brand) => (
-            <option key={brand.id} value={brand.id}>{brand.name}</option>
-          ))}
-        </select>
+            <select name="brandIds[]" multiple className="py-2 px-3 rounded-sm">
+  <option value="">Marka Seç</option>
+  {brands && brands.map((brand) => (
+    <option key={brand.id} value={brand.id}>
+      {brand.name}
+    </option>
+  ))}
+</select>
         <input 
           type="number" 
           name="price" 
