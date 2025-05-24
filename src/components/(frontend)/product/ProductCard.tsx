@@ -1,5 +1,3 @@
-"use client"
-
 import { formatPrice } from "@/utils/formatPrice";
 import { useRouter } from "next/navigation";
 
@@ -7,8 +5,11 @@ type ProductCardProps = {
   product: {
     name: string;
     slug?: string | null;
-    urls?: string[] | null;
     price: number;
+    medias?: {
+      urls: string[];
+      type: "image" | "video";
+    }[];
   };
 };
 
@@ -21,12 +22,11 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     }
   };
 
-  // Determine the image URL based on the product's URLs array
-  const imageUrl = product.urls && product.urls.length > 0 ? product.urls[0] : null;
+  const imageUrl = product.medias?.[0]?.urls?.[0] ?? null;
 
   return (
-    <div 
-      className="border rounded-lg shadow-lg p-4 cursor-pointer" 
+    <div
+      className="border rounded-lg shadow-lg p-4 cursor-pointer"
       onClick={handleClick}
     >
       {imageUrl ? (
@@ -43,9 +43,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 
       <div className="text-center mt-4">
         <h3 className="text-lg font-semibold">{product.name}</h3>
-        <h3 className="text-lg font-semibold">{formatPrice(product.price)}</h3>      </div>
+        <h3 className="text-lg font-semibold">{formatPrice(product.price)}</h3>
+      </div>
     </div>
   );
 };
-
-export default ProductCard;
