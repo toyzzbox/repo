@@ -1,10 +1,10 @@
 "use server";
 
-import { PrismaClient} from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl as generateSignedUrl } from "@aws-sdk/s3-request-presigner";
 import crypto from "crypto";
- 
+
 const prisma = new PrismaClient();
 
 const s3 = new S3Client({
@@ -26,7 +26,7 @@ const acceptedTypes = [
   "video/webm",
 ];
 
-const maxFileSize = 1024 * 1024 * 10;
+const maxFileSize = 1024 * 1024 * 10; // 10MB
 
 export async function getSignedUrl(type: string, size: number, checksum: string) {
   if (!acceptedTypes.includes(type)) {
@@ -38,6 +38,7 @@ export async function getSignedUrl(type: string, size: number, checksum: string)
   }
 
   const fileName = generateFileName();
+
   const putObjectCommand = new PutObjectCommand({
     Bucket: process.env.NEXT_AWS_S3_BUCKET_NAME!,
     Key: fileName,
@@ -52,29 +53,27 @@ export async function getSignedUrl(type: string, size: number, checksum: string)
 
   try {
     const cleanUrl = signedURL.split("?")[0];
-    
+
     const mediaResult = await prisma.media.create({
       data: {
-        type: type.startsWith("image") ? "image" : "video",  // Dosya türünü belirle
-        fileUrl: cleanUrl,
-        urls: [cleanUrl], // İlk URL'i urls array'ine ekliyoruz
-        createdAt: new Date(),
+        type: type.startsWith("image") ? "image" : "video",
+        urls: [cleanUrl], // sadece array olarak kayıt ediyoruz
       },
     });
 
-    return { 
-      success: { 
-        url: signedURL, 
-        mediaId: mediaResult.id,
-        fileUrl: mediaResult.fileUrl,
-        urls: mediaResult.urls
-      } 
+    return {
+      success: {
+        url: signedURL,           // S3 PUT için imzalı URL
+        mediaId: mediaResult.id,  // Veritabanına kaydedilen medya ID'si
+        urls: mediaResult.urls,   // Array olarak döndürüyoruz
+      },
     };
   } catch (error) {
     console.error("Error while saving media to database:", error);
     return { failure: "Failed to save media to database" };
   }
 }
+
 // type CreateBrandArgs = {
 //   slug: string;
 //   name: string;

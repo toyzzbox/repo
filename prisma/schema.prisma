@@ -71,7 +71,7 @@ model Media {
   id        String    @id @default(cuid())
   type      MediaType
   urls      String[]
-  products  Product[] @relation("ProductMedia")
+  products  Product[] @relation("ProductToMedia")
   createdAt DateTime  @default(now())
   updatedAt   DateTime @updatedAt @default(now())  // 🔧 bu satır önemli
 
