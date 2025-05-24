@@ -72,6 +72,7 @@ model Media {
   type      MediaType
   urls      String[]
   products  Product[] @relation("ProductToMedia")
+  brands      Brand[]    @relation("BrandToMedia")
   createdAt DateTime  @default(now())
   updatedAt   DateTime @updatedAt @default(now())  // 🔧 bu satır önemli
 
@@ -102,6 +103,8 @@ model Brand {
   slug        String    @unique
   description String?
   products    Product[] @relation("ProductToBrand")
+  medias      Media[]    @relation("BrandToMedia")
+
   createdAt   DateTime  @default(now())
   updatedAt   DateTime @updatedAt @default(now())  // 🔧 bu satır önemli
 }
