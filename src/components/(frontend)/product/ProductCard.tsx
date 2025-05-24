@@ -1,3 +1,5 @@
+"use client"
+
 import { formatPrice } from "@/utils/formatPrice";
 import { useRouter } from "next/navigation";
 
