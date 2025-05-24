@@ -3,9 +3,9 @@ import React from 'react'
 import Logo from './Logo'
 import SearchBar from './Search'
 
-import CartCount from './CartCount'
 
 import HamburgerMenu from './HamburgerMenu';
+import CartCountMobile from './CartCountMobile';
 
 export default async function MobileHeader () {
 
@@ -17,7 +17,7 @@ export default async function MobileHeader () {
        <div className="flex justify-between">
   <HamburgerMenu />
   <Logo />
-  <CartCount />
+  <CartCountMobile/>
 </div>
 
         <div className='flex items-center justify-center'>

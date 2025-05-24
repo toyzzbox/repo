@@ -10,6 +10,7 @@ export async function createCategory(_previousState: unknown, formData: FormData
     const slug = formData.get("slug") as string;
     const description = formData.get("description") as string;
     const parentId = formData.get("parentId") as string | null; // parentId null olabilir
+    const mediaIds = formData.getAll("mediaIds[]") as string[]; // ✅ burası yeni
 
     // Kategori oluşturma
     await prisma.category.create({
@@ -18,6 +19,9 @@ export async function createCategory(_previousState: unknown, formData: FormData
         name,
         description,
         parentId: parentId || null,
+        medias: {
+          connect: mediaIds.map((id) => ({ id })), // ✅ medya ilişkisi burada kuruluyor
+        },
       },
     });
 
@@ -27,3 +31,9 @@ export async function createCategory(_previousState: unknown, formData: FormData
     return "Kategori oluşturma sırasında bir hata oluştu.";
   }
 }
+
+
+
+
+
+   
