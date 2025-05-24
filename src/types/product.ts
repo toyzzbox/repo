@@ -13,6 +13,17 @@ export type Product = {
 	urls: string[];
   mediaIds: string[];
   brands: Brand[];
+  medias: Media[]; // ✅ doğru isimlendirme
+  };
+
+
+
+  export type Media = {
+	id: string;
+	type: "image" | "video";
+	urls: string[];
+	createdAt: string;
+	updatedAt: string;
   };
 
 
