@@ -25,6 +25,9 @@ export async function createBrand(_previousState: unknown, formData: FormData) {
         name,
         description,
         slug,
+        medias: {
+          connect: mediaIds.map((id) => ({ id })), // ✅ medya ilişkisi burada kuruluyor
+        },
       },
     });
 

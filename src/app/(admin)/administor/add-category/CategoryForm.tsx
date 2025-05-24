@@ -12,8 +12,14 @@ interface Category {
 
 
 
+interface Media {
+  id: string;
+  urls: string[];
+}
+
 interface CategoryFormProps {
   categories: Category[];
+  medias: Media[];
 
 }
 
@@ -39,7 +45,14 @@ export default function CategoryForm({ categories }: CategoryFormProps) {
           ))}
         </select>
 
-
+        <label className="font-medium">Medya Dosyaları</label>
+        <select name="mediaIds[]" multiple className="py-2 px-3 border rounded">
+          {medias.map((media) => (
+            <option key={media.id} value={media.id}>
+              {media.urls[0]?.slice(-40) || "Media"}
+            </option>
+          ))}
+        </select>
        
 
         <button disabled={isPending} className="bg-blue-500 text-white py-2 px-3">

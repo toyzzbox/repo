@@ -73,6 +73,8 @@ model Media {
   urls      String[]
   products  Product[] @relation("ProductToMedia")
   brands      Brand[]    @relation("BrandToMedia")
+  categories  Category[]    @relation("CategoryToMedia")
+
   createdAt DateTime  @default(now())
   updatedAt   DateTime @updatedAt @default(now())  // 🔧 bu satır önemli
 
@@ -118,6 +120,7 @@ model Category {
   parent      Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   children    Category[] @relation("CategoryHierarchy")
   products    Product[]  @relation("ProductToCategory")
+  medias      Media[]    @relation("CategoryToMedia")
   createdAt   DateTime   @default(now())
   updatedAt   DateTime @updatedAt @default(now())  
   // 🔧 bu satır önemli
