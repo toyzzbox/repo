@@ -15,7 +15,7 @@ type ProductCardProps = {
   };
 };
 
-const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
+export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const router = useRouter();
 
   const handleClick = () => {
