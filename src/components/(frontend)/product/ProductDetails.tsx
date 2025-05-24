@@ -51,19 +51,34 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
 
   return (
     <div>
-      {/* Breadcrumb Navigation */}
-      <div className="py-2 px-4 rounded-md">
-        <Link href="/" className="text-gray-600 hover:text-gray-800">
-          Home
+      
+
+    <div className="py-2 px-4 rounded-md">
+    <Link href="/" className="text-gray-600 hover:text-gray-800">
+      Home
+    </Link>
+    <span className="mx-2 text-gray-400">/</span>
+  
+    {product?.categories && product.categories.length > 0 ? (
+      <>
+        <Link
+          href={`/category/${product.categories[0]?.id}`}
+          className="text-gray-600 hover:text-gray-800"
+        >
+          {product.categories[0]?.name}
         </Link>
         <span className="mx-2 text-gray-400">/</span>
-       kategori
-         
-          <div>Kategori Yok</div>
-  
+      </>
+    ) : (
+      <>
+        <span className="text-gray-500">Kategori Yok</span>
         <span className="mx-2 text-gray-400">/</span>
-        <span className="text-gray-700">{product.name}</span>
-      </div>
+      </>
+    )}
+  
+    <span className="text-gray-700">{product.name}</span>
+  </div>
+  
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mt-4">
         <div>resim
