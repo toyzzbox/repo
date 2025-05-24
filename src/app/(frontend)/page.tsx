@@ -1,11 +1,9 @@
-import { getBrands } from "@/actions/getBrands";
 import { getProducts } from "@/actions/getProduct";
 import { ProductCard } from "@/components/(frontend)/product/ProductCard";
-import { BrandCard } from "@/components/(frontend)/product/BrandCard";
 
 export default async function Home() {
   const products = await getProducts();
-  const brands = await getBrands();
+
   return (
     <main className="m-2">
       <h1 className="text-2xl font-bold text-center p-5">En Popüler Ürünler</h1>
@@ -20,17 +18,8 @@ export default async function Home() {
   </div>
 )}
 
-<h1 className="text-2xl font-bold text-center p-5">En Popüler Markalar</h1>
-      {brands.length === 0 ? (
-  <p className="text-center text-gray-500">Marka bulunamadı.</p>
-) : (
-  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
-    {brands.map((brand) => (
-      <BrandCard key={brand.id} brand={brand} />
-      
-    ))}
-  </div>
-)}
+
+
 
 
     </main>
