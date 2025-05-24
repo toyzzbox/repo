@@ -29,6 +29,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       {imageUrl ? (
         <Image
           src={imageUrl}
+          width={400}
+          height={300}
           alt={product.name}
           className="w-full h-48 object-cover rounded-t-lg"
         />
