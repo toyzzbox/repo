@@ -2,12 +2,10 @@ import { getBrands } from "@/actions/getBrands";
 import { getCategories } from "@/actions/getCategories";
 import { getProducts } from "@/actions/getProduct";
 import { BrandCard } from "@/components/(frontend)/product/BrandCard";
-import CategoryCard from "@/components/(frontend)/product/CategoryCard";
 import { ProductCard } from "@/components/(frontend)/product/ProductCard";
 
 export default async function Home() {
   const products = await getProducts();
-  const categories = await getCategories()
   const brands = await getBrands();
   return (
     <main className="m-2">
