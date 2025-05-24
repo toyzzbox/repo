@@ -8,7 +8,7 @@ type BrandCardProps = {
   brand: Brand
 };
 
-export const ProductCard: React.FC<BrandCardProps> = ({ brand }) => {
+export const BrandCard: React.FC<BrandCardProps> = ({ brand }) => {
   const router = useRouter();
 
   const handleClick = () => {
