@@ -28,7 +28,7 @@ interface CategoryFormProps {
 
 
 
-export default function CategoryForm({ categories }: CategoryFormProps) {
+export default function CategoryForm({ categories , medias}: CategoryFormProps) {
   const [error, action, isPending] = useActionState(createCategory, null);
 
   return (
