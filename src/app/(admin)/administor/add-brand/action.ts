@@ -16,6 +16,7 @@ export async function createBrand(_previousState: unknown, formData: FormData) {
   try {
     const name = formData.get("name") as string;
     const description = formData.get("description") as string;
+    const mediaIds = formData.getAll("mediaIds[]") as string[]; // ✅ burası yeni
 
     // slug değerini oluştur
     const slug = slugify(name);
