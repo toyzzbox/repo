@@ -19,6 +19,7 @@ export async function createProduct(_previousState: unknown, formData: FormData)
     const categoryIds = formData.getAll("categoryIds[]") as string[];
     const brandIds = formData.getAll("brandIds[]") as string[];
     const mediaIds = formData.getAll("mediaIds[]") as string[]; // ✅ burası yeni
+    const attributeIds = formData.getAll("attributeIds[]") as string[];
 
     const slug = slugify(name);
 
@@ -28,6 +29,7 @@ export async function createProduct(_previousState: unknown, formData: FormData)
         description,
         price,
         slug,
+        
         brands: {
           connect: brandIds.map((id) => ({ id })),
         },
@@ -36,6 +38,9 @@ export async function createProduct(_previousState: unknown, formData: FormData)
         },
         medias: {
           connect: mediaIds.map((id) => ({ id })), // ✅ medya ilişkisi burada kuruluyor
+        },
+        attributes: {
+          connect: attributeIds.map((id) => ({ id })),
         },
       },
     });

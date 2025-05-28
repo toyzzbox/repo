@@ -19,7 +19,7 @@ const ProceedToBuy = () => {
   const router = useRouter();
 
   const handleClick = () => {
-    router.push("/checkout"); // Route to the home page
+    router.push("/checkout"); // Route to the git log --oneline -n 10home page
   };
 
   return (
