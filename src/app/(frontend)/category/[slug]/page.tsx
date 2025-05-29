@@ -3,7 +3,6 @@ import { prisma } from "@/lib/prisma";
 import { ProductCard } from "@/components/(frontend)/product/ProductCard";
 import FilterSidebar from "./FilterSideBar";
 
-
 interface Props {
   params: { slug: string };
   searchParams: { [key: string]: string | string[] | undefined };
@@ -12,24 +11,37 @@ interface Props {
 export default async function CategoryPage({ params, searchParams }: Props) {
   const { slug } = params;
 
+  // Fiyat aralığı
   const minPrice = Number(searchParams.price_gte) || 0;
   const maxPrice = Number(searchParams.price_lte) || 99999;
+
+  // Seçilen attribute'lar
   const selectedAttributes = Array.isArray(searchParams.attribute)
     ? searchParams.attribute
     : searchParams.attribute
     ? [searchParams.attribute]
     : [];
 
+  // Seçilen marka
   const selectedBrand = searchParams.brand?.toString();
 
+  // Seçilen alt kategori (tek seçim)
+  const selectedSubcategory = searchParams.subcategory?.toString();
+
+  // Mevcut kategori + alt kategorileri + ürünleri al
   const category = await prisma.category.findUnique({
     where: { slug },
     include: {
+      children: true, // alt kategoriler
       products: {
         where: {
           price: { gte: minPrice, lte: maxPrice },
           ...(selectedBrand && {
-            brands: { some: { slug: selectedBrand } },
+            brands: {
+              some: {
+                slug: selectedBrand,
+              },
+            },
           }),
           ...(selectedAttributes.length > 0 && {
             attributes: {
@@ -38,18 +50,27 @@ export default async function CategoryPage({ params, searchParams }: Props) {
               },
             },
           }),
+          ...(selectedSubcategory && {
+            categories: {
+              some: {
+                slug: selectedSubcategory,
+              },
+            },
+          }),
         },
         include: {
           medias: true,
           brands: true,
           categories: true,
-          attributes: { include: { group: true } },
+          attributes: {
+            include: { group: true },
+          },
         },
       },
     },
   });
 
-  // Filtre seçenekleri için tüm attribute grup ve attribute'ları getir
+  // Filtre verileri
   const attributeGroups = await prisma.attributeGroup.findMany({
     include: { attributes: true },
   });
@@ -58,8 +79,12 @@ export default async function CategoryPage({ params, searchParams }: Props) {
 
   return (
     <div className="flex">
-      <FilterSidebar attributeGroups={attributeGroups} brands={brands} />
-      <div className="grid grid-cols-4 gap-6 p-4">
+      <FilterSidebar
+        attributeGroups={attributeGroups}
+        brands={brands}
+        subcategories={category?.children || []}
+      />
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 p-4">
         {category?.products.map((product) => (
           <ProductCard key={product.id} product={product} />
         ))}
