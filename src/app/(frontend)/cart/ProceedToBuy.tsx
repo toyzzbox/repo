@@ -23,7 +23,7 @@ const ProceedToBuy = () => {
   };
 
   return (
-<div className="w-full lg:w-[30%]">
+<div className="w-full">
    
       <div className='rounded-lg border border-gray-200 p-4 mt-4'>
         <div className='flex justify-between'>
