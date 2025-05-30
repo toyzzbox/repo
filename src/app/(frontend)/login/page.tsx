@@ -1,20 +1,19 @@
 import { auth } from "@/auth";
 import LoginForm from "@/components/(frontend)/auth/login-form";
-
 import { redirect } from "next/navigation";
 
 const LoginPage = async () => {
   const session = await auth();
-  
-  // If session exists (user is already logged in), redirect to dashboard
-  if (session) {
+
+  // ✅ Doğru yaklaşım: session varsa değil, session.user varsa yönlendirme
+  if (session?.user) {
     redirect("/dashboard");
   }
-  
-  // User is not authenticated, show login form
+
+  // Kullanıcı oturum açmamışsa login formu göster
   return (
-    <div className='flex justify-center mt-10'>
-      <LoginForm/>
+    <div className="flex justify-center mt-10">
+      <LoginForm />
     </div>
   );
 };
