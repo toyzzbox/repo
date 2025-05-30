@@ -1,6 +1,7 @@
 import { getBrands } from "@/actions/getBrands";
 import { getCategories } from "@/actions/getCategories";
 import { getProducts } from "@/actions/getProduct";
+import AgeCatalogue from "@/components/(frontend)/home/AgeCatalogue";
 import { BrandCard } from "@/components/(frontend)/product/BrandCard";
 import { CategoryCard } from "@/components/(frontend)/product/CategoryCard";
 import { ProductCard } from "@/components/(frontend)/product/ProductCard";
@@ -48,8 +49,8 @@ export default async function Home() {
 )}
 
 
-
-
+<h1 className="text-2xl font-bold text-center p-5">En Popüler Kategoriler</h1>
+<AgeCatalogue/>
 
     </main>
   );
