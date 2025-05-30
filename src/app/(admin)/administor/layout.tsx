@@ -1,4 +1,6 @@
 import "@/app/globals.css";
+import Sidebar from "@/components/(backend)/Sidebar";
+import Topbar from "@/components/(backend)/Topbar";
 
 export default function AdminLayout({
     children,
@@ -8,17 +10,15 @@ export default function AdminLayout({
     return (
       <html lang="en">
         <body className="bg-gray-100 text-gray-900">
-          <div className="min-h-screen flex">
+          <div className="">
+            <div>
+              <Topbar/>
+            </div>
             {/* Örneğin bir admin sidebar */}
-            <aside className="w-64 bg-gray-800 text-white p-4">
+            <aside className="w-1/6 bg-gray-800  p-4">
               <h2 className="text-xl font-bold mb-4">Admin Panel</h2>
-              <nav>
-                <ul className="space-y-2">
-                  <li><a href="/admin" className="hover:underline">Dashboard</a></li>
-                  <li><a href="/admin/users" className="hover:underline">Users</a></li>
-                  <li><a href="/admin/settings" className="hover:underline">Settings</a></li>
-                </ul>
-              </nav>
+              
+    <Sidebar/>
             </aside>
   
             {/* Sayfa içeriği */}
