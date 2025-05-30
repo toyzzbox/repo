@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 
 const Sidebar = () => {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
 
   const menuItems = [
     { href: "/", icon: <Home size={20} />, label: "Dashboard" },
@@ -34,9 +34,9 @@ const Sidebar = () => {
 
   return (
     <>
-      {/* Toggle button for mobile */}
+      {/* Menü toggle düğmesi */}
       <button
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={() => setIsExpanded(!isExpanded)}
         className="md:hidden p-2 fixed top-4 left-4 z-50 bg-gray-800 text-white rounded"
       >
         <Menu />
@@ -44,9 +44,12 @@ const Sidebar = () => {
 
       {/* Sidebar */}
       <aside
-        className={`${
-          isOpen ? "translate-x-0" : "-translate-x-full"
-        } md:translate-x-0 transform fixed md:static top-0 left-0 w-16 md:w-64 bg-gray-800 text-white min-h-screen p-4 transition-transform duration-300 z-40`}
+        className={`
+          bg-gray-800 text-white min-h-screen p-4 pt-16 md:pt-4
+          fixed top-0 left-0 z-40 transition-all duration-300
+          ${isExpanded ? "w-64" : "w-16"}
+          md:w-64
+        `}
       >
         <div className="flex flex-col gap-4">
           {menuItems.map(({ href, icon, label }) => (
@@ -56,7 +59,15 @@ const Sidebar = () => {
               className="flex items-center gap-3 hover:bg-gray-700 p-2 rounded transition"
             >
               {icon}
-              <span className="hidden md:inline text-sm">{label}</span>
+              <span
+                className={`
+                  text-sm transition-opacity duration-200
+                  ${isExpanded ? "opacity-100" : "opacity-0 md:opacity-100"}
+                  ${isExpanded ? "inline" : "hidden md:inline"}
+                `}
+              >
+                {label}
+              </span>
             </Link>
           ))}
         </div>
