@@ -21,7 +21,7 @@ export default function BrandForm({ medias }: BrandFormProps) {
     <main className="mx-auto max-w-lg">
       <h1 className="text-xl font-bold mb-4">Marka Yönetim Sayfası</h1>
 
-      <form action={action} method="POST" className="flex flex-row px-2 gap-4">
+      <form action={action} method="POST" className="flex flex-col px-2 gap-y-4">
         <input
           type="text"
           name="name"
