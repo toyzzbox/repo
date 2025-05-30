@@ -1,28 +1,22 @@
+import "@/app/globals.css";
 import Sidebar from "@/components/(backend)/Sidebar";
 import Topbar from "@/components/(backend)/Topbar";
+import type { ReactNode } from "react";
 
 export default function AdminLayout({
   children,
 }: {
-  children: React.ReactNode;
+  children: ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body className="bg-gray-100 text-gray-900">
-      <div className="">
-          <Topbar/>
-        <div className="flex">
-
-<div className="w-1/6">
-<Sidebar/>
-</div> <div className="flex-1">
-{children}
-</div>
-
-
-</div>
-        </div>
-      </body>
-    </html>
+    <div className="bg-gray-100 text-gray-900 min-h-screen">
+      <Topbar />
+      <div className="flex">
+        <aside className="w-1/6">
+          <Sidebar />
+        </aside>
+        <main className="flex-1 p-4">{children}</main>
+      </div>
+    </div>
   );
 }
