@@ -1,12 +1,13 @@
+// src/app/(admin)/layout.tsx
+
 import "@/app/globals.css";
 import Sidebar from "@/components/(backend)/Sidebar";
 import Topbar from "@/components/(backend)/Topbar";
-import type { ReactNode } from "react";
 
 export default function AdminLayout({
   children,
 }: {
-  children: ReactNode;
+  children: React.ReactNode;
 }) {
   return (
     <div className="bg-gray-100 text-gray-900 min-h-screen">
