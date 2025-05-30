@@ -3,7 +3,7 @@
 
 import { UserRound } from "lucide-react";
 
-const Favorites = () => {
+const UserMobileMenu = () => {
 
 
   return (
@@ -14,10 +14,8 @@ const Favorites = () => {
         <UserRound />
       </div>
      
-   
-      <span className="ml-2">Favarilerim</span>
     </div>
   );
 };
 
-export default Favorites;
+export default UserMobileMenu;
