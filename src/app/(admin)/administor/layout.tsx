@@ -1,4 +1,5 @@
 import Sidebar from "@/components/(backend)/Sidebar";
+import Topbar from "@/components/(backend)/Topbar";
 
 export default function AdminLayout({
   children,
@@ -8,14 +9,18 @@ export default function AdminLayout({
   return (
     <html lang="en">
       <body className="bg-gray-100 text-gray-900">
-        <div className="flex min-h-screen">
-          {/* Sidebar Alanı */}
-          <aside className="w-1/4 h-screen fixed top-0 left-0 bg-white shadow-lg">
-            <Sidebar />
-          </aside>
+      <div className="">
+          <Topbar/>
+        <div className="flex">
 
-          {/* Ana İçerik */}
-          <main className="ml-[25%] w-3/4 p-6">{children}</main>
+<div className="w-1/6">
+<Sidebar/>
+</div> <div className="flex-1">
+{children}
+</div>
+
+
+</div>
         </div>
       </body>
     </html>

@@ -1,61 +1,28 @@
-"use client";
+import Link from 'next/link'
+import React from 'react'
 
-import { useState } from "react";
-import { ChevronDown, ChevronUp } from "lucide-react";
-
-interface SidebarItem {
-  title: string;
-  subItems: string[];
-}
-
-const sidebarData: SidebarItem[] = [
-  {
-    title: "Ürünler",
-    subItems: ["Yeni Ürünler", "İndirimdekiler", "Popüler"],
-  },
-  {
-    title: "Kategoriler",
-    subItems: ["Oyuncak", "Bebek", "Eğitici"],
-  },
-  {
-    title: "Markalar",
-    subItems: ["Lego", "Fisher-Price", "Play-Doh"],
-  },
-];
-
-export default function Sidebar() {
-  const [openIndex, setOpenIndex] = useState<number | null>(null);
-
-  const toggleMenu = (index: number) => {
-    setOpenIndex(openIndex === index ? null : index);
-  };
-
+const Sidebar = () => {
   return (
-    <aside className="w-64 bg-gray-100 p-4 rounded-xl shadow">
-      {sidebarData.map((item, index) => (
-        <div key={item.title} className="mb-2">
-          <button
-            onClick={() => toggleMenu(index)}
-            className="flex justify-between items-center w-full text-left font-medium text-gray-800 hover:text-black"
-          >
-            {item.title}
-            {openIndex === index ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
-          </button>
-
-          {openIndex === index && (
-            <ul className="mt-2 ml-2 space-y-1 text-sm text-gray-600">
-              {item.subItems.map((sub) => (
-                <li
-                  key={sub}
-                  className="hover:text-black cursor-pointer transition-colors"
-                >
-                  {sub}
-                </li>
-              ))}
-            </ul>
-          )}
+    <div className='bg-gray-400 min-h-screen p-4'>
+        <div className='flex flex-col gap-2'>
+        <h1 className='font-bold'>Toyzz Box Oyuncak</h1>
+        <Link href="/">Dashboard</Link>
+        <Link href="/">Ürünler</Link>
+        <Link href="/">Ürün Ekle</Link>
+        <Link href="/">Kategoriler</Link>
+        <Link href="/">Kategori Ekle</Link>
+        <Link href="/">Marka</Link>
+        <Link href="/">Marka Ekle</Link>
+        <Link href="/">Nitelikler</Link>
+        <Link href="/">Nitelik Ekle</Link>
+        <Link href="/">Nitelik Grubu</Link>
+        <Link href="/">Nitelik Grubu Ekle</Link>
+        <Link href="/">Gelen Siparişlerim</Link>
+        <Link href="/">Müşteriler</Link>
+        <Link href="/">Mesajlar</Link>
         </div>
-      ))}
-    </aside>
-  );
+    </div>
+  )
 }
+
+export default Sidebar
