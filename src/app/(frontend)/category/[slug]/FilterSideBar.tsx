@@ -48,7 +48,7 @@ export default function FilterSidebar({
   };
 
   return (
-    <div className="w-[250px] p-4 border space-y-6">
+    <div className="w-[250px] p-4 border border-gray-100 space-y-6">
       <div>
         <h2 className="font-bold mb-2">Fiyat</h2>
         <input
@@ -58,7 +58,7 @@ export default function FilterSidebar({
           onChange={(e) =>
             setFilters((f) => ({ ...f, price_gte: e.target.value }))
           }
-          className="mb-2 w-full border px-2 py-1"
+          className="mb-2 w-full border border-gray-100 px-2 py-1"
         />
         <input
           type="number"
@@ -67,7 +67,7 @@ export default function FilterSidebar({
           onChange={(e) =>
             setFilters((f) => ({ ...f, price_lte: e.target.value }))
           }
-          className="mb-4 w-full border px-2 py-1"
+          className="mb-4 w-full border border-gray-100 px-2 py-1"
         />
       </div>
 
@@ -78,7 +78,7 @@ export default function FilterSidebar({
           onChange={(e) =>
             setFilters((f) => ({ ...f, brand: e.target.value }))
           }
-          className="mb-4 w-full border px-2 py-1"
+          className="mb-4 w-full border border-gray-100 px-2 py-1"
         >
           <option value="">Tümü</option>
           {brands.map((b) => (
@@ -133,7 +133,7 @@ export default function FilterSidebar({
       ))}
 
       <button
-        className="mt-4 bg-black text-white px-4 py-2 w-full"
+        className="mt-4 bg-orange-400 text-white px-4 py-2 w-full"
         onClick={handleApply}
       >
         Uygula
