@@ -137,9 +137,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
               Buy Now
             </button>
           </div>
-          
-        </div>
-        <ProductDetailTabs
+          <ProductDetailTabs
         description={product.description}
         comments={
           <div>Henüz yorum bulunmamaktadır.</div>
@@ -151,6 +149,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
         }
       />
 
+        </div>
       </div>
     </div>
   );
