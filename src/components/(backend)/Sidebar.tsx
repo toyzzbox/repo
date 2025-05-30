@@ -16,20 +16,20 @@ const Sidebar = () => {
   const [isExpanded, setIsExpanded] = useState(false);
 
   const menuItems = [
-    { href: "/", icon: <Home size={20} />, label: "Dashboard" },
-    { href: "/", icon: <Package size={20} />, label: "Ürünler" },
-    { href: "/", icon: <PlusCircle size={20} />, label: "Ürün Ekle" },
-    { href: "/", icon: <List size={20} />, label: "Kategoriler" },
-    { href: "/", icon: <PlusCircle size={20} />, label: "Kategori Ekle" },
-    { href: "/", icon: <Package size={20} />, label: "Marka" },
-    { href: "/", icon: <PlusCircle size={20} />, label: "Marka Ekle" },
-    { href: "/", icon: <List size={20} />, label: "Nitelikler" },
-    { href: "/", icon: <PlusCircle size={20} />, label: "Nitelik Ekle" },
-    { href: "/", icon: <List size={20} />, label: "Nitelik Grubu" },
-    { href: "/", icon: <PlusCircle size={20} />, label: "Nitelik Grubu Ekle" },
-    { href: "/", icon: <List size={20} />, label: "Gelen Siparişlerim" },
-    { href: "/", icon: <Users size={20} />, label: "Müşteriler" },
-    { href: "/", icon: <MessageSquare size={20} />, label: "Mesajlar" },
+    { href: "/administor", icon: <Home size={20} />, label: "Dashboard" },
+    { href: "/administor/products", icon: <Package size={20} />, label: "Ürünler" },
+    { href: "/administor/add-product", icon: <PlusCircle size={20} />, label: "Ürün Ekle" },
+    { href: "/administor/categories", icon: <List size={20} />, label: "Kategoriler" },
+    { href: "/administor/add-categories", icon: <PlusCircle size={20} />, label: "Kategori Ekle" },
+    { href: "/administor/brands", icon: <Package size={20} />, label: "Marka" },
+    { href: "/administor/add-brand", icon: <PlusCircle size={20} />, label: "Marka Ekle" },
+    { href: "/administor/attribute", icon: <List size={20} />, label: "Nitelikler" },
+    { href: "/administor", icon: <PlusCircle size={20} />, label: "Nitelik Ekle" },
+    { href: "/administor", icon: <List size={20} />, label: "Nitelik Grubu" },
+    { href: "/administor", icon: <PlusCircle size={20} />, label: "Nitelik Grubu Ekle" },
+    { href: "/administor/orders", icon: <List size={20} />, label: "Gelen Siparişlerim" },
+    { href: "/administor/customers", icon: <Users size={20} />, label: "Müşteriler" },
+    { href: "/administor/messages", icon: <MessageSquare size={20} />, label: "Mesajlar" },
   ];
 
   return (
