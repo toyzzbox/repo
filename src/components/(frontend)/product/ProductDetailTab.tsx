@@ -4,8 +4,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface ProductDetailTabsProps {
   description: string;
-  comments: React.ReactNode;
-  questions: React.ReactNode;
+  comments: React.ReactNode; // örn: yorum listesi bileşeni
+  questions: React.ReactNode; // örn: soru listesi bileşeni
 }
 
 export function ProductDetailTabs({ description, comments, questions }: ProductDetailTabsProps) {
@@ -18,7 +18,7 @@ export function ProductDetailTabs({ description, comments, questions }: ProductD
       </TabsList>
 
       <TabsContent value="description">
-        <div className="mt-4 text-sm text-gray-700 whitespace-pre-line">{description}</div>
+        <div className="mt-4 text-sm text-gray-700">{description}</div>
       </TabsContent>
 
       <TabsContent value="comments">
