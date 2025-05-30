@@ -14,15 +14,13 @@ export default function AdminLayout({
             <div>
               <Topbar/>
             </div>
-            {/* Örneğin bir admin sidebar */}
-            <aside className="w-1/6 bg-gray-800  p-4">
-              <h2 className="text-xl font-bold mb-4">Admin Panel</h2>
-              
-    <Sidebar/>
-            </aside>
-  
-            {/* Sayfa içeriği */}
-            <main className="flex-1 p-6">{children}</main>
+            <div className="flex min-h-screen">
+          <aside className="w-1/6 bg-gray-800 p-4 text-white">
+            <Sidebar />
+          </aside>
+
+          <main className="flex-1 p-6">{children}</main>
+          </div>
           </div>
         </body>
       </html>
