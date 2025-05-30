@@ -8,7 +8,7 @@ const Footer = () => {
 <div className='hidden sm:block'>
        <div className='flex justify-between max-w-screen-xl mx-auto gap-10 m-2'>
        <div className='flex flex-col'>
-            <h2>Kategoriler</h2>
+            <h2 className='font-bold'>Kategoriler</h2>
             <Link href="/">Oyuncaklar</Link>
             <Link href="/">Anne & Bebek</Link>
             <Link href="/">Okul & Kırtasiye</Link>
@@ -16,14 +16,14 @@ const Footer = () => {
             <Link href="/">Hediyelik</Link>
         </div>
         <div className='flex flex-col'>
-            <h2>Popüler Kategoriler</h2>
-            <Link href="/">Oyuncak Araba ve Setleri</Link>
-            <Link href="/">Oyuncak Bebek ve Setleri</Link>
-            <Link href="/">Bebek Oyuncakları</Link>
-            <Link href="/">Oyuncak Araba ve Setleri</Link>
+            <h2 className='font-bold'>Popüler Markalar</h2>
+            <Link href="/">Barbie</Link>
+            <Link href="/">Hot Wheels</Link>
+            <Link href="/">Lego</Link>
+            <Link href="/">Fisher Price</Link>
         </div>
         <div className='flex flex-col'>
-            <h2>Popüler Kategoriler</h2>
+        <h2 className='font-bold'>Popüler Sayfalar</h2>
             <Link href="/">Oyuncak Araba ve Setleri</Link>
             <Link href="/">Oyuncak Bebek ve Setleri</Link>
             <Link href="/">Bebek Oyuncakları</Link>
