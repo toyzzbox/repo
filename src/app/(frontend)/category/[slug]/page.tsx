@@ -84,10 +84,21 @@ export default async function CategoryPage({ params, searchParams }: Props) {
         brands={brands}
         subcategories={category?.children || []}
       />
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 p-4">
-        {category?.products.map((product) => (
-          <ProductCard key={product.id} product={product} />
-        ))}
+      <div className="flex-1">
+        <div className="p-4">
+          <h1 className="text-2xl font-bold mb-2">
+            {category?.name} Kategorisi
+          </h1>
+          <p className="text-gray-600">
+            Toplam {category?.products.length || 0} ürün listelendi.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 p-4">
+          {category?.products.map((product) => (
+            <ProductCard key={product.id} product={product} />
+          ))}
+        </div>
       </div>
     </div>
   );
