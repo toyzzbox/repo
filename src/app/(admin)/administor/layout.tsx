@@ -8,11 +8,14 @@ export default function AdminLayout({
   return (
     <html lang="en">
       <body className="bg-gray-100 text-gray-900">
-        <div className="min-h-screen flex">
-          <aside className="w-1/4">
+        <div className="flex min-h-screen">
+          {/* Sidebar Alanı */}
+          <aside className="w-1/4 h-screen fixed top-0 left-0 bg-white shadow-lg">
             <Sidebar />
           </aside>
-          <main className="w-3/4 p-6">{children}</main>
+
+          {/* Ana İçerik */}
+          <main className="ml-[25%] w-3/4 p-6">{children}</main>
         </div>
       </body>
     </html>
