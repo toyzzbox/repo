@@ -70,10 +70,10 @@ export function MenuBar() {
                   </Link>
                 </NavigationMenuLink>
               </li>
-              <ListItem href="/docs" title="Introduction">
-                Re-usable components built using Radix UI and Tailwind CSS.
+              <ListItem href="/docs" title="Oyuncak Arabalar">
+                <Link href="/">Uzaktan Kumandalı Arabalar</Link>
               </ListItem>
-              <ListItem href="/docs/installation" title="Installation">
+              <ListItem href="/docs/installation" title="Oyuncak Bebekler">
                 How to install dependencies and structure your app.
               </ListItem>
               <ListItem href="/docs/primitives/typography" title="Typography">
@@ -88,7 +88,7 @@ export function MenuBar() {
           <NavigationMenuItem key={menuTitle}>
             <NavigationMenuTrigger>{menuTitle}</NavigationMenuTrigger>
             <NavigationMenuContent>
-              <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] bg-white">
+            <ul className="grid gap-3 p-4 md:w-[400px] lg:w-[1000px] lg:grid-cols-[.75fr_1fr] bg-white">
                 {components.map((component) => (
                   <ListItem
                     key={component.title}

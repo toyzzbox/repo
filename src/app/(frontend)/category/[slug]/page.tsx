@@ -78,7 +78,7 @@ export default async function CategoryPage({ params, searchParams }: Props) {
   const brands = await prisma.brand.findMany();
 
   return (
-    <div className="flex">
+    <div className="flex mt-4">
       <FilterSidebar
         attributeGroups={attributeGroups}
         brands={brands}
