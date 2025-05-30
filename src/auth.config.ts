@@ -3,7 +3,7 @@ import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
 
 export const authConfig: NextAuthConfig = {
-  trustHost: true, // Bu satırı ekleyin
+  trustHost: true,
 
   providers: [
     GoogleProvider({
@@ -21,5 +21,9 @@ export const authConfig: NextAuthConfig = {
       },
     }),
   ],
+
   session: { strategy: "jwt" },
+
+  // 🔒 Secret buraya eklenmeli
+  secret: process.env.AUTH_SECRET,
 };

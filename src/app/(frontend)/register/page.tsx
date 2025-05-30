@@ -4,12 +4,12 @@ import { redirect } from "next/navigation";
 
 const RegisterPage = async () => {
   const session = await auth();
-  
-  // If session exists (user is already logged in), redirect to dashboard
-  if (session) {
+
+  // ✅ Doğru yaklaşım: session varsa değil, session.user varsa yönlendirme
+  if (session?.user) {
     redirect("/dashboard");
   }
-  
+
   // User is not authenticated, show login form
   return (
     <div className='flex justify-center mt-10'>
