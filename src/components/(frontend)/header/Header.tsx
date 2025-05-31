@@ -1,13 +1,13 @@
 import React from 'react'
 import Logo from './Logo'
 import TopBar from './TopBar'
-import Search from './Search'
 
 import Favorites from './Favorites'
 import CartCount from './CartCount'
 import UserMenu from './UserMenu'
 import MobileHeader from './MobileHeader'
 import { MenuBar } from './Menu'
+import LiveSearch from '../search/LiveSearch'
 const Header = () => {
   return (
    <> <div className='hidden sm:block '>
@@ -15,7 +15,7 @@ const Header = () => {
   
    <div className='flex justify-around items-center gap-3'>
    <Logo/>
-   <Search/>
+   <LiveSearch/>
    <div className='hidden sm:block'>
    <div className='flex justify-center gap-2 '>
       <Favorites/>
