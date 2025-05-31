@@ -7,6 +7,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link"; // ✅ doğru import
 import { ProductDetailTabs } from "./ProductDetailTab";
 import { HeartIcon } from "lucide-react";
+import ProductImageGallery from "./ProductImageGallery";
 
 const Horizontal = () => <hr className="w-[30%] my-2" />;
 
@@ -48,7 +49,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
   const incrementQuantity = () => setQuantity((q) => q + 1);
   const decrementQuantity = () => setQuantity((q) => (q > 1 ? q - 1 : 1));
 
-  const imageUrl = product.medias?.[0]?.urls?.[0] ?? null;
+  // const imageUrl = product.medias?.[0]?.urls?.[0] ?? null;
 
   return (
     <div className="p-4">
@@ -78,19 +79,10 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
       {/* Ana içerik */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mt-4">
         {/* Görsel */}
-        <div>
-          {imageUrl ? (
-            <img
-              src={imageUrl}
-              alt={product.name}
-              className="rounded-lg w-full max-h-[400px] object-contain border"
-            />
-          ) : (
-            <div className="w-full h-64 bg-gray-200 flex items-center justify-center text-gray-500">
-              No Image Available
-            </div>
-          )}
-        </div>
+        <ProductImageGallery
+  images={product.medias.map(media => media.urls[0])} // veya media.url
+  productName={product.name}
+/>
 
         {/* Bilgi */}
         <div className="flex flex-col gap-4 text-slate-600 text-sm">
