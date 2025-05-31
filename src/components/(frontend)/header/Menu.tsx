@@ -71,7 +71,7 @@ export function MenuBar() {
                 </NavigationMenuLink>
               </li>
               <ListItem href="/docs" title="Oyuncak Arabalar">
-                <Link href="/">Uzaktan Kumandalı Arabalar</Link>
+                Uzaktan Kumandalı Arabalar
               </ListItem>
               <ListItem href="/docs/installation" title="Oyuncak Bebekler">
                 How to install dependencies and structure your app.
@@ -84,7 +84,7 @@ export function MenuBar() {
         </NavigationMenuItem>
 
         {/* Diğer Menü Kalemleri */}
-        {["Anne & Bebek", "Hediyelik ve Elektronik", "Okul & Kırtasiye", "Markalar", "Kampanyalar"].map((menuTitle) => (
+        {["Anne & Bebek", "Spor & Outdoor","Hediyelik","Elektronik", "Okul & Kırtasiye", "Markalar", ].map((menuTitle) => (
           <NavigationMenuItem key={menuTitle}>
             <NavigationMenuTrigger>{menuTitle}</NavigationMenuTrigger>
             <NavigationMenuContent>
@@ -106,7 +106,7 @@ export function MenuBar() {
         <NavigationMenuItem>
           <Link href="/docs" legacyBehavior passHref>
             <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-              Spor & Outdoor
+              Fırsatlar
             </NavigationMenuLink>
           </Link>
         </NavigationMenuItem>
