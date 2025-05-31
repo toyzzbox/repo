@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import React, { useState, useEffect } from "react";
 import Link from "next/link"; // ✅ doğru import
 import { ProductDetailTabs } from "./ProductDetailTab";
+import { HeartIcon } from "lucide-react";
 
 const Horizontal = () => <hr className="w-[30%] my-2" />;
 
@@ -125,17 +126,20 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
           {/* Butonlar */}
           <div className="flex gap-4">
             <button
-              onClick={handleAddToCart}
-              className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded"
+              onClick={handleBuyNow}
+              className="bg-white border-orange-400  hover:bg-orange-600 text-orange-400 py-4 px-6 rounded"
             >
-              Add to Cart
+              Şimdi Al
             </button>
             <button
-              onClick={handleBuyNow}
+              onClick={handleAddToCart}
               className="bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded"
             >
-              Buy Now
+             Sepete Ekle
             </button>
+            <button className="p-2 rounded-full hover:bg-red-100 transition">
+      <HeartIcon className="w-6 h-6 text-red-500" />
+    </button>
           </div>
           <ProductDetailTabs
         description={product.description}
