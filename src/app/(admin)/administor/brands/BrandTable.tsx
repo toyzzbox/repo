@@ -51,8 +51,8 @@ export default function BrandsTable({ brands }: Props) {
               <tr key={brand.id} className="border-b">
                 <td className="px-4 py-2">{brand.name}</td>
                 <td className="px-4 py-2 text-right">
-                  <Link href={`/admin/brands/edit/${brand.id}`} className="text-blue-500 mr-3">Düzenle</Link>
-                  <form action={`/admin/brands/delete/${brand.id}`} method="POST" className="inline">
+                  <Link href={`/administor/brands/edit/${brand.id}`} className="text-blue-500 mr-3">Düzenle</Link>
+                  <form action={`/administor/brands/delete/${brand.id}`} method="POST" className="inline">
                     <button type="submit" className="text-red-500">Sil</button>
                   </form>
                 </td>

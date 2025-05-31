@@ -1,7 +1,8 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { createProduct } from "./action";
+import RichTextEditor from "../ui/RichTextEditor";
 
 interface Brand {
   id: string;
@@ -34,7 +35,7 @@ interface ProductFormProps {
 
 export default function ProductForm({ brands, categories, medias , attributes}: ProductFormProps) {
   const [error, action, isPending] = useActionState(createProduct, null);
-
+  const [description, setDescription] = useState("");
   return (
     <main className="mx-auto max-w-lg">
       <h1 className="text-xl font-bold mb-4">Ürün Yönetim Sayfası</h1>
@@ -48,13 +49,11 @@ export default function ProductForm({ brands, categories, medias , attributes}: 
           required
         />
 
-        <input
-          type="text"
-          name="description"
-          placeholder="Açıklama"
-          className="py-2 px-3 border rounded"
-          required
-        />
+<label className="font-medium">Açıklama</label>
+        <RichTextEditor value={description} onChange={setDescription} />
+        {/* Hidden input to submit HTML content */}
+        <input type="hidden" name="description" value={description} />
+
 
         <input
           type="number"
