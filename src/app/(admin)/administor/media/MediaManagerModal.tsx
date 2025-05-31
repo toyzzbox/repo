@@ -7,8 +7,9 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import Image from "next/image";
+import { cn } from "@/lib/utils";
 
 interface Media {
   id: string;
@@ -17,10 +18,30 @@ interface Media {
 
 interface MediaManagerModalProps {
   medias: Media[];
+  onSelect?: (media: Media) => void; // opsiyonel, tıklanan medyayı dışa aktarır
 }
 
-export default function MediaManagerModal({ medias }: MediaManagerModalProps) {
+export default function MediaManagerModal({ medias, onSelect }: MediaManagerModalProps) {
   const [open, setOpen] = useState(false);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const inputRef = useRef<HTMLInputElement | null>(null);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const preview = URL.createObjectURL(file);
+      setPreviewUrl(preview);
+
+      // burada yükleme aksiyonunu başlatabilirsin:
+      // await uploadToS3(file) veya API route'a gönder
+    }
+  };
+
+  const handleMediaClick = (media: Media) => {
+    setSelectedId(media.id);
+    onSelect?.(media);
+  };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -29,26 +50,53 @@ export default function MediaManagerModal({ medias }: MediaManagerModalProps) {
       </DialogTrigger>
 
       <DialogContent className="max-w-5xl max-h-screen overflow-auto">
-        {/* ❗ Shadcn Erişilebilirlik Gereği */}
         <DialogTitle className="text-xl font-bold mb-2">Medya Yöneticisi</DialogTitle>
 
         <div className="flex justify-between items-center mb-4">
-          <p className="text-sm text-muted-foreground">
-            Eklenmiş tüm medyaları burada görüntüleyebilirsiniz.
-          </p>
-          <Button variant="default" disabled>
-            📤 Medya Ekle (yakında)
-          </Button>
+          <p className="text-sm text-muted-foreground">Medya ekle veya seç</p>
+          <div>
+            <input
+              type="file"
+              accept="image/*"
+              ref={inputRef}
+              onChange={handleFileChange}
+              hidden
+            />
+            <Button
+              variant="default"
+              onClick={() => inputRef.current?.click()}
+            >
+              📤 Medya Ekle
+            </Button>
+          </div>
         </div>
+
+        {previewUrl && (
+          <div className="mb-4">
+            <p className="text-sm mb-1 text-muted-foreground">Önizleme:</p>
+            <Image
+              src={previewUrl}
+              alt="Preview"
+              width={300}
+              height={300}
+              className="rounded border shadow-md object-contain"
+            />
+          </div>
+        )}
 
         {medias.length === 0 ? (
           <p className="text-gray-500 text-sm">Henüz medya eklenmedi.</p>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
             {medias.map((media) => (
-              <div
+              <button
+                type="button"
                 key={media.id}
-                className="border rounded overflow-hidden shadow-sm hover:shadow-md transition"
+                onClick={() => handleMediaClick(media)}
+                className={cn(
+                  "relative border rounded overflow-hidden shadow-sm transition focus:outline-none focus:ring-2 focus:ring-orange-400",
+                  selectedId === media.id && "ring-2 ring-orange-500"
+                )}
               >
                 <Image
                   src={media.urls[0]}
@@ -57,10 +105,10 @@ export default function MediaManagerModal({ medias }: MediaManagerModalProps) {
                   height={400}
                   className="w-full h-48 object-cover"
                 />
-                <div className="p-2 text-sm text-gray-500 truncate">
-                  {media.urls[0]}
+                <div className="absolute bottom-0 left-0 right-0 bg-black/40 text-white text-xs px-2 py-1 truncate">
+                  {media.urls[0].split("/").pop()}
                 </div>
-              </div>
+              </button>
             ))}
           </div>
         )}

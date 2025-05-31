@@ -7,7 +7,12 @@ export default async function Page() {
 
   return (
     <div className="p-6">
-      <MediaManagerModal medias={medias} />
+<MediaManagerModal
+  medias={medias}
+  onSelect={(media) => {
+    console.log("Seçilen medya:", media);
+  }}
+/>
     </div>
   );
 }
