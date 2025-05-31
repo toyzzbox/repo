@@ -99,7 +99,6 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
             <span>⭐</span>
             <span>4.5 / 5</span>
           </div>
-          <p className="text-justify">{product.description}</p>
           <Horizontal />
 
           {/* Adet Seçici */}
@@ -113,27 +112,28 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
           </div>
 
           {/* Fiyat */}
-          <div className="text-right mt-2">
-            <h1 className="text-2xl font-bold text-blue-600">
-              {`$${(product.price * quantity).toFixed(2)}`}
+          <div className="mt-2">
+            <h1 className="text-2xl font-bold text-black">
+              {`${(product.price * quantity).toFixed(2)}TL`}
             </h1>
             <p className="text-xs text-gray-400">
-              TL karşılığı: <span className="line-through">İndirimli Fiyat</span>
+        <span className="line-through">İndirimli Fiyat</span>
             </p>
           </div>
           <Horizontal />
 
           {/* Butonlar */}
           <div className="flex gap-4">
-            <button
-              onClick={handleBuyNow}
-              className="bg-white border-orange-400  hover:bg-orange-600 text-orange-400 py-4 px-6 rounded"
-            >
-              Şimdi Al
-            </button>
+          <button
+  onClick={handleBuyNow}
+  className="bg-white border border-orange-400 hover:bg-orange-600 text-orange-400 py-4 px-6 rounded"
+>
+  Şimdi Al
+</button>
+
             <button
               onClick={handleAddToCart}
-              className="bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded"
+              className="bg-orange-500 text-white py-2 px-4 rounded"
             >
              Sepete Ekle
             </button>
