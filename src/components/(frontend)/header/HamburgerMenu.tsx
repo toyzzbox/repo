@@ -45,6 +45,14 @@ const menuItems: Category[] = [
     ],
   },
   {
+    title: "Spor & Bebek",
+    subCategories: [
+      { title: "Erkek", href: "/giyim/erkek" },
+      { title: "Kadın", href: "/giyim/kadin" },
+      { title: "Çocuk", href: "/giyim/cocuk" },
+    ],
+  },
+  {
     title: "Okul & Kırtasiye",
     subCategories: [
       { title: "Mobilya", href: "/ev-yasam/mobilya" },
@@ -53,7 +61,31 @@ const menuItems: Category[] = [
     ],
   },
   {
-    title: "Spor & Outdoor",
+    title: "Hediyelik",
+    subCategories: [
+      { title: "Fitness", href: "/spor/fitness" },
+      { title: "Outdoor", href: "/spor/outdoor" },
+      { title: "Takım Sporları", href: "/spor/takim-sporlari" },
+    ],
+  },
+  {
+    title: "Elektronik",
+    subCategories: [
+      { title: "Fitness", href: "/spor/fitness" },
+      { title: "Outdoor", href: "/spor/outdoor" },
+      { title: "Takım Sporları", href: "/spor/takim-sporlari" },
+    ],
+  },
+  {
+    title: "Markalar",
+    subCategories: [
+      { title: "Fitness", href: "/spor/fitness" },
+      { title: "Outdoor", href: "/spor/outdoor" },
+      { title: "Takım Sporları", href: "/spor/takim-sporlari" },
+    ],
+  },
+  {
+    title: "Fırsatlar",
     subCategories: [
       { title: "Fitness", href: "/spor/fitness" },
       { title: "Outdoor", href: "/spor/outdoor" },
@@ -116,7 +148,7 @@ const MobileSidebar = () => {
         <div className="py-6">
           <div className="mt-6 px-2">
             <Link href="/login">
-              <Button variant="link" className="w-full">
+              <Button variant="outline" className="w-full">
                 Giriş Yap
               </Button>
             </Link>
