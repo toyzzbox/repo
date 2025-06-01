@@ -23,7 +23,7 @@ export default function LiveSearch() {
   };
 
   return (
-    <div className="relative w-full">
+    <div className="relative w-[500px]">
       <input
         value={query}
         onChange={onChange}

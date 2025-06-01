@@ -1,9 +1,10 @@
-import React from 'react'
+import ContactMap from "@/components/(frontend)/contact/ContactMap";
 
-const Iletisim = () => {
+export default function ContactPage() {
   return (
-    <div>Iletisim</div>
-  )
+    <main className="max-w-5xl mx-auto p-6">
+      <h1 className="text-2xl font-bold mb-6">Bize Ulaşın</h1>
+      <ContactMap />
+    </main>
+  );
 }
-
-export default Iletisim
