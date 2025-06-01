@@ -1,53 +1,67 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
+import { z } from "zod";
+import slugify from "slugify";
 
-function slugify(text: string): string {
-  return text
-    .toLowerCase()
-    .trim()
-    .replace(/\s+/g, "-")
-    .replace(/[^\w\-]+/g, "")
-    .replace(/\-\-+/g, "-");
-}
+const schema = z.object({
+  groupId: z.string().min(1),
+  name: z.string().min(1),
+  serial: z.string().min(1),
+  stock: z.coerce.number().min(0),
+  price: z.coerce.number().min(0),
+  description: z.string().optional(),
+  brandIds: z.array(z.string()).optional(),
+  categoryIds: z.array(z.string()).optional(),
+  mediaIds: z.array(z.string()).optional(),
+});
 
-export async function createProduct(_previousState: unknown, formData: FormData) {
+export async function createProduct(prevState: any, formData: FormData) {
   try {
-    const name = formData.get("name") as string;
-    const description = formData.get("description") as string;
-    const price = parseFloat(formData.get("price") as string);
-    const categoryIds = formData.getAll("categoryIds[]") as string[];
-    const brandIds = formData.getAll("brandIds[]") as string[];
-    const mediaIds = formData.getAll("mediaIds[]") as string[]; // ✅ burası yeni
-    const attributeIds = formData.getAll("attributeIds[]") as string[];
+    const raw = {
+      groupId: formData.get("groupId"),
+      name: formData.get("name"),
+      serial: formData.get("serial"),
+      stock: formData.get("stock"),
+      price: formData.get("price"),
+      description: formData.get("description"),
+      brandIds: formData.getAll("barandIds[]"),
+      categoryIds: formData.getAll("categoryIds[]"),
+      mediaIds: formData.getAll("mediaIds[]"),
+    };
 
-    const slug = slugify(name);
+    const data = schema.parse(raw);
 
-    await prisma.product.create({
+    const slug = slugify(`${data.name}-${data.serial}`, {
+      lower: true,
+      strict: true,
+    });
+
+    const created = await prisma.product.create({
       data: {
-        name,
-        description,
-        price,
+        name: data.name,
         slug,
-        
+        serial: data.serial,
+        stock: data.stock,
+        price: data.price,
+        description: data.description,
+        group: { connect: { id: data.groupId } },
+        medias: {
+          connect: data.mediaIds.map((id) => ({ id })),
+        },
         brands: {
-          connect: brandIds.map((id) => ({ id })),
+          connect: data.brandIds.map((id) => ({ id })),
         },
         categories: {
-          connect: categoryIds.map((id) => ({ id })),
-        },
-        medias: {
-          connect: mediaIds.map((id) => ({ id })), // ✅ medya ilişkisi burada kuruluyor
-        },
-        attributes: {
-          connect: attributeIds.map((id) => ({ id })),
+          connect: data.categoryIds.map((id) => ({ id })),
         },
       },
     });
 
-    return "Product created successfully";
-  } catch (error) {
-    console.error("Error creating product:", (error as Error).message);
-    return "An error occurred: " + (error as Error).message;
+    return null; // başarıyla tamamlandı
+
+  } catch (err: any) {
+    console.error("Ürün oluşturulurken hata:", err);
+    return "Ürün oluşturulurken bir hata oluştu.";
   }
 }
