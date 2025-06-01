@@ -19,20 +19,22 @@ const CartCount = () => {
         <CiShoppingCart />
         <span
           className="absolute 
-          -top-2 
+          -top-4  // 👈 daha yukarı alır
           -right-2 
+          z-10     // 👈 ikonun arkasına düşmesini engeller
           bg-orange-600 
           text-white 
           h-5 
           w-5 
           rounded-full 
-          flex items-center justify-center text-xs"
+          flex items-center justify-center 
+          text-xs"
         >
           {cart.length}
         </span>
       </div>
 
-      <span className="">Sepetim</span>
+      <span>Sepetim</span>
     </div>
   );
 };
