@@ -11,26 +11,28 @@ const CartCount = () => {
 
   return (
     <div
-      className="relative cursor-pointer flex items-center"
+      className="cursor-pointer flex items-center gap-2"
       onClick={() => router.push("/cart")}
     >
-      <div className="text-3xl">
+      {/* Icon + Badge Wrapper */}
+      <div className="relative text-3xl">
         <CiShoppingCart />
+        <span
+          className="absolute 
+          -top-2 
+          -right-2 
+          bg-orange-600 
+          text-white 
+          h-5 
+          w-5 
+          rounded-full 
+          flex items-center justify-center text-xs"
+        >
+          {cart.length}
+        </span>
       </div>
-      <span
-        className="absolute 
-        top-[-10px] 
-        right-[-10px] 
-        bg-orange-600 
-        text-white 
-        h-6 
-        w-6 
-        rounded-full 
-        flex items-center justify-center text-sm"
-      >
-        {cart.length}
-      </span>
-      <span className="ml-2">Sepetim</span>
+
+      <span className="">Sepetim</span>
     </div>
   );
 };

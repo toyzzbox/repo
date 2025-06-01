@@ -17,7 +17,7 @@ const Header = () => {
    <Logo/>
    <LiveSearch/>
    <div className='hidden sm:block'>
-   <div className='flex justify-center gap-2 '>
+   <div className='flex justify-evenly gap-2 '>
       <Favorites/>
       <CartCount/>
       <UserMenu/>
