@@ -19,10 +19,10 @@ export default function ContactMap() {
       {/* Bilgiler */}
       <div className="flex flex-col justify-center">
         <h2 className="text-lg font-semibold mb-2">İletişim Bilgileri</h2>
-        <p>📍 Forum İstanbul AVM, Kocatepe, Bayrampaşa / İstanbul</p>
-        <p>📞 0212 123 45 67</p>
+        <p>📍 Olivium Avm Karşısı, Gökalp Mah, Zeytinburnu / İstanbul</p>
+        <p>📞 0212 510 05 65</p>
         <p>✉️ info@toyzzbox.com</p>
-        <p className="mt-4">Açılış Saatleri: 10:00 - 22:00</p>
+        <p className="mt-4">Açılış Saatleri: 09:30 - 22:30</p>
       </div>
     </div>
   );
