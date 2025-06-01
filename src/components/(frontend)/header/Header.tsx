@@ -17,11 +17,11 @@ const Header = () => {
    <Logo/>
    <LiveSearch/>
    <div className='hidden sm:block'>
-   <div className="flex justify-between items-center gap-2 px-16">
-      <Favorites/>
-      <CartCount/>
-      <UserMenu/>
-    </div>
+   <div className="w-full max-w-7xl mx-auto flex justify-between items-center gap-2 px-6">
+  <Favorites />
+  <CartCount />
+  <UserMenu />
+</div>
    </div>
   
    </div>

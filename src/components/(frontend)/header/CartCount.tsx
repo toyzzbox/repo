@@ -19,7 +19,7 @@ const CartCount = () => {
         <CiShoppingCart />
         <span
           className="absolute 
-          -top-6  // 👈 daha yukarı alır
+          -top-3  // 👈 daha yukarı alır
           right-2 
           z-10     // 👈 ikonun arkasına düşmesini engeller
           bg-orange-600 
