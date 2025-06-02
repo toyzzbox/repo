@@ -19,6 +19,7 @@ interface ProductDetailsProps {
     medias: { urls: string[] }[];
     categories?: { id: string; name: string }[];
     group?: {
+      name: string;
       products: {
         id: string;
         slug: string;
@@ -51,11 +52,11 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
     dispatch(
       addToCart({
         id: selectedVariant.id,
-        slug: product.slug, // sepette varyantlar aynı slug altında olabilir
+        slug: selectedVariant.slug,
         name: selectedVariant.name,
         price: selectedVariant.price,
-        url: selectedVariant.medias?.[0]?.urls?.[0] ?? "",
         quantity,
+        url: selectedVariant.medias?.[0]?.urls?.[0] ?? "",
       })
     );
   };
@@ -92,22 +93,26 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
             <span className="mx-2">/</span>
           </>
         )}
-        <span className="text-gray-900 font-medium">{product.name}</span>
+        <span className="text-gray-900 font-medium">
+          {product.group?.name ? `${product.group.name} – ${selectedVariant?.name}` : selectedVariant?.name}
+        </span>
       </div>
 
       {/* Ana içerik */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mt-4">
-        {/* Görsel */}
-        <ProductImageGallery images={imageUrls} productName={product.name} />
+        <ProductImageGallery images={imageUrls} productName={selectedVariant?.name ?? product.name} />
 
-        {/* Bilgi */}
         <div className="flex flex-col gap-4 text-slate-600 text-sm">
-          <h2 className="text-3xl font-semibold text-slate-800">{selectedVariant?.name}</h2>
+          <h2 className="text-3xl font-semibold text-slate-800">
+            {product.group?.name ? `${product.group.name} – ${selectedVariant?.name}` : selectedVariant?.name}
+          </h2>
+
+          {/* Rating */}
           <div className="flex items-center gap-2">
             <span>⭐</span>
             <span>4.5 / 5</span>
           </div>
- 
+
           {/* Varyant Seçici */}
           {variants.length > 1 && (
             <div className="flex gap-2 flex-wrap">
@@ -140,13 +145,12 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
           {/* Fiyat */}
           <div className="mt-2">
             <h1 className="text-2xl font-bold text-black">
-              {`${(selectedVariant?.price ?? 0 * quantity).toFixed(2)}TL`}
+              {(selectedVariant?.price ?? 0 * quantity).toFixed(2)} TL
             </h1>
             <p className="text-xs text-gray-400">
               <span className="line-through">İndirimli Fiyat</span>
             </p>
           </div>
- 
 
           {/* Butonlar */}
           <div className="flex gap-4">
@@ -167,6 +171,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
             </button>
           </div>
 
+          {/* Açıklama, yorum vs */}
           <ProductDetailTabs
             description={product.description}
             comments={<div>Henüz yorum bulunmamaktadır.</div>}
