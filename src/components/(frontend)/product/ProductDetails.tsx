@@ -4,12 +4,10 @@ import { useAppDispatch } from "@/hooks/redux";
 import { addToCart } from "@/redux/cartSlice";
 import { useRouter } from "next/navigation";
 import React, { useState, useEffect } from "react";
-import Link from "next/link"; // ✅ doğru import
+import Link from "next/link";
 import { ProductDetailTabs } from "./ProductDetailTab";
 import { HeartIcon } from "lucide-react";
 import ProductImageGallery from "./ProductImageGallery";
-
-const Horizontal = () => <hr className="w-[30%] my-2" />;
 
 interface ProductDetailsProps {
   product: {
@@ -18,13 +16,18 @@ interface ProductDetailsProps {
     name: string;
     description: string;
     price: number;
-    medias: {
-      urls: string[];
-    }[];
-    categories?: {
-      id: string;
-      name: string;
-    }[];
+    medias: { urls: string[] }[];
+    categories?: { id: string; name: string }[];
+    group?: {
+      products: {
+        id: string;
+        slug: string;
+        name: string;
+        price: number;
+        stock?: number | null;
+        medias: { urls: string[] }[];
+      }[];
+    };
   };
 }
 
@@ -33,23 +36,39 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
   const router = useRouter();
   const [quantity, setQuantity] = useState(1);
 
+  const variants = product.group?.products ?? [];
+  const [selectedVariant, setSelectedVariant] = useState<typeof variants[0] | null>(
+    variants.find((v) => v.id === product.id) ?? null
+  );
+
   useEffect(() => {
-    console.log("Current Product:", product);
+    setSelectedVariant(variants.find((v) => v.id === product.id) ?? null);
   }, [product]);
 
   const handleAddToCart = () => {
-    dispatch(addToCart({ ...product, quantity }));
+    if (!selectedVariant) return;
+
+    dispatch(
+      addToCart({
+        id: selectedVariant.id,
+        slug: product.slug, // sepette varyantlar aynı slug altında olabilir
+        name: selectedVariant.name,
+        price: selectedVariant.price,
+        url: selectedVariant.medias?.[0]?.urls?.[0] ?? "",
+        quantity,
+      })
+    );
   };
 
   const handleBuyNow = () => {
-    dispatch(addToCart({ ...product, quantity }));
+    handleAddToCart();
     router.push("/cart");
   };
 
   const incrementQuantity = () => setQuantity((q) => q + 1);
   const decrementQuantity = () => setQuantity((q) => (q > 1 ? q - 1 : 1));
 
-  // const imageUrl = product.medias?.[0]?.urls?.[0] ?? null;
+  const imageUrls = selectedVariant?.medias.map((m) => m.urls[0]) ?? [];
 
   return (
     <div className="p-4">
@@ -79,19 +98,34 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
       {/* Ana içerik */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mt-4">
         {/* Görsel */}
-        <ProductImageGallery
-  images={product.medias.map(media => media.urls[0])} // veya media.url
-  productName={product.name}
-/>
+        <ProductImageGallery images={imageUrls} productName={product.name} />
 
         {/* Bilgi */}
         <div className="flex flex-col gap-4 text-slate-600 text-sm">
-          <h2 className="text-3xl font-semibold text-slate-800">{product.name}</h2>
+          <h2 className="text-3xl font-semibold text-slate-800">{selectedVariant?.name}</h2>
           <div className="flex items-center gap-2">
             <span>⭐</span>
             <span>4.5 / 5</span>
           </div>
-          <Horizontal />
+ 
+          {/* Varyant Seçici */}
+          {variants.length > 1 && (
+            <div className="flex gap-2 flex-wrap">
+              {variants.map((variant) => (
+                <button
+                  key={variant.id}
+                  onClick={() => setSelectedVariant(variant)}
+                  className={`border rounded px-3 py-1 ${
+                    selectedVariant?.id === variant.id
+                      ? "border-orange-500 bg-orange-100"
+                      : "border-gray-300"
+                  }`}
+                >
+                  {variant.name}
+                </button>
+              ))}
+            </div>
+          )}
 
           {/* Adet Seçici */}
           <div className="flex items-center gap-4">
@@ -106,45 +140,38 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
           {/* Fiyat */}
           <div className="mt-2">
             <h1 className="text-2xl font-bold text-black">
-              {`${(product.price * quantity).toFixed(2)}TL`}
+              {`${(selectedVariant?.price ?? 0 * quantity).toFixed(2)}TL`}
             </h1>
             <p className="text-xs text-gray-400">
-        <span className="line-through">İndirimli Fiyat</span>
+              <span className="line-through">İndirimli Fiyat</span>
             </p>
           </div>
-          <Horizontal />
+ 
 
           {/* Butonlar */}
           <div className="flex gap-4">
-          <button
-  onClick={handleBuyNow}
-  className="bg-white border border-orange-400 hover:bg-orange-600 text-orange-400 py-4 px-6 rounded"
->
-  Şimdi Al
-</button>
-
+            <button
+              onClick={handleBuyNow}
+              className="bg-white border border-orange-400 hover:bg-orange-600 text-orange-400 py-4 px-6 rounded"
+            >
+              Şimdi Al
+            </button>
             <button
               onClick={handleAddToCart}
               className="bg-orange-500 text-white py-2 px-4 rounded"
             >
-             Sepete Ekle
+              Sepete Ekle
             </button>
             <button className="p-2 rounded-full hover:bg-red-100 transition">
-      <HeartIcon className="w-6 h-6 text-red-500" />
-    </button>
+              <HeartIcon className="w-6 h-6 text-red-500" />
+            </button>
           </div>
-          <ProductDetailTabs
-        description={product.description}
-        comments={
-          <div>Henüz yorum bulunmamaktadır.</div>
-          // TODO: Buraya yorum listesi eklenecek
-        }
-        questions={
-          <div>Henüz soru bulunmamaktadır.</div>
-          // TODO: Buraya soru listesi eklenecek
-        }
-      />
 
+          <ProductDetailTabs
+            description={product.description}
+            comments={<div>Henüz yorum bulunmamaktadır.</div>}
+            questions={<div>Henüz soru bulunmamaktadır.</div>}
+          />
         </div>
       </div>
     </div>

@@ -29,6 +29,24 @@ export default async function ProductPage({ params }: PageProps) {
           name: true,
         },
       },
+      group: {
+        select: {
+          products: {
+            select: {
+              id: true,
+              slug: true,
+              name: true,
+              price: true,
+              stock: true,
+              medias: {
+                select: {
+                  urls: true,
+                },
+              },
+            },
+          },
+        },
+      },
     },
   });
 
