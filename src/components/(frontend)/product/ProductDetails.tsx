@@ -48,16 +48,15 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
   }, [product]);
 
   const handleAddToCart = () => {
-    if (!selectedVariant) return;
-
+    const variant = selectedVariant ?? product;
     dispatch(
       addToCart({
-        id: selectedVariant.id,
-        slug: selectedVariant.slug,
-        name: selectedVariant.name,
-        price: selectedVariant.price,
+        id: variant.id,
+        slug: variant.slug,
+        name: variant.name,
+        price: variant.price,
         quantity,
-        url: selectedVariant.medias?.[0]?.urls?.[0] ?? "",
+        url: variant.medias?.[0]?.urls?.[0] ?? "",
       })
     );
   };
@@ -70,7 +69,11 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
   const incrementQuantity = () => setQuantity((q) => q + 1);
   const decrementQuantity = () => setQuantity((q) => (q > 1 ? q - 1 : 1));
 
-  const imageUrls = selectedVariant?.medias.map((m) => m.urls[0]) ?? [];
+  const activeVariant = selectedVariant ?? product;
+  const imageUrls =
+    activeVariant?.medias?.length && activeVariant?.medias[0]?.urls?.length
+      ? activeVariant.medias.map((m) => m.urls[0])
+      : product.medias.map((m) => m.urls[0]);
 
   return (
     <div className="p-4">
@@ -95,17 +98,21 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
           </>
         )}
         <span className="text-gray-900 font-medium">
-          {product.group?.name ? `${product.group.name} – ${selectedVariant?.name}` : selectedVariant?.name}
+          {product.group?.name
+            ? `${product.group.name} – ${activeVariant.name}`
+            : activeVariant.name}
         </span>
       </div>
 
       {/* Ana içerik */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mt-4">
-        <ProductImageGallery images={imageUrls} productName={selectedVariant?.name ?? product.name} />
+        <ProductImageGallery images={imageUrls} productName={activeVariant.name} />
 
         <div className="flex flex-col gap-4 text-slate-600 text-sm">
           <h2 className="text-3xl font-semibold text-slate-800">
-            {product.group?.name ? `${product.group.name} – ${selectedVariant?.name}` : selectedVariant?.name}
+            {product.group?.name
+              ? `${product.group.name} – ${activeVariant.name}`
+              : activeVariant.name}
           </h2>
 
           {/* Rating */}
@@ -115,34 +122,34 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
           </div>
 
           {/* Varyant Seçici */}
- {variants.length > 1 && (
-  <div className="flex gap-2 flex-wrap">
-    {variants.map((variant) => (
-      <div key={variant.id} className="text-center">
-        <button
-          type="button"
-          onClick={() => router.push(`/product/${variant.slug}`)}
-          className={`border rounded px-3 py-2 flex flex-col items-center gap-1 w-24 ${
-            selectedVariant?.id === variant.id
-              ? "border-orange-500 bg-orange-100"
-              : "border-gray-300"
-          }`}
-        >
-          <div className="w-full h-16 relative">
-            <Image
-              src={variant.medias?.[0]?.urls?.[0] || "/placeholder.png"}
-              alt={variant.name}
-              fill
-              className="object-cover rounded"
-              sizes="96px" // w-24 = 96px
-            />
-          </div>
-          <span className="text-xs">{variant.name}</span>
-        </button>
-      </div>
-    ))}
-  </div>
-)}
+          {variants.length > 1 && (
+            <div className="flex gap-2 flex-wrap">
+              {variants.map((variant) => (
+                <div key={variant.id} className="text-center">
+                  <button
+                    type="button"
+                    onClick={() => router.push(`/product/${variant.slug}`)}
+                    className={`border rounded px-3 py-2 flex flex-col items-center gap-1 w-24 ${
+                      activeVariant.id === variant.id
+                        ? "border-orange-500 bg-orange-100"
+                        : "border-gray-300"
+                    }`}
+                  >
+                    <div className="w-full h-16 relative">
+                      <Image
+                        src={variant.medias?.[0]?.urls?.[0] || "/placeholder.png"}
+                        alt={variant.name}
+                        fill
+                        className="object-cover rounded"
+                        sizes="96px"
+                      />
+                    </div>
+                    <span className="text-xs">{variant.name}</span>
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
 
           {/* Adet Seçici */}
           <div className="flex items-center gap-4">
@@ -157,7 +164,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
           {/* Fiyat */}
           <div className="mt-2">
             <h1 className="text-2xl font-bold text-black">
-              {(selectedVariant?.price ?? 0 * quantity).toFixed(2)} TL
+              {(activeVariant.price * quantity).toFixed(2)} TL
             </h1>
             <p className="text-xs text-gray-400">
               <span className="line-through">İndirimli Fiyat</span>
