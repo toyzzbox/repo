@@ -1,12 +1,26 @@
-
 import { prisma } from "@/lib/prisma";
-import type { Product } from "@/types/product";
+import { Product } from "@/types/product";
 
 export async function getProducts(): Promise<Product[]> {
   try {
     const products = await prisma.product.findMany({
-      include: {
-        medias: true,
+      take: 20,
+      orderBy: { createdAt: "desc" },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        price: true,
+        medias: {
+          select: {
+            urls: true,
+          },
+        },
+        group: {
+          select: {
+            name: true, // ✅ ProductCard için gerekli
+          },
+        },
       },
     });
 
