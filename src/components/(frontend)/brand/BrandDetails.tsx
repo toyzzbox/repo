@@ -1,52 +1,24 @@
-// components/(frontend)/brand/BrandDetails.tsx
+import { ProductCard } from "../product/ProductCard";
+import FilterSidebar from "./FilterSidebar";
 
-import { ProductCard } from "@/components/(frontend)/product/ProductCard";
-
-type Product = {
-  id: string;
-  name: string;
-  slug: string;
-  price: number;
-  medias?: {
-    urls: string[];
-  }[];
-};
-
-type Brand = {
-  id: string;
-  slug: string;
-  name: string;
-  description: string;
-  medias: {
-    urls: string[];
-  }[];
-  products: Product[];
-};
-
-interface BrandDetailsProps {
-  brand: Brand;
-}
-
-export function BrandDetails({ brand }: BrandDetailsProps) {
+export function BrandDetails({ brand }: { brand: any }) {
   return (
-    <div className="p-4">
-      <h1 className="text-2xl font-bold">{brand.name}</h1>
-      <p className="text-gray-700 mb-4">{brand.description}</p>
-
-      {/* Brand görseli varsa */}
-      {brand.medias?.[0]?.urls?.[0] && (
-        <img
-          src={brand.medias[0].urls[0]}
-          alt={brand.name}
-          className="w-full max-w-md h-auto mb-6"
-        />
+    <div className="container mx-auto px-4 py-6">
+      <h1 className="text-3xl font-bold mb-4">{brand.name}</h1>
+      {brand.description && (
+        <p className="text-gray-600 mb-6">{brand.description}</p>
       )}
 
-      {/* Ürünler */}
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-        {brand.products.map((product) => (
-          <ProductCard key={product.id} product={product} />
-        ))}
+      <div className="flex gap-6">
+        <aside className="w-1/4 hidden lg:block">
+          <FilterSidebar />
+        </aside>
+
+        <main className="flex-1 grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-4">
+          {brand.products.map((product: any) => (
+            <ProductCard key={product.id} product={product} />
+          ))}
+        </main>
       </div>
     </div>
   );

@@ -11,11 +11,20 @@ export type Product = {
 	createdAt?: Date; // Ürünün oluşturulma tarihi (isteğe bağlı)
 	updatedAt?: Date; // Ürünün güncellenme tarihi (isteğe bağlı)
 	urls: string[];
-  mediaIds: string[];
+  mediaIds?: string[];
   brands: Brand[];
-  medias: Media[]; // ✅ doğru isimlendirme
+  medias?: Media[]; // ✅ doğru isimlendirme
   };
 
+
+  export type ProductWithMedia = {
+	id: string;
+	slug: string;
+	name: string;
+	price: number;
+	medias: { urls: string[] }[];
+	group?: { name: string };
+  };
 
 
   export type Media = {
