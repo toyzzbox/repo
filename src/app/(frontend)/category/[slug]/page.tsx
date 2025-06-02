@@ -1,7 +1,7 @@
-// src/app/categories/[slug]/page.tsx
 import { prisma } from "@/lib/prisma";
 import { ProductCard } from "@/components/(frontend)/product/ProductCard";
 import FilterSidebar from "./FilterSideBar";
+import MobileFilter from "./MobileFilter"; // 📱 mobil filtre bileşeni
 
 interface Props {
   params: { slug: string };
@@ -78,25 +78,42 @@ export default async function CategoryPage({ params, searchParams = {} }: Props)
   ]);
 
   return (
-    <div className="flex mt-4">
-      <FilterSidebar
-        attributeGroups={attributeGroups}
-        brands={brands}
-        subcategories={category?.children || []}
-      />
-      <div className="flex-1">
-        <div className="p-4">
-          <h1 className="text-2xl font-bold mb-2">{category?.name} Kategorisi</h1>
-          <p className="text-gray-600">
-            Toplam {category?.products.length || 0} ürün listelendi.
-          </p>
-        </div>
+    <div className="mt-4 px-2">
+      {/* Mobil Filtre */}
+      <div className="block lg:hidden mb-4">
+        <MobileFilter
+          attributeGroups={attributeGroups}
+          brands={brands}
+          subcategories={category?.children || []}
+        />
+      </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 p-4">
-          {category?.products.map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
-        </div>
+      {/* Ana Grid */}
+      <div className="flex">
+        {/* Masaüstü Filtre */}
+        <aside className="hidden lg:block w-[250px]">
+          <FilterSidebar
+            attributeGroups={attributeGroups}
+            brands={brands}
+            subcategories={category?.children || []}
+          />
+        </aside>
+
+        {/* Ürün Listesi */}
+        <main className="flex-1">
+          <div className="p-4">
+            <h1 className="text-2xl font-bold mb-2">{category?.name} Kategorisi</h1>
+            <p className="text-gray-600">
+              Toplam {category?.products.length || 0} ürün listelendi.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 p-4">
+            {category?.products.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
+        </main>
       </div>
     </div>
   );
