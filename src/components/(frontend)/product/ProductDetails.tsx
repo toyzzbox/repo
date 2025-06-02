@@ -8,6 +8,7 @@ import Link from "next/link";
 import { ProductDetailTabs } from "./ProductDetailTab";
 import { HeartIcon } from "lucide-react";
 import ProductImageGallery from "./ProductImageGallery";
+import Image from "next/image";
 
 interface ProductDetailsProps {
   product: {
@@ -114,23 +115,34 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
           </div>
 
           {/* Varyant Seçici */}
-          {variants.length > 1 && (
-            <div className="flex gap-2 flex-wrap">
-              {variants.map((variant) => (
-                <button
-                  key={variant.id}
-                  onClick={() => setSelectedVariant(variant)}
-                  className={`border rounded px-3 py-1 ${
-                    selectedVariant?.id === variant.id
-                      ? "border-orange-500 bg-orange-100"
-                      : "border-gray-300"
-                  }`}
-                >
-                  {variant.name}
-                </button>
-              ))}
-            </div>
-          )}
+ {variants.length > 1 && (
+  <div className="flex gap-2 flex-wrap">
+    {variants.map((variant) => (
+      <div key={variant.id} className="text-center">
+        <button
+          type="button"
+          onClick={() => router.push(`/product/${variant.slug}`)}
+          className={`border rounded px-3 py-2 flex flex-col items-center gap-1 w-24 ${
+            selectedVariant?.id === variant.id
+              ? "border-orange-500 bg-orange-100"
+              : "border-gray-300"
+          }`}
+        >
+          <div className="w-full h-16 relative">
+            <Image
+              src={variant.medias?.[0]?.urls?.[0] || "/placeholder.png"}
+              alt={variant.name}
+              fill
+              className="object-cover rounded"
+              sizes="96px" // w-24 = 96px
+            />
+          </div>
+          <span className="text-xs">{variant.name}</span>
+        </button>
+      </div>
+    ))}
+  </div>
+)}
 
           {/* Adet Seçici */}
           <div className="flex items-center gap-4">
