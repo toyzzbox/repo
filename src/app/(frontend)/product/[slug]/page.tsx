@@ -31,6 +31,8 @@ export default async function ProductPage({ params }: PageProps) {
       },
       group: {
         select: {
+          name: true, // ✅ grup ismi eklendi
+          slug: true, // (istersen detay sayfası linki için)
           products: {
             select: {
               id: true,
@@ -49,6 +51,7 @@ export default async function ProductPage({ params }: PageProps) {
       },
     },
   });
+  
 
   if (!product) {
     return <div>Product not found</div>;
