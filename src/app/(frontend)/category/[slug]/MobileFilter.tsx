@@ -64,7 +64,7 @@ export default function MobileFilter({
         </button>
       </DialogTrigger>
 
-      <DialogContent className="max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-h-[90vh] overflow-y-auto bg-white shadow-lg rounded-md p-4">
         <DialogHeader>
           <DialogTitle>Filtreleme</DialogTitle>
         </DialogHeader>
