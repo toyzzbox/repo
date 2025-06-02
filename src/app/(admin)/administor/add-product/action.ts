@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 import slugify from "slugify";
 
+// ✅ Gerekli alanlar için şema tanımı
 const schema = z.object({
   groupId: z.string().min(1),
   name: z.string().min(1),
@@ -11,13 +12,14 @@ const schema = z.object({
   stock: z.coerce.number().min(0),
   price: z.coerce.number().min(0),
   description: z.string().optional(),
-  brandIds: z.array(z.string()).optional(),
-  categoryIds: z.array(z.string()).optional(),
-  mediaIds: z.array(z.string()).optional(),
+  brandIds: z.array(z.string()).default([]),     // ✅ boş da gelse array olur
+  categoryIds: z.array(z.string()).default([]),
+  mediaIds: z.array(z.string()).default([]),
 });
 
 export async function createProduct(prevState: any, formData: FormData) {
   try {
+    // ✅ Form verisini al
     const raw = {
       groupId: formData.get("groupId"),
       name: formData.get("name"),
@@ -25,19 +27,22 @@ export async function createProduct(prevState: any, formData: FormData) {
       stock: formData.get("stock"),
       price: formData.get("price"),
       description: formData.get("description"),
-      brandIds: formData.getAll("barandIds[]"),
+      brandIds: formData.getAll("brandIds[]"),
       categoryIds: formData.getAll("categoryIds[]"),
       mediaIds: formData.getAll("mediaIds[]"),
     };
 
+    // ✅ Zod ile doğrula
     const data = schema.parse(raw);
 
+    // ✅ Slug oluştur
     const slug = slugify(`${data.name}-${data.serial}`, {
       lower: true,
       strict: true,
     });
 
-    const created = await prisma.product.create({
+    // ✅ Ürünü oluştur
+    await prisma.product.create({
       data: {
         name: data.name,
         slug,
@@ -46,19 +51,19 @@ export async function createProduct(prevState: any, formData: FormData) {
         price: data.price,
         description: data.description,
         group: { connect: { id: data.groupId } },
-        medias: {
+        medias: data.mediaIds.length > 0 ? {
           connect: data.mediaIds.map((id) => ({ id })),
-        },
-        brands: {
+        } : undefined,
+        brands: data.brandIds.length > 0 ? {
           connect: data.brandIds.map((id) => ({ id })),
-        },
-        categories: {
+        } : undefined,
+        categories: data.categoryIds.length > 0 ? {
           connect: data.categoryIds.map((id) => ({ id })),
-        },
+        } : undefined,
       },
     });
 
-    return null; // başarıyla tamamlandı
+    return null; // ✅ Başarı
 
   } catch (err: any) {
     console.error("Ürün oluşturulurken hata:", err);
