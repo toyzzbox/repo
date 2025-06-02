@@ -91,16 +91,33 @@ model Product {
   id          String     @id @default(cuid())
   slug        String     @unique
   name        String
-  description String
+  serial      String     @unique // ✅ varyant stok kodu
+  sku         String?             // ✅ alternatif stok kodu (opsiyonel)
+  stock       Int        // ✅ varyant stok adedi
   price       Float
+  discount    Float?     // ✅ indirimli fiyat ya da oran
+  isActive    Boolean    @default(true) // ✅ ürün yayında mı
+  description String
+
+  groupId     String
+  group       ProductGroup @relation(fields: [groupId], references: [id]) // ✅ varyant ait olduğu grup
+
   brands      Brand[]    @relation("ProductToBrand")
-  categories  Category[] @relation("ProductToCategory") // Burada doğru relation adı
+  categories  Category[] @relation("ProductToCategory")
   medias      Media[]    @relation("ProductToMedia")
-  attributes Attribute[] @relation("ProductAttribute")
+  attributes  Attribute[] @relation("ProductAttribute")
+
   createdAt   DateTime   @default(now())
-  updatedAt   DateTime @updatedAt @default(now())  // 🔧 bu satır önemli
+  updatedAt   DateTime   @updatedAt @default(now())
 }
 
+
+model ProductGroup {
+  id       String    @id @default(cuid())
+  name     String
+  slug     String    @unique
+  products Product[]
+} 
 
 model AttributeGroup {
   id        String      @id @default(cuid())
