@@ -2,11 +2,15 @@
 
 import { useRouter } from "next/navigation";
 import { formatPrice } from "@/utils/formatPrice";
-import type { Product } from "@/types/product"; // Güncel tip buradan gelsin
+import type { Product } from "@/types/product";
 import Image from "next/image";
 
 type ProductCardProps = {
-  product: Product;
+  product: Product & {
+    group?: {
+      name: string;
+    };
+  };
 };
 
 export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
@@ -18,7 +22,6 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     }
   };
 
-  // İlk medya içindeki ilk URL'i al
   const imageUrl = product.medias?.[0]?.urls?.[0] ?? null;
 
   return (
@@ -41,7 +44,11 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       )}
 
       <div className="text-center mt-4">
-        <h3 className="text-lg font-semibold">{product.name}</h3>
+        <h3 className="text-lg font-semibold">
+          {product.group?.name
+            ? `${product.group.name} – ${product.name}`
+            : product.name}
+        </h3>
         <p className="text-md text-gray-600">{formatPrice(product.price)}</p>
       </div>
     </div>
