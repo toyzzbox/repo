@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import { createProduct } from "./action"; // bu backend action olacak
+import { createProduct } from "./action";
 import RichTextEditor from "../ui/RichTextEditor";
 
 interface Brand {
@@ -42,11 +42,12 @@ export default function ProductForm({
 
   return (
     <main className="mx-auto max-w-xl px-4 py-8">
-      <h1 className="text-2xl font-bold mb-6">Ürün Varyantı Ekle</h1>
+      <h1 className="text-2xl font-bold mb-6">Ürün Ekle</h1>
 
       <form action={formAction} className="flex flex-col gap-4">
-        <label className="font-medium">Ürün Grubu</label>
-        <select name="groupId" className="border rounded px-3 py-2" required>
+        <label className="font-medium">Ürün Grubu (opsiyonel)</label>
+        <select name="groupId" className="border rounded px-3 py-2">
+          <option value="">— Grupsuz Ürün —</option>
           {productGroups.map((group) => (
             <option key={group.id} value={group.id}>
               {group.name}
@@ -57,7 +58,7 @@ export default function ProductForm({
         <input
           type="text"
           name="name"
-          placeholder="Varyant Adı (Örn: Yeşil Saçlı)"
+          placeholder="Ürün Adı"
           className="border rounded px-3 py-2"
           required
         />
@@ -65,17 +66,15 @@ export default function ProductForm({
         <input
           type="text"
           name="serial"
-          placeholder="Serial No"
+          placeholder="Stok Kodu (opsiyonel)"
           className="border rounded px-3 py-2"
-          required
         />
 
         <input
           type="number"
           name="stock"
-          placeholder="Stok Adedi"
+          placeholder="Stok Adedi (opsiyonel)"
           className="border rounded px-3 py-2"
-          required
         />
 
         <input
@@ -123,7 +122,7 @@ export default function ProductForm({
           disabled={isPending}
           className="bg-blue-600 hover:bg-blue-700 text-white py-2 rounded transition"
         >
-          {isPending ? "Kaydediliyor..." : "Varyantı Kaydet"}
+          {isPending ? "Kaydediliyor..." : "Ürünü Kaydet"}
         </button>
 
         {state && <p className="text-red-500">{state}</p>}
