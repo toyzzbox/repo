@@ -5,15 +5,15 @@ import FilterSidebar from "./FilterSideBar";
 
 interface Props {
   params: { slug: string };
-  searchParams: { [key: string]: string | string[] | undefined };
+  searchParams?: { [key: string]: string | string[] | undefined };
 }
 
-export default async function CategoryPage({ params, searchParams }: Props) {
-  const { slug } = params;
+export default async function CategoryPage({ params, searchParams = {} }: Props) {
+  const slug = params.slug;
 
   // Fiyat aralığı
-  const minPrice = Number(searchParams.price_gte) || 0;
-  const maxPrice = Number(searchParams.price_lte) || 99999;
+  const minPrice = Number(searchParams.price_gte ?? 0);
+  const maxPrice = Number(searchParams.price_lte ?? 99999);
 
   // Seçilen attribute'lar
   const selectedAttributes = Array.isArray(searchParams.attribute)
@@ -23,12 +23,13 @@ export default async function CategoryPage({ params, searchParams }: Props) {
     : [];
 
   // Seçilen marka
-  const selectedBrand = searchParams.brand?.toString();
+  const selectedBrand = typeof searchParams.brand === "string" ? searchParams.brand : undefined;
 
-  // Seçilen alt kategori (tek seçim)
-  const selectedSubcategory = searchParams.subcategory?.toString();
+  // Seçilen alt kategori
+  const selectedSubcategory =
+    typeof searchParams.subcategory === "string" ? searchParams.subcategory : undefined;
 
-  // Mevcut kategori + alt kategorileri + ürünleri al
+  // Kategori ve filtrelenmiş ürünleri getir
   const category = await prisma.category.findUnique({
     where: { slug },
     include: {
@@ -71,11 +72,10 @@ export default async function CategoryPage({ params, searchParams }: Props) {
   });
 
   // Filtre verileri
-  const attributeGroups = await prisma.attributeGroup.findMany({
-    include: { attributes: true },
-  });
-
-  const brands = await prisma.brand.findMany();
+  const [attributeGroups, brands] = await Promise.all([
+    prisma.attributeGroup.findMany({ include: { attributes: true } }),
+    prisma.brand.findMany(),
+  ]);
 
   return (
     <div className="flex mt-4">
@@ -86,9 +86,7 @@ export default async function CategoryPage({ params, searchParams }: Props) {
       />
       <div className="flex-1">
         <div className="p-4">
-          <h1 className="text-2xl font-bold mb-2">
-            {category?.name} Kategorisi
-          </h1>
+          <h1 className="text-2xl font-bold mb-2">{category?.name} Kategorisi</h1>
           <p className="text-gray-600">
             Toplam {category?.products.length || 0} ürün listelendi.
           </p>
