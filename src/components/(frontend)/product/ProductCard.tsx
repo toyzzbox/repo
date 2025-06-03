@@ -2,25 +2,22 @@
 
 import { useRouter } from "next/navigation";
 import { formatPrice } from "@/utils/formatPrice";
-
 import Image from "next/image";
-
 import { LiteProduct } from "@/types/product";
 
 interface ProductCardProps {
   product: LiteProduct;
 }
-export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
+
+const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const router = useRouter();
+  const imageUrl = product.urls?.[0] ?? null;
 
   const handleClick = () => {
     if (product.slug) {
       router.push(`/product/${product.slug}`);
     }
   };
-
-  // İlk medya içindeki ilk URL'i al
-  const imageUrl = product.urls?.[0] ?? null;
 
   return (
     <div
@@ -48,3 +45,5 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     </div>
   );
 };
+
+export default ProductCard; // ✅ Artık default export

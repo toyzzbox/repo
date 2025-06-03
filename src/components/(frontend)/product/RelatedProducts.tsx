@@ -1,6 +1,6 @@
 "use client";
 
-import { ProductCard } from "./ProductCard";
+import ProductCard  from "./ProductCard";
 
 interface RelatedProductsProps {
   products: {
