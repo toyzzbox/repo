@@ -30,6 +30,7 @@ const Sidebar = () => {
     { href: "/administor/orders", icon: <List size={20} />, label: "Gelen Siparişlerim" },
     { href: "/administor/customers", icon: <Users size={20} />, label: "Müşteriler" },
     { href: "/administor/messages", icon: <MessageSquare size={20} />, label: "Mesajlar" },
+    { href: "/administor/users", icon: <MessageSquare size={20} />, label: "Kullanıcılar" },
   ];
 
   return (
