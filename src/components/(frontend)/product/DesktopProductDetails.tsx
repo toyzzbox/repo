@@ -184,12 +184,13 @@ const DesktopProductDetails: React.FC<ProductDetailsProps> = ({
           </div>
 
           {/* Açıklama, yorum vs */}
-          <ProductDetailTabs
+         
+        </div>
+        <ProductDetailTabs
             description={product.description}
             comments={<div>Henüz yorum bulunmamaktadır.</div>}
             questions={<div>Henüz soru bulunmamaktadır.</div>}
           />
-        </div>
       </div>
 
       {/* ✅ Related Products dışarıda ve düzgün hizalanmış */}
