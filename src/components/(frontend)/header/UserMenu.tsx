@@ -1,9 +1,6 @@
-"use client";
-
+import { auth } from "@/auth"; // v5 Auth.js'deki server fonksiyon
 import { LogOut, Settings, User } from "lucide-react";
 import Link from "next/link";
-import { signOut, useSession } from "next-auth/react";
-
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -15,15 +12,15 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-export default function UserMenu() {
-  const { data: session } = useSession();
+export default async function UserMenu() {
+  const session = await auth();
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button size="icon" className="flex items-center gap-2 py-2 px-4 rounded">
           <User />
-          {session?.user ? session.user.name?.split(" ")[0] || "Hesabım" : "Giriş Yap"}
+          {session?.user?.name?.split(" ")[0] ?? "Giriş Yap"}
         </Button>
       </DropdownMenuTrigger>
 
@@ -41,12 +38,11 @@ export default function UserMenu() {
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem
-              onClick={() => signOut({ callbackUrl: "/" })}
-              className="cursor-pointer"
-            >
-              <LogOut className="mr-2 h-4 w-4" />
-              <span>Çıkış Yap</span>
+            <DropdownMenuItem asChild>
+              <Link href="/api/auth/signout">
+                <LogOut className="mr-2 h-4 w-4" />
+                <span>Çıkış Yap</span>
+              </Link>
             </DropdownMenuItem>
           </>
         ) : (
@@ -54,7 +50,7 @@ export default function UserMenu() {
             <DropdownMenuLabel>Hoş geldiniz</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild>
-              <Link href="/login">Giriş Yap</Link>
+              <Link href="/api/auth/signin">Giriş Yap</Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
               <Link href="/register">Üye Ol</Link>
