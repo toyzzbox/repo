@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import  ProductCard  from "../product/ProductCard";
 import FilterSidebar from "./FilterSidebar";
 import SortSelect, { SortOption } from "./SortSelect";
+import { ProductCard } from "../product/ProductCard";
 
 export function BrandDetails({ brand }: { brand: any }) {
   const [sortOption, setSortOption] = useState<SortOption>("default");
