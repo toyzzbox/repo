@@ -6,7 +6,15 @@ import MobileProductDetails from "./MobileProductDetails";
 
 const DesktopProductDetails = dynamic(() => import("./DesktopProductDetails"));
 
-export default function ProductDetailsWrapper({ product }: { product: any }) {
+interface ProductDetailsWrapperProps {
+  product: any;
+  relatedProducts: any[];
+}
+
+export default function ProductDetailsWrapper({
+  product,
+  relatedProducts,
+}: ProductDetailsWrapperProps) {
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
@@ -17,8 +25,8 @@ export default function ProductDetailsWrapper({ product }: { product: any }) {
   }, []);
 
   return isMobile ? (
-    <MobileProductDetails product={product} />
+    <MobileProductDetails product={product} relatedProducts={relatedProducts} />
   ) : (
-    <DesktopProductDetails product={product} />
+    <DesktopProductDetails product={product} relatedProducts={relatedProducts} />
   );
 }

@@ -17,6 +17,21 @@ export type Product = {
   };
 
 
+  type LiteProduct = {
+	id: string;
+	name: string;
+	slug: string;
+	price: number;
+	urls: string[];
+	brands: { name: string }[];
+  };
+
+
+  export type ProductCardType = Product & {
+	group?: { name: string };
+  };
+
+
   export type ProductWithMedia = {
 	id: string;
 	slug: string;

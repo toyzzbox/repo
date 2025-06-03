@@ -1,3 +1,4 @@
+import { getRelatedProducts } from "@/actions/getRelatedProducts";
 import ProductDetailsWrapper from "@/components/(frontend)/product/ProductDetailsWrapper";
 import { prisma } from "@/lib/prisma";
 
@@ -9,9 +10,7 @@ type PageProps = {
 
 export default async function ProductPage({ params }: PageProps) {
   const product = await prisma.product.findUnique({
-    where: {
-      slug: params.slug,
-    },
+    where: { slug: params.slug },
     select: {
       id: true,
       slug: true,
@@ -31,8 +30,8 @@ export default async function ProductPage({ params }: PageProps) {
       },
       group: {
         select: {
-          name: true, // ✅ grup ismi eklendi
-          slug: true, // (istersen detay sayfası linki için)
+          name: true,
+          slug: true,
           products: {
             select: {
               id: true,
@@ -51,11 +50,20 @@ export default async function ProductPage({ params }: PageProps) {
       },
     },
   });
-  
 
   if (!product) {
     return <div>Product not found</div>;
   }
 
-  return <ProductDetailsWrapper product={product} />;
+  const categoryIds = product.categories?.map((cat) => cat.id) || [];
+  const relatedProducts = categoryIds.length
+    ? await getRelatedProducts(product.id, categoryIds)
+    : [];
+
+  return (
+    <ProductDetailsWrapper
+      product={product}
+      relatedProducts={relatedProducts}
+    />
+  );
 }

@@ -5,10 +5,11 @@ import { formatPrice } from "@/utils/formatPrice";
 import type { Product } from "@/types/product"; // Güncel tip buradan gelsin
 import Image from "next/image";
 
-type ProductCardProps = {
-  product: Product;
-};
+import { LiteProduct } from "@/types/product";
 
+interface ProductCardProps {
+  product: LiteProduct;
+}
 export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const router = useRouter();
 
@@ -19,7 +20,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   };
 
   // İlk medya içindeki ilk URL'i al
-  const imageUrl = product.medias?.[0]?.urls?.[0] ?? null;
+  const imageUrl = product.urls?.[0]?.[0] ?? null;
 
   return (
     <div

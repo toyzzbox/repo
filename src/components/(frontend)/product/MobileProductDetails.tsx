@@ -9,8 +9,17 @@ import ProductImageGallery from "./ProductImageGallery";
 import ProductDetailTabsMobile from "./ProductDetailTabsMobile";
 import Image from "next/image";
 import ProductBreadcrumb from "./ProductBreadcrumb";
+import RelatedProducts from "./RelatedProducts";
 
-export default function MobileProductDetails({ product }: { product: any }) {
+interface MobileProductDetailsProps {
+  product: any;
+  relatedProducts: any[];
+}
+
+export default function MobileProductDetails({
+  product,
+  relatedProducts,
+}: MobileProductDetailsProps) {
   const dispatch = useAppDispatch();
   const router = useRouter();
   const [quantity, setQuantity] = useState(1);
@@ -53,11 +62,11 @@ export default function MobileProductDetails({ product }: { product: any }) {
     <>
       {/* Galeri + Beğenme Butonu */}
       <div className="relative">
-      <ProductBreadcrumb
-  category={product.categories?.[0]}
-  groupName={product.group?.name}
-  productName={activeVariant.name}
-/>
+        <ProductBreadcrumb
+          category={product.categories?.[0]}
+          groupName={product.group?.name}
+          productName={activeVariant.name}
+        />
         <ProductImageGallery
           images={imageUrls}
           productName={activeVariant.name}
@@ -76,43 +85,33 @@ export default function MobileProductDetails({ product }: { product: any }) {
         </h1>
 
         {variants.length > 1 && (
-            <div className="flex gap-2 flex-wrap">
-              {variants.map((variant) => (
-                <div key={variant.id} className="text-center">
-                  <button
-                    type="button"
-                    onClick={() => router.push(`/product/${variant.slug}`)}
-                    className={`border rounded px-3 py-2 flex flex-col items-center gap-1 w-24 ${
-                      activeVariant.id === variant.id
-                        ? "border-orange-500 bg-orange-100"
-                        : "border-gray-300"
-                    }`}
-                  >
-                    <div className="w-full h-16 relative">
-                      <Image
-                        src={variant.medias?.[0]?.urls?.[0] || "/placeholder.png"}
-                        alt={variant.name}
-                        fill
-                        className="object-cover rounded"
-                        sizes="96px"
-                      />
-                    </div>
-                    <span className="text-xs">{variant.name}</span>
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
-
-        {/* Adet Seçici */}
-        {/* <div className="mt-4 flex items-center gap-4">
-          <span className="text-sm font-medium">Adet:</span>
-          <div className="flex items-center bg-gray-200 rounded px-3 py-1">
-            <button onClick={() => setQuantity((q) => (q > 1 ? q - 1 : 1))} className="px-2 text-lg">-</button>
-            <span className="px-3">{quantity}</span>
-            <button onClick={() => setQuantity((q) => q + 1)} className="px-2 text-lg">+</button>
+          <div className="flex gap-2 flex-wrap mt-4">
+            {variants.map((variant) => (
+              <div key={variant.id} className="text-center">
+                <button
+                  type="button"
+                  onClick={() => router.push(`/product/${variant.slug}`)}
+                  className={`border rounded px-3 py-2 flex flex-col items-center gap-1 w-24 ${
+                    activeVariant.id === variant.id
+                      ? "border-orange-500 bg-orange-100"
+                      : "border-gray-300"
+                  }`}
+                >
+                  <div className="w-full h-16 relative">
+                    <Image
+                      src={variant.medias?.[0]?.urls?.[0] || "/placeholder.png"}
+                      alt={variant.name}
+                      fill
+                      className="object-cover rounded"
+                      sizes="96px"
+                    />
+                  </div>
+                  <span className="text-xs">{variant.name}</span>
+                </button>
+              </div>
+            ))}
           </div>
-        </div> */}
+        )}
 
         {/* Fiyat */}
         <div className="mt-4">
@@ -129,6 +128,13 @@ export default function MobileProductDetails({ product }: { product: any }) {
             questions={<div>Henüz soru yok.</div>}
           />
         </div>
+
+        {/* ✅ Related Products */}
+        {relatedProducts.length > 0 && (
+          <div className="mt-10">
+            <RelatedProducts products={relatedProducts} />
+          </div>
+        )}
       </div>
 
       {/* Alt Sabit Buton */}
