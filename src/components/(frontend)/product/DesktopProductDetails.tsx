@@ -33,7 +33,7 @@ interface ProductDetailsProps {
   };
 }
 
-const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
+const DesktopProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
   const dispatch = useAppDispatch();
   const router = useRouter();
   const [quantity, setQuantity] = useState(1);
@@ -202,4 +202,4 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
   );
 };
 
-export default ProductDetails;
+export default DesktopProductDetails;

@@ -1,4 +1,4 @@
-import ProductDetails from "@/components/(frontend)/product/ProductDetails";
+import ProductDetailsWrapper from "@/components/(frontend)/product/ProductDetailsWrapper";
 import { prisma } from "@/lib/prisma";
 
 type PageProps = {
@@ -57,5 +57,5 @@ export default async function ProductPage({ params }: PageProps) {
     return <div>Product not found</div>;
   }
 
-  return <ProductDetails product={product} />;
+  return <ProductDetailsWrapper product={product} />;
 }
