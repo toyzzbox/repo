@@ -40,7 +40,7 @@ export default function EditAddressDialog({ address }: Props) {
         </Button>
       </DialogTrigger>
 
-      <DialogContent>
+      <DialogContent className="bg-white rounded-lg shadow-xl">
         <DialogHeader>
           <DialogTitle>Adresi Düzenle</DialogTitle>
         </DialogHeader>
