@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { HeartIcon } from "lucide-react";
 import ProductImageGallery from "./ProductImageGallery";
-import { ProductDetailTabs } from "./ProductDetailTab";
+import ProductDetailTabsMobile from "./ProductDetailTabsMobile";
 
 export default function MobileProductDetails({ product }: { product: any }) {
   const dispatch = useAppDispatch();
@@ -88,14 +88,14 @@ export default function MobileProductDetails({ product }: { product: any }) {
         )}
 
         {/* Adet Seçici */}
-        <div className="mt-4 flex items-center gap-4">
+        {/* <div className="mt-4 flex items-center gap-4">
           <span className="text-sm font-medium">Adet:</span>
           <div className="flex items-center bg-gray-200 rounded px-3 py-1">
             <button onClick={() => setQuantity((q) => (q > 1 ? q - 1 : 1))} className="px-2 text-lg">-</button>
             <span className="px-3">{quantity}</span>
             <button onClick={() => setQuantity((q) => q + 1)} className="px-2 text-lg">+</button>
           </div>
-        </div>
+        </div> */}
 
         {/* Fiyat */}
         <div className="mt-4">
@@ -106,7 +106,7 @@ export default function MobileProductDetails({ product }: { product: any }) {
 
         {/* Tabs: Açıklama / Yorum / Soru */}
         <div className="mt-6">
-          <ProductDetailTabs
+          <ProductDetailTabsMobile
             description={product.description}
             comments={<div>Henüz yorum yok.</div>}
             questions={<div>Henüz soru yok.</div>}
@@ -118,9 +118,9 @@ export default function MobileProductDetails({ product }: { product: any }) {
       <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t px-4 py-3 shadow md:hidden">
         <button
           onClick={handleAddToCart}
-          className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 rounded-lg transition duration-200"
+          className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 rounded-lg transition duration-200 m-2"
         >
-          Sepete Ekle ({quantity})
+          Sepete Ekle
         </button>
       </div>
     </>
