@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { formatPrice } from "@/utils/formatPrice";
-import type { Product } from "@/types/product"; // Güncel tip buradan gelsin
+
 import Image from "next/image";
 
 import { LiteProduct } from "@/types/product";
