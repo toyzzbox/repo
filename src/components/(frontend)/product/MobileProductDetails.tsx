@@ -8,6 +8,7 @@ import { HeartIcon } from "lucide-react";
 import ProductImageGallery from "./ProductImageGallery";
 import ProductDetailTabsMobile from "./ProductDetailTabsMobile";
 import Image from "next/image";
+import ProductBreadcrumb from "./ProductBreadcrumb";
 
 export default function MobileProductDetails({ product }: { product: any }) {
   const dispatch = useAppDispatch();
@@ -52,6 +53,11 @@ export default function MobileProductDetails({ product }: { product: any }) {
     <>
       {/* Galeri + Beğenme Butonu */}
       <div className="relative">
+      <ProductBreadcrumb
+  category={product.categories?.[0]}
+  groupName={product.group?.name}
+  productName={activeVariant.name}
+/>
         <ProductImageGallery
           images={imageUrls}
           productName={activeVariant.name}

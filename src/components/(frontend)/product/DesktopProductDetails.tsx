@@ -9,6 +9,7 @@ import { ProductDetailTabs } from "./ProductDetailTab";
 import { HeartIcon } from "lucide-react";
 import ProductImageGallery from "./ProductImageGallery";
 import Image from "next/image";
+import ProductBreadcrumb from "./ProductBreadcrumb";
 
 interface ProductDetailsProps {
   product: {
@@ -78,32 +79,11 @@ const DesktopProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
   return (
     <div className="p-4">
       {/* Breadcrumb */}
-      <div className="py-2 px-4 rounded-md text-sm text-gray-600">
-        <Link href="/" className="hover:text-gray-800">Home</Link>
-        <span className="mx-2">/</span>
-        {product?.categories?.length ? (
-          <>
-            <Link
-              href={`/category/${product.categories[0].id}`}
-              className="hover:text-gray-800"
-            >
-              {product.categories[0].name}
-            </Link>
-            <span className="mx-2">/</span>
-          </>
-        ) : (
-          <>
-            <span>Kategori Yok</span>
-            <span className="mx-2">/</span>
-          </>
-        )}
-        <span className="text-gray-900 font-medium">
-          {product.group?.name
-            ? `${product.group.name} – ${activeVariant.name}`
-            : activeVariant.name}
-        </span>
-      </div>
-
+      <ProductBreadcrumb
+  category={product.categories?.[0]}
+  groupName={product.group?.name}
+  productName={activeVariant.name}
+/>
       {/* Ana içerik */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mt-4">
         <ProductImageGallery images={imageUrls} productName={activeVariant.name} />
