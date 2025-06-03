@@ -21,7 +21,7 @@ export default function AddAddressDialog() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <button className="bg-black text-white px-4 py-2 rounded hover:bg-gray-800">
+        <button className="bg-black text-white px-4 py-2 rounded bg-white hover:bg-gray-800">
           + Yeni Adres Ekle
         </button>
       </DialogTrigger>
