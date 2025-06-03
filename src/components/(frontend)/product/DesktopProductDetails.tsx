@@ -11,6 +11,7 @@ import Image from "next/image";
 import ProductBreadcrumb from "./ProductBreadcrumb";
 import CartSuccessToast from "./CartSuccessToast";
 import { toast } from "sonner";
+import RelatedProductsSection from "./RelatedProductsSection";
 
 interface ProductDetailsProps {
   product: {
@@ -163,8 +164,8 @@ const DesktopProductDetails: React.FC<ProductDetailsProps> = ({
               <span className="line-through">İndirimli Fiyat</span>
             </p>
             <div>
-            En Geç Yarın kargoya verilecektir
-          </div>
+              En Geç Yarın kargoya verilecektir
+            </div>
           </div>
 
           {/* Butonlar */}
@@ -185,18 +186,20 @@ const DesktopProductDetails: React.FC<ProductDetailsProps> = ({
               <HeartIcon className="w-6 h-6 text-red-500" />
             </button>
           </div>
-
-          {/* Açıklama, yorum vs */}
-         
         </div>
+
+        {/* Açıklama, yorum vs */}
         <ProductDetailTabs
-            description={product.description}
-            comments={<div>Henüz yorum bulunmamaktadır.</div>}
-            questions={<div>Henüz soru bulunmamaktadır.</div>}
-          />
+          description={product.description}
+          comments={<div>Henüz yorum bulunmamaktadır.</div>}
+          questions={<div>Henüz soru bulunmamaktadır.</div>}
+        />
       </div>
 
-      {/* ✅ Related Products dışarıda ve düzgün hizalanmış */}
+      {/* Related Products */}
+      <div className="mt-10">
+        <RelatedProductsSection products={relatedProducts} />
+      </div>
     </div>
   );
 };
