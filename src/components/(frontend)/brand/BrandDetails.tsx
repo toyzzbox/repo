@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ProductCard } from "../product/ProductCard";
+import  ProductCard  from "../product/ProductCard";
 import FilterSidebar from "./FilterSidebar";
 import SortSelect, { SortOption } from "./SortSelect";
 
