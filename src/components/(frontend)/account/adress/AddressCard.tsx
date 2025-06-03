@@ -1,10 +1,22 @@
 "use client";
 
 import { MoreVertical, Star } from "lucide-react";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { useTransition } from "react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+
+import EditAddressDialog from "./EditAddressDialog";
+import DeleteAddressDialog from "./DeleteAddressDialog";
+import { setDefaultAddress } from "@/actions/setDefaultAddress";
 
 type Address = {
   id: string;
@@ -18,6 +30,21 @@ type Address = {
 };
 
 export default function AddressCard({ address }: { address: Address }) {
+  const [isPending, startTransition] = useTransition();
+  const router = useRouter();
+
+  const handleSetDefault = () => {
+    startTransition(async () => {
+      const success = await setDefaultAddress(address.id);
+      if (success) {
+        toast.success("Adres varsayılan olarak ayarlandı");
+        router.refresh();
+      } else {
+        toast.error("İşlem başarısız");
+      }
+    });
+  };
+
   return (
     <Card>
       <CardHeader className="flex flex-row items-start justify-between">
@@ -38,12 +65,12 @@ export default function AddressCard({ address }: { address: Address }) {
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             {!address.isDefault && (
-              <DropdownMenuItem onClick={() => alert("Varsayılan yap")}>
+              <DropdownMenuItem onClick={handleSetDefault}>
                 Varsayılan Yap
               </DropdownMenuItem>
             )}
-            <DropdownMenuItem onClick={() => alert("Düzenle")}>Düzenle</DropdownMenuItem>
-            <DropdownMenuItem onClick={() => alert("Sil")}>Sil</DropdownMenuItem>
+            <EditAddressDialog address={address} />
+            <DeleteAddressDialog id={address.id} />
           </DropdownMenuContent>
         </DropdownMenu>
       </CardHeader>
@@ -60,3 +87,5 @@ export default function AddressCard({ address }: { address: Address }) {
     </Card>
   );
 }
+
+
