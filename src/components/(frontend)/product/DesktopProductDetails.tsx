@@ -11,7 +11,6 @@ import Image from "next/image";
 import ProductBreadcrumb from "./ProductBreadcrumb";
 import CartSuccessToast from "./CartSuccessToast";
 import { toast } from "sonner";
-import RelatedProductsSection from "./RelatedProductsSection";
 
 interface ProductDetailsProps {
   product: {
@@ -196,10 +195,7 @@ const DesktopProductDetails: React.FC<ProductDetailsProps> = ({
         />
       </div>
 
-      {/* Related Products */}
-      <div className="mt-10">
-        <RelatedProductsSection products={relatedProducts} />
-      </div>
+
     </div>
   );
 };
