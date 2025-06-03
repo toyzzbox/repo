@@ -11,6 +11,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import SignOutButton from "../auth/SignOut";
 
 export default async function UserMenu() {
   const session = await auth();
@@ -41,7 +42,7 @@ export default async function UserMenu() {
             <DropdownMenuItem asChild>
               <Link href="/api/auth/signout">
                 <LogOut className="mr-2 h-4 w-4" />
-                <span>Çıkış Yap</span>
+               <SignOutButton/>
               </Link>
             </DropdownMenuItem>
           </>
