@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { HeartIcon } from "lucide-react";
 import ProductImageGallery from "./ProductImageGallery";
 import ProductDetailTabsMobile from "./ProductDetailTabsMobile";
+import Image from "next/image";
 
 export default function MobileProductDetails({ product }: { product: any }) {
   const dispatch = useAppDispatch();
@@ -68,24 +69,34 @@ export default function MobileProductDetails({ product }: { product: any }) {
             : activeVariant.name}
         </h1>
 
-        {/* Varyantlar */}
         {variants.length > 1 && (
-          <div className="mt-4 space-y-2">
-            {variants.map((variant) => (
-              <button
-                key={variant.id}
-                onClick={() => router.push(`/product/${variant.slug}`)}
-                className={`w-full text-left border rounded px-4 py-2 ${
-                  activeVariant.id === variant.id
-                    ? "border-orange-500 bg-orange-100"
-                    : "border-gray-300"
-                }`}
-              >
-                {variant.name}
-              </button>
-            ))}
-          </div>
-        )}
+            <div className="flex gap-2 flex-wrap">
+              {variants.map((variant) => (
+                <div key={variant.id} className="text-center">
+                  <button
+                    type="button"
+                    onClick={() => router.push(`/product/${variant.slug}`)}
+                    className={`border rounded px-3 py-2 flex flex-col items-center gap-1 w-24 ${
+                      activeVariant.id === variant.id
+                        ? "border-orange-500 bg-orange-100"
+                        : "border-gray-300"
+                    }`}
+                  >
+                    <div className="w-full h-16 relative">
+                      <Image
+                        src={variant.medias?.[0]?.urls?.[0] || "/placeholder.png"}
+                        alt={variant.name}
+                        fill
+                        className="object-cover rounded"
+                        sizes="96px"
+                      />
+                    </div>
+                    <span className="text-xs">{variant.name}</span>
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
 
         {/* Adet Seçici */}
         {/* <div className="mt-4 flex items-center gap-4">
