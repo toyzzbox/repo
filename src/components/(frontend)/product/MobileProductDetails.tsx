@@ -9,7 +9,6 @@ import ProductImageGallery from "./ProductImageGallery";
 import ProductDetailTabsMobile from "./ProductDetailTabsMobile";
 import Image from "next/image";
 import ProductBreadcrumb from "./ProductBreadcrumb";
-import RelatedProductsSection from "./RelatedProductsSection";
 
 interface MobileProductDetailsProps {
   product: any;
@@ -130,7 +129,6 @@ export default function MobileProductDetails({
         </div>
 
         {/* ✅ Related Products */}
-        <RelatedProductsSection products={relatedProducts} />
       </div>
 
       {/* Alt Sabit Buton */}
