@@ -4,7 +4,6 @@ import { useAppDispatch } from "@/hooks/redux";
 import { addToCart } from "@/redux/cartSlice";
 import { useRouter } from "next/navigation";
 import React, { useState, useEffect } from "react";
-import Link from "next/link";
 import { ProductDetailTabs } from "./ProductDetailTab";
 import { HeartIcon } from "lucide-react";
 import ProductImageGallery from "./ProductImageGallery";
@@ -12,6 +11,7 @@ import Image from "next/image";
 import ProductBreadcrumb from "./ProductBreadcrumb";
 import CartSuccessToast from "./CartSuccessToast";
 import { toast } from "sonner";
+import RelatedProductsSection from "./RelatedProductsSection";
 
 interface ProductDetailsProps {
   product: {
@@ -34,9 +34,19 @@ interface ProductDetailsProps {
       }[];
     };
   };
+  relatedProducts: {
+    id: string;
+    name: string;
+    slug: string;
+    price: number;
+    medias: { urls: string[] }[];
+  }[];
 }
 
-const DesktopProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
+const DesktopProductDetails: React.FC<ProductDetailsProps> = ({
+  product,
+  relatedProducts,
+}) => {
   const dispatch = useAppDispatch();
   const router = useRouter();
   const [quantity, setQuantity] = useState(1);
@@ -83,10 +93,11 @@ const DesktopProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
     <div className="p-4">
       {/* Breadcrumb */}
       <ProductBreadcrumb
-  category={product.categories?.[0]}
-  groupName={product.group?.name}
-  productName={activeVariant.name}
-/>
+        category={product.categories?.[0]}
+        groupName={product.group?.name}
+        productName={activeVariant.name}
+      />
+
       {/* Ana içerik */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mt-4">
         <ProductImageGallery images={imageUrls} productName={activeVariant.name} />
@@ -181,6 +192,9 @@ const DesktopProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
           />
         </div>
       </div>
+
+      {/* ✅ Related Products dışarıda ve düzgün hizalanmış */}
+      <RelatedProductsSection products={relatedProducts} />
     </div>
   );
 };

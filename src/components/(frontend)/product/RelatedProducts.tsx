@@ -1,35 +1,32 @@
 "use client";
 
-import { ProductCard } from "./ProductCard";
-
-interface RelatedProductsProps {
-  products: {
-    id: string;
-    name: string;
-    slug: string;
-    price: number;
-    medias: { urls: string[] }[];
-  }[];
+interface Product {
+  id: string;
+  name: string;
+  slug: string;
+  price: number;
+  medias: { urls: string[] }[];
 }
 
-export default function RelatedProducts({ products }: RelatedProductsProps) {
-  if (!products.length) return null;
-
+const RelatedProducts = ({ products }: { products: Product[] }) => {
   return (
-    <section>
-      <h2 className="text-lg font-semibold mb-4 text-slate-800">Benzer Ürünler</h2>
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+    <div>
+      <h3 className="text-xl font-semibold mb-4">İlgili Ürünler</h3>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {products.map((product) => (
-          <ProductCard
-            key={product.id}
-            product={{
-              ...product,
-              urls: product.medias.map((m) => m.urls[0]), // Product tipine uygun hale getir
-              brands: [], // placeholder
-            }}
-          />
+          <div key={product.id} className="border p-2 rounded">
+            <img
+              src={product.medias?.[0]?.urls?.[0] || "/placeholder.png"}
+              alt={product.name}
+              className="w-full h-32 object-cover rounded"
+            />
+            <div className="text-sm mt-2">{product.name}</div>
+            <div className="text-sm font-bold">{product.price} TL</div>
+          </div>
         ))}
       </div>
-    </section>
+    </div>
   );
-}
+};
+
+export default RelatedProducts;
