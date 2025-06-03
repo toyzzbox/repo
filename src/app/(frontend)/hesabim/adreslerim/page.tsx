@@ -1,8 +1,8 @@
 // app/hesabim/addresses/page.tsx
 
 import { getAddresses } from "@/actions/getAddresses";
-import AddressCard from "@/components/(frontend)/account/AddressCard";
-import AddAddressDialog from "@/components/(frontend)/account/AddAddressDialog";
+import AddAddressDialog from "@/components/(frontend)/account/adress/AddAddressDialog";
+import AddressCard from "@/components/(frontend)/account/adress/AddressCard";
 import { HomeIcon } from "lucide-react";
 
 export const dynamic = "force-dynamic";
