@@ -13,16 +13,16 @@ const Header = () => {
    <> <div className='hidden sm:block '>
    <TopBar/>
   
-   <div className='flex justify-around items-center gap-3'>
-   <Logo/>
-   <LiveSearch/>
-   <div className='hidden sm:block'>
-   <div className="w-full max-w-7xl mx-auto flex justify-between items-center gap-2 px-6">
-  <Favorites />
-  <CartCount />
-  <UserMenu />
-</div>
-   </div>
+   <div className="w-full px-[80px]"> {/* yaklaşık 20cm padding */}
+  <div className='flex justify-between items-center gap-3'>
+    <Logo />
+    <LiveSearch />
+    <div className='hidden sm:flex items-center gap-2'>
+      <Favorites />
+      <CartCount />
+      <UserMenu />
+    </div>
+  </div>
   
    </div>
    <div className='flex items-center justify-center border-b-1 border-gray-150'>
