@@ -11,7 +11,7 @@ interface ProductDetailTabsProps {
 export function ProductDetailTabs({ description, comments, questions }: ProductDetailTabsProps) {
   return (
     <Tabs defaultValue="description" className="w-full mt-6">
-      <TabsList className="w-full flex justify-start border-b sm:flex flex-col gap-4 text-balance">
+<TabsList className="w-full flex flex-col sm:flex-row justify-start border-b gap-2 sm:gap-4">
 
         <TabsTrigger value="description">Açıklama</TabsTrigger>
         <TabsTrigger value="comments">Yorumlar</TabsTrigger>
