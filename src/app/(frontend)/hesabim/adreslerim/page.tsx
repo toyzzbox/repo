@@ -1,8 +1,11 @@
+// app/hesabim/addresses/page.tsx
+
 import { getAddresses } from "@/actions/getAddresses";
 import AddressCard from "@/components/(frontend)/account/AddressCard";
 import AddAddressDialog from "@/components/(frontend)/account/AddAddressDialog";
+import { HomeIcon } from "lucide-react";
 
-export const dynamic = "force-dynamic"; // ✅ kritik satır!
+export const dynamic = "force-dynamic";
 
 export default async function Adreslerim() {
   const addresses = await getAddresses();
@@ -10,19 +13,27 @@ export default async function Adreslerim() {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold">Adreslerim</h1>
+        <div>
+          <h1 className="text-2xl font-bold">Adreslerim</h1>
+          <p className="text-sm text-muted-foreground">
+            Teslimat adreslerinizi burada yönetebilirsiniz.
+          </p>
+        </div>
         <AddAddressDialog />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {addresses.length === 0 ? (
-          <p>Henüz kayıtlı bir adresiniz yok.</p>
-        ) : (
-          addresses.map((address) => (
+      {addresses.length === 0 ? (
+        <div className="flex items-center gap-4 bg-muted p-6 rounded-md border text-muted-foreground">
+          <HomeIcon className="w-6 h-6" />
+          Henüz bir adres eklemediniz.
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {addresses.map((address) => (
             <AddressCard key={address.id} address={address} />
-          ))
-        )}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
