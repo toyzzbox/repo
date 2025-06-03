@@ -20,7 +20,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   };
 
   // İlk medya içindeki ilk URL'i al
-  const imageUrl = product.urls?.[0]?.[0] ?? null;
+  const imageUrl = product.urls?.[0] ?? null;
 
   return (
     <div
