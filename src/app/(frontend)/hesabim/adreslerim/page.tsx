@@ -1,8 +1,6 @@
-// app/account/addresses/page.tsx
-
 import { getAddresses } from "@/actions/getAddresses";
 import AddressCard from "@/components/(frontend)/account/AddressCard";
-
+import AddAddressDialog from "@/components/(frontend)/account/AddAddressDialog"; // ✅ ekle
 
 export default async function Adreslerim() {
   const addresses = await getAddresses();
@@ -11,9 +9,7 @@ export default async function Adreslerim() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold">Adreslerim</h1>
-        <button className="bg-black text-white px-4 py-2 rounded hover:bg-gray-800">
-          + Yeni Adres Ekle
-        </button>
+        <AddAddressDialog /> {/* ✅ buton yerine aktif bileşen */}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
