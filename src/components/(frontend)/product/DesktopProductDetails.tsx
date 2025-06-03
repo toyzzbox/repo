@@ -162,6 +162,9 @@ const DesktopProductDetails: React.FC<ProductDetailsProps> = ({
             <p className="text-xs text-gray-400">
               <span className="line-through">İndirimli Fiyat</span>
             </p>
+            <div>
+            En Geç Yarın kargoya verilecektir
+          </div>
           </div>
 
           {/* Butonlar */}
