@@ -7,7 +7,7 @@ const LoginPage = async () => {
 
   // ✅ Doğru yaklaşım: session varsa değil, session.user varsa yönlendirme
   if (session?.user) {
-    redirect("/dashboard");
+    redirect("/hesabim");
   }
 
   // Kullanıcı oturum açmamışsa login formu göster
