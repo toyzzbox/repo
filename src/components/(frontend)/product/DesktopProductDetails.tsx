@@ -10,6 +10,8 @@ import { HeartIcon } from "lucide-react";
 import ProductImageGallery from "./ProductImageGallery";
 import Image from "next/image";
 import ProductBreadcrumb from "./ProductBreadcrumb";
+import CartSuccessToast from "./CartSuccessToast";
+import { toast } from "sonner";
 
 interface ProductDetailsProps {
   product: {
@@ -60,6 +62,7 @@ const DesktopProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
         url: variant.medias?.[0]?.urls?.[0] ?? "",
       })
     );
+    toast.custom(() => <CartSuccessToast productName={variant.name} />);
   };
 
   const handleBuyNow = () => {
