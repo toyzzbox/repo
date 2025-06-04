@@ -17,7 +17,7 @@ interface ProductDetailsProps {
     id: string;
     slug: string;
     name: string;
-    description: string;
+    descriptionHtml?: string; // ✅ updated field
     price: number;
     medias: { urls: string[] }[];
     categories?: { id: string; name: string }[];
@@ -90,14 +90,12 @@ const DesktopProductDetails: React.FC<ProductDetailsProps> = ({
 
   return (
     <div className="p-4">
-      {/* Breadcrumb */}
       <ProductBreadcrumb
         category={product.categories?.[0]}
         groupName={product.group?.name}
         productName={activeVariant.name}
       />
 
-      {/* Ana içerik */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mt-4">
         <ProductImageGallery images={imageUrls} productName={activeVariant.name} />
 
@@ -108,13 +106,11 @@ const DesktopProductDetails: React.FC<ProductDetailsProps> = ({
               : activeVariant.name}
           </h2>
 
-          {/* Rating */}
           <div className="flex items-center gap-2">
             <span>⭐</span>
             <span>4.5 / 5</span>
           </div>
 
-          {/* Varyant Seçici */}
           {variants.length > 1 && (
             <div className="flex gap-2 flex-wrap">
               {variants.map((variant) => (
@@ -144,7 +140,6 @@ const DesktopProductDetails: React.FC<ProductDetailsProps> = ({
             </div>
           )}
 
-          {/* Adet Seçici */}
           <div className="flex items-center gap-4">
             <span className="text-sm font-medium">Adet:</span>
             <div className="flex items-center bg-gray-200 rounded px-3 py-1">
@@ -154,7 +149,6 @@ const DesktopProductDetails: React.FC<ProductDetailsProps> = ({
             </div>
           </div>
 
-          {/* Fiyat */}
           <div className="mt-2">
             <h1 className="text-2xl font-bold text-black">
               {(activeVariant.price * quantity).toFixed(2)} TL
@@ -167,7 +161,6 @@ const DesktopProductDetails: React.FC<ProductDetailsProps> = ({
             </div>
           </div>
 
-          {/* Butonlar */}
           <div className="flex gap-4">
             <button
               onClick={handleBuyNow}
@@ -187,15 +180,12 @@ const DesktopProductDetails: React.FC<ProductDetailsProps> = ({
           </div>
         </div>
 
-        {/* Açıklama, yorum vs */}
         <ProductDetailTabs
-          description={product.description}
+          descriptionHtml={product.descriptionHtml ?? ""}
           comments={<div>Henüz yorum bulunmamaktadır.</div>}
           questions={<div>Henüz soru bulunmamaktadır.</div>}
         />
       </div>
-
-
     </div>
   );
 };

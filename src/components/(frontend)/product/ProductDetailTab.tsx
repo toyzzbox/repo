@@ -3,12 +3,16 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface ProductDetailTabsProps {
-  description: string;
+  descriptionHtml: string;
   comments: React.ReactNode;
   questions: React.ReactNode;
 }
 
-export function ProductDetailTabs({ description, comments, questions }: ProductDetailTabsProps) {
+export function ProductDetailTabs({
+  descriptionHtml,
+  comments,
+  questions,
+}: ProductDetailTabsProps) {
   return (
     <Tabs defaultValue="description" className="w-full mt-6">
       <TabsList className="w-full flex justify-start border-b">
@@ -18,7 +22,10 @@ export function ProductDetailTabs({ description, comments, questions }: ProductD
       </TabsList>
 
       <TabsContent value="description">
-        <div className="mt-4 text-sm text-gray-700 whitespace-pre-line">{description}</div>
+        <div
+          className="prose prose-sm max-w-none mt-4 text-gray-700"
+          dangerouslySetInnerHTML={{ __html: descriptionHtml }}
+        />
       </TabsContent>
 
       <TabsContent value="comments">
