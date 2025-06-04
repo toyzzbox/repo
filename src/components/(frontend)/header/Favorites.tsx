@@ -15,7 +15,7 @@ const Favorites = () => {
       </div>
      
    
-      <span className="ml-2">Favarilerim</span>
+      <span className="ml-2">Favorilerim</span>
     </div>
   );
 };
