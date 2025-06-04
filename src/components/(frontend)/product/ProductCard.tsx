@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { formatPrice } from "@/utils/formatPrice";
-import type { Product } from "@/types/product"; // Güncel tip buradan gelsin
+import type { Product } from "@/types/product";
 import Image from "next/image";
 
 type ProductCardProps = {
@@ -18,22 +18,23 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     }
   };
 
-  // İlk medya içindeki ilk URL'i al
   const imageUrl = product.medias?.[0]?.urls?.[0] ?? null;
 
   return (
     <div
-      className="border rounded-lg shadow-lg p-4 cursor-pointer hover:shadow-xl transition"
+      className="border border-gray-200 rounded-lg shadow-md p-4 cursor-pointer transition-colors duration-300 hover:border-orange-500 group"
       onClick={handleClick}
     >
       {imageUrl ? (
-        <Image
-          src={imageUrl}
-          width={400}
-          height={300}
-          alt={product.name}
-          className="w-full h-48 object-cover rounded-t-lg"
-        />
+        <div className="overflow-hidden rounded-t-lg">
+          <Image
+            src={imageUrl}
+            width={400}
+            height={300}
+            alt={product.name}
+            className="w-full h-48 object-cover transition-opacity duration-300 group-hover:opacity-90"
+          />
+        </div>
       ) : (
         <div className="w-full h-48 bg-gray-300 rounded-t-lg flex items-center justify-center text-white">
           No Image Available
@@ -41,7 +42,9 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       )}
 
       <div className="text-center mt-4">
-        <h3 className="text-lg font-semibold">{product.name}</h3>
+        <h3 className="text-lg font-semibold group-hover:text-orange-600 transition-colors">
+          {product.name}
+        </h3>
         <p className="text-md text-gray-600">{formatPrice(product.price)}</p>
       </div>
     </div>
