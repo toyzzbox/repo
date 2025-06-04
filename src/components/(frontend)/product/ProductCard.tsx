@@ -42,7 +42,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       )}
 
       <div className="text-center mt-4">
-        <h3 className="text-lg font-semibold group-hover:text-orange-600 transition-colors">
+      <h3 className="text-lg font-semibold transition group-hover:text-primary">
           {product.name}
         </h3>
         <p className="text-md text-gray-600">{formatPrice(product.price)}</p>

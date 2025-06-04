@@ -18,9 +18,10 @@ const Header = () => {
     <Logo />
     <LiveSearch />
     <div className='hidden sm:flex items-center gap-2'>
+    <UserMenu />
       <Favorites />
       <CartCount />
-      <UserMenu />
+
     </div>
   </div>
   
