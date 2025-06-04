@@ -108,7 +108,8 @@ model Product {
   serial      String?    @unique // ✅ Opsiyonel
   stock       Int?                 // ✅ Opsiyonel
   price       Float
-  description String
+  descriptionHtml  String?
+  descriptionJson  Json?     // ✨ Bu satır yeni
 
   groupId     String? // ✅ Opsiyonel
   group       ProductGroup? @relation(fields: [groupId], references: [id])

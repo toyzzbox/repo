@@ -55,6 +55,7 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
+    "@tailwindcss/typography": "^0.5.16",
     "@types/bcryptjs": "^3.0.0",
     "@types/lodash.debounce": "^4.0.9",
     "@types/node": "^20",

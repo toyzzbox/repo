@@ -3,6 +3,7 @@
 import { useActionState, useState } from "react";
 import { createProduct } from "./action";
 import RichTextEditor from "../ui/RichTextEditor";
+import type { JSONContent } from "@tiptap/react";
 
 interface Brand {
   id: string;
@@ -37,7 +38,8 @@ export default function ProductForm({
   medias,
   productGroups,
 }: ProductFormProps) {
-  const [description, setDescription] = useState("");
+  const [descriptionHtml, setDescriptionHtml] = useState("");
+  const [descriptionJson, setDescriptionJson] = useState<JSONContent | null>(null);
   const [state, formAction, isPending] = useActionState(createProduct, null);
 
   return (
@@ -88,8 +90,29 @@ export default function ProductForm({
 
         {/* Zengin Metin Açıklama Alanı */}
         <label className="font-medium">Açıklama</label>
-        <RichTextEditor value={description} onChange={setDescription} />
-        <input type="hidden" name="description" value={description} />
+        <RichTextEditor
+          onChange={(html, json) => {
+            setDescriptionHtml(html);
+            setDescriptionJson(json);
+          }}
+        />
+        <input type="hidden" name="descriptionHtml" value={descriptionHtml} />
+        <input
+          type="hidden"
+          name="descriptionJson"
+          value={JSON.stringify(descriptionJson)}
+        />
+
+        {/* Canlı Önizleme */}
+        {descriptionHtml && (
+          <div className="border p-4 rounded mt-2 bg-white shadow">
+            <h2 className="font-semibold mb-2">Açıklama Önizleme</h2>
+            <div
+              className="prose max-w-none"
+              dangerouslySetInnerHTML={{ __html: descriptionHtml }}
+            />
+          </div>
+        )}
 
         {/* Marka Seçimi */}
         <label className="font-medium">Markalar</label>
