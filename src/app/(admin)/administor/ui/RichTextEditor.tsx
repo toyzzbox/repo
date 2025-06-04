@@ -2,31 +2,61 @@
 
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import { useEffect } from "react";
+import Underline from "@tiptap/extension-underline";
+import Link from "@tiptap/extension-link";
+import Image from "@tiptap/extension-image";
+import { useEffect, useState } from "react";
 
 type Props = {
   value: string;
-  onChange: (content: string) => void;
+  onChange: (value: string) => void;
 };
 
 export default function RichTextEditor({ value, onChange }: Props) {
   const editor = useEditor({
-    extensions: [StarterKit],
+    extensions: [
+      StarterKit,
+      Underline,
+      Link.configure({ openOnClick: false }),
+      Image,
+    ],
     content: value,
-    onUpdate({ editor }) {
+    onUpdate: ({ editor }) => {
       onChange(editor.getHTML());
     },
   });
 
-  useEffect(() => {
-    if (editor && value !== editor.getHTML()) {
-      editor.commands.setContent(value);
+  const addImage = () => {
+    const url = window.prompt("Görsel URL’si:");
+    if (url) {
+      editor?.chain().focus().setImage({ src: url }).run();
     }
-  }, [value, editor]);
+  };
+
+  if (!editor) return null;
 
   return (
-    <div className="border rounded p-3 bg-white">
-      <EditorContent editor={editor} />
+    <div className="space-y-2">
+      {/* Toolbar */}
+      <div className="flex gap-2 border-b pb-2">
+        <button onClick={() => editor.chain().focus().toggleBold().run()}>Bold</button>
+        <button onClick={() => editor.chain().focus().toggleItalic().run()}>Italic</button>
+        <button onClick={() => editor.chain().focus().toggleUnderline().run()}>Underline</button>
+        <button onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}>H1</button>
+        <button onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}>H2</button>
+        <button onClick={() => {
+          const url = window.prompt("Link:");
+          if (url) editor.chain().focus().setLink({ href: url }).run();
+        }}>
+          Link
+        </button>
+        <button onClick={addImage}>Görsel Ekle</button>
+      </div>
+
+      {/* Editor */}
+      <div className="border rounded min-h-[150px] p-2">
+        <EditorContent editor={editor} />
+      </div>
     </div>
   );
 }

@@ -86,10 +86,12 @@ export default function ProductForm({
           required
         />
 
+        {/* Zengin Metin Açıklama Alanı */}
         <label className="font-medium">Açıklama</label>
         <RichTextEditor value={description} onChange={setDescription} />
         <input type="hidden" name="description" value={description} />
 
+        {/* Marka Seçimi */}
         <label className="font-medium">Markalar</label>
         <select name="brandIds[]" multiple className="border rounded px-3 py-2">
           {brands.map((brand) => (
@@ -99,6 +101,7 @@ export default function ProductForm({
           ))}
         </select>
 
+        {/* Kategori Seçimi */}
         <label className="font-medium">Kategoriler</label>
         <select name="categoryIds[]" multiple className="border rounded px-3 py-2">
           {categories.map((category) => (
@@ -108,6 +111,7 @@ export default function ProductForm({
           ))}
         </select>
 
+        {/* Medya Seçimi */}
         <label className="font-medium">Medya</label>
         <select name="mediaIds[]" multiple className="border rounded px-3 py-2">
           {medias.map((media) => (

@@ -8,7 +8,7 @@ export default function AdminLayout({
     children: React.ReactNode;
   }) {
     return (
-      <html lang="en">
+      <html lang="tr">
         <body className="bg-gray-100 text-gray-900">
           <div className="">
             <div>
