@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface ProductDetailTabsProps {
@@ -13,6 +14,10 @@ export function ProductDetailTabs({
   comments,
   questions,
 }: ProductDetailTabsProps) {
+  useEffect(() => {
+    console.log("descriptionHtml:", descriptionHtml);
+  }, [descriptionHtml]);
+
   return (
     <Tabs defaultValue="description" className="w-full mt-6">
       <TabsList className="w-full flex justify-start border-b">
