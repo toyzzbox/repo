@@ -39,7 +39,6 @@ export default function ProductForm({
   productGroups,
 }: ProductFormProps) {
   const [descriptionHtml, setDescriptionHtml] = useState("");
-  const [descriptionJson, setDescriptionJson] = useState<JSONContent | null>(null);
   const [state, formAction, isPending] = useActionState(createProduct, null);
 
   return (
@@ -93,15 +92,10 @@ export default function ProductForm({
         <RichTextEditor
           onChange={(html, json) => {
             setDescriptionHtml(html);
-            setDescriptionJson(json);
           }}
         />
         <input type="hidden" name="descriptionHtml" value={descriptionHtml} />
-        <input
-          type="hidden"
-          name="descriptionJson"
-          value={JSON.stringify(descriptionJson)}
-        />
+       
 
         {/* Canlı Önizleme */}
         {descriptionHtml && (

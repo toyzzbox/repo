@@ -14,7 +14,6 @@ const schema = z.object({
   categoryIds: z.array(z.string()).default([]),
   mediaIds: z.array(z.string()).default([]),
   descriptionHtml: z.string().optional(),
-  descriptionJson: z.string().optional(), // JSON string olarak gelir
 });
 
 export async function createProduct(prevState: any, formData: FormData) {
@@ -29,7 +28,6 @@ export async function createProduct(prevState: any, formData: FormData) {
       categoryIds: formData.getAll("categoryIds[]"),
       mediaIds: formData.getAll("mediaIds[]"),
       descriptionHtml: formData.get("descriptionHtml") || undefined,
-      descriptionJson: formData.get("descriptionJson") || undefined,
     };
 
     const data = schema.parse(raw);
