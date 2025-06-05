@@ -1,14 +1,14 @@
 import type { Config } from "tailwindcss";
 
 const config: Config = {
-  content: [
-    "./app/**/*.{ts,tsx}",
-    "./app/(frontend)/**/*.{ts,tsx}",
-    "./app/(backend)/**/*.{ts,tsx}",
-    "./components/**/*.{ts,tsx}",
-    "./pages/**/*.{ts,tsx}",      // Eğer pages dizini kullanıyorsan
-    "./src/**/*.{ts,tsx}",        // Eğer başka klasörlerde component varsa
-  ],
+    content: [
+        "./app/**/*.{ts,tsx,css}",
+        "./app/(frontend)/**/*.{ts,tsx,css}",
+        "./app/(backend)/**/*.{ts,tsx,css}",
+        "./components/**/*.{ts,tsx,css}",
+        "./pages/**/*.{ts,tsx,css}",
+        "./src/**/*.{ts,tsx,css}",
+      ],
   theme: {
     extend: {
       typography: {
