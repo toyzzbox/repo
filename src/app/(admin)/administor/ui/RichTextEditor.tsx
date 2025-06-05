@@ -1,6 +1,6 @@
 "use client";
 
-import { useEditor, EditorContent, JSONContent } from "@tiptap/react";
+import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Underline from "@tiptap/extension-underline";
 import Link from "@tiptap/extension-link";
@@ -8,7 +8,7 @@ import Image from "@tiptap/extension-image";
 
 interface RichTextEditorProps {
   initialContent?: string;
-  onChange: (html: string, json: JSONContent) => void;
+  onChange: (html: string) => void;
 }
 
 export default function RichTextEditor({
@@ -24,7 +24,7 @@ export default function RichTextEditor({
     ],
     content: initialContent,
     onUpdate({ editor }) {
-      onChange(editor.getHTML(), editor.getJSON());
+      onChange(editor.getHTML());
     },
   });
 
@@ -39,6 +39,7 @@ export default function RichTextEditor({
 
   return (
     <div className="space-y-2">
+      {/* Araç çubuğu */}
       <div className="flex gap-2 border-b pb-2">
         <button onClick={() => editor.chain().focus().toggleBold().run()}>Bold</button>
         <button onClick={() => editor.chain().focus().toggleItalic().run()}>Italic</button>
@@ -56,6 +57,7 @@ export default function RichTextEditor({
         <button onClick={addImage}>Görsel Ekle</button>
       </div>
 
+      {/* Editör alanı */}
       <div className="border rounded min-h-[150px] p-2">
         <EditorContent editor={editor} />
       </div>
