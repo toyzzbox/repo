@@ -1,3 +1,4 @@
+import "../globals.css"; // 🌟 BURASI ZORUNLU! 🌟
 import Footer from "@/components/(frontend)/footer/Footer";
 import Header from "@/components/(frontend)/header/Header";
 import { ReduxProvider } from "@/components/providers/ReduxProvider";
