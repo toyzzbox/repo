@@ -11,7 +11,12 @@ const config: Config = {
   ],
   theme: {
     extend: {
-      // ShadCN UI varsayılan renkleri veya fontları burada override edilebilir
+      colors: {
+        border: "#e5e7eb",         // ✔️ border-border için tanım
+        ring: "rgba(59, 130, 246)", // ✔️ outline-ring/50 için base tanım
+        background: "#ffffff",
+        foreground: "#111111",
+      },
     },
   },
   plugins: [
