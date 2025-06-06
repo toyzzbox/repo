@@ -2,7 +2,7 @@
 
 import { useActionState, useState } from "react";
 import { createProduct } from "./action";
-import RichTextEditor from "../ui/RichTextEditor";
+import RichTextEditor from "@/components/(frontend)/rich-text-editor";
 
 interface Brand {
   id: string;
@@ -37,7 +37,7 @@ export default function ProductForm({
   medias,
   productGroups,
 }: ProductFormProps) {
-  const [descriptionHtml, setDescriptionHtml] = useState("");
+  const [content, setContent] = useState("");
   const [state, formAction, isPending] = useActionState(createProduct, null);
 
   return (
@@ -88,25 +88,9 @@ export default function ProductForm({
 
         {/* Zengin Metin Açıklama Alanı */}
         <label className="font-medium">Açıklama</label>
-        <RichTextEditor
-  onChange={(html) => {
-    setDescriptionHtml(html);
-  }}
-/>
-
-        <input type="hidden" name="descriptionHtml" value={descriptionHtml} />
-       
-
-        {/* Canlı Önizleme */}
-        {descriptionHtml && (
-          <div className="border p-4 rounded mt-2 bg-white shadow">
-            <h2 className="font-semibold mb-2">Açıklama Önizleme</h2>
-            <div
-              className="prose max-w-none"
-              dangerouslySetInnerHTML={{ __html: descriptionHtml }}
-            />
-          </div>
-        )}
+        
+            <RichTextEditor content={content} onChange={setContent}/>
+      
 
         {/* Marka Seçimi */}
         <label className="font-medium">Markalar</label>
