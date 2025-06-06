@@ -17,7 +17,7 @@ interface ProductDetailsProps {
     id: string;
     slug: string;
     name: string;
-    descriptionHtml?: string; // ✅ updated field
+    description?: string; // ✅ updated field
     price: number;
     medias: { urls: string[] }[];
     categories?: { id: string; name: string }[];
@@ -181,7 +181,7 @@ const DesktopProductDetails: React.FC<ProductDetailsProps> = ({
         </div>
 
         <ProductDetailTabs
-          descriptionHtml={product.descriptionHtml ?? ""}
+          descriptionHtml={product.description ?? ""}
           comments={<div>Henüz yorum bulunmamaktadır.</div>}
           questions={<div>Henüz soru bulunmamaktadır.</div>}
         />
