@@ -37,7 +37,7 @@ export default function ProductForm({
   medias,
   productGroups,
 }: ProductFormProps) {
-  const [content, setContent] = useState("");
+  const [description, setDescription] = useState("");
   const [state, formAction, isPending] = useActionState(createProduct, null);
 
   return (
@@ -86,11 +86,9 @@ export default function ProductForm({
           required
         />
 
-        {/* Zengin Metin Açıklama Alanı */}
-        <label className="font-medium">Açıklama</label>
-        
-            <RichTextEditor content={content} onChange={setContent}/>
-      
+<label className="font-medium">Açıklama</label>
+<RichTextEditor description={description} onChange={setDescription} />
+<input type="hidden" name="description" value={description} />
 
         {/* Marka Seçimi */}
         <label className="font-medium">Markalar</label>

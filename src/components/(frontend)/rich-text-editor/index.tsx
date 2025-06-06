@@ -6,11 +6,11 @@ import TextAlign from "@tiptap/extension-text-align"
 import Highlight from "@tiptap/extension-highlight"
 import MenuBar from './menu-bar'
 interface RichTextEditorProps {
-  content: string;
+  description: string;
   onChange: (content: string) => void;
 }
 export default function RichTextEditor({
-  content,
+ description,
   onChange,
 }: RichTextEditorProps) {
   const editor = useEditor({
@@ -32,7 +32,7 @@ export default function RichTextEditor({
       }),
       Highlight,
     ],
-    content: content,
+    content: description,
     editorProps: {
       attributes: {
         class: "min-h-[156px] border rounded-md bg-slate-50 py-2 px-3",
@@ -47,4 +47,4 @@ export default function RichTextEditor({
       <MenuBar editor={editor} />
       <EditorContent editor={editor} />
     </div>
-  )
+  )}

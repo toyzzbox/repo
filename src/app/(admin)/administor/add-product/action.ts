@@ -32,10 +32,6 @@ export async function createProduct(prevState: any, formData: FormData) {
 
     const data = schema.parse(raw);
 
-    // JSON string -> object
-    const descriptionJsonParsed = data.descriptionJson
-      ? JSON.parse(data.descriptionJson)
-      : undefined;
 
     const slug = slugify(`${data.name}-${data.serial || Date.now()}`, {
       lower: true,
@@ -50,7 +46,6 @@ export async function createProduct(prevState: any, formData: FormData) {
         stock: typeof data.stock === "number" ? data.stock : undefined,
         price: data.price,
         descriptionHtml: data.descriptionHtml || undefined,
-        descriptionJson: descriptionJsonParsed,
         group: data.groupId ? { connect: { id: data.groupId } } : undefined,
         medias: data.mediaIds.length > 0
           ? { connect: data.mediaIds.map((id) => ({ id })) }
