@@ -22,7 +22,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="tr">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         {/* Tailwind test divi */}
-        <div className="bg-red-500 text-white p-4">Tailwind ÇALIŞIYOR 🎉</div>
+        <div className="bg-red-500 text-white p-4">Tailwind ÇALIŞIYOR 🎉</div>sss
         {children}
       </body>
     </html>
