@@ -15,7 +15,7 @@ export default async function ProductPage({ params }: PageProps) {
       id: true,
       slug: true,
       name: true,
-      descriptionHtml: true, // ✅ Doğru alan bu
+      description: true, // ✅ Doğru alan bu
       price: true,
       medias: {
         select: {
