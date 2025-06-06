@@ -3,7 +3,6 @@
 import { useActionState, useState } from "react";
 import { createProduct } from "./action";
 import RichTextEditor from "../ui/RichTextEditor";
-import type { JSONContent } from "@tiptap/react";
 
 interface Brand {
   id: string;
@@ -90,10 +89,11 @@ export default function ProductForm({
         {/* Zengin Metin Açıklama Alanı */}
         <label className="font-medium">Açıklama</label>
         <RichTextEditor
-          onChange={(html, json) => {
-            setDescriptionHtml(html);
-          }}
-        />
+  onChange={(html) => {
+    setDescriptionHtml(html);
+  }}
+/>
+
         <input type="hidden" name="descriptionHtml" value={descriptionHtml} />
        
 
