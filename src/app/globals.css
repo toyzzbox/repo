@@ -1,4 +1,4 @@
 @import "tailwindcss/preflight";
 @import "tailwindcss/utilities";
 
-@import "tw-animate-css"; /* varsa animasyon kütüphanesi */
+/* Eğer özel stiller varsa en alta yazabilirsin */
