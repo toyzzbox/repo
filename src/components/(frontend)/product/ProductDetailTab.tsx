@@ -4,19 +4,19 @@ import { useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface ProductDetailTabsProps {
-  descriptionHtml: string;
+  description: string;
   comments: React.ReactNode;
   questions: React.ReactNode;
 }
 
 export function ProductDetailTabs({
-  descriptionHtml,
+  description,
   comments,
   questions,
 }: ProductDetailTabsProps) {
   useEffect(() => {
-    console.log("descriptionHtml:", descriptionHtml);
-  }, [descriptionHtml]);
+    console.log("description:", description);
+  }, [description]);
 
   return (
     <Tabs defaultValue="description" className="w-full mt-6">
@@ -27,10 +27,8 @@ export function ProductDetailTabs({
       </TabsList>
 
       <TabsContent value="description">
-        <div
-          className="prose prose-sm max-w-none mt-4 text-gray-700"
-          dangerouslySetInnerHTML={{ __html: descriptionHtml }}
-        />
+      <div className="mt-4">{description}</div>
+      
       </TabsContent>
 
       <TabsContent value="comments">
