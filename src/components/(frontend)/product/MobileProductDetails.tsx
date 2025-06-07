@@ -122,7 +122,7 @@ export default function MobileProductDetails({
         {/* Tabs: Açıklama / Yorum / Soru */}
         <div className="mt-6">
           <ProductDetailTabsMobile
-            product={{ description: activeVariant.description ?? product.description ?? "" }}
+            product={{ description: activeVariant.description ?? product.description ?? "sdsalldsalsalla" }}
             comments={<div>Henüz yorum yok.</div>}
             questions={<div>Henüz soru yok.</div>}
           />
