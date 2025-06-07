@@ -38,13 +38,18 @@ export default function ProductForm({
   productGroups,
 }: ProductFormProps) {
   const [description, setDescription] = useState("");
-  const [state, formAction, isPending] = useActionState(createProduct, null);
+
+  const [state, formAction, isPending] = useActionState(
+    createProduct,
+    undefined // ✅ varsayılan durum
+  );
 
   return (
     <main className="mx-auto max-w-xl px-4 py-8">
       <h1 className="text-2xl font-bold mb-6">Ürün Ekle</h1>
 
       <form action={formAction} className="flex flex-col gap-4">
+        {/* Ürün Grubu */}
         <label className="font-medium">Ürün Grubu (opsiyonel)</label>
         <select name="groupId" className="border rounded px-3 py-2">
           <option value="">— Grupsuz Ürün —</option>
@@ -86,13 +91,19 @@ export default function ProductForm({
           required
         />
 
-<label className="font-medium">Açıklama</label>
-<RichTextEditor
-  description={description}
-  onChange={(value) => setDescription(value)} // burada setDescription çağrılıyor olmalı
-/>
-<input type="hidden" name="description" value={description} />
-<p className="text-xs mt-1 text-gray-500">Preview: {description}</p>
+        {/* Açıklama */}
+        <label className="font-medium">Açıklama</label>
+        <RichTextEditor description={description} onChange={setDescription} />
+        <input type="hidden" name="description" value={description} />
+
+        {/* Preview */}
+        <div className="prose prose-sm border rounded p-2 bg-slate-50">
+          <label className="text-sm font-medium">Önizleme:</label>
+          <div
+            className="mt-1 text-gray-700"
+            dangerouslySetInnerHTML={{ __html: description }}
+          />
+        </div>
 
         {/* Marka Seçimi */}
         <label className="font-medium">Markalar</label>
@@ -124,6 +135,7 @@ export default function ProductForm({
           ))}
         </select>
 
+        {/* Submit */}
         <button
           type="submit"
           disabled={isPending}
