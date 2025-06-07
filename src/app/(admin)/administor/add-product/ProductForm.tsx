@@ -87,8 +87,12 @@ export default function ProductForm({
         />
 
 <label className="font-medium">Açıklama</label>
-<RichTextEditor description={description} onChange={setDescription} />
+<RichTextEditor
+  description={description}
+  onChange={(value) => setDescription(value)} // burada setDescription çağrılıyor olmalı
+/>
 <input type="hidden" name="description" value={description} />
+<p className="text-xs mt-1 text-gray-500">Preview: {description}</p>
 
         {/* Marka Seçimi */}
         <label className="font-medium">Markalar</label>
