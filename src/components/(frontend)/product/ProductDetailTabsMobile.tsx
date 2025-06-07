@@ -26,10 +26,11 @@ export default function ProductDetailTabsMobile({
         <AccordionItem value="description">
           <AccordionTrigger>Açıklama</AccordionTrigger>
           <AccordionContent>
-            <div className="text-sm text-gray-700 whitespace-pre-line">
-              {product.description}
-            </div>
-          </AccordionContent>
+  <div
+    className="text-sm text-gray-700"
+    dangerouslySetInnerHTML={{ __html: product.description }}
+  />
+</AccordionContent>
         </AccordionItem>
 
         <AccordionItem value="comments">
