@@ -148,6 +148,7 @@ const DesktopProductDetails: React.FC<ProductDetailsProps> = ({
               <button onClick={incrementQuantity} className="px-2 text-lg">+</button>
             </div>
           </div>
+          <div>{product?.description}</div>
 
           <div className="mt-2">
             <h1 className="text-2xl font-bold text-black">
