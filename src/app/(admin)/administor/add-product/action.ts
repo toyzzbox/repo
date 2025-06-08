@@ -13,7 +13,7 @@ const schema = z.object({
   brandIds: z.array(z.string()).default([]),
   categoryIds: z.array(z.string()).default([]),
   mediaIds: z.array(z.string()).default([]),
-  descriptionHtml: z.string().optional(),
+  description: z.string().optional(),
 });
 
 export async function createProduct(prevState: any, formData: FormData) {
@@ -27,8 +27,8 @@ export async function createProduct(prevState: any, formData: FormData) {
       brandIds: formData.getAll("brandIds[]"),
       categoryIds: formData.getAll("categoryIds[]"),
       mediaIds: formData.getAll("mediaIds[]"),
-      descriptionHtml: formData.get("descriptionHtml") || undefined,
-    };
+      description: formData.get("description")?.toString() || undefined,
+      };
 
     const data = schema.parse(raw);
 
@@ -45,7 +45,7 @@ export async function createProduct(prevState: any, formData: FormData) {
         serial: data.serial || undefined,
         stock: typeof data.stock === "number" ? data.stock : undefined,
         price: data.price,
-        descriptionHtml: data.descriptionHtml || undefined,
+        description: data.description,
         group: data.groupId ? { connect: { id: data.groupId } } : undefined,
         medias: data.mediaIds.length > 0
           ? { connect: data.mediaIds.map((id) => ({ id })) }

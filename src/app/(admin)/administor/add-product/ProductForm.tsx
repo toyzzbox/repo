@@ -36,7 +36,7 @@ export default function ProductForm({
   medias,
   productGroups,
 }: ProductFormProps) {
-  const [description, setDescription] = useState("");
+
 
 
   
@@ -94,6 +94,7 @@ export default function ProductForm({
   placeholder="Ürün açıklaması"
   className="border rounded px-3 py-2 min-h-[120px]"
 ></textarea>
+
 
         {/* Marka Seçimi */}
         <label className="font-medium">Markalar</label>
