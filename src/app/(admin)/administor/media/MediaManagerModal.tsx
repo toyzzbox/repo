@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
+import { getSignedUrl } from "./action";
 
 interface Media {
   id: string;
@@ -24,32 +25,56 @@ interface MediaManagerModalProps {
 export default function MediaManagerModal({ medias, onSelect }: MediaManagerModalProps) {
   const [open, setOpen] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [localMedias, setLocalMedias] = useState<Media[]>(medias); // ✅ local state
+  const [localMedias, setLocalMedias] = useState<Media[]>(medias);
   const inputRef = useRef<HTMLInputElement | null>(null);
 
-  // Orijinal prop değişirse localMedias güncellensin
   useEffect(() => {
     setLocalMedias(medias);
   }, [medias]);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      const preview = URL.createObjectURL(file);
-      setPreviewUrl(preview);
+    if (!file) return;
 
-      // Medya örneği oluştur
-      const newMedia: Media = {
-        id: `temp-${Date.now()}`, // geçici ID
-        urls: [preview], // sadece preview
-      };
+    // ✅ Dosya bilgileri
+    const fileType = file.type;
+    const fileSize = file.size;
 
-      // Listeye ekle
-      setLocalMedias((prev) => [...prev, newMedia]);
+    // ✅ Dosya içeriğinden checksum üret
+    const buffer = await file.arrayBuffer();
+    const hashBuffer = await crypto.subtle.digest("SHA-256", buffer);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const checksum = btoa(String.fromCharCode(...hashArray)).replace(/=+$/, "");
 
-      // İsteğe bağlı olarak burada uploadToS3(file) yapılabilir
+    // ✅ Sunucudan signed URL al
+    const response = await getSignedUrl(fileType, fileSize, checksum);
+
+    if ("failure" in response) {
+      alert("Yükleme hatası: " + response.failure);
+      return;
     }
+
+    const { url, mediaId, urls } = response.success;
+
+    // ✅ PUT isteği ile S3'e gönder
+    await fetch(url, {
+      method: "PUT",
+      headers: {
+        "Content-Type": fileType,
+        "Content-Length": fileSize.toString(),
+        "x-amz-checksum-sha256": checksum,
+      },
+      body: file,
+    });
+
+    // ✅ localMedias'a ekle
+    setLocalMedias((prev) => [
+      ...prev,
+      {
+        id: mediaId,
+        urls,
+      },
+    ]);
   };
 
   const handleMediaClick = (media: Media) => {
@@ -84,19 +109,6 @@ export default function MediaManagerModal({ medias, onSelect }: MediaManagerModa
             </Button>
           </div>
         </div>
-
-        {previewUrl && (
-          <div className="mb-4">
-            <p className="text-sm mb-1 text-muted-foreground">Önizleme:</p>
-            <Image
-              src={previewUrl}
-              alt="Preview"
-              width={300}
-              height={300}
-              className="rounded border shadow-md object-contain"
-            />
-          </div>
-        )}
 
         {localMedias.length === 0 ? (
           <p className="text-gray-500 text-sm">Henüz medya eklenmedi.</p>
