@@ -25,7 +25,7 @@ export default async function UserMenu() {
         </Button>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent className="w-56 bg-white">
+      <DropdownMenuContent className="w-56 bg-white text-black">
         {session?.user ? (
           <>
             <DropdownMenuLabel>{session.user.email}</DropdownMenuLabel>
