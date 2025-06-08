@@ -2,7 +2,6 @@
 
 import { useActionState, useState } from "react";
 import { createProduct } from "./action";
-import RichTextEditor from "@/components/(frontend)/rich-text-editor";
 
 interface Brand {
   id: string;
@@ -39,17 +38,15 @@ export default function ProductForm({
 }: ProductFormProps) {
   const [description, setDescription] = useState("");
 
-  const [state, formAction, isPending] = useActionState(
-    createProduct,
-    undefined // ✅ varsayılan durum
-  );
+
+  
+  const [state, formAction, isPending] = useActionState(createProduct, null);
 
   return (
     <main className="mx-auto max-w-xl px-4 py-8">
       <h1 className="text-2xl font-bold mb-6">Ürün Ekle</h1>
 
       <form action={formAction} className="flex flex-col gap-4">
-        {/* Ürün Grubu */}
         <label className="font-medium">Ürün Grubu (opsiyonel)</label>
         <select name="groupId" className="border rounded px-3 py-2">
           <option value="">— Grupsuz Ürün —</option>
@@ -91,19 +88,12 @@ export default function ProductForm({
           required
         />
 
-        {/* Açıklama */}
-        <label className="font-medium">Açıklama</label>
-        <RichTextEditor description={description} onChange={setDescription} />
-        <input type="hidden" name="description" value={description} />
-
-        {/* Preview */}
-        <div className="prose prose-sm border rounded p-2 bg-slate-50">
-          <label className="text-sm font-medium">Önizleme:</label>
-          <div
-            className="mt-1 text-gray-700"
-            dangerouslySetInnerHTML={{ __html: description }}
-          />
-        </div>
+<label className="font-medium">Açıklama</label>
+<textarea
+  name="description"
+  placeholder="Ürün açıklaması"
+  className="border rounded px-3 py-2 min-h-[120px]"
+></textarea>
 
         {/* Marka Seçimi */}
         <label className="font-medium">Markalar</label>
@@ -135,7 +125,6 @@ export default function ProductForm({
           ))}
         </select>
 
-        {/* Submit */}
         <button
           type="submit"
           disabled={isPending}
