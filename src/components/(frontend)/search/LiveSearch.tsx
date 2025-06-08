@@ -55,8 +55,8 @@ export default function LiveSearch() {
             <Image
             src={product.medias?.[0]?.urls?.[0] || "/placeholder.png"}
             alt={product.name}
-            width={10}
-            height={10}
+            width={22}
+            height={14}
             className="object-cover rounded border"
           />
               <span className="font-medium truncate">{product.name}</span>
