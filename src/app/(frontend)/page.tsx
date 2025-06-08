@@ -18,9 +18,9 @@ export default async function Home() {
   <div className="flex gap-4 px-4 pb-4 w-max">
     {products.map((product) => (
       <div
-        key={product.id}
-        className="min-w-[200px] sm:min-w-[250px] snap-start"
-      >
+      key={product.id}
+      className="snap-start shrink-0"
+    >
         <ProductCard product={product} />
       </div>
     ))}
