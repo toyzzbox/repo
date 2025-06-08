@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { searchProducts } from "@/actions/searchProducts";
 import debounce from "lodash.debounce";
 import { FaSearch } from "react-icons/fa";
+import Image from "next/image";
 
 export default function LiveSearch() {
   const [query, setQuery] = useState("");
@@ -45,18 +46,25 @@ export default function LiveSearch() {
       )}
 
       {results.length > 0 && (
-        <ul className="absolute top-full left-0 w-full mt-1 bg-white border rounded shadow z-50 max-h-80 overflow-y-auto">
-          {results.map((product) => (
-            <li key={product.id} className="p-2 hover:bg-gray-100">
-              <a href={`/products/${product.slug}`}>
-                <div className="font-medium">{product.name}</div>
-                <div className="text-xs text-gray-500">
-                  {product.brand?.name} | {product.categories.map((c: any) => c.name).join(", ")}
-                </div>
-              </a>
-            </li>
-          ))}
-        </ul>
+      <ul className="absolute top-full left-0 w-full mt-1 bg-white border rounded shadow z-50 max-h-80 overflow-y-auto">
+      {results.map((product) => (
+        <li key={product.id} className="flex items-center gap-3 p-2 hover:bg-gray-100">
+          <a href={`/product/${product.slug}`} className="flex items-center gap-3 w-full">
+            <Image
+              src={product.medias?.[0]?.urls?.[0] || "/placeholder.png"}
+              alt={product.name}
+              className="w-12 h-12 object-cover rounded border"
+            />
+            <div className="flex flex-col overflow-hidden">
+              <span className="font-medium truncate">{product.name}</span>
+              <span className="text-xs text-gray-500 truncate">
+                {product.brand?.name} | {product.categories.map((c: any) => c.name).join(", ")}
+              </span>
+            </div>
+          </a>
+        </li>
+      ))}
+    </ul>
       )}
     </div>
   );
