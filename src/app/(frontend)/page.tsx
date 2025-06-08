@@ -40,15 +40,31 @@ export default async function Home() {
       )}
 
 <h1 className="text-2xl font-bold text-center p-5">En Popüler Markalar</h1>
-      {brands.length === 0 ? (
+
+{brands.length === 0 ? (
   <p className="text-center text-gray-500">Marka bulunamadı.</p>
 ) : (
-  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
-    {brands.map((brand) => (
-      <BrandCard key={brand.id} brand={brand} />
-      
-    ))}
-  </div>
+  <Carousel
+    opts={{
+      align: "start",
+      loop: true,
+    }}
+    className="w-full"
+  >
+    <CarouselContent>
+      {brands.map((brand) => (
+        <CarouselItem
+          key={brand.id}
+          className="basis-1/2 sm:basis-1/3 md:basis-1/4 lg:basis-1/5 xl:basis-1/6"
+        >
+          <BrandCard brand={brand} />
+        </CarouselItem>
+      ))}
+    </CarouselContent>
+
+    <CarouselPrevious />
+    <CarouselNext />
+  </Carousel>
 )}
 
 <h1 className="text-2xl font-bold text-center p-5">En Popüler Kategoriler</h1>
