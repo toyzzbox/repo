@@ -42,9 +42,12 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       )}
 
       <div className="text-center mt-4">
-      <h3 className="text-lg font-semibold transition group-hover:text-primary">
-          {product.name}
-        </h3>
+      <h3
+  className="truncate max-w-[250px] mx-auto text-lg font-semibold transition group-hover:text-primary"
+  title={product.name}
+>
+  {product.name}
+</h3>
         <p className="text-md text-gray-600">{formatPrice(product.price)}</p>
       </div>
     </div>
