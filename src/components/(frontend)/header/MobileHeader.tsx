@@ -57,7 +57,7 @@ export default function MobileHeader() {
       {/* LiveSearch alanı - scroll ile gizlenir/görünür */}
       <div 
         className={`
-          fixed top-4 left-0 right-0 z-40 bg-white px-4 py-2 shadow-sm
+          fixed top-16 left-0 right-0 z-40 bg-white px-4 py-2 shadow-sm
           transition-transform duration-300 ease-in-out
           ${isSearchVisible ? 'transform translate-y-0' : 'transform -translate-y-full'}
         `}
