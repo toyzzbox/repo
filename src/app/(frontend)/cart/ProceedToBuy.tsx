@@ -1,6 +1,5 @@
-'use client';
 
-import React from 'react';
+
 import { useAppSelector } from "@/hooks/redux";
 import { getCart } from "@/redux/cartSlice";
 import Link from 'next/link';
