@@ -50,14 +50,15 @@ export default function LiveSearch() {
       {results.map((product) => (
         <li key={product.id} className="flex items-center gap-3 p-2 hover:bg-gray-100">
           <a href={`/product/${product.slug}`} className="flex items-center gap-3 w-full">
-          <Image
+          
+            <div className="flex flex-col overflow-hidden">
+            <Image
             src={product.medias?.[0]?.urls?.[0] || "/placeholder.png"}
             alt={product.name}
             fill
             className="object-cover rounded border"
-            sizes="48px"
+            sizes="8px"
           />
-            <div className="flex flex-col overflow-hidden">
               <span className="font-medium truncate">{product.name}</span>
               <span className="text-xs text-gray-500 truncate">
                 {product.brand?.name} | {product.categories.map((c: any) => c.name).join(", ")}
