@@ -1,30 +1,19 @@
-'use client'; // Bileşenin istemci bileşeni olduğunu belirtmek için
+'use client';
 
 import React from 'react';
-import { useAppSelector } from "@/hooks/redux"; // Redux hook'unu içe aktar
-import { getCart } from "@/redux/cartSlice"; // Sepet verilerini almak için seçici
-import { useRouter } from 'next/navigation';
+import { useAppSelector } from "@/hooks/redux";
+import { getCart } from "@/redux/cartSlice";
+import Link from 'next/link';
 
 const ProceedToBuy = () => {
-  const cart = useAppSelector(getCart); // Sepet öğelerini Redux store'dan alıyoruz
+  const cart = useAppSelector(getCart);
 
-  // Toplam fiyatı hesapla
   const totalProductPrice = cart.reduce((total, item) => total + item.price * item.quantity, 0);
-  
-  // Kargo ücreti (örneğin sabit bir değer veya başka bir hesaplama)
-  const shippingCost = 10; // Örnek kargo ücreti
-  const grandTotal = totalProductPrice + shippingCost; // Toplam fiyatı hesapla
-
-
-  const router = useRouter();
-
-  const handleClick = () => {
-    router.push("/checkout"); // Route to the git log --oneline -n 10home page
-  };
+  const shippingCost = 100;
+  const grandTotal = totalProductPrice + shippingCost;
 
   return (
-<div className="w-full">
-   
+    <div className="w-full">
       <div className='rounded-lg border border-gray-200 p-4 mt-4'>
         <div className='flex justify-between'>
           <span>Ürünün Toplamı:</span>
@@ -39,7 +28,9 @@ const ProceedToBuy = () => {
           <span>Toplam:</span>
           <span>{` ${grandTotal.toFixed(2)} TL`}</span>
         </div>
-        <button  onClick={handleClick} className='bg-orange-500 text-white py-2 px-4 rounded w-full p-2 mr-3 mt-3'>Siparişi Onayla</button>
+        <Link href="/checkout" className='block bg-orange-500 text-white py-2 px-4 rounded w-full text-center mt-3'>
+          Siparişi Onayla
+        </Link>
       </div>
     </div>
   );
