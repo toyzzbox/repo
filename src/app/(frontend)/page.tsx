@@ -5,6 +5,7 @@ import AgeCatalogue from "@/components/(frontend)/home/AgeCatalogue";
 import { BrandCard } from "@/components/(frontend)/product/BrandCard";
 import { CategoryCard } from "@/components/(frontend)/product/CategoryCard";
 import  {ProductCard}  from "@/components/(frontend)/product/ProductCard";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 
 export default async function Home() {
   const products = await getProducts();
@@ -13,19 +14,31 @@ export default async function Home() {
   return (
     <main className="m-2">
     <h1 className="text-2xl font-bold text-center p-5">En Popüler Ürünler</h1>
+    {products.length === 0 ? (
+        <p className="text-center text-gray-500">Ürün bulunamadı.</p>
+      ) : (
+        <Carousel
+          opts={{
+            align: "start",
+            loop: true,
+          }}
+          className="w-full"
+        >
+          <CarouselContent>
+            {products.map((product) => (
+              <CarouselItem
+                key={product.id}
+                className="basis-[80%] sm:basis-1/2 md:basis-1/3 lg:basis-1/5"
+              >
+                <ProductCard product={product} />
+              </CarouselItem>
+            ))}
+          </CarouselContent>
 
-    <div className="overflow-x-auto snap-x snap-mandatory">
-  <div className="flex gap-4 px-4 pb-4 w-max">
-    {products.map((product) => (
-      <div
-      key={product.id}
-      className="snap-start shrink-0"
-    >
-        <ProductCard product={product} />
-      </div>
-    ))}
-  </div>
-</div>
+          <CarouselPrevious />
+          <CarouselNext />
+        </Carousel>
+      )}
 
 <h1 className="text-2xl font-bold text-center p-5">En Popüler Markalar</h1>
       {brands.length === 0 ? (
