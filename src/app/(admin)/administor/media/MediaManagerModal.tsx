@@ -7,7 +7,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 
@@ -18,14 +18,20 @@ interface Media {
 
 interface MediaManagerModalProps {
   medias: Media[];
-  onSelect?: (media: Media) => void; // opsiyonel, tıklanan medyayı dışa aktarır
+  onSelect?: (media: Media) => void;
 }
 
 export default function MediaManagerModal({ medias, onSelect }: MediaManagerModalProps) {
   const [open, setOpen] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [localMedias, setLocalMedias] = useState<Media[]>(medias); // ✅ local state
   const inputRef = useRef<HTMLInputElement | null>(null);
+
+  // Orijinal prop değişirse localMedias güncellensin
+  useEffect(() => {
+    setLocalMedias(medias);
+  }, [medias]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -33,8 +39,16 @@ export default function MediaManagerModal({ medias, onSelect }: MediaManagerModa
       const preview = URL.createObjectURL(file);
       setPreviewUrl(preview);
 
-      // burada yükleme aksiyonunu başlatabilirsin:
-      // await uploadToS3(file) veya API route'a gönder
+      // Medya örneği oluştur
+      const newMedia: Media = {
+        id: `temp-${Date.now()}`, // geçici ID
+        urls: [preview], // sadece preview
+      };
+
+      // Listeye ekle
+      setLocalMedias((prev) => [...prev, newMedia]);
+
+      // İsteğe bağlı olarak burada uploadToS3(file) yapılabilir
     }
   };
 
@@ -84,11 +98,11 @@ export default function MediaManagerModal({ medias, onSelect }: MediaManagerModa
           </div>
         )}
 
-        {medias.length === 0 ? (
+        {localMedias.length === 0 ? (
           <p className="text-gray-500 text-sm">Henüz medya eklenmedi.</p>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-            {medias.map((media) => (
+            {localMedias.map((media) => (
               <button
                 type="button"
                 key={media.id}
