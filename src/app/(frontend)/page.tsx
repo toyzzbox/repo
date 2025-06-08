@@ -28,8 +28,7 @@ export default async function Home() {
             {products.map((product) => (
             <CarouselItem
             key={product.id}
-            className="basis-[90%] sm:basis-1/2 md:basis-1/3 lg:basis-1/5 xl:basis-1/6"
-          >
+            className="basis-1/2 sm:basis-1/2 md:basis-1/3 lg:basis-1/5 xl:basis-1/6"          >
             <ProductCard product={product} />
           </CarouselItem>
             ))}
