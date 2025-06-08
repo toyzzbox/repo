@@ -3,10 +3,10 @@
 import React, { useEffect, useState } from 'react';
 
 import Logo from './Logo';
-import SearchBar from './Search';
 import HamburgerMenu from './HamburgerMenu';
 import CartCountMobile from './CartCountMobile';
 import UserMobileMenu from './UserMobileMenu';
+import LiveSearch from '../search/LiveSearch';
 
 export default function MobileHeader() {
   const [showSearchBar, setShowSearchBar] = useState(true);
@@ -17,11 +17,9 @@ export default function MobileHeader() {
       const currentScrollY = window.scrollY;
 
       if (currentScrollY < lastScrollY) {
-        // Yukarı kaydırıyor
-        setShowSearchBar(true);
-      } else {
-        // Aşağı kaydırıyor
-        setShowSearchBar(false);
+        setShowSearchBar(true); // Yukarı çıkarken göster
+      } else if (currentScrollY > lastScrollY) {
+        setShowSearchBar(false); // Aşağı inerken gizle
       }
 
       setLastScrollY(currentScrollY);
@@ -30,7 +28,7 @@ export default function MobileHeader() {
     window.addEventListener('scroll', handleScroll);
 
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [lastScrollY]);
+  }, []); // ← sadece ilk mount'ta etkili olsun, scroll içinde state güncelliyoruz zaten
 
   return (
     <div className="md:hidden">
@@ -46,14 +44,14 @@ export default function MobileHeader() {
         </div>
       </div>
 
-      {/* Arama çubuğu (scroll yönüne göre görünür/gizli) */}
+      {/* Arama çubuğu */}
       <div
         className={`transition-all duration-300 px-4 ${
-          showSearchBar ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-10'
+          showSearchBar ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-10 pointer-events-none'
         }`}
       >
         <div className="pt-24 flex items-center justify-center">
-          <SearchBar />
+          <LiveSearch />
         </div>
       </div>
     </div>
