@@ -1,31 +1,65 @@
 "use client";
 
-const steps = ["address", "delivery", "payment", "summary"] as const;
-type Step = typeof steps[number];
+import { Step, steps } from "./types";
+import {
+  Home,
+  Truck,
+  CreditCard,
+  FileText,
+} from "lucide-react";
+
+const stepIcons = [Home, Truck, CreditCard, FileText];
+const stepLabels = ["Adres", "Kargo", "Ödeme", "Özet"];
 
 export default function ProgressBar({ step }: { step: Step }) {
-  const stepLabels = ["Adres", "Kargo", "Ödeme", "Özet"];
   const currentIndex = steps.indexOf(step);
 
   return (
-    <div className="flex justify-between mb-6">
-      {stepLabels.map((label, index) => (
-        <div
-          key={label}
-          className={`flex-1 text-center text-sm ${
-            index <= currentIndex ? "font-bold text-black" : "text-gray-400"
-          }`}
-        >
-          <div
-            className={`w-8 h-8 rounded-full mx-auto mb-2 flex items-center justify-center ${
-              index <= currentIndex ? "bg-blue-500 text-white" : "bg-gray-200"
-            }`}
-          >
-            {index + 1}
+    <div className="flex items-center justify-between gap-4 mb-8 px-2">
+      {steps.map((_, index) => {
+        const Icon = stepIcons[index];
+        const isCompleted = index < currentIndex;
+        const isActive = index === currentIndex;
+
+        return (
+          <div key={index} className="flex-1 flex flex-col items-center relative">
+            {/* Icon Circle */}
+            <div
+              className={`w-10 h-10 flex items-center justify-center rounded-full border-2 z-10
+                ${
+                  isCompleted
+                    ? "bg-blue-600 border-blue-600 text-white"
+                    : isActive
+                    ? "bg-white border-blue-600 text-blue-600"
+                    : "bg-white border-gray-300 text-gray-400"
+                }`}
+            >
+              <Icon size={20} />
+            </div>
+
+            {/* Label */}
+            <span
+              className={`mt-2 text-sm ${
+                isCompleted || isActive ? "text-black font-medium" : "text-gray-400"
+              }`}
+            >
+              {stepLabels[index]}
+            </span>
+
+            {/* Çizgi */}
+            {index < steps.length - 1 && (
+              <div
+                className={`absolute top-5 left-1/2 w-full h-0.5 z-0
+                  ${
+                    index < currentIndex
+                      ? "bg-blue-600"
+                      : "bg-gray-300"
+                  }`}
+              />
+            )}
           </div>
-          {label}
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }
