@@ -4,13 +4,13 @@ import { useAppDispatch } from "@/hooks/redux";
 import { addToCart } from "@/redux/cartSlice";
 import { useRouter } from "next/navigation";
 import React, { useState, useEffect } from "react";
-import { ProductDetailTabs } from "./ProductDetailTab";
 import { HeartIcon } from "lucide-react";
 import ProductImageGallery from "./ProductImageGallery";
 import Image from "next/image";
 import ProductBreadcrumb from "./ProductBreadcrumb";
 import CartSuccessToast from "./CartSuccessToast";
 import { toast } from "sonner";
+import ProductDetailTabs from "./ProductDetailTab";
 
 interface ProductDetailsProps {
   product: {
@@ -74,6 +74,9 @@ const DesktopProductDetails: React.FC<ProductDetailsProps> = ({
     toast.custom(() => <CartSuccessToast productName={variant.name} />);
   };
 
+
+  const activeVariant = selectedVariant ?? product;
+
   const handleBuyNow = () => {
     handleAddToCart();
     router.push("/cart");
@@ -82,7 +85,6 @@ const DesktopProductDetails: React.FC<ProductDetailsProps> = ({
   const incrementQuantity = () => setQuantity((q) => q + 1);
   const decrementQuantity = () => setQuantity((q) => (q > 1 ? q - 1 : 1));
 
-  const activeVariant = selectedVariant ?? product;
   const imageUrls =
     activeVariant?.medias?.length && activeVariant?.medias[0]?.urls?.length
       ? activeVariant.medias.map((m) => m.urls[0])
@@ -182,8 +184,8 @@ const DesktopProductDetails: React.FC<ProductDetailsProps> = ({
         </div>
 
         <ProductDetailTabs
-          description={product.description ?? ""}
-          comments={<div>Henüz yorum bulunmamaktadır.</div>}
+            product={{ description: activeVariant.description ?? product.description ?? "sdsalldsalsalla" }}
+            comments={<div>Henüz yorum bulunmamaktadır.</div>}
           questions={<div>Henüz soru bulunmamaktadır.</div>}
         />
       </div>
