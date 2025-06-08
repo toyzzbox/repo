@@ -7,15 +7,17 @@ import PaymentSection from "./sections/PaymentSection";
 import CheckoutSummary from "./sections/CheckoutSummary";
 import { Button } from "@/components/ui/button";
 
-function ProgressBar({ step }: { step: string }) {
-  const steps = ["Adres", "Kargo", "Ödeme", "Özet"];
-  const currentIndex = steps.findIndex(
-    (_, i) => ["address", "delivery", "payment", "summary"][i] === step
-  );
+const steps = ["address", "delivery", "payment", "summary"] as const;
+
+type Step = typeof steps[number];
+
+function ProgressBar({ step }: { step: Step }) {
+  const stepLabels = ["Adres", "Kargo", "Ödeme", "Özet"];
+  const currentIndex = steps.indexOf(step);
 
   return (
     <div className="flex justify-between mb-6">
-      {steps.map((label, index) => (
+      {stepLabels.map((label, index) => (
         <div
           key={label}
           className={`flex-1 text-center text-sm ${
@@ -30,26 +32,15 @@ function ProgressBar({ step }: { step: string }) {
 }
 
 export default function CheckoutForm() {
-  const [step, setStep] = useState<"address" | "delivery" | "payment" | "summary">("address");
+  const [stepIndex, setStepIndex] = useState(0);
+  const step = steps[stepIndex];
 
   const next = () => {
-    setStep((prev) =>
-      prev === "address"
-        ? "delivery"
-        : prev === "delivery"
-        ? "payment"
-        : "summary"
-    );
+    if (stepIndex < steps.length - 1) setStepIndex((i) => i + 1);
   };
 
   const back = () => {
-    setStep((prev) =>
-      prev === "summary"
-        ? "payment"
-        : prev === "payment"
-        ? "delivery"
-        : "address"
-    );
+    if (stepIndex > 0) setStepIndex((i) => i - 1);
   };
 
   return (
@@ -64,12 +55,12 @@ export default function CheckoutForm() {
       )}
 
       <div className="flex justify-between">
-        {step !== "address" && (
+        {stepIndex > 0 && (
           <Button variant="ghost" onClick={back}>
             Geri
           </Button>
         )}
-        {step !== "summary" ? (
+        {stepIndex < steps.length - 1 ? (
           <Button onClick={next}>Devam Et</Button>
         ) : (
           <Button onClick={() => alert("Sipariş tamamlandı!")}>
