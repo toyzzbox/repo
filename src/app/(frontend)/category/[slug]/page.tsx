@@ -29,11 +29,9 @@ export default async function CategoryPage({ params, searchParams = {} }: Props)
 
   // Seçilen alt kategori
   const selectedSubcategory =
-    typeof searchParams.subcategory === "string"
-      ? searchParams.subcategory
-      : undefined;
+    typeof searchParams.subcategory === "string" ? searchParams.subcategory : undefined;
 
-  // Ana veya alt kategori bilgisi
+  // Ana kategori + alt kategorileri çek
   const category = await prisma.category.findUnique({
     where: { slug },
     include: {
@@ -45,12 +43,15 @@ export default async function CategoryPage({ params, searchParams = {} }: Props)
     return <div className="p-4">Kategori bulunamadı.</div>;
   }
 
-  // Seçilen kategoriye ait ürünleri al
+  // Ana + alt kategorilere ait tüm kategori ID'leri
+  const categoryIds = [category.id, ...category.children.map((child) => child.id)];
+
+  // Ürünleri getir
   const products = await prisma.product.findMany({
     where: {
       categories: {
         some: {
-          id: category.id, // 🔥 sadece bu kategoriye ait ürünler
+          id: { in: categoryIds },
         },
       },
       price: {
@@ -82,7 +83,7 @@ export default async function CategoryPage({ params, searchParams = {} }: Props)
     },
   });
 
-  // Filtre verileri
+  // Filtreleme için gerekli veriler
   const [attributeGroups, brands] = await Promise.all([
     prisma.attributeGroup.findMany({
       include: { attributes: true },

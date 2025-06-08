@@ -1,15 +1,17 @@
-
-
 import { useAppSelector } from "@/hooks/redux";
 import { getCart } from "@/redux/cartSlice";
-import Link from 'next/link';
+import { useRouter } from "next/navigation";
 
 const ProceedToBuy = () => {
   const cart = useAppSelector(getCart);
-
+  const router = useRouter();
   const totalProductPrice = cart.reduce((total, item) => total + item.price * item.quantity, 0);
   const shippingCost = 100;
   const grandTotal = totalProductPrice + shippingCost;
+
+  const handleCheckout = () => {
+    router.push('/checkout');
+  };
 
   return (
     <div className="w-full">
@@ -27,9 +29,12 @@ const ProceedToBuy = () => {
           <span>Toplam:</span>
           <span>{` ${grandTotal.toFixed(2)} TL`}</span>
         </div>
-        <Link href="/checkout" className='block bg-orange-500 text-white py-2 px-4 rounded w-full text-center mt-3'>
+        <button 
+          onClick={handleCheckout}
+          className='block bg-orange-500 text-white py-2 px-4 rounded w-full text-center mt-3'
+        >
           Siparişi Onayla
-        </Link>
+        </button>
       </div>
     </div>
   );
