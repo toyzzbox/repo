@@ -10,7 +10,7 @@ interface ProductDetailTabsProps {
   comments: React.ReactNode;
   questions: React.ReactNode;
 }
-export default function ProductDetailTab({
+export default function ProductDetailTabs({
   product,
   comments,
   questions,
