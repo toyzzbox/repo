@@ -51,7 +51,7 @@ export default function LiveSearch() {
         <li key={product.id} className="flex items-center gap-3 p-2 hover:bg-gray-100">
           <a href={`/product/${product.slug}`} className="flex items-center gap-3 w-full">
           
-            <div className="flex flex-col overflow-hidden">
+            <div className="flex flex-row overflow-hidden">
             <Image
             src={product.medias?.[0]?.urls?.[0] || "/placeholder.png"}
             alt={product.name}
