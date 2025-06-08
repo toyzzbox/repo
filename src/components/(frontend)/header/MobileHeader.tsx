@@ -1,7 +1,5 @@
 'use client';
-
-import React, { useEffect, useState } from 'react';
-
+import { useState, useEffect } from 'react';
 import Logo from './Logo';
 import HamburgerMenu from './HamburgerMenu';
 import CartCountMobile from './CartCountMobile';
@@ -9,26 +7,38 @@ import UserMobileMenu from './UserMobileMenu';
 import LiveSearch from '../search/LiveSearch';
 
 export default function MobileHeader() {
-  const [showSearchBar, setShowSearchBar] = useState(true);
+  const [isSearchVisible, setIsSearchVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
 
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
-
-      if (currentScrollY < lastScrollY) {
-        setShowSearchBar(true); // Yukarı çıkarken göster
-      } else if (currentScrollY > lastScrollY) {
-        setShowSearchBar(false); // Aşağı inerken gizle
+      
+      // Scroll yönünü belirle
+      if (currentScrollY > lastScrollY && currentScrollY > 100) {
+        // Aşağı scroll - LiveSearch'i gizle
+        setIsSearchVisible(false);
+      } else if (currentScrollY < lastScrollY) {
+        // Yukarı scroll - LiveSearch'i göster
+        setIsSearchVisible(true);
       }
-
+      
+      // Sayfanın en üstündeyse her zaman göster
+      if (currentScrollY === 0) {
+        setIsSearchVisible(true);
+      }
+      
       setLastScrollY(currentScrollY);
     };
 
-    window.addEventListener('scroll', handleScroll);
-
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []); // ← sadece ilk mount'ta etkili olsun, scroll içinde state güncelliyoruz zaten
+    // Scroll event listener ekle
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    
+    // Cleanup function
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, [lastScrollY]);
 
   return (
     <div className="md:hidden">
@@ -43,16 +53,21 @@ export default function MobileHeader() {
           </div>
         </div>
       </div>
-
-      {/* Arama çubuğu */}
-      <div
-        className={`transition-all duration-300 px-4 ${
-          showSearchBar ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-10 pointer-events-none'
-        }`}
+      
+      {/* LiveSearch alanı - scroll ile gizlenir/görünür */}
+      <div 
+        className={`
+          fixed top-16 left-0 right-0 z-40 bg-white px-4 py-2 shadow-sm
+          transition-transform duration-300 ease-in-out
+          ${isSearchVisible ? 'transform translate-y-0' : 'transform -translate-y-full'}
+        `}
       >
-        <div className="pt-24 flex items-center justify-center">
-          <LiveSearch />
-        </div>
+        <LiveSearch />
+      </div>
+      
+      {/* İçerik için boşluk - LiveSearch görünür olduğunda */}
+      <div className={`transition-all duration-300 ${isSearchVisible ? 'pt-32' : 'pt-16'}`}>
+        {/* Sayfa içeriğiniz buraya gelecek */}
       </div>
     </div>
   );
