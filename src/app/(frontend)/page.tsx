@@ -12,17 +12,22 @@ export default async function Home() {
   const categories = await getCategories();
   return (
     <main className="m-2">
-      <h1 className="text-2xl font-bold text-center p-5">En Popüler Ürünler</h1>
-      {products.length === 0 ? (
+    <h1 className="text-2xl font-bold text-center p-5">En Popüler Ürünler</h1>
+
+{products.length === 0 ? (
   <p className="text-center text-gray-500">Ürün bulunamadı.</p>
 ) : (
-  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
-    {products.map((product) => (
-      <ProductCard key={product.id} product={product} />
-      
-    ))}
+  <div className="overflow-x-auto">
+    <div className="flex gap-4 px-4 pb-4 w-max">
+      {products.map((product) => (
+        <div key={product.id} className="min-w-[200px] sm:min-w-[250px]">
+          <ProductCard product={product} />
+        </div>
+      ))}
+    </div>
   </div>
 )}
+
 
 <h1 className="text-2xl font-bold text-center p-5">En Popüler Markalar</h1>
       {brands.length === 0 ? (
