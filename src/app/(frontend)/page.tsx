@@ -14,20 +14,18 @@ export default async function Home() {
     <main className="m-2">
     <h1 className="text-2xl font-bold text-center p-5">En Popüler Ürünler</h1>
 
-{products.length === 0 ? (
-  <p className="text-center text-gray-500">Ürün bulunamadı.</p>
-) : (
-  <div className="overflow-x-auto">
-    <div className="flex gap-4 px-4 pb-4 w-max">
-      {products.map((product) => (
-        <div key={product.id} className="min-w-[200px] sm:min-w-[250px]">
-          <ProductCard product={product} />
-        </div>
-      ))}
-    </div>
+    <div className="overflow-x-auto snap-x snap-mandatory">
+  <div className="flex gap-4 px-4 pb-4 w-max">
+    {products.map((product) => (
+      <div
+        key={product.id}
+        className="min-w-[200px] sm:min-w-[250px] snap-start"
+      >
+        <ProductCard product={product} />
+      </div>
+    ))}
   </div>
-)}
-
+</div>
 
 <h1 className="text-2xl font-bold text-center p-5">En Popüler Markalar</h1>
       {brands.length === 0 ? (
