@@ -1,23 +1,20 @@
 'use client';
 
-import { useEffect } from "react";
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface ProductDetailTabsProps {
-  description: string;
+  product: {
+    description: string;
+  };
   comments: React.ReactNode;
   questions: React.ReactNode;
 }
-
-export function ProductDetailTabs({
-  description,
+export default function ProductDetailTab({
+  product,
   comments,
   questions,
 }: ProductDetailTabsProps) {
-  useEffect(() => {
-    console.log("description:", description);
-  }, [description]);
-
   return (
     <Tabs defaultValue="description" className="w-full mt-6">
       <TabsList className="w-full flex justify-start border-b">
@@ -27,8 +24,11 @@ export function ProductDetailTabs({
       </TabsList>
 
       <TabsContent value="description">
-      <div className="mt-4">{description}</div>
-      
+
+      <div
+    className="text-sm text-gray-700"
+    dangerouslySetInnerHTML={{ __html: product.description }}
+  />
       </TabsContent>
 
       <TabsContent value="comments">
