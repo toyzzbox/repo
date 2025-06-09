@@ -1,5 +1,6 @@
 // app/admin/product-groups/page.tsx
 
+import EditProductGroupForm from "@/components/(backend)/product/EditProductGroupForm";
 import AddProductGroupForm from "./AddProductGroupForm";
 import { prisma } from "@/lib/prisma";
 
@@ -17,7 +18,16 @@ export default async function ProductGroupPage() {
   return (
     <main className="max-w-2xl mx-auto p-6">
       <h1 className="text-2xl font-bold mb-4">Ürün Grupları</h1>
-
+      {groups[0] && (
+  <EditProductGroupForm
+    group={{
+      id: groups[0].id,
+      name: groups[0].name,
+      description: groups[0].description,
+      serial: "", // opsiyonel alan
+    }}
+  />
+)}
       <AddProductGroupForm />
 
       <div className="mt-8">
