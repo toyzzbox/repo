@@ -3,6 +3,7 @@
 import { useActionState, useState } from "react";
 import { createProduct } from "./action";
 import RichTextEditor from "@/components/(frontend)/rich-text-editor";
+import MediaSelector from "./MediaSelector";
 
 interface Brand {
   id: string;
@@ -119,14 +120,7 @@ export default function ProductForm({
         </select>
 
         {/* Medya Seçimi */}
-        <label className="font-medium">Medya</label>
-        <select name="mediaIds[]" multiple className="border rounded px-3 py-2">
-          {medias.map((media) => (
-            <option key={media.id} value={media.id}>
-              {media.urls[0]?.slice(-40) || "Görsel"}
-            </option>
-          ))}
-        </select>
+        <MediaSelector medias={medias} />
 
         <button
           type="submit"
