@@ -41,13 +41,12 @@ export default function MediaSelector({
         {medias.map((media) => {
           const isSelected = selectedIds.includes(media.id);
           return (
-            <button
+            <div
               key={media.id}
-              type="button"
-              onClick={() => toggleSelection(media.id)}
-              className={`relative rounded-lg overflow-hidden ring-2 transition-all duration-200 ${
+              className={`relative rounded-lg overflow-hidden ring-2 transition-all duration-200 cursor-pointer ${
                 isSelected ? 'ring-green-500' : 'ring-transparent'
               }`}
+              onClick={() => toggleSelection(media.id)}
             >
               <Image
                 src={media.urls[0]}
@@ -62,7 +61,7 @@ export default function MediaSelector({
                   onCheckedChange={() => toggleSelection(media.id)}
                 />
               </div>
-            </button>
+            </div>
           );
         })}
       </div>
