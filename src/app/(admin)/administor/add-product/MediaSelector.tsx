@@ -22,9 +22,15 @@ export default function MediaSelector({
 }: MediaSelectorProps) {
   const [selectedIds, setSelectedIds] = useState<string[]>(defaultSelected);
 
+  // 1️⃣ Sadece defaultSelected dışarıdan değişirse state'i güncelle
   useEffect(() => {
-    onChange?.(selectedIds);
-  }, [selectedIds, onChange]);
+    setSelectedIds(defaultSelected);
+  }, [defaultSelected]);
+
+  // 2️⃣ selectedIds değişirse üst bileşene bildir
+  useEffect(() => {
+    if (onChange) onChange(selectedIds);
+  }, [selectedIds]);
 
   const toggleSelection = (id: string) => {
     setSelectedIds((prev) =>
@@ -37,24 +43,27 @@ export default function MediaSelector({
   return (
     <div className="space-y-2">
       <h2 className="text-sm font-medium text-muted-foreground">Medya Seç</h2>
+
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
         {medias.map((media) => {
           const isSelected = selectedIds.includes(media.id);
+
           return (
             <div
               key={media.id}
-              className={`relative rounded-lg overflow-hidden ring-2 transition-all duration-200 cursor-pointer ${
-                isSelected ? 'ring-green-500' : 'ring-transparent'
-              }`}
               onClick={() => toggleSelection(media.id)}
+              className={`relative rounded-lg overflow-hidden border-2 cursor-pointer transition-all duration-200 ${
+                isSelected ? 'border-green-500 ring-2 ring-green-200' : 'border-gray-300'
+              }`}
             >
               <Image
                 src={media.urls[0]}
-                alt="media"
+                alt="Media"
                 width={300}
                 height={200}
                 className="w-full h-32 object-cover"
               />
+
               <div className="absolute top-2 left-2 bg-white/80 rounded p-1 shadow">
                 <Checkbox
                   checked={isSelected}
