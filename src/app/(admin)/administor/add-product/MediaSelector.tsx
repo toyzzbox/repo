@@ -1,7 +1,6 @@
 'use client';
-import { Checkbox } from '@/components/ui/checkbox';
 import Image from 'next/image';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 
 interface Media {
   id: string;
@@ -20,26 +19,40 @@ export default function MediaSelector({
   onChange,
 }: MediaSelectorProps) {
   const [selectedIds, setSelectedIds] = useState<string[]>(defaultSelected);
+  const onChangeRef = useRef(onChange);
+  const isInitialMount = useRef(true);
+
+  // onChange referansını güncel tut
+  useEffect(() => {
+    onChangeRef.current = onChange;
+  }, [onChange]);
 
   // 1️⃣ Sadece defaultSelected dışarıdan değişirse state'i güncelle
   useEffect(() => {
     setSelectedIds(defaultSelected);
   }, [defaultSelected]);
 
-  // 2️⃣ onChange'i useCallback ile sarmalayalım ve bağımlılıklara ekleyelim
+  // 2️⃣ selectedIds değişirse üst bileşene bildir (ilk mount hariç)
   useEffect(() => {
-    if (onChange) {
-      onChange(selectedIds);
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
     }
-  }, [selectedIds, onChange]);
+    
+    if (onChangeRef.current) {
+      onChangeRef.current(selectedIds);
+    }
+  }, [selectedIds]);
 
-  // 3️⃣ toggleSelection fonksiyonunu useCallback ile optimize edelim
   const toggleSelection = useCallback((id: string) => {
-    setSelectedIds((prev) =>
-      prev.includes(id)
-        ? prev.filter((item) => item !== id)
-        : [...prev, id]
-    );
+    setSelectedIds((prev) => {
+      const isCurrentlySelected = prev.includes(id);
+      if (isCurrentlySelected) {
+        return prev.filter((item) => item !== id);
+      } else {
+        return [...prev, id];
+      }
+    });
   }, []);
 
   return (
@@ -51,7 +64,6 @@ export default function MediaSelector({
           return (
             <div
               key={media.id}
-              onClick={() => toggleSelection(media.id)}
               className={`relative rounded-lg overflow-hidden border-2 cursor-pointer transition-all duration-200 ${
                 isSelected ? 'border-green-500 ring-2 ring-green-200' : 'border-gray-300'
               }`}
@@ -62,16 +74,18 @@ export default function MediaSelector({
                 width={300}
                 height={200}
                 className="w-full h-32 object-cover"
+                onClick={() => toggleSelection(media.id)}
               />
-              <div className="absolute top-2 left-2 bg-white/80 rounded p-1 shadow">
-                <Checkbox
+              <div 
+                className="absolute top-2 left-2 bg-white/80 rounded p-1 shadow"
+                onClick={(e) => e.stopPropagation()}
+              >
+                {/* Native HTML checkbox kullan */}
+                <input
+                  type="checkbox"
                   checked={isSelected}
-                  onCheckedChange={(checked) => {
-                    // Checkbox'tan gelen boolean değeri kullan
-                    if (checked !== isSelected) {
-                      toggleSelection(media.id);
-                    }
-                  }}
+                  onChange={() => toggleSelection(media.id)}
+                  className="w-4 h-4 text-green-600 bg-gray-100 border-gray-300 rounded focus:ring-green-500 focus:ring-2"
                 />
               </div>
             </div>
