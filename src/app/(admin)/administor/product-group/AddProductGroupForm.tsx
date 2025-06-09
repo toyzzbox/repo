@@ -1,4 +1,3 @@
-// app/admin/product-groups/AddProductGroupForm.tsx
 
 "use client";
 
