@@ -20,7 +20,7 @@ export default function EditProductGroupForm({ group }: EditProductGroupFormProp
   const [error, setError] = useState<string | null>(null);
 
   const [name, setName] = useState(group.name);
-  const [description, setDescription] = useState(group.description ?? "");
+  const [descriptionHtml, setDescriptionHtml] = useState(group.description ?? "");
   const [serial, setSerial] = useState(group.serial ?? "");
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -53,8 +53,14 @@ export default function EditProductGroupForm({ group }: EditProductGroupFormProp
         required
       />
 
-      <label className="font-medium">Açıklama</label>
-      <RichTextEditor value={description} onChange={setDescription} />
+<label className="font-medium">Açıklama</label>
+<RichTextEditor
+  description="descriptionHtml"
+  onChange={(html) => {
+    setDescriptionHtml(html);
+  }}
+/>
+<input type="hidden" name="description" value={descriptionHtml} />
 
       <label className="font-medium">Seri</label>
       <input
