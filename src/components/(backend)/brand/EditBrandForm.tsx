@@ -5,6 +5,7 @@ import { useState, useTransition } from "react";
 import { Brand } from "@/types/brand";
 import { Media } from "@/types/product";
 import { updateBrand } from "@/actions/updateBrand";
+import MediaSelector from "@/app/(admin)/administor/add-product/MediaSelector";
 
 interface Props {
   brand: Brand & { mediaIds: string[] };
@@ -59,26 +60,7 @@ export default function EditBrandForm({ brand, medias }: Props) {
           required
         />
 
-        <div className="flex flex-col">
-          <label className="font-medium mb-1">Medya Dosyaları</label>
-          <select
-            multiple
-            name="mediaIds[]"
-            value={selectedMediaIds}
-            onChange={(e) =>
-              setSelectedMediaIds(
-                Array.from(e.target.selectedOptions).map((opt) => opt.value)
-              )
-            }
-            className="py-2 px-3 border rounded w-full"
-          >
-            {medias.map((media) => (
-              <option key={media.id} value={media.id}>
-                {media.urls[0]?.slice(-40) || "Media"}
-              </option>
-            ))}
-          </select>
-        </div>
+<MediaSelector medias={medias} />
 
         <button
           type="submit"

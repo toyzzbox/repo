@@ -39,9 +39,7 @@ export const BrandCard: React.FC<BrandCardProps> = ({ brand }) => {
         </div>
       )}
 
-      <div className="text-center mt-4">
-        <h3 className="text-lg font-semibold">{brand.name}</h3>
-      </div>
+     
     </div>
   );
 };
