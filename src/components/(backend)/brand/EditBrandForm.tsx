@@ -60,7 +60,11 @@ export default function EditBrandForm({ brand, medias }: Props) {
           required
         />
 
-<MediaSelector medias={medias} />
+<MediaSelector
+  medias={medias}
+  defaultSelected={selectedMediaIds}
+  onChange={setSelectedMediaIds}
+/>
 
         <button
           type="submit"

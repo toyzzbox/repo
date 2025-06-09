@@ -1,9 +1,8 @@
-"use client";
+'use client';
 
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
-import Image from "next/image";
-import { useState, useEffect } from "react";
+import { Checkbox } from '@/components/ui/checkbox';
+import Image from 'next/image';
+import { useEffect, useState } from 'react';
 
 interface Media {
   id: string;
@@ -13,52 +12,59 @@ interface Media {
 interface MediaSelectorProps {
   medias: Media[];
   defaultSelected?: string[];
+  onChange?: (selectedIds: string[]) => void;
 }
 
 export default function MediaSelector({
   medias,
   defaultSelected = [],
+  onChange,
 }: MediaSelectorProps) {
   const [selectedIds, setSelectedIds] = useState<string[]>(defaultSelected);
 
-  const handleToggle = (id: string) => {
+  useEffect(() => {
+    onChange?.(selectedIds);
+  }, [selectedIds, onChange]);
+
+  const toggleSelection = (id: string) => {
     setSelectedIds((prev) =>
-      prev.includes(id) ? prev.filter((v) => v !== id) : [...prev, id]
+      prev.includes(id)
+        ? prev.filter((item) => item !== id)
+        : [...prev, id]
     );
   };
 
   return (
     <div className="space-y-2">
-      <Label className="font-medium block">Medya</Label>
+      <h2 className="text-sm font-medium text-muted-foreground">Medya Seç</h2>
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-        {medias.map((media) => (
-          <label
-            key={media.id}
-            className="relative group rounded border hover:ring-2 ring-orange-500 cursor-pointer overflow-hidden"
-          >
-            <input
-              type="checkbox"
-              name="mediaIds[]"
-              value={media.id}
-              checked={selectedIds.includes(media.id)}
-              onChange={() => handleToggle(media.id)}
-              className="sr-only"
-            />
-            <div className="absolute top-2 left-2 z-10 bg-white p-1 rounded shadow">
-              <Checkbox
-                checked={selectedIds.includes(media.id)}
-                onCheckedChange={() => handleToggle(media.id)}
+        {medias.map((media) => {
+          const isSelected = selectedIds.includes(media.id);
+          return (
+            <button
+              key={media.id}
+              type="button"
+              onClick={() => toggleSelection(media.id)}
+              className={`relative rounded-lg overflow-hidden ring-2 transition-all duration-200 ${
+                isSelected ? 'ring-green-500' : 'ring-transparent'
+              }`}
+            >
+              <Image
+                src={media.urls[0]}
+                alt="media"
+                width={300}
+                height={200}
+                className="w-full h-32 object-cover"
               />
-            </div>
-            <Image
-              src={media.urls[0]}
-              alt="Media"
-              width={300}
-              height={200}
-              className="w-full h-32 object-cover"
-            />
-          </label>
-        ))}
+              <div className="absolute top-2 left-2 bg-white/80 rounded p-1 shadow">
+                <Checkbox
+                  checked={isSelected}
+                  onCheckedChange={() => toggleSelection(media.id)}
+                />
+              </div>
+            </button>
+          );
+        })}
       </div>
     </div>
   );
