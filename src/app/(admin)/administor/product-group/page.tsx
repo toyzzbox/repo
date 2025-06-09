@@ -10,6 +10,7 @@ export default async function ProductGroupPage() {
       id: true,
       name: true,
       slug: true,
+      description: true,
     },
   });
 
@@ -26,6 +27,7 @@ export default async function ProductGroupPage() {
             <li key={group.id} className="p-3">
               <span>{group.name}</span>{" "}
               <span className="text-gray-400 text-sm">({group.slug})</span>
+              <span>{group.description}</span>
             </li>
           ))}
         </ul>
@@ -38,4 +40,5 @@ interface ProductGroup {
     id: string;
     name: string;
     slug: string;
+    description: string;
   }

@@ -4,10 +4,13 @@
 
 import { useActionState, useState } from "react";
 import { createProductGroup } from "./action";
+import RichTextEditor from "@/components/(frontend)/rich-text-editor";
 
 export default function AddProductGroupForm() {
   const [state, formAction, isPending] = useActionState(createProductGroup, null);
   const [name, setName] = useState("");
+  const [descriptionHtml, setDescriptionHtml] = useState("");
+
 
   return (
     <form action={formAction} className="flex gap-4 items-end">
@@ -21,6 +24,13 @@ export default function AddProductGroupForm() {
           value={name}
           onChange={(e) => setName(e.target.value)}
         />
+        <label className="font-medium">Açıklama</label>
+<RichTextEditor
+  description=""
+  onChange={(html) => {
+    setDescriptionHtml(html);
+  }}
+/>
       </div>
 
       <button

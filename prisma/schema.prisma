@@ -108,7 +108,7 @@ model Product {
   serial      String?    @unique // ✅ Opsiyonel
   stock       Int?                 // ✅ Opsiyonel
   price       Float
-  description  String?
+  description String? @db.Text
 
   groupId     String? // ✅ Opsiyonel
   group       ProductGroup? @relation(fields: [groupId], references: [id])
@@ -130,7 +130,9 @@ model ProductGroup {
   id       String    @id @default(cuid())
   name     String
   slug     String    @unique
+  description String? @db.Text
   products Product[]
+
 } 
 
 model AttributeGroup {
@@ -152,7 +154,7 @@ model Brand {
   id          String    @id @default(cuid())
   name        String
   slug        String    @unique
-  description String?
+  description String? @db.Text
   products    Product[] @relation("ProductToBrand")
   medias      Media[]    @relation("BrandToMedia")
 
