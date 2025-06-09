@@ -29,7 +29,7 @@ export async function createProductGroup(prevState: any, formData: FormData) {
       strict: true,
     });
 
-    await prisma.product.create({
+    await prisma.productGroup.create({
       data: {
         name: data.name,
         slug,
