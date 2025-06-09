@@ -33,48 +33,60 @@ export default function MediaManagerModal({ medias, onSelect }: MediaManagerModa
   }, [medias]);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const selectedFiles = e.target.files;
+    if (!selectedFiles) return;
 
-    // ✅ Dosya bilgileri
-    const fileType = file.type;
-    const fileSize = file.size;
+    const files = Array.from(selectedFiles);
 
-    // ✅ Dosya içeriğinden checksum üret
-    const buffer = await file.arrayBuffer();
-    const hashBuffer = await crypto.subtle.digest("SHA-256", buffer);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    const checksum = btoa(String.fromCharCode(...hashArray)).replace(/=+$/, "");
+    for (const file of files) {
+      try {
+        const fileType = file.type;
+        const fileSize = file.size;
 
-    // ✅ Sunucudan signed URL al
-    const response = await getSignedUrl(fileType, fileSize, checksum);
+        // ✅ SHA-256 checksum
+        const buffer = await file.arrayBuffer();
+        const hashBuffer = await crypto.subtle.digest("SHA-256", buffer);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        const checksum = btoa(String.fromCharCode(...hashArray)).replace(/=+$/, "");
 
-    if ("failure" in response) {
-      alert("Yükleme hatası: " + response.failure);
-      return;
+        // ✅ İmzalı URL al
+        const response = await getSignedUrl(fileType, fileSize, checksum);
+
+        if ("failure" in response) {
+          console.error(`Yükleme hatası: ${response.failure}`);
+          continue;
+        }
+
+        const { url, mediaId, urls } = response.success;
+
+        // ✅ S3'e PUT ile yükle
+        await fetch(url, {
+          method: "PUT",
+          headers: {
+            "Content-Type": fileType,
+            "Content-Length": fileSize.toString(),
+            "x-amz-checksum-sha256": checksum,
+          },
+          body: file,
+        });
+
+        // ✅ localMedias'a ekle
+        setLocalMedias((prev) => [
+          ...prev,
+          {
+            id: mediaId,
+            urls,
+          },
+        ]);
+      } catch (err) {
+        console.error("Dosya yüklenemedi:", err);
+      }
     }
 
-    const { url, mediaId, urls } = response.success;
-
-    // ✅ PUT isteği ile S3'e gönder
-    await fetch(url, {
-      method: "PUT",
-      headers: {
-        "Content-Type": fileType,
-        "Content-Length": fileSize.toString(),
-        "x-amz-checksum-sha256": checksum,
-      },
-      body: file,
-    });
-
-    // ✅ localMedias'a ekle
-    setLocalMedias((prev) => [
-      ...prev,
-      {
-        id: mediaId,
-        urls,
-      },
-    ]);
+    // input'u resetle (aynı dosyayı tekrar seçebilmek için)
+    if (inputRef.current) {
+      inputRef.current.value = "";
+    }
   };
 
   const handleMediaClick = (media: Media) => {
@@ -99,6 +111,7 @@ export default function MediaManagerModal({ medias, onSelect }: MediaManagerModa
               accept="image/*"
               ref={inputRef}
               onChange={handleFileChange}
+              multiple
               hidden
             />
             <Button
