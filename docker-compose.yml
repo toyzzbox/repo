@@ -1,0 +1,32 @@
+version: "3.8"
+
+services:
+  db:
+    image: postgres:15
+    container_name: postgres_db
+    ports:
+      - "5432:5432"
+      - "5555:5555"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ruveyda
+      POSTGRES_DB: mydb
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  repo:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: repo
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    depends_on:
+      - db
+    command: pnpm dev
+
+volumes:
+  pgdata:
+
