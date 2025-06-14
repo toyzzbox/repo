@@ -18,41 +18,26 @@ export default function MediaSelector({
   defaultSelected = [],
   onChange,
 }: MediaSelectorProps) {
-  const [selectedIds, setSelectedIds] = useState<string[]>(defaultSelected);
-  const onChangeRef = useRef(onChange);
-  const isInitialMount = useRef(true);
+  const [selectedIds, setSelectedIds] = useState<string[]>(
+    () => [...defaultSelected] // ✅ sadece ilk render’da çalışır
+  );
 
-  // onChange referansını güncel tut
+  const onChangeRef = useRef(onChange);
+
   useEffect(() => {
     onChangeRef.current = onChange;
   }, [onChange]);
 
-  // 1️⃣ Sadece defaultSelected dışarıdan değişirse state'i güncelle
   useEffect(() => {
-    setSelectedIds(defaultSelected);
-  }, [defaultSelected]);
-
-  // 2️⃣ selectedIds değişirse üst bileşene bildir (ilk mount hariç)
-  useEffect(() => {
-    if (isInitialMount.current) {
-      isInitialMount.current = false;
-      return;
-    }
-    
-    if (onChangeRef.current) {
-      onChangeRef.current(selectedIds);
-    }
+    onChangeRef.current?.(selectedIds);
   }, [selectedIds]);
 
   const toggleSelection = useCallback((id: string) => {
-    setSelectedIds((prev) => {
-      const isCurrentlySelected = prev.includes(id);
-      if (isCurrentlySelected) {
-        return prev.filter((item) => item !== id);
-      } else {
-        return [...prev, id];
-      }
-    });
+    setSelectedIds((prev) =>
+      prev.includes(id)
+        ? prev.filter((item) => item !== id)
+        : [...prev, id]
+    );
   }, []);
 
   return (
@@ -80,7 +65,6 @@ export default function MediaSelector({
                 className="absolute top-2 left-2 bg-white/80 rounded p-1 shadow"
                 onClick={(e) => e.stopPropagation()}
               >
-                {/* Native HTML checkbox kullan */}
                 <input
                   type="checkbox"
                   checked={isSelected}
