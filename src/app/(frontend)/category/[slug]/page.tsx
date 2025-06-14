@@ -3,39 +3,59 @@ import { prisma } from "@/lib/prisma";
 import { ProductCard } from "@/components/(frontend)/product/ProductCard";
 import FilterSidebar from "./FilterSideBar";
 import MobileFilter from "./MobileFilter";
+import { Category } from "@/types/category";
 
 interface Props {
   params: { slug: string };
   searchParams?: { [key: string]: string | string[] | undefined };
 }
 
+// ♻️ Alt kategorileri derinlemesine toplayan yardımcı fonksiyon
+function collectCategoryIds(category: Category & { children?: (Category & { children?: any[] })[] }): string[] {
+  let ids = [category.id];
+  if (category.children && category.children.length > 0) {
+    for (const child of category.children) {
+      ids = ids.concat(collectCategoryIds(child));
+    }
+  }
+  return ids;
+}
+
 export default async function CategoryPage({ params, searchParams = {} }: Props) {
   const slug = params.slug;
-  
+
   // Fiyat aralığı
   const minPrice = Number(searchParams.price_gte ?? 0);
   const maxPrice = Number(searchParams.price_lte ?? 99999);
-  
+
   // Seçilen attribute'lar
   const selectedAttributes = Array.isArray(searchParams.attribute)
     ? searchParams.attribute
     : searchParams.attribute
     ? [searchParams.attribute]
     : [];
-  
+
   // Seçilen marka
   const selectedBrand =
     typeof searchParams.brand === "string" ? searchParams.brand : undefined;
-  
+
   // Seçilen alt kategori
   const selectedSubcategory =
     typeof searchParams.subcategory === "string" ? searchParams.subcategory : undefined;
 
-  // Ana kategori + alt kategorileri çek
+  // Ana kategori ve tüm alt kategorilerini (çok seviyeli) al
   const category = await prisma.category.findUnique({
     where: { slug },
     include: {
-      children: true, // alt kategoriler
+      children: {
+        include: {
+          children: {
+            include: {
+              children: true, // daha fazla seviye gerekiyorsa buraya da children eklenebilir
+            },
+          },
+        },
+      },
     },
   });
 
@@ -43,23 +63,18 @@ export default async function CategoryPage({ params, searchParams = {} }: Props)
     return <div className="p-4">Kategori bulunamadı.</div>;
   }
 
-  // Ana + alt kategorilere ait tüm kategori ID'leri
-  let categoryIds = [category.id];
-  
-  // Eğer alt kategori seçilmişse sadece o alt kategorinin ID'sini kullan
+  // Tüm alt kategori ID'lerini topla
+  let categoryIds = collectCategoryIds(category);
+
+  // Eğer kullanıcı alt kategori seçtiyse, sadece onun alt kategorilerini al
   if (selectedSubcategory) {
-    const subcategory = category.children.find(child => child.slug === selectedSubcategory);
-    if (subcategory) {
-      categoryIds = [subcategory.id];
+    const selectedChild = category.children.find(c => c.slug === selectedSubcategory);
+    if (selectedChild) {
+      categoryIds = collectCategoryIds(selectedChild);
     }
-  } else {
-    // Alt kategori seçilmemişse ana kategori + tüm alt kategoriler
-    categoryIds = [category.id, ...category.children.map((child) => child.id)];
   }
 
-  console.log("Category IDs:", categoryIds); // Debug için
-
-  // Ürünleri getir - Daha açık sorgu
+  // Ürünleri getir
   const products = await prisma.product.findMany({
     where: {
       AND: [
@@ -76,20 +91,28 @@ export default async function CategoryPage({ params, searchParams = {} }: Props)
             lte: maxPrice,
           },
         },
-        ...(selectedBrand ? [{
-          brands: {
-            some: {
-              slug: selectedBrand,
-            },
-          },
-        }] : []),
-        ...(selectedAttributes.length > 0 ? [{
-          attributes: {
-            some: {
-              name: { in: selectedAttributes },
-            },
-          },
-        }] : []),
+        ...(selectedBrand
+          ? [
+              {
+                brands: {
+                  some: {
+                    slug: selectedBrand,
+                  },
+                },
+              },
+            ]
+          : []),
+        ...(selectedAttributes.length > 0
+          ? [
+              {
+                attributes: {
+                  some: {
+                    name: { in: selectedAttributes },
+                  },
+                },
+              },
+            ]
+          : []),
       ],
     },
     include: {
@@ -102,29 +125,26 @@ export default async function CategoryPage({ params, searchParams = {} }: Props)
     },
   });
 
-  console.log("Found products:", products.length); // Debug için
-
-  // Filtreleme için gerekli veriler
+  // Filtreleme için veriler
   const [attributeGroups, brands] = await Promise.all([
-    prisma.attributeGroup.findMany({
-      include: { attributes: true },
-    }),
+    prisma.attributeGroup.findMany({ include: { attributes: true } }),
     prisma.brand.findMany(),
   ]);
 
   return (
     <div className="mt-4 px-2">
-      {/* Debug bilgisi - geliştirme sırasında kullanın */}
-      {process.env.NODE_ENV === 'development' && (
+      {/* Debug */}
+      {process.env.NODE_ENV === "development" && (
         <div className="bg-yellow-100 p-2 mb-4 text-sm">
           <p>Ana Kategori: {category.name} (ID: {category.id})</p>
-          <p>Alt Kategoriler: {category.children.map(c => `${c.name} (${c.id})`).join(', ')}</p>
-          <p>Aranan Kategori ID'leri: {categoryIds.join(', ')}</p>
+          <p>
+            Aranan Kategori ID'leri: <strong>{categoryIds.join(", ")}</strong>
+          </p>
           <p>Bulunan Ürün Sayısı: {products.length}</p>
         </div>
       )}
 
-      {/* Mobil Filtre */}
+      {/* Mobil filtre */}
       <div className="block lg:hidden mb-4">
         <MobileFilter
           attributeGroups={attributeGroups}
@@ -133,9 +153,8 @@ export default async function CategoryPage({ params, searchParams = {} }: Props)
         />
       </div>
 
-      {/* Masaüstü görünüm */}
+      {/* Masaüstü */}
       <div className="flex">
-        {/* Sidebar */}
         <aside className="hidden lg:block w-[250px]">
           <FilterSidebar
             attributeGroups={attributeGroups}
@@ -144,7 +163,6 @@ export default async function CategoryPage({ params, searchParams = {} }: Props)
           />
         </aside>
 
-        {/* Ürün listesi */}
         <main className="flex-1">
           <div className="p-4">
             <h1 className="text-2xl font-bold mb-2">{category.name} Kategorisi</h1>
