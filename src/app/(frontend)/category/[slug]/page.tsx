@@ -10,93 +10,161 @@ interface Props {
 }
 
 export default async function CategoryPage({ params, searchParams = {} }: Props) {
-  const { slug } = params;
-
-  const {
-    price_gte = "0",
-    price_lte = "99999",
-    attribute,
-    brand,
-    subcategory,
-  } = searchParams;
-
-  const minPrice = Number(price_gte);
-  const maxPrice = Number(price_lte);
-
-  const selectedAttributes = Array.isArray(attribute)
-    ? attribute
-    : attribute
-    ? [attribute]
+  const slug = params.slug;
+  
+  // Fiyat aralığı
+  const minPrice = Number(searchParams.price_gte ?? 0);
+  const maxPrice = Number(searchParams.price_lte ?? 99999);
+  
+  // Seçilen attribute'lar
+  const selectedAttributes = Array.isArray(searchParams.attribute)
+    ? searchParams.attribute
+    : searchParams.attribute
+    ? [searchParams.attribute]
     : [];
+  
+  // Seçilen marka
+  const selectedBrand =
+    typeof searchParams.brand === "string" ? searchParams.brand : undefined;
+  
+  // Seçilen alt kategori
+  const selectedSubcategory =
+    typeof searchParams.subcategory === "string" ? searchParams.subcategory : undefined;
 
-  const selectedBrand = typeof brand === "string" ? brand : undefined;
-  const selectedSubcategory = typeof subcategory === "string" ? subcategory : undefined;
-
+  // Ana kategori + alt kategorileri çek
   const category = await prisma.category.findUnique({
     where: { slug },
-    select: { id: true, name: true },
+    include: {
+      children: true, // alt kategoriler
+    },
   });
 
   if (!category) {
     return <div className="p-4">Kategori bulunamadı.</div>;
   }
 
+  // Ana + alt kategorilere ait tüm kategori ID'leri
+  let categoryIds = [category.id];
+  
+  // Eğer alt kategori seçilmişse sadece o alt kategorinin ID'sini kullan
+  if (selectedSubcategory) {
+    const subcategory = category.children.find(child => child.slug === selectedSubcategory);
+    if (subcategory) {
+      categoryIds = [subcategory.id];
+    }
+  } else {
+    // Alt kategori seçilmemişse ana kategori + tüm alt kategoriler
+    categoryIds = [category.id, ...category.children.map((child) => child.id)];
+  }
+
+  console.log("Category IDs:", categoryIds); // Debug için
+
+  // Ürünleri getir - Daha açık sorgu
   const products = await prisma.product.findMany({
     where: {
-      categories: {
-        some: { id: category.id },
-      },
-      price: {
-        gte: minPrice,
-        lte: maxPrice,
-      },
-      brandId: selectedBrand,
-      attributes: selectedAttributes.length
-        ? {
+      AND: [
+        {
+          categories: {
             some: {
-              id: { in: selectedAttributes },
+              id: { in: categoryIds },
             },
-          }
-        : undefined,
-      subcategoryId: selectedSubcategory,
+          },
+        },
+        {
+          price: {
+            gte: minPrice,
+            lte: maxPrice,
+          },
+        },
+        ...(selectedBrand ? [{
+          brands: {
+            some: {
+              slug: selectedBrand,
+            },
+          },
+        }] : []),
+        ...(selectedAttributes.length > 0 ? [{
+          attributes: {
+            some: {
+              name: { in: selectedAttributes },
+            },
+          },
+        }] : []),
+      ],
     },
     include: {
       medias: true,
-      brand: true,
+      brands: true,
+      categories: true,
+      attributes: {
+        include: { group: true },
+      },
     },
   });
 
+  console.log("Found products:", products.length); // Debug için
+
+  // Filtreleme için gerekli veriler
+  const [attributeGroups, brands] = await Promise.all([
+    prisma.attributeGroup.findMany({
+      include: { attributes: true },
+    }),
+    prisma.brand.findMany(),
+  ]);
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-[250px_1fr] gap-6 px-4 py-6">
-      <div className="hidden md:block">
-        <FilterSidebar
-          categoryId={category.id}
-          selectedAttributes={selectedAttributes}
-          selectedBrand={selectedBrand}
-          selectedSubcategory={selectedSubcategory}
-          minPrice={minPrice}
-          maxPrice={maxPrice}
-        />
-      </div>
-      <div className="md:hidden mb-4">
+    <div className="mt-4 px-2">
+      {/* Debug bilgisi - geliştirme sırasında kullanın */}
+      {process.env.NODE_ENV === 'development' && (
+        <div className="bg-yellow-100 p-2 mb-4 text-sm">
+          <p>Ana Kategori: {category.name} (ID: {category.id})</p>
+          <p>Alt Kategoriler: {category.children.map(c => `${c.name} (${c.id})`).join(', ')}</p>
+          <p>Aranan Kategori ID'leri: {categoryIds.join(', ')}</p>
+          <p>Bulunan Ürün Sayısı: {products.length}</p>
+        </div>
+      )}
+
+      {/* Mobil Filtre */}
+      <div className="block lg:hidden mb-4">
         <MobileFilter
-          categoryId={category.id}
-          selectedAttributes={selectedAttributes}
-          selectedBrand={selectedBrand}
-          selectedSubcategory={selectedSubcategory}
-          minPrice={minPrice}
-          maxPrice={maxPrice}
+          attributeGroups={attributeGroups}
+          brands={brands}
+          subcategories={category.children}
         />
       </div>
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-        {products.map((product) => (
-          <ProductCard key={product.id} product={product} />
-        ))}
-        {products.length === 0 && (
-          <div className="col-span-full text-center text-muted-foreground">
-            Ürün bulunamadı.
+
+      {/* Masaüstü görünüm */}
+      <div className="flex">
+        {/* Sidebar */}
+        <aside className="hidden lg:block w-[250px]">
+          <FilterSidebar
+            attributeGroups={attributeGroups}
+            brands={brands}
+            subcategories={category.children}
+          />
+        </aside>
+
+        {/* Ürün listesi */}
+        <main className="flex-1">
+          <div className="p-4">
+            <h1 className="text-2xl font-bold mb-2">{category.name} Kategorisi</h1>
+            <p className="text-gray-600">
+              Toplam {products.length} ürün listelendi.
+            </p>
           </div>
-        )}
+
+          {products.length === 0 ? (
+            <div className="p-4 text-center text-gray-500">
+              Bu kategoride henüz ürün bulunmuyor.
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 p-4">
+              {products.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
+          )}
+        </main>
       </div>
     </div>
   );
