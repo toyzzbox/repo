@@ -1,8 +1,18 @@
-// src/app/categories/[slug]/page.tsx
 import { prisma } from "@/lib/prisma";
 import { ProductCard } from "@/components/(frontend)/product/ProductCard";
 import FilterSidebar from "./FilterSideBar";
 import MobileFilter from "./MobileFilter";
+
+// Rekürsif kategori ID toplayıcı
+function getDescendantIds(category: any): string[] {
+  const ids: string[] = [];
+  function traverse(cat: any) {
+    ids.push(cat.id);
+    cat.children?.forEach(traverse);
+  }
+  traverse(category);
+  return ids;
+}
 
 interface Props {
   params: { slug: string };
@@ -12,30 +22,34 @@ interface Props {
 export default async function CategoryPage({ params, searchParams = {} }: Props) {
   const slug = params.slug;
 
-  // Fiyat aralığı
   const minPrice = Number(searchParams.price_gte ?? 0);
   const maxPrice = Number(searchParams.price_lte ?? 99999);
 
-  // Seçilen attribute'lar
   const selectedAttributes = Array.isArray(searchParams.attribute)
     ? searchParams.attribute
     : searchParams.attribute
     ? [searchParams.attribute]
     : [];
 
-  // Seçilen marka
   const selectedBrand =
     typeof searchParams.brand === "string" ? searchParams.brand : undefined;
 
-  // Seçilen alt kategori
   const selectedSubcategory =
     typeof searchParams.subcategory === "string" ? searchParams.subcategory : undefined;
 
-  // Ana kategori + alt kategorileri çek
+  // Kategoriyi ve tüm torunları al
   const category = await prisma.category.findUnique({
     where: { slug },
     include: {
-      children: true, // alt kategoriler
+      children: {
+        include: {
+          children: {
+            include: {
+              children: true, // 3 seviye derinlik, gerekirse artırabilirsin
+            },
+          },
+        },
+      },
     },
   });
 
@@ -43,8 +57,8 @@ export default async function CategoryPage({ params, searchParams = {} }: Props)
     return <div className="p-4">Kategori bulunamadı.</div>;
   }
 
-  // Ana + alt kategorilere ait tüm kategori ID'leri
-  const categoryIds = [category.id, ...category.children.map((child) => child.id)];
+  // Alt + torun tüm kategori ID'lerini al
+  const categoryIds = getDescendantIds(category);
 
   // Ürünleri getir
   const products = await prisma.product.findMany({
@@ -72,6 +86,13 @@ export default async function CategoryPage({ params, searchParams = {} }: Props)
           },
         },
       }),
+      ...(selectedSubcategory && {
+        categories: {
+          some: {
+            slug: selectedSubcategory,
+          },
+        },
+      }),
     },
     include: {
       medias: true,
@@ -83,7 +104,6 @@ export default async function CategoryPage({ params, searchParams = {} }: Props)
     },
   });
 
-  // Filtreleme için gerekli veriler
   const [attributeGroups, brands] = await Promise.all([
     prisma.attributeGroup.findMany({
       include: { attributes: true },
@@ -104,7 +124,6 @@ export default async function CategoryPage({ params, searchParams = {} }: Props)
 
       {/* Masaüstü görünüm */}
       <div className="flex">
-        {/* Sidebar */}
         <aside className="hidden lg:block w-[250px]">
           <FilterSidebar
             attributeGroups={attributeGroups}
@@ -113,7 +132,6 @@ export default async function CategoryPage({ params, searchParams = {} }: Props)
           />
         </aside>
 
-        {/* Ürün listesi */}
         <main className="flex-1">
           <div className="p-4">
             <h1 className="text-2xl font-bold mb-2">{category.name} Kategorisi</h1>
