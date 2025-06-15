@@ -1,9 +1,9 @@
 import NextAuth from "next-auth";
-import { PrismaAdapter } from "@auth/prisma-adapter";
-import { authConfig } from "./auth.config";
-import { prisma } from "@/lib/prisma";
+import authConfig from "./auth.config"; // ✅ default export olmalı
 
-export const { handlers, signIn, signOut, auth } = NextAuth({
-  adapter: PrismaAdapter(prisma),
-  ...authConfig,
-});
+export const {
+  handlers: { GET, POST },
+  auth,
+  signIn,
+  signOut,
+} = NextAuth(authConfig); // ✅ tekrar adapter verme!
