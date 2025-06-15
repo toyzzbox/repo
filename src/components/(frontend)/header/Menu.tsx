@@ -84,7 +84,7 @@ export function MenuBar() {
         </NavigationMenuItem>
 
         {/* Diğer Menü Kalemleri */}
-        {["Anne & Bebek", "Spor & Outdoor","Hediyelik","Elektronik", "Okul & Kırtasiye", "Markalar", ].map((menuTitle) => (
+        {["Anne & Bebek", "Spor & Outdoor","Hediyelik","Elektronik", "Okul & Kırtasiye", "Fırsatlar", ].map((menuTitle) => (
           <NavigationMenuItem key={menuTitle}>
             <NavigationMenuTrigger>{menuTitle}</NavigationMenuTrigger>
             <NavigationMenuContent>
@@ -104,9 +104,9 @@ export function MenuBar() {
         ))}
 
         <NavigationMenuItem>
-          <Link href="/docs" legacyBehavior passHref>
+          <Link href="/markalar" legacyBehavior passHref>
             <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-              Fırsatlar
+              Markalar
             </NavigationMenuLink>
           </Link>
         </NavigationMenuItem>
