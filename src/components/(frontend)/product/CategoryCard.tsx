@@ -3,10 +3,10 @@
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Category } from "@/types/category";
-
+import { getCategoryPath } from "@/utils/getCategoryPath"; // ✅ yeni yardımcı fonksiyon
 
 type CategoryCardProps = {
-  category: Category
+  category: Category;
 };
 
 export const CategoryCard: React.FC<CategoryCardProps> = ({ category }) => {
@@ -14,11 +14,11 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({ category }) => {
 
   const handleClick = () => {
     if (category.slug) {
-      router.push(`/category/${category.slug}`);
+      const path = getCategoryPath(category);
+      router.push(`/categories/${path}`);
     }
   };
 
-  // İlk medya içindeki ilk URL'i al
   const imageUrl = category.medias?.[0]?.urls?.[0] ?? null;
 
   return (
