@@ -19,13 +19,13 @@ export default async function UserMenu() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button size="icon" className="flex items-center gap-2 py-2 px-4 rounded">
+        <Button size="icon" variant={"outline"} className="flex items-center gap-2 py-2 px-4 rounded">
           <User />
           {session?.user?.name?.split(" ")[0] ?? "Giriş Yap"}
         </Button>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent className="w-100 bg-white text-black">
+      <DropdownMenuContent className="w-56 bg-white text-black">
         {session?.user ? (
           <>
             <DropdownMenuLabel>{session.user.email}</DropdownMenuLabel>
