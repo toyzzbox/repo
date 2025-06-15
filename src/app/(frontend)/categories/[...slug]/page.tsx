@@ -4,9 +4,9 @@ import Link from 'next/link'
 import Image from 'next/image'
 
 interface CategoryPageProps {
-  params: {
+  params: Promise<{
     slug: string[]
-  }
+  }>
 }
 
 // Kategoriyi slug'a göre bulma fonksiyonu
@@ -77,7 +77,8 @@ async function getCategoryHierarchy(category: any): Promise<any[]> {
 
 // Metadata oluşturma
 export async function generateMetadata({ params }: CategoryPageProps) {
-  const category = await getCategoryBySlug(params.slug)
+  const { slug } = await params
+  const category = await getCategoryBySlug(slug)
   
   if (!category) {
     return {
@@ -98,7 +99,8 @@ export async function generateMetadata({ params }: CategoryPageProps) {
 }
 
 export default async function CategoryPage({ params }: CategoryPageProps) {
-  const category = await getCategoryBySlug(params.slug)
+  const { slug } = await params
+  const category = await getCategoryBySlug(slug)
 
   if (!category) {
     notFound()
@@ -171,7 +173,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
             {category.children.map((child) => (
               <Link
                 key={child.id}
-                href={`/categories/${params.slug.join('/')}/${child.slug}`}
+                href={`/categories/${slug.join('/')}/${child.slug}`}
                 className="block bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow p-4 border"
               >
                 {child.medias.length > 0 && (
