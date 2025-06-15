@@ -1,75 +1,54 @@
 "use client";
 
-import { createComment } from "@/actions/comments/createComment";
-import { useState, useTransition } from "react";
-import { toast } from "sonner";
+import { addComment } from "@/actions/comments/addComment";
+import { useActionState } from "react";
 
-interface CommentFormProps {
+const initialState = { message: null };
+
+interface Props {
   productId: string;
-  onSuccess?: () => void;
 }
 
-export default function CommentForm({ productId, onSuccess }: CommentFormProps) {
-  const [content, setContent] = useState("");
-  const [rating, setRating] = useState(5);
-  const [isPending, startTransition] = useTransition();
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!content.trim()) {
-      toast.error("Yorum boş olamaz");
-      return;
-    }
-
-    startTransition(async () => {
-      try {
-        const res = await createComment(productId, content, rating);
-        if (res?.status === "success") {
-          toast.success("Yorumunuz gönderildi");
-          setContent("");
-          setRating(5);
-          onSuccess?.();
-        } else {
-          toast.error(res?.message ?? "Bir hata oluştu");
-        }
-      } catch (err) {
-        toast.error("Giriş yapmalısınız");
-      }
-    });
-  };
+export default function CommentForm({ productId }: Props) {
+  const [state, formAction, isPending] = useActionState(addComment, initialState);
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <textarea
-        className="w-full border p-3 rounded resize-none"
-        rows={4}
-        value={content}
-        onChange={(e) => setContent(e.target.value)}
-        placeholder="Yorumunuzu yazın..."
-      />
+    <form action={formAction} className="space-y-4 mt-6">
+      <h3 className="text-lg font-semibold">Yorum Ekle</h3>
 
-      <div className="flex items-center gap-4">
-        <label className="text-sm">Puan:</label>
+      <input type="hidden" name="productId" value={productId} />
+
+      <textarea
+        name="content"
+        className="w-full border p-2 rounded"
+        placeholder="Yorumunuzu yazın..."
+        required
+        disabled={isPending}
+      />
+      <div className="flex items-center gap-2">
+        <label className="text-sm font-medium">Puan:</label>
         <select
-          value={rating}
-          onChange={(e) => setRating(Number(e.target.value))}
-          className="border px-2 py-1 rounded"
+          name="rating"
+          className="border p-1 rounded"
+          defaultValue={5}
+          disabled={isPending}
         >
           {[5, 4, 3, 2, 1].map((r) => (
             <option key={r} value={r}>
-              {r} / 5
+              {r}
             </option>
           ))}
         </select>
       </div>
 
+      {state.message && <p className="text-red-500 text-sm">{state.message}</p>}
+
       <button
         type="submit"
         disabled={isPending}
-        className="bg-orange-500 hover:bg-orange-600 text-white py-2 px-4 rounded"
+        className="bg-black text-white px-4 py-2 rounded disabled:opacity-50"
       >
-        Gönder
+        {isPending ? "Gönderiliyor..." : "Gönder"}
       </button>
     </form>
   );

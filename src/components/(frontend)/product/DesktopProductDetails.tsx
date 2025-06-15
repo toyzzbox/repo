@@ -14,6 +14,7 @@ import ProductDetailTabs from "./ProductDetailTab";
 import CartSuccessToast from "./CartSuccessToast";
 import { toggleFavorite } from "@/app/(admin)/administor/favorites/action";
 import { BsHeartFill } from "react-icons/bs";
+import CommentForm from "../comment/CommentForm";
 
 interface Comment {
   id: string;
@@ -220,44 +221,49 @@ const DesktopProductDetails: React.FC<ProductDetailsProps> = ({
 
       {/* Açıklama / Yorumlar / Sorular */}
       <div className="mt-8">
-        <ProductDetailTabs
-          product={{
-            description:
-              activeVariant.description ??
-              product.description ??
-              "Henüz açıklama bulunmamaktadır.",
-          }}
-          comments={
-            comments.length === 0 ? (
-              <div>Henüz yorum bulunmamaktadır.</div>
-            ) : (
-              <ul className="space-y-4">
-                {comments.map((comment) => (
-                  <li key={comment.id} className="border p-4 rounded shadow-sm">
-                    <div className="flex items-center gap-2 mb-2">
-                      {comment.user.image && (
-                        <Image
-                          src={comment.user.image}
-                          alt={comment.user.name || "Kullanıcı"}
-                          width={32}
-                          height={32}
-                          className="rounded-full"
-                        />
-                      )}
-                      <span className="font-medium">{comment.user.name}</span>
-                      <span className="text-xs text-gray-500 ml-auto">
-                        {new Date(comment.createdAt).toLocaleDateString()}
-                      </span>
-                    </div>
-                    <p className="text-sm">{comment.content}</p>
-                    <p className="text-sm text-yellow-500">Puan: {comment.rating} / 5</p>
-                  </li>
-                ))}
-              </ul>
-            )
-          }
-          questions={<div>Henüz soru bulunmamaktadır.</div>}
-        />
+      <ProductDetailTabs
+  product={{
+    description:
+      activeVariant.description ??
+      product.description ??
+      "Henüz açıklama bulunmamaktadır.",
+  }}
+  comments={
+    <>
+      {comments.length === 0 ? (
+        <div>Henüz yorum bulunmamaktadır.</div>
+      ) : (
+        <ul className="space-y-4">
+          {comments.map((comment) => (
+            <li key={comment.id} className="border p-4 rounded shadow-sm">
+              <div className="flex items-center gap-2 mb-2">
+                {comment.user.image && (
+                  <Image
+                    src={comment.user.image}
+                    alt={comment.user.name || "Kullanıcı"}
+                    width={32}
+                    height={32}
+                    className="rounded-full"
+                  />
+                )}
+                <span className="font-medium">{comment.user.name}</span>
+                <span className="text-xs text-gray-500 ml-auto">
+                  {new Date(comment.createdAt).toLocaleDateString()}
+                </span>
+              </div>
+              <p className="text-sm">{comment.content}</p>
+              <p className="text-sm text-yellow-500">Puan: {comment.rating} / 5</p>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {/* ✅ Server Action tabanlı form */}
+      <CommentForm productId={product.id} />
+    </>
+  }
+  questions={<div>Henüz soru bulunmamaktadır.</div>}
+/>
       </div>
     </div>
   );
