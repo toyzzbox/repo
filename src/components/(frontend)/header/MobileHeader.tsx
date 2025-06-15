@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Logo from './Logo';
 import HamburgerMenu from './HamburgerMenu';
 import CartCountMobile from './CartCountMobile';
@@ -8,66 +8,55 @@ import LiveSearch from '../search/LiveSearch';
 
 export default function MobileHeader() {
   const [isSearchVisible, setIsSearchVisible] = useState(true);
-  const [lastScrollY, setLastScrollY] = useState(0);
+  const lastScrollY = useRef(0);
 
   useEffect(() => {
     const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-      
-      // Scroll yönünü belirle
-      if (currentScrollY > lastScrollY && currentScrollY > 100) {
-        // Aşağı scroll - LiveSearch'i gizle
-        setIsSearchVisible(false);
-      } else if (currentScrollY < lastScrollY) {
-        // Yukarı scroll - LiveSearch'i göster
-        setIsSearchVisible(true);
-      }
-      
-      // Sayfanın en üstündeyse her zaman göster
-      if (currentScrollY === 0) {
-        setIsSearchVisible(true);
-      }
-      
-      setLastScrollY(currentScrollY);
+      const y = window.scrollY;
+
+      // ↓ Aşağı kayınca (100 px’ten sonra) gizle
+      if (y > lastScrollY.current && y > 100) setIsSearchVisible(false);
+      // ↑ Yukarı kayınca göster
+      else if (y < lastScrollY.current) setIsSearchVisible(true);
+      // En üstte mutlaka göster
+      if (y === 0) setIsSearchVisible(true);
+
+      lastScrollY.current = y;
     };
 
-    // Scroll event listener ekle
     window.addEventListener('scroll', handleScroll, { passive: true });
-    
-    // Cleanup function
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-    };
-  }, [lastScrollY]);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   return (
     <div className="md:hidden">
-      {/* Sabit header */}
-      <div className="fixed top-0 left-0 right-0 bg-white z-50 shadow-md">
-        <div className="flex justify-between items-center px-4">
+      {/* ───── Header: her zaman görünür ───── */}
+      <div className="fixed top-0 left-0 right-0 z-50 bg-white shadow-md h-16">
+        <div className="flex justify-between items-center h-full px-4">
           <HamburgerMenu />
           <Logo />
-          <div className="flex items-center gap-4 m-2">
+          <div className="flex items-center gap-4">
             <UserMobileMenu />
             <CartCountMobile />
           </div>
         </div>
       </div>
-      
-      {/* LiveSearch alanı - scroll ile gizlenir/görünür */}
-      <div 
+
+      {/* ───── LiveSearch: Header’ın hemen altında ───── */}
+      <div
         className={`
-          fixed top-16 left-0 right-0 z-40 bg-white px-4 py-2 shadow-sm
+          fixed left-0 right-0 z-40 bg-white px-4 py-2 shadow-sm
           transition-transform duration-300 ease-in-out
-          ${isSearchVisible ? 'transform translate-y-0' : 'transform -translate-y-full'}
+          ${isSearchVisible ? 'translate-y-0' : '-translate-y-full'}
+          top-16        /* header yüksekliği (64 px) kadar aşağıda */
         `}
       >
         <LiveSearch />
       </div>
-      
-      {/* İçerik için boşluk - LiveSearch görünür olduğunda */}
+
+      {/* İçerik • padding: header + LiveSearch (64 px + 48 px ≈ 112 px) */}
       <div className={`transition-all duration-300 ${isSearchVisible ? 'pt-32' : 'pt-16'}`}>
-        {/* Sayfa içeriğiniz buraya gelecek */}
+        {/* Sayfanın geri kalanı */}
       </div>
     </div>
   );
