@@ -36,6 +36,8 @@ interface ProductDetailsProps {
     price: number;
     medias: { urls: string[] }[];
     categories?: { id: string; name: string }[];
+    brand?: { id: string; name: string; slug: string };
+
     group?: {
       name: string;
       products: {
@@ -173,7 +175,13 @@ const DesktopProductDetails: React.FC<ProductDetailsProps> = ({
             </div>
           )}
 
-          <div className="flex items-center gap-4">
+
+          <div className="mt-2">
+            <h1 className="text-2xl font-bold text-black">
+              {(activeVariant.price * quantity).toFixed(2)} TL
+            </h1>
+
+            <div className="flex items-center gap-4">
             <span className="text-sm font-medium">Adet:</span>
             <div className="flex items-center bg-gray-200 rounded px-3 py-1">
               <button onClick={decrementQuantity} className="px-2 text-lg">−</button>
@@ -181,12 +189,6 @@ const DesktopProductDetails: React.FC<ProductDetailsProps> = ({
               <button onClick={incrementQuantity} className="px-2 text-lg">+</button>
             </div>
           </div>
-
-          <div className="mt-2">
-            <h1 className="text-2xl font-bold text-black">
-              {(activeVariant.price * quantity).toFixed(2)} TL
-            </h1>
-            <p className="text-xs text-gray-400 line-through">İndirimli Fiyat</p>
             <p>En geç yarın kargoda.</p>
           </div>
 
