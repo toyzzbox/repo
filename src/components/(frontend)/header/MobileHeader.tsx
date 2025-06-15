@@ -1,10 +1,10 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
-import Logo from './Logo';
 import HamburgerMenu from './HamburgerMenu';
 import CartCountMobile from './CartCountMobile';
 import UserMobileMenu from './UserMobileMenu';
 import LiveSearch from '../search/LiveSearch';
+import MobileLogo from './MobileLogo';
 
 export default function MobileHeader() {
   const [isSearchVisible, setIsSearchVisible] = useState(true);
@@ -34,7 +34,7 @@ export default function MobileHeader() {
       <div className="fixed top-0 left-0 right-0 z-50 bg-white h-16">
         <div className="flex justify-between items-center h-full px-4">
           <HamburgerMenu />
-          <Logo />
+          <MobileLogo/>
           <div className="flex items-center gap-4">
             <UserMobileMenu />
             <CartCountMobile />

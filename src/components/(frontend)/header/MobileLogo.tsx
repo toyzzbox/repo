@@ -2,7 +2,7 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 
-const Logo = () => {
+const MobileLogo = () => {
   const router = useRouter();
 
   const handleClick = () => {
@@ -14,13 +14,13 @@ const Logo = () => {
       <Image
         src="/logo.png"
         width={150}
-        height={100}
+        height={50}
         alt="Picture of the author"
       />
     </div>
   );
 };
 
-export default Logo;
+export default MobileLogo;
 
 
