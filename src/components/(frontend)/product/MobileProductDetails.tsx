@@ -12,6 +12,7 @@ import ProductImageGallery from "./ProductImageGallery";
 import ProductDetailTabsMobile from "./ProductDetailTabsMobile";
 import ProductBreadcrumb from "./ProductBreadcrumb";
 import { toggleFavorite } from "@/app/(admin)/administor/favorites/action";
+import CommentForm from "../comment/CommentForm";
 
 interface MobileProductDetailsProps {
   product: any;
@@ -142,30 +143,35 @@ export default function MobileProductDetails({
 
         {/* Tabs */}
         <div className="mt-6">
-          <ProductDetailTabsMobile
-            product={{
-              description:
-                activeVariant.description ??
-                product.description ??
-                "Henüz açıklama bulunmuyor.",
-            }}
-            comments={
-              comments.length ? (
-                <ul className="space-y-2">
-                  {comments.map((c: any) => (
-                    <li key={c.id}>
-                      <strong>{c.user.name ?? "Kullanıcı"}:</strong> {c.content}{" "}
-                      <span className="text-yellow-500">({c.rating}⭐)</span>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <div>Henüz yorum bulunmamaktadır.</div>
-              )
-            }
-            questions={<div>Henüz soru bulunmamaktadır.</div>}
-          />
-        </div>
+  <ProductDetailTabsMobile
+    product={{
+      description:
+        activeVariant.description ??
+        product.description ??
+        "Henüz açıklama bulunmuyor.",
+    }}
+    comments={
+      <>
+        {comments.length ? (
+          <ul className="space-y-2">
+            {comments.map((c: any) => (
+              <li key={c.id}>
+                <strong>{c.user.name ?? "Kullanıcı"}:</strong> {c.content}{" "}
+                <span className="text-yellow-500">({c.rating}⭐)</span>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <div>Henüz yorum bulunmamaktadır.</div>
+        )}
+
+        {/* ✅ Yorum ekleme formunu mobilde de gösteriyoruz */}
+        <CommentForm productId={product.id} />
+      </>
+    }
+    questions={<div>Henüz soru bulunmamaktadır.</div>}
+  />
+</div>
       </div>
 
       {/* Sabit Sepete Ekle Butonu */}
