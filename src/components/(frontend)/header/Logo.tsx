@@ -14,7 +14,7 @@ const Logo = () => {
       <Image
         src="/logo.png"
         width={150}
-        height={100}
+        height={80}
         alt="Picture of the author"
       />
     </div>
