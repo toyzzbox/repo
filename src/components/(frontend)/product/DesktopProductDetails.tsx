@@ -5,7 +5,7 @@ import { addToCart } from "@/redux/cartSlice";
 import { useRouter } from "next/navigation";
 import React, { useState, useEffect, useTransition } from "react";
 import Image from "next/image";
-import { Heart,  } from "lucide-react";
+import { Heart } from "lucide-react";
 import { toast } from "sonner";
 
 import ProductImageGallery from "./ProductImageGallery";
@@ -14,6 +14,17 @@ import ProductDetailTabs from "./ProductDetailTab";
 import CartSuccessToast from "./CartSuccessToast";
 import { toggleFavorite } from "@/app/(admin)/administor/favorites/action";
 import { BsHeartFill } from "react-icons/bs";
+
+interface Comment {
+  id: string;
+  content: string;
+  rating: number;
+  createdAt: string;
+  user: {
+    name: string | null;
+    image: string | null;
+  };
+}
 
 interface ProductDetailsProps {
   product: {
@@ -44,12 +55,14 @@ interface ProductDetailsProps {
     medias: { urls: string[] }[];
   }[];
   isFavorited: boolean;
+  comments: Comment[];
 }
 
 const DesktopProductDetails: React.FC<ProductDetailsProps> = ({
   product,
   relatedProducts,
   isFavorited,
+  comments,
 }) => {
   const dispatch = useAppDispatch();
   const router = useRouter();
@@ -93,7 +106,6 @@ const DesktopProductDetails: React.FC<ProductDetailsProps> = ({
       ? activeVariant.medias.map((m) => m.urls[0])
       : product.medias.map((m) => m.urls[0]);
 
-  // ✅ Favori yönetimi
   const [favorited, setFavorited] = useState(isFavorited);
   const [isPending, startTransition] = useTransition();
 
@@ -117,10 +129,8 @@ const DesktopProductDetails: React.FC<ProductDetailsProps> = ({
       />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mt-4">
-        {/* Ürün Galerisi */}
         <ProductImageGallery images={imageUrls} productName={activeVariant.name} />
 
-        {/* Sağ Panel */}
         <div className="flex flex-col gap-4 text-slate-600 text-sm">
           <h2 className="text-3xl font-semibold text-slate-800">
             {product.group?.name
@@ -139,7 +149,7 @@ const DesktopProductDetails: React.FC<ProductDetailsProps> = ({
                 <div key={variant.id} className="text-center">
                   <button
                     type="button"
-                    onClick={() => router.push(`/products/${variant.slug}`)} // ✅ Route düzeltildi
+                    onClick={() => router.push(`/products/${variant.slug}`)}
                     className={`border rounded px-3 py-2 flex flex-col items-center gap-1 w-24 ${
                       activeVariant.id === variant.id
                         ? "border-orange-500 bg-orange-100"
@@ -165,17 +175,12 @@ const DesktopProductDetails: React.FC<ProductDetailsProps> = ({
           <div className="flex items-center gap-4">
             <span className="text-sm font-medium">Adet:</span>
             <div className="flex items-center bg-gray-200 rounded px-3 py-1">
-              <button onClick={decrementQuantity} className="px-2 text-lg">
-                −
-              </button>
+              <button onClick={decrementQuantity} className="px-2 text-lg">−</button>
               <span className="px-3">{quantity}</span>
-              <button onClick={incrementQuantity} className="px-2 text-lg">
-                +
-              </button>
+              <button onClick={incrementQuantity} className="px-2 text-lg">+</button>
             </div>
           </div>
 
-          {/* Fiyat ve Açıklama */}
           <div className="mt-2">
             <h1 className="text-2xl font-bold text-black">
               {(activeVariant.price * quantity).toFixed(2)} TL
@@ -184,7 +189,6 @@ const DesktopProductDetails: React.FC<ProductDetailsProps> = ({
             <p>En geç yarın kargoda.</p>
           </div>
 
-          {/* Butonlar */}
           <div className="flex gap-4">
             <button
               onClick={handleBuyNow}
@@ -214,7 +218,7 @@ const DesktopProductDetails: React.FC<ProductDetailsProps> = ({
         </div>
       </div>
 
-      {/* Ürün Açıklama / Yorum / Soru Tabs */}
+      {/* Açıklama / Yorumlar / Sorular */}
       <div className="mt-8">
         <ProductDetailTabs
           product={{
@@ -223,7 +227,35 @@ const DesktopProductDetails: React.FC<ProductDetailsProps> = ({
               product.description ??
               "Henüz açıklama bulunmamaktadır.",
           }}
-          comments={<div>Henüz yorum bulunmamaktadır.</div>}
+          comments={
+            comments.length === 0 ? (
+              <div>Henüz yorum bulunmamaktadır.</div>
+            ) : (
+              <ul className="space-y-4">
+                {comments.map((comment) => (
+                  <li key={comment.id} className="border p-4 rounded shadow-sm">
+                    <div className="flex items-center gap-2 mb-2">
+                      {comment.user.image && (
+                        <Image
+                          src={comment.user.image}
+                          alt={comment.user.name || "Kullanıcı"}
+                          width={32}
+                          height={32}
+                          className="rounded-full"
+                        />
+                      )}
+                      <span className="font-medium">{comment.user.name}</span>
+                      <span className="text-xs text-gray-500 ml-auto">
+                        {new Date(comment.createdAt).toLocaleDateString()}
+                      </span>
+                    </div>
+                    <p className="text-sm">{comment.content}</p>
+                    <p className="text-sm text-yellow-500">Puan: {comment.rating} / 5</p>
+                  </li>
+                ))}
+              </ul>
+            )
+          }
           questions={<div>Henüz soru bulunmamaktadır.</div>}
         />
       </div>

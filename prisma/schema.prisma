@@ -19,12 +19,26 @@ model User {
   sessions      Session[]
   addresses Address[]
   favorites Favorite[] // 👈 bir kullanıcının favorileri
-
+  comments Comment[]  
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@map("users")
+}
+
+
+model Comment {
+  id        String   @id @default(cuid())
+  content   String
+  rating    Int      // 1–5 arası puan
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  product   Product  @relation(fields: [productId], references: [id])
+  productId String
+  createdAt DateTime @default(now())
+
+  @@map("comments")
 }
 
 model Address {
@@ -112,6 +126,7 @@ model Product {
   price       Float
   description String? @db.Text
   favorites Favorite[] // 👈 bu ürünü favorileyen kullanıcılar
+  comments  Comment[] // ✅ EKLENDİ
 
   groupId     String? // ✅ Opsiyonel
   group       ProductGroup? @relation(fields: [groupId], references: [id])

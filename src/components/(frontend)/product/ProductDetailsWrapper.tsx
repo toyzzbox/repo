@@ -4,39 +4,47 @@ import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
 import MobileProductDetails from "./MobileProductDetails";
 
-const DesktopProductDetails = dynamic(() => import("./DesktopProductDetails"));
+// Desktop bileşenini client tarafında dinamik yükle
+const DesktopProductDetails = dynamic(
+  () => import("./DesktopProductDetails"),
+  { ssr: false },
+);
 
 interface ProductDetailsWrapperProps {
   product: any;
   relatedProducts: any[];
-  isFavorited: boolean; // ✅ favori durumu geldi
+  isFavorited: boolean;
+  comments: any[];      // 👈 yorumlar da geliyor
 }
 
 export default function ProductDetailsWrapper({
   product,
   relatedProducts,
   isFavorited,
+  comments,
 }: ProductDetailsWrapperProps) {
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 768);
-    handleResize(); // ilk render'da kontrol
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();                           // ilk render’da kontrol
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
   return isMobile ? (
     <MobileProductDetails
       product={product}
       relatedProducts={relatedProducts}
-      isFavorited={isFavorited} // ✅ favori durumu mobil bileşene aktarıldı
+      isFavorited={isFavorited}
+      comments={comments}                   // ✅ mobil bileşene
     />
   ) : (
     <DesktopProductDetails
       product={product}
       relatedProducts={relatedProducts}
-      isFavorited={isFavorited} // ✅ favori durumu desktop bileşene aktarıldı
+      isFavorited={isFavorited}
+      comments={comments}                   // ✅ masaüstü bileşene
     />
   );
 }

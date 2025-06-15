@@ -5,40 +5,41 @@ import { addToCart } from "@/redux/cartSlice";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 import Image from "next/image";
-import { Heart,  } from "lucide-react";
+import { Heart } from "lucide-react";
+import { BsHeartFill } from "react-icons/bs";
 
 import ProductImageGallery from "./ProductImageGallery";
 import ProductDetailTabsMobile from "./ProductDetailTabsMobile";
 import ProductBreadcrumb from "./ProductBreadcrumb";
 import { toggleFavorite } from "@/app/(admin)/administor/favorites/action";
-import { BsHeartFill } from "react-icons/bs";
 
 interface MobileProductDetailsProps {
   product: any;
   relatedProducts: any[];
   isFavorited: boolean;
+  comments?: any[]; // 🟢 Yorumlar
 }
 
 export default function MobileProductDetails({
   product,
   relatedProducts,
   isFavorited,
+  comments = [],
 }: MobileProductDetailsProps) {
   const dispatch = useAppDispatch();
   const router = useRouter();
 
-  /* ---------- Varyant yönetimi ---------- */
   const variants = product.group?.products ?? [];
   const [selectedVariant, setSelectedVariant] = useState<typeof variants[0] | null>(
     variants.find((v) => v.id === product.id) ?? null
   );
+
   useEffect(() => {
     setSelectedVariant(variants.find((v) => v.id === product.id) ?? null);
   }, [product]);
 
   const activeVariant = selectedVariant ?? product;
 
-  /* ---------- Favori durumu ---------- */
   const [favorited, setFavorited] = useState(isFavorited);
   const [isFavPending, startFavTransition] = useTransition();
 
@@ -53,7 +54,6 @@ export default function MobileProductDetails({
     });
   };
 
-  /* ---------- Sepet ---------- */
   const [quantity, setQuantity] = useState(1);
 
   const handleAddToCart = () => {
@@ -69,30 +69,25 @@ export default function MobileProductDetails({
     );
   };
 
-  /* ---------- Galeri görselleri ---------- */
   const imageUrls =
     activeVariant?.medias?.length && activeVariant?.medias[0]?.urls?.length
       ? activeVariant.medias.map((m: any) => m.urls[0])
       : product.medias.map((m: any) => m.urls[0]);
 
-  /* ---------- UI ---------- */
   return (
     <>
-      {/* Galeri + Favori butonu */}
+      {/* Breadcrumb + Galeri + Favori */}
       <div className="relative">
         <ProductBreadcrumb
           category={product.categories?.[0]}
           groupName={product.group?.name}
           productName={activeVariant.name}
         />
-
         <ProductImageGallery images={imageUrls} productName={activeVariant.name} />
-
         <button
           onClick={handleToggleFavorite}
           disabled={isFavPending}
           className="absolute top-2 right-2 bg-white rounded-full p-2 shadow transition hover:scale-110"
-          aria-label="Favorilere ekle/kaldır"
         >
           {favorited ? (
             <BsHeartFill className="w-6 h-6 text-red-500" />
@@ -114,10 +109,9 @@ export default function MobileProductDetails({
         {variants.length > 1 && (
           <div className="flex gap-2 flex-wrap mt-4">
             {variants.map((variant) => (
-              <div key={variant.id} className="text-center">
+              <div key={variant.id}>
                 <button
-                  type="button"
-                  onClick={() => router.push(`/products/${variant.slug}`)} // ← route’unuza göre ayarlayın
+                  onClick={() => router.push(`/products/${variant.slug}`)}
                   className={`border rounded px-3 py-2 flex flex-col items-center gap-1 w-24 ${
                     activeVariant.id === variant.id
                       ? "border-orange-500 bg-orange-100"
@@ -130,7 +124,6 @@ export default function MobileProductDetails({
                       alt={variant.name}
                       fill
                       className="object-cover rounded"
-                      sizes="96px"
                     />
                   </div>
                   <span className="text-xs">{variant.name}</span>
@@ -154,19 +147,32 @@ export default function MobileProductDetails({
               description:
                 activeVariant.description ??
                 product.description ??
-                "Henüz açıklama eklenmedi.",
+                "Henüz açıklama bulunmuyor.",
             }}
-            comments={<div>Henüz yorum yok.</div>}
-            questions={<div>Henüz soru yok.</div>}
+            comments={
+              comments.length ? (
+                <ul className="space-y-2">
+                  {comments.map((c: any) => (
+                    <li key={c.id}>
+                      <strong>{c.user.name ?? "Kullanıcı"}:</strong> {c.content}{" "}
+                      <span className="text-yellow-500">({c.rating}⭐)</span>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <div>Henüz yorum bulunmamaktadır.</div>
+              )
+            }
+            questions={<div>Henüz soru bulunmamaktadır.</div>}
           />
         </div>
       </div>
 
-      {/* Sabit Sepete Ekle butonu */}
+      {/* Sabit Sepete Ekle Butonu */}
       <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t px-4 py-3 shadow md:hidden">
         <button
           onClick={handleAddToCart}
-          className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 rounded-lg transition duration-200"
+          className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 rounded-lg"
         >
           Sepete Ekle
         </button>

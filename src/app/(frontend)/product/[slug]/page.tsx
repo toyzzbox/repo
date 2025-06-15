@@ -15,23 +15,9 @@ export default async function ProductPage({ params }: PageProps) {
 
   const product = await prisma.product.findUnique({
     where: { slug: params.slug },
-    select: {
-      id: true,
-      slug: true,
-      name: true,
-      description: true,
-      price: true,
-      medias: {
-        select: {
-          urls: true,
-        },
-      },
-      categories: {
-        select: {
-          id: true,
-          name: true,
-        },
-      },
+    include: {
+      medias: { select: { urls: true } },
+      categories: { select: { id: true, name: true } },
       group: {
         select: {
           name: true,
@@ -44,9 +30,7 @@ export default async function ProductPage({ params }: PageProps) {
               price: true,
               stock: true,
               medias: {
-                select: {
-                  urls: true,
-                },
+                select: { urls: true },
               },
             },
           },
@@ -57,10 +41,16 @@ export default async function ProductPage({ params }: PageProps) {
             where: { userId: session.user.id },
             select: { id: true },
           }
-        : false,
+        : undefined,
+      comments: {
+        include: {
+          user: { select: { name: true, image: true } },
+        },
+        orderBy: { createdAt: "desc" },
+      },
     },
   });
-
+  
   if (!product) {
     return notFound();
   }
@@ -77,6 +67,7 @@ export default async function ProductPage({ params }: PageProps) {
       product={product}
       isFavorited={isFavorited}
       relatedProducts={relatedProducts}
+      comments={product.comments}
     />
   );
 }
