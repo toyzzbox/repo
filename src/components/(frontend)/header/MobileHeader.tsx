@@ -31,7 +31,7 @@ export default function MobileHeader() {
   return (
     <div className="md:hidden">
       {/* ───── Header: her zaman görünür ───── */}
-      <div className="fixed top-0 left-0 right-0 z-50 bg-white shadow-md h-16">
+      <div className="fixed top-0 left-0 right-0 z-50 bg-white h-16">
         <div className="flex justify-between items-center h-full px-4">
           <HamburgerMenu />
           <Logo />
