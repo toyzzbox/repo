@@ -18,6 +18,42 @@ function slugify(str: string) {
     .replace(/^-+|-+$/g, "");
 }
 
+// ----- Yardımcı: Kategori ağacı oluştur -----
+function buildCategoryTree(categories: Category[]) {
+  const map = new Map<string, Category & { children: Category[] }>();
+  const roots: (Category & { children: Category[] })[] = [];
+
+  for (const cat of categories) {
+    map.set(cat.id, { ...cat, children: [] });
+  }
+
+  for (const cat of map.values()) {
+    if (cat.parentId && map.has(cat.parentId)) {
+      map.get(cat.parentId)!.children.push(cat);
+    } else {
+      roots.push(cat);
+    }
+  }
+
+  return roots;
+}
+
+// ----- Yardımcı: Kategorileri düzleştir (label'lı) -----
+function flattenCategoryTree(
+  tree: (Category & { children: Category[] })[],
+  prefix = ""
+): { id: string; label: string }[] {
+  const result: { id: string; label: string }[] = [];
+
+  for (const node of tree) {
+    const label = prefix ? `${prefix} / ${node.name}` : node.name;
+    result.push({ id: node.id, label });
+    result.push(...flattenCategoryTree(node.children, label));
+  }
+
+  return result;
+}
+
 // ----- Form State Tipi -----
 interface FormState {
   ok: boolean;
@@ -27,6 +63,7 @@ interface FormState {
 interface Category {
   id: string;
   name: string;
+  parentId?: string | null;
 }
 interface Media {
   id: string;
@@ -38,7 +75,6 @@ interface CategoryFormProps {
 }
 
 export default function CategoryForm({ categories, medias }: CategoryFormProps) {
-  /* ---------- Server Action binding ---------- */
   const [formState, onSubmit, isPending] = useActionState<FormState, FormData>(
     async (_, formData) => {
       const message = await createCategory(_, formData);
@@ -50,7 +86,6 @@ export default function CategoryForm({ categories, medias }: CategoryFormProps) 
     { ok: false, message: "" }
   );
 
-  /* ---------- Slug otomasyonu ---------- */
   const [name, setName] = useState("");
   const [slug, setSlug] = useState("");
 
@@ -58,11 +93,14 @@ export default function CategoryForm({ categories, medias }: CategoryFormProps) 
     setSlug(slugify(name));
   }, [name]);
 
+  // Hiyerarşik kategori label'larını hazırla
+  const categoryTree = buildCategoryTree(categories);
+  const flatOptions = flattenCategoryTree(categoryTree);
+
   return (
     <main className="mx-auto max-w-lg space-y-4">
       <h1 className="text-xl font-bold">Kategori Oluştur</h1>
 
-      {/* ---- Başarı / Hata Mesajı ---- */}
       {formState.message && (
         <p
           className={`p-2 rounded text-sm ${
@@ -74,7 +112,6 @@ export default function CategoryForm({ categories, medias }: CategoryFormProps) 
       )}
 
       <form action={onSubmit} className="flex flex-col gap-4">
-        {/* İsim */}
         <input
           required
           type="text"
@@ -85,7 +122,6 @@ export default function CategoryForm({ categories, medias }: CategoryFormProps) 
           onChange={(e) => setName(e.target.value)}
         />
 
-        {/* Slug (otomatik) */}
         <input
           required
           type="text"
@@ -96,24 +132,21 @@ export default function CategoryForm({ categories, medias }: CategoryFormProps) 
           onChange={(e) => setSlug(slugify(e.target.value))}
         />
 
-        {/* Açıklama */}
         <textarea
           name="description"
           placeholder="Açıklama"
           className="border rounded px-3 py-2 min-h-[80px]"
         />
 
-        {/* Üst Kategori Seçimi */}
         <select name="parentId" className="border rounded px-3 py-2">
           <option value="">Üst Kategori Yok</option>
-          {categories.map((c) => (
-            <option key={c.id} value={c.id}>
-              {c.name}
+          {flatOptions.map((opt) => (
+            <option key={opt.id} value={opt.id}>
+              {opt.label}
             </option>
           ))}
         </select>
 
-        {/* Medya Çoklu Seçim */}
         <label className="font-medium">Medya Dosyaları</label>
         <select
           name="mediaIds[]"
@@ -127,7 +160,6 @@ export default function CategoryForm({ categories, medias }: CategoryFormProps) 
           ))}
         </select>
 
-        {/* Gönder Butonu */}
         <button
           disabled={isPending}
           className="bg-blue-600 text-white rounded px-4 py-2 disabled:opacity-50"
