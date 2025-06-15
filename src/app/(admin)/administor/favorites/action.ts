@@ -1,9 +1,11 @@
-import { auth } from "@/auth"; // 👈 src/auth.ts içinden geliyor
+"use server";
+
+import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 
 export async function toggleFavorite(productId: string) {
   const session = await auth();
-  console.log("SESSION:", session);
+  console.log("SESSION:", session);       // ✅ Artık user ve id dolu gelmeli
 
   if (!session?.user?.id) {
     throw new Error("Giriş yapmalısınız");
@@ -13,29 +15,18 @@ export async function toggleFavorite(productId: string) {
 
   const existing = await prisma.favorite.findUnique({
     where: {
-      userId_productId: {
-        userId,
-        productId,
-      },
+      userId_productId: { userId, productId },
     },
   });
 
   if (existing) {
     await prisma.favorite.delete({
-      where: {
-        userId_productId: {
-          userId,
-          productId,
-        },
-      },
+      where: { userId_productId: { userId, productId } },
     });
     return { status: "removed" };
   } else {
     await prisma.favorite.create({
-      data: {
-        userId,
-        productId,
-      },
+      data: { userId, productId },
     });
     return { status: "added" };
   }
