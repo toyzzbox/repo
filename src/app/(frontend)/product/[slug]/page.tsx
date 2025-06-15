@@ -1,6 +1,8 @@
+import { auth } from "@/auth";
+import { prisma } from "@/lib/prisma";
 import { getRelatedProducts } from "@/actions/getRelatedProducts";
 import ProductDetailsWrapper from "@/components/(frontend)/product/ProductDetailsWrapper";
-import { prisma } from "@/lib/prisma";
+import { notFound } from "next/navigation";
 
 type PageProps = {
   params: {
@@ -9,13 +11,15 @@ type PageProps = {
 };
 
 export default async function ProductPage({ params }: PageProps) {
+  const session = await auth(); // 🔐 Kullanıcı oturumu
+
   const product = await prisma.product.findUnique({
     where: { slug: params.slug },
     select: {
       id: true,
       slug: true,
       name: true,
-      description: true, // ✅ Doğru alan bu
+      description: true,
       price: true,
       medias: {
         select: {
@@ -48,12 +52,20 @@ export default async function ProductPage({ params }: PageProps) {
           },
         },
       },
+      favorites: session?.user?.id
+        ? {
+            where: { userId: session.user.id },
+            select: { id: true },
+          }
+        : false,
     },
   });
 
   if (!product) {
-    return <div>Product not found</div>;
+    return notFound();
   }
+
+  const isFavorited = !!product.favorites?.length;
 
   const categoryIds = product.categories?.map((cat) => cat.id) || [];
   const relatedProducts = categoryIds.length
@@ -63,6 +75,7 @@ export default async function ProductPage({ params }: PageProps) {
   return (
     <ProductDetailsWrapper
       product={product}
+      isFavorited={isFavorited}
       relatedProducts={relatedProducts}
     />
   );
