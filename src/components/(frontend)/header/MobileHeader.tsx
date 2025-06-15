@@ -8,32 +8,37 @@ import LiveSearch from '../search/LiveSearch';
 
 export default function MobileHeader() {
   const [isSearchVisible, setIsSearchVisible] = useState(true);
-  const lastScrollY = useRef(0);
+  const lastScrollY = useRef(0); // ✅ useRef → güncel scrollY'yi izlemek için
 
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
 
+      // Aşağı iniyorsak ve 100px'den fazlaysa → gizle
       if (currentScrollY > lastScrollY.current && currentScrollY > 100) {
-        setIsSearchVisible(false); // Aşağı → gizle
-      } else if (currentScrollY < lastScrollY.current) {
-        setIsSearchVisible(true); // Yukarı → göster
+        setIsSearchVisible(false);
+      }
+      // Yukarı çıkıyorsak → göster
+      else if (currentScrollY < lastScrollY.current) {
+        setIsSearchVisible(true);
       }
 
+      // Sayfa en üstteyse → her zaman göster
       if (currentScrollY === 0) {
-        setIsSearchVisible(true); // En üstte → göster
+        setIsSearchVisible(true);
       }
 
+      // Scroll pozisyonunu güncelle
       lastScrollY.current = currentScrollY;
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, []); // 🔒 Sadece bir kez mount edildiğinde çalışır
 
   return (
     <div className="md:hidden">
-      {/* Sabit header (daima görünür) */}
+      {/* Header: Daima görünür */}
       <div className="fixed top-0 left-0 right-0 bg-white z-50 shadow-md">
         <div className="flex justify-between items-center px-4 h-16">
           <HamburgerMenu />
@@ -45,7 +50,7 @@ export default function MobileHeader() {
         </div>
       </div>
 
-      {/* Sadece LiveSearch scroll’a göre gizlenir/görünür */}
+      {/* LiveSearch: Scroll ile kontrol edilir */}
       <div
         className={`
           fixed top-16 left-0 right-0 z-40 bg-white px-4 py-2 shadow-sm
@@ -56,9 +61,9 @@ export default function MobileHeader() {
         <LiveSearch />
       </div>
 
-      {/* Sayfa içeriği için padding */}
+      {/* Sayfa içeriği */}
       <div className={`transition-all duration-300 ${isSearchVisible ? 'pt-32' : 'pt-16'}`}>
-        {/* Sayfa içeriği */}
+        {/* Diğer içerikler burada */}
       </div>
     </div>
   );
