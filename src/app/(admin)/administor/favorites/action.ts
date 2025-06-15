@@ -1,25 +1,20 @@
-"use server";
-
+import { auth } from "@/auth"; // 👈 src/auth.ts içinden geliyor
 import { prisma } from "@/lib/prisma";
-import  getServerSession  from "next-auth";
-import { authConfig } from "@/auth.config"; // ✅ doğru
 
 export async function toggleFavorite(productId: string) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.email) {
+  const session = await auth();
+  console.log("SESSION:", session);
+
+  if (!session?.user?.id) {
     throw new Error("Giriş yapmalısınız");
   }
 
-  const user = await prisma.user.findUnique({
-    where: { email: session.user.email },
-  });
-
-  if (!user) throw new Error("Kullanıcı bulunamadı");
+  const userId = session.user.id;
 
   const existing = await prisma.favorite.findUnique({
     where: {
       userId_productId: {
-        userId: user.id,
+        userId,
         productId,
       },
     },
@@ -29,7 +24,7 @@ export async function toggleFavorite(productId: string) {
     await prisma.favorite.delete({
       where: {
         userId_productId: {
-          userId: user.id,
+          userId,
           productId,
         },
       },
@@ -38,7 +33,7 @@ export async function toggleFavorite(productId: string) {
   } else {
     await prisma.favorite.create({
       data: {
-        userId: user.id,
+        userId,
         productId,
       },
     });
