@@ -14,12 +14,12 @@ model User {
   emailVerified DateTime?
   password      String?
   image         String?
-  role          String?
-  accounts      Account[]
+  role      Role     @default(USER) // 🆕 sadece senin için ADMIN olacak  accounts      Account[]
   sessions      Session[]
   addresses Address[]
   favorites Favorite[] // 👈 bir kullanıcının favorileri
   comments Comment[]  
+    accounts  Account[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -54,6 +54,7 @@ model Address {
   isDefault   Boolean  @default(false)
   createdAt   DateTime @default(now())
 }
+
 
 model Account {
   userId            String
@@ -207,5 +208,10 @@ model Category {
   // 🔧 bu satır önemli
 }
 
+
+enum Role {
+  ADMIN
+  USER
+}
 
 
