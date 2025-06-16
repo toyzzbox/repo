@@ -144,23 +144,20 @@ const DesktopProductDetails: React.FC<ProductDetailsProps> = ({
           {/* Marka Linki */}
           {product.brands?.length > 0 && (
   <div className="flex items-center gap-2">
-    <span className="text-gray-500">Marka:</span>
+   
     {product.brands.map((brand) => (
       <Link 
         key={brand.id}
-        href={`/brands/${brand.slug}`}
+        href={`/markalar/${brand.slug}`}
         className="text-orange-500 hover:text-orange-600 font-medium hover:underline transition-colors"
       >
-        {brand.name}
+        {brand.name} <span className="text-gray-500">diğer ürünleri</span>
       </Link>
     ))}
   </div>
 )}
 
-          <div className="flex items-center gap-2">
-            <span>⭐</span>
-            <span>4.5 / 5</span>
-          </div>
+
 
           {variants.length > 1 && (
             <div className="flex gap-2 flex-wrap">
@@ -198,13 +195,13 @@ const DesktopProductDetails: React.FC<ProductDetailsProps> = ({
 
             <div className="flex items-center gap-4">
               <span className="text-sm font-medium">Adet:</span>
-              <div className="flex items-center bg-gray-200 rounded px-3 py-1">
+              <div className="flex items-center bg-gray-100 rounded px-3 py-1">
                 <button onClick={decrementQuantity} className="px-2 text-lg">−</button>
                 <span className="px-3">{quantity}</span>
                 <button onClick={incrementQuantity} className="px-2 text-lg">+</button>
               </div>
             </div>
-            <p>En geç <b className="text-orange-400">yarın</b>  kargoda.</p>
+
           </div>
 
           <div className="flex gap-4"> 
@@ -233,6 +230,7 @@ const DesktopProductDetails: React.FC<ProductDetailsProps> = ({
               )}
             </button>
           </div>
+          <h2 className="p-2">En geç <b className="text-orange-400">yarın</b>  kargoda.</h2>
         </div>
       </div>
 
