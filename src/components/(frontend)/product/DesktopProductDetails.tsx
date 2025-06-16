@@ -149,7 +149,7 @@ const DesktopProductDetails: React.FC<ProductDetailsProps> = ({
               <Link 
                 href={`/brands/${product.brand.slug}`}
                 className="text-orange-500 hover:text-orange-600 font-medium hover:underline transition-colors"
-              >
+              >de
                 {product.brand.name}
               </Link>
             </div>
@@ -202,7 +202,7 @@ const DesktopProductDetails: React.FC<ProductDetailsProps> = ({
                 <button onClick={incrementQuantity} className="px-2 text-lg">+</button>
               </div>
             </div>
-            <p>En geç yarın kargoda.</p>
+            <p>En geç <b className="text-orange-400">yarın</b>  kargoda.</p>
           </div>
 
           <div className="flex gap-4"> 
