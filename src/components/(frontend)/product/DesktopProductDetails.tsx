@@ -148,7 +148,7 @@ const DesktopProductDetails: React.FC<ProductDetailsProps> = ({
     {product.brands.map((brand) => (
       <Link 
         key={brand.id}
-        href={`/markalar/${brand.slug}`}
+        href={`/marka/${brand.slug}`}
         className="text-orange-500 hover:text-orange-600 font-medium hover:underline transition-colors"
       >
         {brand.name} <span className="text-gray-500">diğer ürünleri</span>
@@ -190,7 +190,7 @@ const DesktopProductDetails: React.FC<ProductDetailsProps> = ({
 
           <div className="mt-2">
             <h1 className="text-2xl font-bold text-black">
-              {(activeVariant.price * quantity).toFixed(2)} TL
+              {(product.price).toFixed(2)} TL
             </h1>
 
             <div className="flex items-center gap-4">
