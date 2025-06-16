@@ -1,7 +1,7 @@
 "use client";
 
 
-import { UserRound } from "lucide-react";
+import { Heart} from "lucide-react";
 
 const Favorites = () => {
 
@@ -11,7 +11,7 @@ const Favorites = () => {
       className="relative cursor-pointer flex items-center"
     >
       <div className="text-3xl">
-        <UserRound />
+        <Heart />
       </div>
      
    
