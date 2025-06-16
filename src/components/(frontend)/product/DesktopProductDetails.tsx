@@ -190,9 +190,23 @@ const DesktopProductDetails: React.FC<ProductDetailsProps> = ({
             </div>
           </div>
             <p>En geç yarın kargoda.</p>
+            {product.brand && (
+  <div className="mt-2 text-sm text-gray-600">
+    Marka:{" "}
+    <a
+      href={`/brands/${product.brand.slug}`}
+      className="text-orange-600 hover:underline font-medium"
+    >
+      {product.brand.name}
+    </a>{" "}
+    ve diğer ürünlerini incele.
+  </div>
+)}
           </div>
 
-          <div className="flex gap-4">
+          
+
+          <div className="flex gap-4"> 
             <button
               onClick={handleBuyNow}
               className="bg-white border border-orange-400 hover:bg-orange-600 text-orange-400 hover:text-white py-4 px-6 rounded transition"
