@@ -61,9 +61,9 @@ export const ShoppingCart = () => {
                 <div onClick={() => { dispatch(incrementQuantity(product)) }} className="cursor-pointer ml-4">+</div>
               </div>
               <div className="text-right">
-                <h1 className="font-bold text-2xl">{`$${product.price}`}</h1>
+                <h1 className="font-bold text-2xl">{`${product.price}TL`}</h1>
                 <p className="text-xs text-gray-500">
-                  TL: <span className="line-through">indirimli fiyat</span>
+                  TL
                 </p>
               </div>
             </div>
