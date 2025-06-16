@@ -13,44 +13,46 @@ type PageProps = {
 export default async function ProductPage({ params }: PageProps) {
   const session = await auth(); // 🔐 Kullanıcı oturumu
 
-  const product = await prisma.product.findUnique({
-    where: { slug: params.slug },
-    include: {
-      medias: { select: { urls: true } },
-      categories: { select: { id: true, name: true } },
-      group: {
-        select: {
-          name: true,
-          slug: true,
-          products: {
-            select: {
-              id: true,
-              slug: true,
-              name: true,
-              price: true,
-              stock: true,
-              medias: {
-                select: { urls: true },
-              },
+const product = await prisma.product.findUnique({
+  where: { slug: params.slug },
+  include: {
+    medias: { select: { urls: true } },
+    brand: true, // 
+    categories: { select: { id: true, name: true } },
+    group: {
+      select: {
+        name: true,
+        slug: true,
+
+        products: {
+          select: {
+            id: true,
+            slug: true,
+            name: true,
+            price: true,
+            stock: true,
+            medias: {
+              select: { urls: true },
             },
           },
         },
       },
-      favorites: session?.user?.id
-        ? {
-            where: { userId: session.user.id },
-            select: { id: true },
-          }
-        : undefined,
-      comments: {
-        include: {
-          user: { select: { name: true, image: true } },
-        },
-        orderBy: { createdAt: "desc" },
-      },
     },
-  });
-  
+    favorites: session?.user?.id
+      ? {
+          where: { userId: session.user.id },
+          select: { id: true },
+        }
+      : undefined,
+    comments: {
+      include: {
+        user: { select: { name: true, image: true } },
+      },
+      orderBy: { createdAt: "desc" },
+    },
+  },
+});
+
   if (!product) {
     return notFound();
   }

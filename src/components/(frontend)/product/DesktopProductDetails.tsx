@@ -149,7 +149,7 @@ const DesktopProductDetails: React.FC<ProductDetailsProps> = ({
               <Link 
                 href={`/brands/${product.brand.slug}`}
                 className="text-orange-500 hover:text-orange-600 font-medium hover:underline transition-colors"
-              >de
+              >
                 {product.brand.name}
               </Link>
             </div>
