@@ -17,7 +17,13 @@ const product = await prisma.product.findUnique({
   where: { slug: params.slug },
   include: {
     medias: { select: { urls: true } },
-    brands: true, // 
+    brands: {
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+      },
+    },
     categories: { select: { id: true, name: true } },
     group: {
       select: {

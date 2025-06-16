@@ -37,8 +37,7 @@ interface ProductDetailsProps {
     price: number;
     medias: { urls: string[] }[];
     categories?: { id: string; name: string }[];
-    brand?: { id: string; name: string; slug: string };
-
+    brands?: { id: string; name: string; slug: string }[];
     group?: {
       name: string;
       products: {
@@ -143,17 +142,20 @@ const DesktopProductDetails: React.FC<ProductDetailsProps> = ({
           </h2>
 
           {/* Marka Linki */}
-          {product.brand && (
-            <div className="flex items-center gap-2">
-              <span className="text-gray-500">Marka:</span>
-              <Link 
-                href={`/brands/${product.brand.slug}`}
-                className="text-orange-500 hover:text-orange-600 font-medium hover:underline transition-colors"
-              >
-                {product.brand.name}
-              </Link>
-            </div>
-          )}
+          {product.brands?.length > 0 && (
+  <div className="flex items-center gap-2">
+    <span className="text-gray-500">Marka:</span>
+    {product.brands.map((brand) => (
+      <Link 
+        key={brand.id}
+        href={`/brands/${brand.slug}`}
+        className="text-orange-500 hover:text-orange-600 font-medium hover:underline transition-colors"
+      >
+        {brand.name}
+      </Link>
+    ))}
+  </div>
+)}
 
           <div className="flex items-center gap-2">
             <span>⭐</span>
