@@ -7,6 +7,7 @@ import React, { useState, useEffect, useTransition } from "react";
 import Image from "next/image";
 import { Heart } from "lucide-react";
 import { toast } from "sonner";
+import Link from "next/link";
 
 import ProductImageGallery from "./ProductImageGallery";
 import ProductBreadcrumb from "./ProductBreadcrumb";
@@ -141,6 +142,19 @@ const DesktopProductDetails: React.FC<ProductDetailsProps> = ({
               : activeVariant.name}
           </h2>
 
+          {/* Marka Linki */}
+          {product.brand && (
+            <div className="flex items-center gap-2">
+              <span className="text-gray-500">Marka:</span>
+              <Link 
+                href={`/brands/${product.brand.slug}`}
+                className="text-orange-500 hover:text-orange-600 font-medium hover:underline transition-colors"
+              >
+                {product.brand.name}
+              </Link>
+            </div>
+          )}
+
           <div className="flex items-center gap-2">
             <span>⭐</span>
             <span>4.5 / 5</span>
@@ -175,36 +189,21 @@ const DesktopProductDetails: React.FC<ProductDetailsProps> = ({
             </div>
           )}
 
-
           <div className="mt-2">
             <h1 className="text-2xl font-bold text-black">
               {(activeVariant.price * quantity).toFixed(2)} TL
             </h1>
 
             <div className="flex items-center gap-4">
-            <span className="text-sm font-medium">Adet:</span>
-            <div className="flex items-center bg-gray-200 rounded px-3 py-1">
-              <button onClick={decrementQuantity} className="px-2 text-lg">−</button>
-              <span className="px-3">{quantity}</span>
-              <button onClick={incrementQuantity} className="px-2 text-lg">+</button>
+              <span className="text-sm font-medium">Adet:</span>
+              <div className="flex items-center bg-gray-200 rounded px-3 py-1">
+                <button onClick={decrementQuantity} className="px-2 text-lg">−</button>
+                <span className="px-3">{quantity}</span>
+                <button onClick={incrementQuantity} className="px-2 text-lg">+</button>
+              </div>
             </div>
-          </div>
             <p>En geç yarın kargoda.</p>
-            {product.brand && (
-  <div className="mt-2 text-sm text-gray-600">
-    Marka:{" "}
-    <a
-      href={`/brands/${product.brand.slug}`}
-      className="text-orange-600 hover:underline font-medium"
-    >
-      {product.brand.name}
-    </a>{" "}
-    ve diğer ürünlerini incele.
-  </div>
-)}
           </div>
-
-          
 
           <div className="flex gap-4"> 
             <button
@@ -237,49 +236,49 @@ const DesktopProductDetails: React.FC<ProductDetailsProps> = ({
 
       {/* Açıklama / Yorumlar / Sorular */}
       <div className="mt-8">
-      <ProductDetailTabs
-  product={{
-    description:
-      activeVariant.description ??
-      product.description ??
-      "Henüz açıklama bulunmamaktadır.",
-  }}
-  comments={
-    <>
-      {comments.length === 0 ? (
-        <div>Henüz yorum bulunmamaktadır.</div>
-      ) : (
-        <ul className="space-y-4">
-          {comments.map((comment) => (
-            <li key={comment.id} className="border p-4 rounded shadow-sm">
-              <div className="flex items-center gap-2 mb-2">
-                {comment.user.image && (
-                  <Image
-                    src={comment.user.image}
-                    alt={comment.user.name || "Kullanıcı"}
-                    width={32}
-                    height={32}
-                    className="rounded-full"
-                  />
-                )}
-                <span className="font-medium">{comment.user.name}</span>
-                <span className="text-xs text-gray-500 ml-auto">
-                  {new Date(comment.createdAt).toLocaleDateString()}
-                </span>
-              </div>
-              <p className="text-sm">{comment.content}</p>
-              <p className="text-sm text-yellow-500">Puan: {comment.rating} / 5</p>
-            </li>
-          ))}
-        </ul>
-      )}
+        <ProductDetailTabs
+          product={{
+            description:
+              activeVariant.description ??
+              product.description ??
+              "Henüz açıklama bulunmamaktadır.",
+          }}
+          comments={
+            <>
+              {comments.length === 0 ? (
+                <div>Henüz yorum bulunmamaktadır.</div>
+              ) : (
+                <ul className="space-y-4">
+                  {comments.map((comment) => (
+                    <li key={comment.id} className="border p-4 rounded shadow-sm">
+                      <div className="flex items-center gap-2 mb-2">
+                        {comment.user.image && (
+                          <Image
+                            src={comment.user.image}
+                            alt={comment.user.name || "Kullanıcı"}
+                            width={32}
+                            height={32}
+                            className="rounded-full"
+                          />
+                        )}
+                        <span className="font-medium">{comment.user.name}</span>
+                        <span className="text-xs text-gray-500 ml-auto">
+                          {new Date(comment.createdAt).toLocaleDateString()}
+                        </span>
+                      </div>
+                      <p className="text-sm">{comment.content}</p>
+                      <p className="text-sm text-yellow-500">Puan: {comment.rating} / 5</p>
+                    </li>
+                  ))}
+                </ul>
+              )}
 
-      {/* ✅ Server Action tabanlı form */}
-      <CommentForm productId={product.id} />
-    </>
-  }
-  questions={<div>Henüz soru bulunmamaktadır.</div>}
-/>
+              {/* ✅ Server Action tabanlı form */}
+              <CommentForm productId={product.id} />
+            </>
+          }
+          questions={<div>Henüz soru bulunmamaktadır.</div>}
+        />
       </div>
     </div>
   );
