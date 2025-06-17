@@ -31,14 +31,14 @@ export const ShoppingCart = () => {
             >
               <div className="flex items-center">
                 {/* İlk fotoğrafı gösteriyoruz */}
-                {product?.urls && product.urls.length > 0 ? (
-                  <Image
-                    src={product.medias?.[0]?.urls?.[0] ?? null} // İlk fotoğrafı alıyoruz
-                    width={100}
-                    height={100}
-                    alt={product?.name || "Ürün görseli"}
-                    className="rounded-md"
-                  />
+                {product?.medias?.[0]?.urls?.[0] ? (
+  <Image
+    src={product.medias[0].urls[0]}
+    width={100}
+    height={100}
+    alt={product.name || "Ürün görseli"}
+    className="rounded-md"
+  />
                 ) : (
                   <div className="w-24 h-24 bg-gray-300 flex items-center justify-center rounded-md">
                     <span className="text-sm text-gray-600">No Image</span>
