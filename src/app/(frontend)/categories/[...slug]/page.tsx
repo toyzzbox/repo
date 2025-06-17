@@ -21,8 +21,8 @@ export default async function CategoryPage({
   const slugPath = params.slug.join('/');
   
   const [category, filteredProducts] = await Promise.all([
-    getValidatedCategory(slugPath),
-    getValidatedProducts(slugPath, searchParams),
+    getCategoryWithHierarchy(slugPath),
+    getProductsForCategory(slugPath, searchParams),
   ]);
 
   if (!category) {
@@ -50,61 +50,56 @@ export default async function CategoryPage({
   );
 }
 
-async function getValidatedCategory(slugPath: string) {
+async function getCategoryWithHierarchy(slugPath: string) {
   const formattedPath = slugPath.replace(/-/g, '/');
   const slugs = formattedPath.split('/');
 
-  // Hiyerarşik kategori doğrulama
-  const category = await prisma.category.findFirst({
+  // En spesifik kategoriyi bul (son segment)
+  const targetSlug = slugs[slugs.length - 1];
+  
+  const category = await prisma.category.findUnique({
     where: {
-      slug: slugs[slugs.length - 1],
-      AND: [
-        ...(slugs.length > 1 ? [{
-          parent: {
-            slug: slugs[slugs.length - 2],
-            ...(slugs.length > 2 ? {
-              parent: {
-                slug: slugs[slugs.length - 3]
-              }
-            } : {})
-          }
-        }] : [])
-      ]
+      slug: targetSlug
     },
     include: {
       parent: {
         include: {
-          parent: slugs.length > 2
+          parent: true
         }
       },
       children: true
     }
   });
 
+  // Kategori hiyerarşisini doğrula
+  if (slugs.length > 1) {
+    let current = category;
+    for (let i = slugs.length - 2; i >= 0; i--) {
+      if (!current?.parent || current.parent.slug !== slugs[i]) {
+        return null;
+      }
+      current = current.parent;
+    }
+  }
+
   return category;
 }
 
-async function getValidatedProducts(slugPath: string, filters: any) {
+async function getProductsForCategory(slugPath: string, filters: any) {
   const formattedPath = slugPath.replace(/-/g, '/');
   const slugs = formattedPath.split('/');
+  const targetSlug = slugs[slugs.length - 1];
 
-  // 1. Önce kategori hiyerarşisini doğrula
-  const category = await prisma.category.findFirst({
+  // Sadece hedef kategoriyi bul (doğrulama yapmadan)
+  const category = await prisma.category.findUnique({
     where: {
-      slug: slugs[slugs.length - 1],
-      AND: [
-        ...(slugs.length > 1 ? [{
-          parent: {
-            slug: slugs[slugs.length - 2]
-          }
-        }] : [])
-      ]
+      slug: targetSlug
     }
   });
 
   if (!category) return [];
 
-  // 2. Doğrulanmış kategoriye ait ürünleri getir
+  // Ürünleri getir (sadece bu kategoriye bağlı olanlar)
   return await prisma.product.findMany({
     where: {
       categories: {
