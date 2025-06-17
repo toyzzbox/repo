@@ -10,6 +10,7 @@ interface CartItem {
   price: number; // Ürün fiyatı
   url?: string; // Ürün görsel URL'si (isteğe bağlı)
   quantity: number; // Ürün miktarı
+  
 }
 
 // Sepet durumu için bir arayüz tanımlayın
