@@ -1,7 +1,6 @@
 // app/category/[...slug]/page.tsx
 import { prisma } from '@/lib/prisma';
 import { notFound } from 'next/navigation';
-
 import { ProductList } from '@/components/(frontend)/product/Product-List';
 import { CategoryBreadcrumbs } from '@/components/(frontend)/category/Category-Breadcrumbs';
 import { CategoryFilters } from '@/components/(frontend)/category/Category-Filters';
@@ -19,7 +18,7 @@ export default async function CategoryPage({
 }) {
   const { sort, minPrice, maxPrice, ...filters } = searchParams;
   const slugPath = params.slug.join('/');
-  
+
   const [category, filteredProducts] = await Promise.all([
     getCategoryWithHierarchy(slugPath),
     getProductsForCategory(slugPath, searchParams),
@@ -32,19 +31,16 @@ export default async function CategoryPage({
   return (
     <div className="container mx-auto px-4 py-8">
       <CategoryBreadcrumbs category={category} />
-      
       <div className="my-6">
         <h1 className="text-3xl font-bold">{category.name}</h1>
         {category.description && (
           <p className="text-gray-600 mt-2">{category.description}</p>
         )}
       </div>
-      
       <CategoryFilters />
-      
-      <ProductList 
-        products={filteredProducts} 
-        subcategories={category.children} 
+      <ProductList
+        products={filteredProducts}
+        subcategories={category.children}
       />
     </div>
   );
@@ -53,7 +49,7 @@ export default async function CategoryPage({
 async function getCategoryWithHierarchy(slugPath: string) {
   const formattedPath = slugPath.replace(/-/g, '/');
   const slugs = formattedPath.split('/');
-
+  
   // En spesifik kategoriyi bul (son segment)
   const targetSlug = slugs[slugs.length - 1];
   
@@ -90,21 +86,36 @@ async function getProductsForCategory(slugPath: string, filters: any) {
   const slugs = formattedPath.split('/');
   const targetSlug = slugs[slugs.length - 1];
 
-  // Sadece hedef kategoriyi bul (doğrulama yapmadan)
-  const category = await prisma.category.findUnique({
-    where: {
-      slug: targetSlug
-    }
-  });
+  // CTE (Common Table Expression) kullanarak alt kategorileri getir
+  const categoryIds = await prisma.$queryRaw<{id: string}[]>`
+    WITH RECURSIVE category_tree AS (
+      -- Base case: hedef kategori
+      SELECT id, "parentId", slug
+      FROM "Category"
+      WHERE slug = ${targetSlug}
+      
+      UNION ALL
+      
+      -- Recursive case: alt kategoriler
+      SELECT c.id, c."parentId", c.slug
+      FROM "Category" c
+      INNER JOIN category_tree ct ON c."parentId" = ct.id
+    )
+    SELECT id FROM category_tree
+  `;
 
-  if (!category) return [];
+  if (categoryIds.length === 0) return [];
 
-  // Ürünleri getir (sadece bu kategoriye bağlı olanlar)
+  const ids = categoryIds.map(cat => cat.id);
+
+  // Ürünleri getir (bu kategori ve alt kategorilerine bağlı olanlar)
   return await prisma.product.findMany({
     where: {
       categories: {
         some: {
-          id: category.id
+          id: {
+            in: ids
+          }
         }
       },
       price: {
