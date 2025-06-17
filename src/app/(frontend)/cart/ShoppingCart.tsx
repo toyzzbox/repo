@@ -33,7 +33,7 @@ export const ShoppingCart = () => {
                 {/* İlk fotoğrafı gösteriyoruz */}
                 {product?.urls && product.urls.length > 0 ? (
                   <Image
-                    src={product.urls[0]} // İlk fotoğrafı alıyoruz
+                    src={product.medias?.[0]?.urls?.[0] ?? null} // İlk fotoğrafı alıyoruz
                     width={100}
                     height={100}
                     alt={product?.name || "Ürün görseli"}
