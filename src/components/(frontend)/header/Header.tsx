@@ -13,8 +13,8 @@ const Header = () => {
    <> <div className='hidden sm:block '>
    <TopBar/>
   
-   <div className="max-w-[1280px] mx-auto">
-      <div className='flex justify-between items-center gap-3'>
+   <div className="w-full px-[50px]"> {/* yaklaşık 20cm padding */}
+  <div className='flex justify-between items-center gap-3'>
     <Logo />
     <LiveSearch />
     <div className='hidden sm:flex items-center gap-2 p-2'>
