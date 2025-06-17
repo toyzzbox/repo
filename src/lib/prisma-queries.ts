@@ -1,4 +1,4 @@
-import { prisma } from './prisma'; // Prisma client'ınızın yolu
+import { prisma } from './prisma';
 
 // Kategori ve tüm alt kategorilerinin ID'lerini recursive olarak getiren fonksiyon
 export async function getAllCategoryIds(categorySlug: string): Promise<string[]> {
