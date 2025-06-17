@@ -79,7 +79,7 @@ async function getFilteredProducts(slugPath: string, filters: any) {
     },
     include: {
       medias: true,
-      variants: true,
+
     },
     orderBy: getOrderBy(filters.sort),
   });
