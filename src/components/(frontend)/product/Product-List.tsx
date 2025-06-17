@@ -26,7 +26,7 @@ export function ProductList({ products, subcategories }: ProductListProps) {
             {subcategories.map((category) => (
               <Link
                 key={category.id}
-                href={`/category/${category.slug}`}
+                href={`/categories/${category.slug}`}
                 className="border rounded-lg p-4 hover:shadow-md transition-shadow"
               >
                 <h3 className="font-medium">{category.name}</h3>
