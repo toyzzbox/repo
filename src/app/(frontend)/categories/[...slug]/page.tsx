@@ -65,12 +65,19 @@ async function getCategory(slugPath: string) {
 async function getFilteredProducts(slugPath: string, filters: any) {
   const lastSlug = slugPath.split('/').pop()!;
   
+  // Kategoriyi bul
+  const category = await prisma.category.findUnique({
+    where: { slug: lastSlug },
+  });
+
+  if (!category) return [];
+
   return await prisma.product.findMany({
     where: {
       categories: {
         some: {
-          slug: lastSlug,
-        },
+          id: category.id
+        }
       },
       price: {
         gte: filters.minPrice ? Number(filters.minPrice) : undefined,
@@ -79,7 +86,6 @@ async function getFilteredProducts(slugPath: string, filters: any) {
     },
     include: {
       medias: true,
-
     },
     orderBy: getOrderBy(filters.sort),
   });
