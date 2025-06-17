@@ -51,32 +51,66 @@ export default async function CategoryPage({
 }
 
 async function getCategory(slugPath: string) {
-  const lastSlug = slugPath.split('/').pop()!;
+  const slugs = slugPath.split('/');
+  const lastSlug = slugs[slugs.length - 1];
   
-  return await prisma.category.findUnique({
-    where: { slug: lastSlug },
+  // Önce ana kategoriyi bul
+  const parentCategory = await prisma.category.findFirst({
+    where: { slug: slugs[0] },
     include: {
-      parent: true,
       children: true,
     },
   });
+
+  if (!parentCategory) return null;
+
+  // Eğer alt kategori varsa onu bul
+  if (slugs.length > 1) {
+    const childCategory = parentCategory.children.find(child => child.slug === lastSlug);
+    if (childCategory) {
+      return await prisma.category.findUnique({
+        where: { id: childCategory.id },
+        include: {
+          parent: true,
+          children: true,
+        },
+      });
+    }
+  }
+
+  // Alt kategori yoksa ana kategoriyi döndür
+  return parentCategory;
 }
 
 async function getFilteredProducts(slugPath: string, filters: any) {
-  const lastSlug = slugPath.split('/').pop()!;
+  const slugs = slugPath.split('/');
+  const lastSlug = slugs[slugs.length - 1];
   
-  // Kategoriyi bul
-  const category = await prisma.category.findUnique({
-    where: { slug: lastSlug },
+  // Önce ana kategoriyi bul
+  const parentCategory = await prisma.category.findFirst({
+    where: { slug: slugs[0] },
+    include: {
+      children: true,
+    },
   });
 
-  if (!category) return [];
+  if (!parentCategory) return [];
+
+  let categoryId = parentCategory.id;
+
+  // Eğer alt kategori varsa onun ID'sini kullan
+  if (slugs.length > 1) {
+    const childCategory = parentCategory.children.find(child => child.slug === lastSlug);
+    if (childCategory) {
+      categoryId = childCategory.id;
+    }
+  }
 
   return await prisma.product.findMany({
     where: {
       categories: {
         some: {
-          id: category.id
+          id: categoryId
         }
       },
       price: {
