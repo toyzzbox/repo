@@ -9,4 +9,5 @@ export type Category = {
     parentId: string | null;  // Media ID
     parent?: Category | null; // ✅ bunu ekle!
     medias: Media[]; // ✅ doğru isimlendirme
+    children?: Category[]; // Recursive tip
   };

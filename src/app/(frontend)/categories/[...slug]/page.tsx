@@ -1,184 +1,215 @@
-// app/category/[...slug]/page.tsx
 import { notFound } from 'next/navigation';
-import { prisma } from '@/lib/prisma'; // Prisma istemcinizi import ettiğiniz yol
+import Link from 'next/link';
+import { prisma } from '@/lib/prisma';
 import { ProductList } from '@/components/(frontend)/product/Product-List';
 import { CategoryBreadcrumbs } from '@/components/(frontend)/category/Category-Breadcrumbs';
 import { CategoryFilters } from '@/components/(frontend)/category/Category-Filters';
 
-// Bu fonksiyonu projenizde ayrı bir dosyaya taşımanız önerilir (örneğin: '@/lib/queries/product-queries').
-// Şimdilik buraya dahil ettim.
-/**
- * Belirtilen slug'a sahip bir kategori ve onun tüm alt kategorilerindeki ürünleri getirir.
- *
- * @param targetCategorySlug - Ürünleri getirmek istediğiniz ana kategorinin slug'ı.
- * @param filters - minPrice, maxPrice ve sort gibi filtreleri içeren bir obje.
- * @returns Kategori ve alt kategorilerindeki ürünlerin listesi.
- */
-async function getProductsInTargetCategoryAndSubcategories(
+// Types
+interface CategoryWithHierarchy {
+  id: string;
+  name: string;
+  slug: string;
+  description?: string;
+  parent?: CategoryWithHierarchy;
+  children?: CategoryWithHierarchy[];
+  _count?: {
+    products: number;
+  };
+}
+
+interface ProductWithRelations {
+  id: string;
+  name: string;
+  slug: string;
+  price: number;
+  medias: {
+    id: string;
+    url: string;
+    alt?: string;
+  }[];
+  categories: {
+    id: string;
+    name: string;
+    slug: string;
+  }[];
+  brands?: {
+    id: string;
+    name: string;
+  }[];
+}
+
+// Data Fetching
+async function getProductsInCategoryTree(
   targetCategorySlug: string,
   filters: {
-    minPrice?: string | number;
-    maxPrice?: string | number;
-    sort?: string | string[];
-  } = {} // Varsayılan boş bir obje
+    minPrice?: number;
+    maxPrice?: number;
+    sort?: string;
+  } = {}
 ) {
-  // Fiyat filtrelerini sayıya dönüştür
-  const minPrice = filters.minPrice ? Number(filters.minPrice) : undefined;
-  const maxPrice = filters.maxPrice ? Number(filters.maxPrice) : undefined;
-
-  // CTE (Common Table Expression) kullanarak hedef kategori ve tüm alt kategorilerinin ID'lerini bulur.
-  const categoryIds = await prisma.$queryRaw<{ id: string }>`
+  // Get all category IDs in the tree (including subcategories)
+  const categoryIds = await prisma.$queryRaw<{ id: string }[]>`
     WITH RECURSIVE CategoryTree AS (
-      -- Base Case: Hedef kategoriyi seçer
-      SELECT id, "parentId"
-      FROM "Category"
-      WHERE slug = ${targetCategorySlug}
-
+      SELECT id FROM "Category" WHERE slug = ${targetCategorySlug}
       UNION ALL
-
-      -- Recursive Case: Mevcut ağaçtaki kategorilerin çocuklarını seçer
-      SELECT c.id, c."parentId"
-      FROM "Category" c
-      INNER JOIN CategoryTree ct ON c."parentId" = ct.id
+      SELECT c.id FROM "Category" c
+      JOIN CategoryTree ct ON c."parentId" = ct.id
     )
-    SELECT id FROM CategoryTree;
+    SELECT id FROM CategoryTree
   `;
 
-  if (categoryIds.length === 0) {
-    // console.log(`Uyarı: '${targetCategorySlug}' slug'ına sahip kategori veya alt kategorileri bulunamadı.`);
-    return [];
-  }
+  if (!categoryIds.length) return [];
 
-  const idsToFilter = categoryIds.map(cat => cat.id);
-  // console.log(`'${targetCategorySlug}' için bulunan kategori ID'leri (alt kategoriler dahil):`, idsToFilter);
-
-  // Ürünleri bulanan kategori ID'lerine göre filtreleyerek getir.
   return await prisma.product.findMany({
     where: {
-      categories: {
-        some: {
-          id: {
-            in: idsToFilter,
-          },
-        },
-      },
-      price: {
-        gte: minPrice,
-        lte: maxPrice,
-      },
-      isActive: true, // Sadece aktif ürünleri getir
+      categories: { some: { id: { in: categoryIds.map(c => c.id) } } },
+      price: { gte: filters.minPrice, lte: filters.maxPrice },
+      isActive: true,
     },
     include: {
       medias: true,
       brands: true,
-      categories: {
-        select: {
-          id: true,
-          name: true,
-          slug: true
-        }
-      }
+      categories: { select: { id: string, name: true, slug: true } },
     },
     orderBy: getOrderBy(filters.sort),
   });
 }
 
-// Sıralama mantığı (değişiklik yok)
-function getOrderBy(sort?: string | string[]) {
-  const sortValue = Array.isArray(sort) ? sort[0] : sort;
-
-  switch (sortValue) {
-    case 'price-asc':
-      return { price: 'asc' };
-    case 'price-desc':
-      return { price: 'desc' };
-    case 'newest':
-      return { createdAt: 'desc' };
-    default:
-      return { name: 'asc' };
-  }
-}
-
-// getCategoryWithHierarchy fonksiyonu (değişiklik yok)
-async function getCategoryWithHierarchy(slugPath: string) {
-  const formattedPath = slugPath.replace(/-/g, '/');
-  const slugs = formattedPath.split('/');
-
-  // En spesifik kategoriyi bul (son segment)
-  const targetSlug = slugs[slugs.length - 1];
+async function getCategoryWithHierarchy(slugPath: string): Promise<CategoryWithHierarchy | null> {
+  const targetSlug = slugPath.split('/').pop()!;
 
   const category = await prisma.category.findUnique({
-    where: {
-      slug: targetSlug
-    },
+    where: { slug: targetSlug },
     include: {
       parent: {
         include: {
-          parent: true
-        }
+          parent: true, // 2 levels up
+        },
       },
-      children: true
-    }
+      children: {
+        include: {
+          _count: { select: { products: true } }, // Product counts for subcategories
+          children: { // 2 levels down
+            include: {
+              _count: { select: { products: true } },
+            orderBy: { name: 'asc' },
+          },
+        },
+        orderBy: { name: 'asc' },
+      },
+      _count: { select: { products: true } },
+    },
   });
 
-  // Kategori hiyerarşisini doğrula
-  if (slugs.length > 1) {
-    let current = category;
-    for (let i = slugs.length - 2; i >= 0; i--) {
-      if (!current?.parent || current.parent.slug !== slugs[i]) {
-        return null;
-      }
-      current = current.parent;
-    }
+  if (!category) return null;
+
+  // Verify slug path hierarchy
+  const slugs = slugPath.split('/');
+  let current: any = category;
+  for (let i = slugs.length - 2; i >= 0; i--) {
+    if (!current?.parent || current.parent.slug !== slugs[i]) return null;
+    current = current.parent;
   }
 
   return category;
 }
 
-// --- Ana Sayfa Bileşeni ---
-interface Params {
-  slug: string[];
+function getOrderBy(sort?: string | string[]) {
+  const sortValue = Array.isArray(sort) ? sort[0] : sort;
+  switch (sortValue) {
+    case 'price-asc': return { price: 'asc' };
+    case 'price-desc': return { price: 'desc' };
+    case 'newest': return { createdAt: 'desc' };
+    default: return { name: 'asc' };
+  }
 }
 
+// Page Component
 export default async function CategoryPage({
   params,
   searchParams,
 }: {
-  params: Params;
+  params: { slug: string[] };
   searchParams: { [key: string]: string | string[] | undefined };
 }) {
+  const slugPath = params.slug.join('/');
+  const targetSlug = params.slug[params.slug.length - 1];
+  
   const { sort, minPrice, maxPrice, ...filters } = searchParams;
-  const slugPath = params.slug.join('/'); // URL'deki slug dizisini birleştirir (örn: 'elektronik/telefon')
+  const numericMinPrice = minPrice ? Number(minPrice) : undefined;
+  const numericMaxPrice = maxPrice ? Number(maxPrice) : undefined;
 
-  // Ürünleri getirmek için kullanılacak hedef kategori slug'ını alır (en sondaki slug)
-  const slugs = slugPath.split('/');
-  const targetCategorySlug = slugs[slugs.length - 1];
-
-  // Kategori detaylarını ve ilgili ürünleri paralel olarak çeker
-  const [category, filteredProducts] = await Promise.all([
-    getCategoryWithHierarchy(slugPath), // Kategori hiyerarşisini ve detaylarını getirir
-    getProductsInTargetCategoryAndSubcategories(targetCategorySlug, { sort, minPrice, maxPrice }), // Kategori ve altındaki ürünleri getirir
+  const [category, products] = await Promise.all([
+    getCategoryWithHierarchy(slugPath),
+    getProductsInCategoryTree(targetSlug, {
+      sort: sort?.toString(),
+      minPrice: numericMinPrice,
+      maxPrice: numericMaxPrice,
+    }),
   ]);
 
-  // Kategori bulunamazsa 404 sayfasına yönlendir
-  if (!category) {
-    return notFound();
-  }
+  if (!category) return notFound();
 
   return (
     <div className="container mx-auto px-4 py-8">
       <CategoryBreadcrumbs category={category} />
+      
       <div className="my-6">
         <h1 className="text-3xl font-bold">{category.name}</h1>
         {category.description && (
           <p className="text-gray-600 mt-2">{category.description}</p>
         )}
+        {category._count?.products && (
+          <p className="text-sm text-gray-500 mt-1">
+            {category._count.products} ürün
+          </p>
+        )}
       </div>
+
       <CategoryFilters />
-      <ProductList
-        products={filteredProducts}
-        subcategories={category.children}
-      />
+
+      {/* Subcategories Section */}
+      {category.children && category.children.length > 0 && (
+        <section className="mb-12">
+          <h2 className="text-xl font-semibold mb-4">Alt Kategoriler</h2>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            {category.children.map((subcategory) => (
+              <Link
+                key={subcategory.id}
+                href={`/category/${slugPath}/${subcategory.slug}`}
+                className="border rounded-lg p-4 hover:bg-gray-50 transition-colors"
+              >
+                <h3 className="font-medium">{subcategory.name}</h3>
+                {subcategory._count?.products && (
+                  <p className="text-sm text-gray-500 mt-1">
+                    {subcategory._count.products} ürün
+                  </p>
+                )}
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Products Section */}
+      <section>
+        {products.length > 0 ? (
+          <ProductList 
+            products={products} 
+            subcategories={category.children || []} 
+          />
+        ) : (
+          <div className="text-center py-12">
+            <p className="text-gray-500">Bu kategoride henüz ürün bulunmamaktadır.</p>
+            {category.children?.length ? (
+              <p className="mt-2">
+                Alt kategorileri incelemek ister misiniz?
+              </p>
+            ) : null}
+          </div>
+        )}
+      </section>
     </div>
   );
 }
