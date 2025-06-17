@@ -51,7 +51,9 @@ export default async function CategoryPage({
 }
 
 async function getCategory(slugPath: string) {
-  const slugs = slugPath.split('/');
+  // URL'deki tireleri slash ile değiştir
+  const formattedPath = slugPath.replace(/-/g, '/');
+  const slugs = formattedPath.split('/');
   const lastSlug = slugs[slugs.length - 1];
   
   // Önce ana kategoriyi bul
@@ -83,7 +85,9 @@ async function getCategory(slugPath: string) {
 }
 
 async function getFilteredProducts(slugPath: string, filters: any) {
-  const slugs = slugPath.split('/');
+  // URL'deki tireleri slash ile değiştir
+  const formattedPath = slugPath.replace(/-/g, '/');
+  const slugs = formattedPath.split('/');
   const lastSlug = slugs[slugs.length - 1];
   
   // Önce ana kategoriyi bul
