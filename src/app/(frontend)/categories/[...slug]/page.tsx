@@ -51,70 +51,46 @@ export default async function CategoryPage({
 }
 
 async function getCategory(slugPath: string) {
-  // URL'deki tireleri slash ile değiştir
   const formattedPath = slugPath.replace(/-/g, '/');
   const slugs = formattedPath.split('/');
-  const lastSlug = slugs[slugs.length - 1];
   
-  // Önce ana kategoriyi bul
-  const parentCategory = await prisma.category.findFirst({
-    where: { slug: slugs[0] },
+  // Tüm ilgili kategorileri bul (ana ve alt kategoriler)
+  const categories = await prisma.category.findMany({
+    where: { 
+      slug: { in: slugs }
+    },
     include: {
+      parent: true,
       children: true,
     },
   });
 
-  if (!parentCategory) return null;
+  if (!categories.length) return null;
 
-  // Eğer alt kategori varsa onu bul
-  if (slugs.length > 1) {
-    const childCategory = parentCategory.children.find(child => child.slug === lastSlug);
-    if (childCategory) {
-      return await prisma.category.findUnique({
-        where: { id: childCategory.id },
-        include: {
-          parent: true,
-          children: true,
-        },
-      });
-    }
-  }
-
-  // Alt kategori yoksa ana kategoriyi döndür
-  return parentCategory;
+  // En spesifik kategoriyi bul (son slug)
+  const targetCategory = categories.find(cat => cat.slug === slugs[slugs.length - 1]);
+  
+  return targetCategory || categories.find(cat => cat.slug === slugs[0]);
 }
 
 async function getFilteredProducts(slugPath: string, filters: any) {
-  // URL'deki tireleri slash ile değiştir
   const formattedPath = slugPath.replace(/-/g, '/');
   const slugs = formattedPath.split('/');
-  const lastSlug = slugs[slugs.length - 1];
   
-  // Önce ana kategoriyi bul
-  const parentCategory = await prisma.category.findFirst({
-    where: { slug: slugs[0] },
-    include: {
-      children: true,
-    },
+  // Hedef kategoriyi bul
+  const targetCategory = await prisma.category.findFirst({
+    where: {
+      slug: slugs[slugs.length - 1] // En spesifik kategori slug'ını kullan
+    }
   });
 
-  if (!parentCategory) return [];
-
-  let categoryId = parentCategory.id;
-
-  // Eğer alt kategori varsa onun ID'sini kullan
-  if (slugs.length > 1) {
-    const childCategory = parentCategory.children.find(child => child.slug === lastSlug);
-    if (childCategory) {
-      categoryId = childCategory.id;
-    }
-  }
+  if (!targetCategory) return [];
 
   return await prisma.product.findMany({
     where: {
       categories: {
         some: {
-          id: categoryId
+          id: targetCategory.id // Sadece hedef kategorideki ürünleri getir
         }
       },
       price: {
