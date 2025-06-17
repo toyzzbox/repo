@@ -21,8 +21,8 @@ export default async function CategoryPage({
   const slugPath = params.slug.join('/');
   
   const [category, filteredProducts] = await Promise.all([
-    getCategory(slugPath),
-    getFilteredProducts(slugPath, searchParams),
+    getValidatedCategory(slugPath),
+    getValidatedProducts(slugPath, searchParams),
   ]);
 
   if (!category) {
@@ -50,47 +50,66 @@ export default async function CategoryPage({
   );
 }
 
-async function getCategory(slugPath: string) {
+async function getValidatedCategory(slugPath: string) {
   const formattedPath = slugPath.replace(/-/g, '/');
   const slugs = formattedPath.split('/');
-  
-  // Tüm ilgili kategorileri bul (ana ve alt kategoriler)
-  const categories = await prisma.category.findMany({
-    where: { 
-      slug: { in: slugs }
+
+  // Hiyerarşik kategori doğrulama
+  const category = await prisma.category.findFirst({
+    where: {
+      slug: slugs[slugs.length - 1],
+      AND: [
+        ...(slugs.length > 1 ? [{
+          parent: {
+            slug: slugs[slugs.length - 2],
+            ...(slugs.length > 2 ? {
+              parent: {
+                slug: slugs[slugs.length - 3]
+              }
+            } : {})
+          }
+        }] : [])
+      ]
     },
     include: {
-      parent: true,
-      children: true,
-    },
-  });
-
-  if (!categories.length) return null;
-
-  // En spesifik kategoriyi bul (son slug)
-  const targetCategory = categories.find(cat => cat.slug === slugs[slugs.length - 1]);
-  
-  return targetCategory || categories.find(cat => cat.slug === slugs[0]);
-}
-
-async function getFilteredProducts(slugPath: string, filters: any) {
-  const formattedPath = slugPath.replace(/-/g, '/');
-  const slugs = formattedPath.split('/');
-  
-  // Hedef kategoriyi bul
-  const targetCategory = await prisma.category.findFirst({
-    where: {
-      slug: slugs[slugs.length - 1] // En spesifik kategori slug'ını kullan
+      parent: {
+        include: {
+          parent: slugs.length > 2
+        }
+      },
+      children: true
     }
   });
 
-  if (!targetCategory) return [];
+  return category;
+}
 
+async function getValidatedProducts(slugPath: string, filters: any) {
+  const formattedPath = slugPath.replace(/-/g, '/');
+  const slugs = formattedPath.split('/');
+
+  // 1. Önce kategori hiyerarşisini doğrula
+  const category = await prisma.category.findFirst({
+    where: {
+      slug: slugs[slugs.length - 1],
+      AND: [
+        ...(slugs.length > 1 ? [{
+          parent: {
+            slug: slugs[slugs.length - 2]
+          }
+        }] : [])
+      ]
+    }
+  });
+
+  if (!category) return [];
+
+  // 2. Doğrulanmış kategoriye ait ürünleri getir
   return await prisma.product.findMany({
     where: {
       categories: {
         some: {
-          id: targetCategory.id // Sadece hedef kategorideki ürünleri getir
+          id: category.id
         }
       },
       price: {
@@ -100,6 +119,13 @@ async function getFilteredProducts(slugPath: string, filters: any) {
     },
     include: {
       medias: true,
+      categories: {
+        select: {
+          id: true,
+          name: true,
+          slug: true
+        }
+      }
     },
     orderBy: getOrderBy(filters.sort),
   });
