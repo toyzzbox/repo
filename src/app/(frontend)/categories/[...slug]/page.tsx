@@ -3,14 +3,14 @@ import { notFound } from "next/navigation";
 import type { Prisma } from "@prisma/client";
 import { ProductCard } from "@/components/(frontend)/product/ProductCard";
 
-// 🔁 Kategori + çocuklarını temsil edecek tip
-type CategoryWithDeepChildren = Prisma.CategoryGetPayload<{
+// ✅ Derin kategori tipi
+type DeepCategory = Prisma.CategoryGetPayload<{
   include: {
     children: {
       include: {
         children: {
           include: {
-            children: true; // 3 seviye derinlik
+            children: true;
           };
         };
       };
@@ -18,26 +18,24 @@ type CategoryWithDeepChildren = Prisma.CategoryGetPayload<{
   };
 }>;
 
-// 🧠 Derin kategori ID’lerini toplayan fonksiyon
-function collectCategoryIds(category: CategoryWithDeepChildren): string[] {
+// ✅ Derin kategori ID toplayıcı
+function collectCategoryIds(category: DeepCategory): string[] {
   const children = category.children ?? [];
-  const childIds = children.flatMap(collectCategoryIds);
-  return [category.id, ...childIds];
+  return [category.id, ...children.flatMap(collectCategoryIds)];
 }
 
-// 🔧 Sayfa bileşeni
-interface PageProps {
-  params: Promise<{ slug: string[] }>; // ✅ Next.js 15: Promise olarak beklenmeli
+export default async function CategoryPage({
+  params,
+  searchParams = {},
+}: {
+  params: { slug: string[] };
   searchParams?: { [key: string]: string | string[] | undefined };
-}
+}) {
+  const slug = params.slug.at(-1)!;
 
-export default async function CategoryPage({ params, searchParams = {} }: PageProps) {
-  const { slug } = await params;
-  const currentSlug = slug.at(-1)!;
-
-  // 🔍 Kategori ve alt kategorilerini çek
+  // ✅ Kategori + tüm çocuklarını (3 seviye) al
   const category = await prisma.category.findUnique({
-    where: { slug: currentSlug },
+    where: { slug },
     include: {
       children: {
         include: {
@@ -53,18 +51,16 @@ export default async function CategoryPage({ params, searchParams = {} }: PagePr
 
   if (!category) return notFound();
 
-  // 📦 Alt–torun ID’lerini topla
+  // ✅ Alt–torun–üst tüm ID’leri topla
   const categoryIds = collectCategoryIds(category);
 
-  // 🛒 Bu kategori(ler)deki ürünleri çek
+  // ✅ O kategori(ler)le ilişkili aktif ürünleri getir
   const products = await prisma.product.findMany({
     where: {
       isActive: true,
       categories: {
         some: {
-          id: {
-            in: categoryIds,
-          },
+          id: { in: categoryIds },
         },
       },
     },
@@ -74,26 +70,25 @@ export default async function CategoryPage({ params, searchParams = {} }: PagePr
       name: true,
       price: true,
       medias: {
-        select: {
-          urls: true,
-        },
+        select: { urls: true },
       },
     },
   });
 
-  // 🎨 Arayüz
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-2xl font-semibold mb-6">{category.name}</h1>
 
-      {products.length ? (
+      {products.length > 0 ? (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {products.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}
         </div>
       ) : (
-        <p className="text-muted-foreground">Bu kategoride henüz ürün bulunmuyor.</p>
+        <p className="text-muted-foreground">
+          Bu kategoride henüz ürün bulunmuyor.
+        </p>
       )}
     </div>
   );
