@@ -1,182 +1,69 @@
-// app/categories/[...slug]/page.tsx
-import { notFound } from 'next/navigation'
-import { prisma } from '@/lib/prisma'
-import { ProductCard } from '@/components/(frontend)/product/ProductCard'
+// src/app/categories/[...slug]/page.tsx
+import { prisma } from "@/lib/prisma";
+import { notFound } from "next/navigation";
+import type { Prisma } from "@prisma/client";
+import { ProductCard } from "@/components/(frontend)/product/ProductCard";
 
+/** Alt-torun tüm kategori ID’lerini toplayan yardımcı */
+type CatWithChildren = Prisma.CategoryGetPayload<{
+  include: { children: { include: { children: true } } };
+}>;
+function collectCategoryIds(cat: CatWithChildren): string[] {
+  return [cat.id, ...cat.children.flatMap(collectCategoryIds)];
+}
 
 interface PageProps {
-  params: {
-    slug: string[]
-  }
+  params: { slug: string[] };                          // [...slug]
+  searchParams?: { [k: string]: string | string[] | undefined };
 }
 
-// Kategori ve ürünlerini getiren fonksiyon
-async function getCategoryWithProducts(slug: string) {
+export default async function CategoryPage({ params, searchParams = {} }: PageProps) {
+  /* 1. En derindeki slug hangi kategori? */
+  const slugSegments = params.slug;
+  const currentSlug  = slugSegments.at(-1)!;
+
+  /* 2. Kategori + altlarını al */
   const category = await prisma.category.findUnique({
+    where: { slug: currentSlug },
+    include: { children: { include: { children: true } } },  // derin çek
+  });
+
+  if (!category) return notFound();
+
+  /* 3. Alt-torun ID’lerini çıkar */
+  const categoryIds = collectCategoryIds(category);
+
+  /* 4. O ID listesine bağlı aktif ürünleri getir */
+  const products = await prisma.product.findMany({
     where: {
-      slug: slug
+      isActive: true,
+      categories: { some: { id: { in: categoryIds } } },   // many-to-many
     },
-    include: {
-      products: {
-        include: {
-          medias: true,
-          variants: true,
-          categories: true
-        }
-      },
-      parent: true,
-      children: {
-        select: {
-          id: true,
-          name: true,
-          slug: true,
-          description: true
-        }
-      },
-      medias: true
-    }
-  })
+    select: {
+      id: true,
+      slug: true,
+      name: true,
+      price: true,
+      medias: { select: { urls: true } },
+    },
+  });
 
-  return category
-}
-
-// Breadcrumb için kategori hiyerarşisini getir
-async function getCategoryHierarchy(slug: string) {
-  const hierarchy = []
-  let currentSlug = slug
-  
-  while (currentSlug) {
-    const category = await prisma.category.findUnique({
-      where: { slug: currentSlug },
-      include: { parent: true }
-    })
-    
-    if (!category) break
-    
-    hierarchy.unshift({
-      id: category.id,
-      name: category.name,
-      slug: category.slug
-    })
-    
-    currentSlug = category.parent?.slug || null
-  }
-  
-  return hierarchy
-}
-
-export default async function CategoryPage({ params }: PageProps) {
-  // URL'den son slug'ı al (en alt kategori)
-  const categorySlug = params.slug[params.slug.length - 1]
-  
-  // Kategori ve ürünlerini getir
-  const category = await getCategoryWithProducts(categorySlug)
-  
-  if (!category) {
-    notFound()
-  }
-  
-  // Breadcrumb için hiyerarşi
-  const hierarchy = await getCategoryHierarchy(categorySlug)
-  
+  /* 5. Render */
   return (
     <div className="container mx-auto px-4 py-8">
-      {/* Breadcrumb */}
+      <h1 className="text-2xl font-semibold mb-6">{category.name}</h1>
 
-      
-      {/* Kategori Başlığı */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-4">
-          {category.name}
-        </h1>
-        {category.description && (
-          <p className="text-gray-600 text-lg">
-            {category.description}
-          </p>
-        )}
-      </div>
-      
-      {/* Alt Kategoriler (varsa) */}
-      {category.children.length > 0 && (
-        <div className="mb-8">
-          <h2 className="text-xl font-semibold mb-4">Alt Kategoriler</h2>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {category.children.map((child) => (
-              <a
-                key={child.id}
-                href={`/categories/${params.slug.join('/')}/${child.slug}`}
-                className="block p-4 border rounded-lg hover:shadow-md transition-shadow"
-              >
-                <h3 className="font-medium">{child.name}</h3>
-                {child.description && (
-                  <p className="text-sm text-gray-600 mt-1">
-                    {child.description}
-                  </p>
-                )}
-              </a>
-            ))}
-          </div>
+      {products.length ? (
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          {products.map(p => (
+            <ProductCard key={p.id} product={p} />
+          ))}
         </div>
+      ) : (
+        <p className="text-muted-foreground">
+          Bu kategoride henüz ürün bulunmuyor.
+        </p>
       )}
-      
-      {/* Ürünler */}
-      <div>
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-semibold">
-            Ürünler ({category.products.length})
-          </h2>
-          
-          {/* Sıralama dropdown'ı (opsiyonel) */}
-          <select className="border rounded px-3 py-1">
-            <option>Varsayılan Sıralama</option>
-            <option>Fiyat: Düşükten Yükseğe</option>
-            <option>Fiyat: Yüksekten Düşüğe</option>
-            <option>Yeni Ürünler</option>
-          </select>
-        </div>
-        
-        {category.products.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {category.products.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-12">
-            <div className="text-gray-400 mb-4">
-              <svg className="mx-auto h-16 w-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-              </svg>
-            </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
-              Bu kategoride henüz ürün bulunmuyor
-            </h3>
-            <p className="text-gray-600">
-              Yakında yeni ürünler eklenecek
-            </p>
-          </div>
-        )}
-      </div>
     </div>
-  )
-}
-
-// SEO için metadata
-export async function generateMetadata({ params }: PageProps) {
-  const categorySlug = params.slug[params.slug.length - 1]
-  const category = await prisma.category.findUnique({
-    where: { slug: categorySlug },
-    select: { name: true, description: true }
-  })
-  
-  if (!category) {
-    return {
-      title: 'Kategori Bulunamadı'
-    }
-  }
-  
-  return {
-    title: `${category.name} - Ürünler`,
-    description: category.description || `${category.name} kategorisindeki tüm ürünler`,
-  }
+  );
 }
