@@ -3,18 +3,13 @@ import { notFound } from "next/navigation";
 import type { Prisma } from "@prisma/client";
 import Link from "next/link";
 import SortSelect from "@/components/(frontend)/category/SortSelect";
+import CategoryFilters from "@/components/(frontend)/category/CategoryFilters";
 import { ProductCard } from "@/components/(frontend)/product/ProductCard";
 
-/* ───────── Alt-torunları dâhil tip ve yardımcı ───────── */
+/* ───────── Alt-torunları dâhil tip & yardımcı ───────── */
 type DeepCategory = Prisma.CategoryGetPayload<{
   include: {
-    children: {
-      include: {
-        children: {
-          include: { children: true };
-        };
-      };
-    };
+    children: { include: { children: { include: { children: true } } } };
   };
 }>;
 
@@ -43,13 +38,39 @@ export default async function CategoryPage({
 
   const categoryIds = collectCategoryIds(category);
 
-  /* 2) Alt kategoriler (ürün sayısıyla) */
+  /* 2) URL’den filtre parametrelerini oku */
+  const selectedCategoryIds = Array.isArray(searchParams.category)
+    ? (searchParams.category as string[])
+    : searchParams.category
+    ? [searchParams.category as string]
+    : [];
+
+  const selectedBrandSlugs = Array.isArray(searchParams.brand)
+    ? (searchParams.brand as string[])
+    : searchParams.brand
+    ? [searchParams.brand as string]
+    : [];
+
+  /* 3) Alt kategoriler (ürün sayısıyla) */
   const subcategories = await prisma.category.findMany({
     where: { parentId: category.id },
     include: { _count: { select: { products: true } } },
   });
 
-  /* 3) Sıralama parametresi → orderBy */
+  /* 4) Markalar (yalnızca bu kategori kapsamındaki) */
+  const brands = await prisma.brand.findMany({
+    where: {
+      products: {
+        some: {
+          categories: { some: { id: { in: categoryIds } } },
+        },
+      },
+    },
+    select: { id: true, name: true, slug: true },
+    orderBy: { name: "asc" },
+  });
+
+  /* 5) Sıralama parametresi → orderBy */
   const { sort = "newest" } = searchParams;
   const orderBy =
     sort === "price_asc"
@@ -62,13 +83,25 @@ export default async function CategoryPage({
       ? { name: "desc" }
       : { createdAt: "desc" };
 
-  /* 4) Ürünleri çek */
+  /* 6) Ürünleri çek (filtreler + sıralama) */
   const products = await prisma.product.findMany({
     where: {
       isActive: true,
-      categories: { some: { id: { in: categoryIds } } },
+      categories: {
+        some: {
+          id: {
+            in:
+              selectedCategoryIds.length > 0
+                ? selectedCategoryIds
+                : categoryIds,
+          },
+        },
+      },
+      ...(selectedBrandSlugs.length > 0 && {
+        brands: { some: { slug: { in: selectedBrandSlugs } } },
+      }),
     },
-    orderBy, // ← sıralama burada
+    orderBy,
     select: {
       id: true,
       slug: true,
@@ -78,15 +111,17 @@ export default async function CategoryPage({
     },
   });
 
-  /* 5) UI */
+  /* 7) UI */
   return (
     <div className="container mx-auto px-4 py-8">
+      {/* Başlık + sıralama */}
       <h1 className="text-2xl font-semibold mb-6">{category.name}</h1>
-
-      {/* Sıralama dropdown’u */}
       <SortSelect />
 
-      {/* Alt kategoriler */}
+      {/* Filtre paneli */}
+      <CategoryFilters subcategories={subcategories} brands={brands} />
+
+      {/* Alt kategoriler listesi (linkli) */}
       {subcategories.length > 0 && (
         <div className="mb-6">
           <h2 className="text-xl font-medium mb-2">Alt Kategoriler</h2>
@@ -117,7 +152,7 @@ export default async function CategoryPage({
         </div>
       ) : (
         <p className="text-muted-foreground">
-          Bu kategoride henüz ürün bulunmuyor.
+          Filtrelere uyan ürün bulunamadı.
         </p>
       )}
     </div>
