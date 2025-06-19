@@ -38,17 +38,18 @@ export default function ProductForm({
   medias,
   productGroups,
 }: ProductFormProps) {
-
-
-  
+  /* ────────────────────────────────────────────────────────────── */
   const [state, formAction, isPending] = useActionState(createProduct, null);
   const [descriptionHtml, setDescriptionHtml] = useState("");
+  const [selectedMediaIds, setSelectedMediaIds] = useState<string[]>([]);
+  /* ────────────────────────────────────────────────────────────── */
 
   return (
     <main className="mx-auto max-w-xl px-4 py-8">
       <h1 className="text-2xl font-bold mb-6">Ürün Ekle</h1>
 
       <form action={formAction} className="flex flex-col gap-4">
+        {/* Ürün grubu */}
         <label className="font-medium">Ürün Grubu (opsiyonel)</label>
         <select name="groupId" className="border rounded px-3 py-2">
           <option value="">— Grupsuz Ürün —</option>
@@ -59,6 +60,7 @@ export default function ProductForm({
           ))}
         </select>
 
+        {/* Temel alanlar */}
         <input
           type="text"
           name="name"
@@ -90,18 +92,21 @@ export default function ProductForm({
           required
         />
 
-<label className="font-medium">Açıklama</label>
-<RichTextEditor
-  description=""
-  onChange={(html) => {
-    setDescriptionHtml(html);
-  }}
-/>
-<input type="hidden" name="description" value={descriptionHtml} />
+        {/* Açıklama */}
+        <label className="font-medium">Açıklama</label>
+        <RichTextEditor
+          description=""
+          onChange={(html) => setDescriptionHtml(html)}
+        />
+        <input type="hidden" name="description" value={descriptionHtml} />
 
-        {/* Marka Seçimi */}
+        {/* Marka seçimi */}
         <label className="font-medium">Markalar</label>
-        <select name="brandIds[]" multiple className="border rounded px-3 py-2">
+        <select
+          name="brandIds[]"
+          multiple
+          className="border rounded px-3 py-2"
+        >
           {brands.map((brand) => (
             <option key={brand.id} value={brand.id}>
               {brand.name}
@@ -109,9 +114,13 @@ export default function ProductForm({
           ))}
         </select>
 
-        {/* Kategori Seçimi */}
+        {/* Kategori seçimi */}
         <label className="font-medium">Kategoriler</label>
-        <select name="categoryIds[]" multiple className="border rounded px-3 py-2">
+        <select
+          name="categoryIds[]"
+          multiple
+          className="border rounded px-3 py-2"
+        >
           {categories.map((category) => (
             <option key={category.id} value={category.id}>
               {category.name}
@@ -119,9 +128,20 @@ export default function ProductForm({
           ))}
         </select>
 
-        {/* Medya Seçimi */}
-        <MediaSelector medias={medias} />
+        {/* Medya seçimi */}
+        <label className="font-medium">Görseller</label>
+        <MediaSelector
+          medias={medias}
+          defaultSelected={selectedMediaIds}
+          onChange={setSelectedMediaIds}
+        />
 
+        {/* Seçili medya ID’lerini gizli input olarak gönder */}
+        {selectedMediaIds.map((id) => (
+          <input key={id} type="hidden" name="mediaIds[]" value={id} />
+        ))}
+
+        {/* Gönder butonu */}
         <button
           type="submit"
           disabled={isPending}
@@ -130,6 +150,7 @@ export default function ProductForm({
           {isPending ? "Kaydediliyor..." : "Ürünü Kaydet"}
         </button>
 
+        {/* Hata mesajı */}
         {state && <p className="text-red-500">{state}</p>}
       </form>
     </main>
