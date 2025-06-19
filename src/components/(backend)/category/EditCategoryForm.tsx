@@ -25,7 +25,7 @@ interface CategoryOption {
 
 interface EditCategoryFormProps {
   category: Category;
-  allCategories: CategoryOption[]; // diğer kategoriler (parent için)
+  allCategories: CategoryOption[]; // üst kategori listesi
   medias: Media[];
 }
 
@@ -38,7 +38,7 @@ export default function EditCategoryForm({
   const [error, setError] = useState<string | null>(null);
 
   const [name, setName] = useState(category.name);
-  const [slug, setSlug] = useState(category.slug); // ✅ SLUG eklendi
+  const [slug, setSlug] = useState(category.slug);
   const [description, setDescription] = useState(category.description || "");
   const [mediaIds, setMediaIds] = useState<string[]>(category.mediaIds || []);
   const [parentId, setParentId] = useState<string | undefined>(category.parentId);
@@ -48,15 +48,20 @@ export default function EditCategoryForm({
     setError(null);
 
     const formData = new FormData();
+
+    // 🔑 Gerekli tüm alanları gönderiyoruz
+    formData.append("id", category.id);
     formData.append("name", name);
-    formData.append("slug", slug); // ✅ SLUG gönderiliyor
+    formData.append("slug", slug);
     formData.append("description", description);
     if (parentId) formData.append("parentId", parentId);
     mediaIds.forEach((id) => formData.append("mediaIds[]", id));
 
     startTransition(async () => {
       const res = await updateCategory(category.id, formData);
-      if (res?.error) setError(res.error);
+      if (res && typeof res === "object" && "error" in res) {
+        setError(res.error);
+      }
     });
   };
 
@@ -95,7 +100,7 @@ export default function EditCategoryForm({
       >
         <option value="">— Üst kategori yok —</option>
         {allCategories
-          .filter((c) => c.id !== category.id) // kendisini seçememeli
+          .filter((c) => c.id !== category.id) // Kendisini seçemesin
           .map((c) => (
             <option key={c.id} value={c.id}>
               {c.name}
@@ -114,7 +119,7 @@ export default function EditCategoryForm({
       >
         {medias.map((media) => (
           <option key={media.id} value={media.id}>
-            {media.urls[0]?.slice(-40) || "Medya"}
+            {media.urls[0]?.split("/").pop()?.slice(0, 40) || "Medya"}
           </option>
         ))}
       </select>
