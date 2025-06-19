@@ -1,43 +1,43 @@
-// src/app/categories/[...slug]/page.tsx
+// src/app/(frontend)/categories/[...slug]/page.tsx
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import type { Prisma } from "@prisma/client";
 import { ProductCard } from "@/components/(frontend)/product/ProductCard";
 
-/** Alt-torun tüm kategori ID’lerini toplayan yardımcı */
 type CatWithChildren = Prisma.CategoryGetPayload<{
   include: { children: { include: { children: true } } };
 }>;
+
 function collectCategoryIds(cat: CatWithChildren): string[] {
-  return [cat.id, ...cat.children.flatMap(collectCategoryIds)];
+  const childIds = (cat.children ?? []).flatMap(collectCategoryIds);
+  return [cat.id, ...childIds];
 }
 
 interface PageProps {
-  params: { slug: string[] };                          // [...slug]
+  params: Promise<{ slug: string[] }>;                    // 🔄 Promise
   searchParams?: { [k: string]: string | string[] | undefined };
 }
 
 export default async function CategoryPage({ params, searchParams = {} }: PageProps) {
-  /* 1. En derindeki slug hangi kategori? */
-  const slugSegments = params.slug;
-  const currentSlug  = slugSegments.at(-1)!;
+  /* 1. Slug parçalarını al */
+  const { slug: slugSegments } = await params;            // ✅ await
+  const currentSlug = slugSegments.at(-1)!;
 
-  /* 2. Kategori + altlarını al */
+  /* 2. Kategori + altlarını çek */
   const category = await prisma.category.findUnique({
     where: { slug: currentSlug },
-    include: { children: { include: { children: true } } },  // derin çek
+    include: { children: { include: { children: true } } },
   });
-
   if (!category) return notFound();
 
-  /* 3. Alt-torun ID’lerini çıkar */
+  /* 3. ID listesini oluştur */
   const categoryIds = collectCategoryIds(category);
 
-  /* 4. O ID listesine bağlı aktif ürünleri getir */
+  /* 4. Ürünleri getir */
   const products = await prisma.product.findMany({
     where: {
       isActive: true,
-      categories: { some: { id: { in: categoryIds } } },   // many-to-many
+      categories: { some: { id: { in: categoryIds } } },
     },
     select: {
       id: true,
@@ -60,9 +60,7 @@ export default async function CategoryPage({ params, searchParams = {} }: PagePr
           ))}
         </div>
       ) : (
-        <p className="text-muted-foreground">
-          Bu kategoride henüz ürün bulunmuyor.
-        </p>
+        <p className="text-muted-foreground">Bu kategoride henüz ürün bulunmuyor.</p>
       )}
     </div>
   );
