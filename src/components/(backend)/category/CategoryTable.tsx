@@ -52,8 +52,8 @@ export default function CategoriesTable({ categories }: Props) {
               <tr key={category.id} className="border-b">
                 <td className="px-4 py-2">{category.name}</td>
                 <td className="px-4 py-2 text-right">
-                  <Link href={`/administor/products/edit/${category.id}`} className="text-blue-500 mr-3">Düzenle</Link>
-                  <form action={`/administor/products/delete/${category.id}`} method="POST" className="inline">
+                  <Link href={`/administor/category/edit/${category.id}`} className="text-blue-500 mr-3">Düzenle</Link>
+                  <form action={`/administor/category/delete/${category.id}`} method="POST" className="inline">
                     <button type="submit" className="text-red-500">Sil</button>
                   </form>
                 </td>
