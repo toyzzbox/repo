@@ -13,6 +13,7 @@ export default async function EditCategoryPage({
 }: {
   params: { id: string };
 }) {
+  // 1. Kategoriyi ilişkili verileriyle birlikte getir
   const category = await prisma.category.findUnique({
     where: { id: params.id },
     include: {
@@ -27,14 +28,17 @@ export default async function EditCategoryPage({
 
   const fullCategory = category as CategoryWithRelations;
 
+  // 2. Tüm kategorileri üst kategori seçimi için al
   const allCategories = await prisma.category.findMany({
     select: { id: true, name: true },
   });
 
+  // 3. Tüm medya kayıtlarını getir (name yoksa urls kullanılmalı!)
   const allMedias = await prisma.media.findMany({
-    select: { id: true, name: true },
+    select: { id: true, urls: true }, // ✅ "name" yerine "urls"
   });
 
+  // 4. Form bileşenine verileri aktar
   return (
     <EditCategoryForm
       category={{
@@ -45,7 +49,7 @@ export default async function EditCategoryPage({
         parentId: fullCategory.parent?.id ?? "",
         mediaIds: fullCategory.medias.map((m) => m.id),
       }}
-      categories={allCategories}
+      allCategories={allCategories}
       medias={allMedias}
     />
   );
