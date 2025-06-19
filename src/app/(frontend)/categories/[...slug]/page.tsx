@@ -6,19 +6,16 @@ import SortSelect from "@/components/(frontend)/category/SortSelect";
 import CategoryFilters from "@/components/(frontend)/category/CategoryFilters";
 import { ProductCard } from "@/components/(frontend)/product/ProductCard";
 
-/* ───────── Alt-torunları dâhil tip & yardımcı ───────── */
+/* ----------- tip & yardımcı ----------- */
 type DeepCategory = Prisma.CategoryGetPayload<{
-  include: {
-    children: { include: { children: { include: { children: true } } } };
-  };
+  include: { children: { include: { children: { include: { children: true } } } } };
 }>;
+const collectCategoryIds = (c: DeepCategory): string[] => [
+  c.id,
+  ...c.children.flatMap(collectCategoryIds),
+];
 
-function collectCategoryIds(cat: DeepCategory): string[] {
-  const kids = cat.children ?? [];
-  return [cat.id, ...kids.flatMap(collectCategoryIds)];
-}
-
-/* ───────────── Server Component ───────────── */
+/* ------------- Page ------------- */
 export default async function CategoryPage({
   params,
   searchParams = {},
@@ -26,51 +23,61 @@ export default async function CategoryPage({
   params: { slug: string[] };
   searchParams?: { [k: string]: string | string[] | undefined };
 }) {
-  /* 1) Kategori + hiyerarşi */
   const slug = params.slug.at(-1)!;
+
+  /* 1. Kategori + hiyerarşi */
   const category = await prisma.category.findUnique({
     where: { slug },
-    include: {
-      children: { include: { children: { include: { children: true } } } },
-    },
+    include: { children: { include: { children: { include: { children: true } } } } },
   });
   if (!category) return notFound();
 
   const categoryIds = collectCategoryIds(category);
 
-  /* 2) URL’den filtre parametrelerini oku */
-  const selectedCategoryIds = Array.isArray(searchParams.category)
-    ? (searchParams.category as string[])
-    : searchParams.category
-    ? [searchParams.category as string]
-    : [];
+  /* 2. URL’den filtreleri al */
+  const arr = (v: unknown) => (Array.isArray(v) ? v : v ? [v] : []) as string[];
+  const selectedCatIds = arr(searchParams.category);
+  const selectedBrands = arr(searchParams.brand);
+  const selectedAttrIds = arr(searchParams.attribute);
 
-  const selectedBrandSlugs = Array.isArray(searchParams.brand)
-    ? (searchParams.brand as string[])
-    : searchParams.brand
-    ? [searchParams.brand as string]
-    : [];
+  const minPrice = Number(searchParams.minPrice) || undefined;
+  const maxPrice = Number(searchParams.maxPrice) || undefined;
 
-  /* 3) Alt kategoriler (ürün sayısıyla) */
+  /* 3. Alt kategoriler */
   const subcategories = await prisma.category.findMany({
     where: { parentId: category.id },
-    include: { _count: { select: { products: true } } },
+    select: { id: true, name: true, slug: true, _count: { select: { products: true } } },
   });
 
-  /* 4) Markalar (yalnızca bu kategori kapsamındaki) */
+  /* 4. İlgili markalar */
   const brands = await prisma.brand.findMany({
     where: {
       products: {
-        some: {
-          categories: { some: { id: { in: categoryIds } } },
-        },
+        some: { categories: { some: { id: { in: categoryIds } } } },
       },
     },
-    select: { id: true, name: true, slug: true },
+    select: { slug: true, name: true },
     orderBy: { name: "asc" },
   });
 
-  /* 5) Sıralama parametresi → orderBy */
+  /* 5. Attribute grupları */
+  const attributeGroups = await prisma.attributeGroup.findMany({
+    where: {
+      attributes: {
+        some: {
+          products: { some: { categories: { some: { id: { in: categoryIds } } } } },
+        },
+      },
+    },
+    select: {
+      id: true,
+      name: true,
+      attributes: { select: { id: true, name: true } },
+    },
+    orderBy: { name: "asc" },
+  });
+
+  /* 6. Sıralama */
   const { sort = "newest" } = searchParams;
   const orderBy =
     sort === "price_asc"
@@ -83,24 +90,28 @@ export default async function CategoryPage({
       ? { name: "desc" }
       : { createdAt: "desc" };
 
-  /* 6) Ürünleri çek (filtreler + sıralama) */
-  const products = await prisma.product.findMany({
-    where: {
-      isActive: true,
-      categories: {
-        some: {
-          id: {
-            in:
-              selectedCategoryIds.length > 0
-                ? selectedCategoryIds
-                : categoryIds,
-          },
-        },
+  /* 7. WHERE koşulu */
+  const where: Prisma.ProductWhereInput = {
+    isActive: true,
+    categories: {
+      some: {
+        id: { in: selectedCatIds.length ? selectedCatIds : categoryIds },
       },
-      ...(selectedBrandSlugs.length > 0 && {
-        brands: { some: { slug: { in: selectedBrandSlugs } } },
-      }),
     },
+  };
+  if (selectedBrands.length)
+    where.brands = { some: { slug: { in: selectedBrands } } };
+  if (selectedAttrIds.length)
+    where.attributes = { some: { id: { in: selectedAttrIds } } };
+  if (minPrice || maxPrice)
+    where.price = {
+      ...(minPrice && { gte: minPrice }),
+      ...(maxPrice && { lte: maxPrice }),
+    };
+
+  /* 8. Ürünleri getir */
+  const products = await prisma.product.findMany({
+    where,
     orderBy,
     select: {
       id: true,
@@ -111,50 +122,32 @@ export default async function CategoryPage({
     },
   });
 
-  /* 7) UI */
+  /* -------- UI -------- */
   return (
     <div className="container mx-auto px-4 py-8">
-      {/* Başlık + sıralama */}
       <h1 className="text-2xl font-semibold mb-6">{category.name}</h1>
+
       <SortSelect />
 
-      {/* Filtre paneli */}
-      <CategoryFilters subcategories={subcategories} brands={brands} />
+      <div className="grid lg:grid-cols-[260px_1fr] gap-8">
+        {/* SOL: Filtre paneli */}
+        <CategoryFilters
+          subcategories={subcategories}
+          brands={brands}
+          attributeGroups={attributeGroups}
+        />
 
-      {/* Alt kategoriler listesi (linkli) */}
-      {subcategories.length > 0 && (
-        <div className="mb-6">
-          <h2 className="text-xl font-medium mb-2">Alt Kategoriler</h2>
-          <ul className="space-y-1">
-            {subcategories.map((sub) => (
-              <li key={sub.id}>
-                <Link
-                  href={`/categories/${sub.slug}`}
-                  className="hover:underline"
-                >
-                  {sub.name}
-                </Link>{" "}
-                <span className="text-sm text-muted-foreground">
-                  ({sub._count.products} ürün)
-                </span>
-              </li>
+        {/* SAĞ: Ürün listesi */}
+        {products.length ? (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {products.map((p) => (
+              <ProductCard key={p.id} product={p} />
             ))}
-          </ul>
-        </div>
-      )}
-
-      {/* Ürün listesi */}
-      {products.length ? (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {products.map((p) => (
-            <ProductCard key={p.id} product={p} />
-          ))}
-        </div>
-      ) : (
-        <p className="text-muted-foreground">
-          Filtrelere uyan ürün bulunamadı.
-        </p>
-      )}
+          </div>
+        ) : (
+          <p className="text-muted-foreground">Filtrelere uyan ürün bulunamadı.</p>
+        )}
+      </div>
     </div>
   );
 }
