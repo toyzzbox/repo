@@ -40,6 +40,7 @@ interface ProductDetailsProps {
     brands?: { id: string; name: string; slug: string }[];
     group?: {
       name: string;
+      description?: string | null; // ✅ EKLENDİ
       products: {
         id: string;
         slug: string;
@@ -47,6 +48,7 @@ interface ProductDetailsProps {
         price: number;
         stock?: number | null;
         medias: { urls: string[] }[];
+        description?: string | null;
       }[];
     };
   };
@@ -94,6 +96,7 @@ const DesktopProductDetails: React.FC<ProductDetailsProps> = ({
         price: activeVariant.price,
         quantity,
         url: activeVariant.medias?.[0]?.urls?.[0] ?? "",
+        
       })
     );
     toast.custom(() => <CartSuccessToast productName={activeVariant.name} />);
@@ -236,13 +239,16 @@ const DesktopProductDetails: React.FC<ProductDetailsProps> = ({
 
       {/* Açıklama / Yorumlar / Sorular */}
       <div className="mt-8">
-        <ProductDetailTabs
-          product={{
-            description:
-              activeVariant.description ??
-              product.description ??
-              "Henüz açıklama bulunmamaktadır.",
-          }}
+      <ProductDetailTabs
+  product={{
+    description:
+      activeVariant.description ??
+      product.description ??
+      "Henüz açıklama bulunmamaktadır.",
+    group: product.group
+      ? { description: product.group.description ?? null }
+      : undefined,
+  }}
           comments={
             <>
               {comments.length === 0 ? (
