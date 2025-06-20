@@ -13,7 +13,7 @@ export const BrandCard: React.FC<BrandCardProps> = ({ brand }) => {
 
   const handleClick = () => {
     if (brand.slug) {
-      router.push(`/brand/${brand.slug}`);
+      router.push(`/marka/${brand.slug}`);
     }
   };
 
