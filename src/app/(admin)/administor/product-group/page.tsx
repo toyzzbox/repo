@@ -30,18 +30,7 @@ export default async function ProductGroupPage() {
 )}
       <AddProductGroupForm />
 
-      <div className="mt-8">
-        <h2 className="text-lg font-semibold mb-2">Mevcut Gruplar</h2>
-        <ul className="border rounded divide-y">
-          {groups.map((group) => (
-            <li key={group.id} className="p-3">
-              <span>{group.name}</span>{" "}
-              <span className="text-gray-400 text-sm">({group.slug})</span>
-              <span>{group.description}</span>
-            </li>
-          ))}
-        </ul>
-      </div>
+      
     </main>
   );
 }

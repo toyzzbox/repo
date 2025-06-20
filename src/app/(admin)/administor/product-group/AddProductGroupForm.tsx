@@ -23,13 +23,13 @@ export default function AddProductGroupForm() {
           value={name}
           onChange={(e) => setName(e.target.value)}
         />
-        <label className="font-medium">Açıklama</label>
-<RichTextEditor
-  description=""
-  onChange={(html) => {
-    setDescriptionHtml(html);
-  }}
-/>
+     <label className="font-medium">Açıklama</label>
+        <RichTextEditor
+          description=""
+          onChange={(html) => setDescriptionHtml(html)}
+        />
+        <input type="hidden" name="description" value={descriptionHtml} />
+
       </div>
 
       <button
