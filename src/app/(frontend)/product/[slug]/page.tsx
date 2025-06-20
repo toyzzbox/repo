@@ -25,25 +25,21 @@ const product = await prisma.product.findUnique({
       },
     },
     categories: { select: { id: true, name: true } },
-    group: {
+   group: {
+  include: {
+    products: {
       select: {
-        name: true,
+        id: true,
         slug: true,
-
-        products: {
-          select: {
-            id: true,
-            slug: true,
-            name: true,
-            price: true,
-            stock: true,
-            medias: {
-              select: { urls: true },
-            },
-          },
-        },
+        name: true,
+        price: true,
+        description: true,
+        stock: true,
+        medias: { select: { urls: true } },
       },
     },
+  },
+},
     favorites: session?.user?.id
       ? {
           where: { userId: session.user.id },
