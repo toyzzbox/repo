@@ -12,7 +12,7 @@ export default function AddProductGroupForm() {
 
 
   return (
-    <form action={formAction} className="flex gap-4 items-end">
+    <form action={formAction} className="flex flex-col gap-4 items-end">
       <div>
         <label className="block font-medium">Grup Adı</label>
         <input
