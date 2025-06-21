@@ -106,7 +106,7 @@ model Media {
   products  Product[] @relation("ProductToMedia")
   brands      Brand[]    @relation("BrandToMedia")
   categories  Category[]    @relation("CategoryToMedia")
-
+  attributes  Attribute[]   @relation("AttributeToMedia")
   createdAt DateTime  @default(now())
   updatedAt   DateTime @updatedAt @default(now())  // 🔧 bu satır önemli
 
@@ -178,6 +178,8 @@ model Attribute {
   groupId         String         // İlişkili olduğu attribute grubunun ID'si
   group           AttributeGroup  @relation("GroupAttributes", fields: [groupId], references: [id]) // İlişki tanımı
   products    Product[] @relation("ProductAttribute")
+  medias      Media[]    @relation("AttributeToMedia")
+
 }
 
 

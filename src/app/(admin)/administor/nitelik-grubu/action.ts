@@ -9,18 +9,18 @@ import { prisma } from "@/lib/prisma";
 export async function createAttribute(previousState: unknown,formData: FormData) {
   try {
     const name = formData.get("name")?.toString(); // Güvenli dönüşüm
-    const groupId = formData.get("groupId")?.toString(); // Güvenli dönüşüm
+
 
     // İsim ve grup ID'sinin boş olup olmadığını kontrol et
-    if (!name || !groupId) {
+    if (!name ) {
       return "İsim ve grup ID'si zorunludur.";
     }
 
     // Yeni attribute oluştur
-    await prisma.attribute.create({
+    await prisma.attributeGroup.create({
       data: {
         name,
-        groupId,
+
       },
     });
 
