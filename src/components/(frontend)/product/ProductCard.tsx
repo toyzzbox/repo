@@ -18,10 +18,12 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 
   const imageUrl = product.medias?.[0]?.urls?.[0] ?? null;
 
-  // 👇 Grup adını da ekleyerek ürün ismini oluştur
   const displayName = product.group?.name
     ? `${product.group.name} – ${product.name}`
     : product.name;
+
+  const hasDiscount = typeof product.discount === "number" && product.discount > 0;
+  const discountedPrice = hasDiscount ? product.price - product.discount! : product.price;
 
   return (
     <div
@@ -51,7 +53,21 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         >
           {displayName}
         </h3>
-        <p className="text-md text-gray-600">{formatPrice(product.price)}</p>
+
+        {hasDiscount ? (
+          <div className="flex justify-center gap-2 items-center mt-1">
+            <span className="text-lg font-bold text-red-600">
+              {formatPrice(discountedPrice)}
+            </span>
+            <span className="text-sm line-through text-gray-500">
+              {formatPrice(product.price)}
+            </span>
+          </div>
+        ) : (
+          <p className="text-md text-gray-600 mt-1">
+            {formatPrice(product.price)}
+          </p>
+        )}
       </div>
     </div>
   );

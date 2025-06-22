@@ -11,6 +11,7 @@ export type Product = {
 	createdAt?: Date; // Ürünün oluşturulma tarihi (isteğe bağlı)
 	updatedAt?: Date; // Ürünün güncellenme tarihi (isteğe bağlı)
 	urls: string[];
+	discount?: number;
   mediaIds?: string[];
   brands: Brand[];
   medias?: Media[]; // ✅ doğru isimlendirme
