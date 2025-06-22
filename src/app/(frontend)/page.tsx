@@ -98,6 +98,7 @@ export default async function Home() {
 )}
 
 
+<h1 className="text-2xl font-bold text-center p-5">Yaş Aralığına Göre Oyuncaklar</h1>
 
 
 {attributes.length === 0 ? (
