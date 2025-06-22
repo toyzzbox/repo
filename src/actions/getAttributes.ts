@@ -1,21 +1,27 @@
-
 import { prisma } from "@/lib/prisma";
 import { Attribute } from "@/types/attribute";
 
-
-
-
-export async function getAttributes(): Promise<Attribute[]> {
+/**
+ * "Yaş Aralığı" grubuna ait attribute'ları getirir
+ */
+export async function getAgeRangeAttributes(): Promise<Attribute[]> {
   try {
-    const attributes = await prisma.attribute.findMany({
+    const group = await prisma.attributeGroup.findFirst({
+      where: {
+        name: "Yaş Aralığı",
+      },
       include: {
-        medias: true,
+        attributes: {
+          include: {
+            medias: true,
+          },
+        },
       },
     });
 
-    return attributes as Attribute[];
+    return group?.attributes ?? [];
   } catch (error) {
-    console.error("Ürünler alınamadı:", error);
+    console.error("Yaş Aralığı attribute'ları alınamadı:", error);
     return [];
   }
 }
