@@ -14,7 +14,10 @@ export type Product = {
   mediaIds?: string[];
   brands: Brand[];
   medias?: Media[]; // ✅ doğru isimlendirme
-  };
+  group?: {
+    name: string;
+  }; // ✅
+};
 
 
   type LiteProduct = {

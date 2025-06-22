@@ -13,12 +13,15 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const router = useRouter();
 
   const handleClick = () => {
-    if (product.slug) {
-      router.push(`/product/${product.slug}`);
-    }
+    if (product.slug) router.push(`/product/${product.slug}`);
   };
 
   const imageUrl = product.medias?.[0]?.urls?.[0] ?? null;
+
+  // 👇 Grup adını da ekleyerek ürün ismini oluştur
+  const displayName = product.group?.name
+    ? `${product.group.name} – ${product.name}`
+    : product.name;
 
   return (
     <div
@@ -31,7 +34,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             src={imageUrl}
             width={400}
             height={300}
-            alt={product.name}
+            alt={displayName}
             className="w-full h-48 object-cover transition-opacity duration-300 group-hover:opacity-90"
           />
         </div>
@@ -42,12 +45,12 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       )}
 
       <div className="text-center mt-4">
-      <h3
-  className="truncate max-w-[250px] mx-auto text-lg font-semibold transition group-hover:text-primary"
-  title={product.name}
->
-  {product.name}
-</h3>
+        <h3
+          className="truncate max-w-[250px] mx-auto text-lg font-semibold transition group-hover:text-primary"
+          title={displayName}
+        >
+          {displayName}
+        </h3>
         <p className="text-md text-gray-600">{formatPrice(product.price)}</p>
       </div>
     </div>
