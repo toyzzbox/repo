@@ -92,6 +92,14 @@ export default function ProductForm({
           required
         />
 
+<label>İndirim (% veya ₺)</label>
+<input
+  type="number"
+  name="discount"
+  step="0.01"
+  min="0"
+  className="input"
+/>
         {/* Açıklama */}
         <label className="font-medium">Açıklama</label>
         <RichTextEditor

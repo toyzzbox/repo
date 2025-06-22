@@ -10,6 +10,7 @@ const schema = z.object({
   serial: z.string().optional(),
   stock: z.coerce.number().optional(),
   price: z.coerce.number().min(0),
+  discount: z.coerce.number().min(0).optional(), // ⬅️ 2
   brandIds: z.array(z.string()).default([]),
   categoryIds: z.array(z.string()).default([]),
   mediaIds: z.array(z.string()).default([]),
@@ -24,14 +25,14 @@ export async function createProduct(prevState: any, formData: FormData) {
       serial: formData.get("serial") || undefined,
       stock: formData.get("stock"),
       price: formData.get("price"),
+      discount: formData.get("discount"),            // ⬅️ 1
       brandIds: formData.getAll("brandIds[]"),
       categoryIds: formData.getAll("categoryIds[]"),
       mediaIds: formData.getAll("mediaIds[]"),
       description: formData.get("description")?.toString() || undefined,
-      };
+    };
 
     const data = schema.parse(raw);
-
 
     const slug = slugify(`${data.name}-${data.serial || Date.now()}`, {
       lower: true,
@@ -45,17 +46,21 @@ export async function createProduct(prevState: any, formData: FormData) {
         serial: data.serial || undefined,
         stock: typeof data.stock === "number" ? data.stock : undefined,
         price: data.price,
+        discount: typeof data.discount === "number" ? data.discount : undefined, // ⬅️ 3
         description: data.description,
         group: data.groupId ? { connect: { id: data.groupId } } : undefined,
-        medias: data.mediaIds.length > 0
-          ? { connect: data.mediaIds.map((id) => ({ id })) }
-          : undefined,
-        brands: data.brandIds.length > 0
-          ? { connect: data.brandIds.map((id) => ({ id })) }
-          : undefined,
-        categories: data.categoryIds.length > 0
-          ? { connect: data.categoryIds.map((id) => ({ id })) }
-          : undefined,
+        medias:
+          data.mediaIds.length > 0
+            ? { connect: data.mediaIds.map((id) => ({ id })) }
+            : undefined,
+        brands:
+          data.brandIds.length > 0
+            ? { connect: data.brandIds.map((id) => ({ id })) }
+            : undefined,
+        categories:
+          data.categoryIds.length > 0
+            ? { connect: data.categoryIds.map((id) => ({ id })) }
+            : undefined,
       },
     });
 
