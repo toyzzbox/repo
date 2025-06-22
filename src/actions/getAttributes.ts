@@ -4,7 +4,7 @@ import { Attribute } from "@/types/attribute";
 /**
  * "Yaş Aralığı" grubuna ait attribute'ları getirir
  */
-export async function getAgeRangeAttributes(): Promise<Attribute[]> {
+export async function getAttributes(): Promise<Attribute[]> {
   try {
     const group = await prisma.attributeGroup.findFirst({
       where: {
