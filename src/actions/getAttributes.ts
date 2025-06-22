@@ -1,7 +1,6 @@
 
 import { prisma } from "@/lib/prisma";
 import { Attribute } from "@/types/attribute";
-import { Category } from "@/types/category";
 
 
 
