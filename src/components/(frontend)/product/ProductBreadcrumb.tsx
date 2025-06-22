@@ -3,7 +3,7 @@
 import Link from "next/link";
 
 interface ProductBreadcrumbProps {
-  category?: { id: string; name: string };
+  category?: { slug: string; name: string };
   groupName?: string;
   productName: string;
 }
@@ -30,7 +30,7 @@ export default function ProductBreadcrumb({
           <>
             <li>
               <Link
-                href={`/category/${category.id}`}
+                href={`/category/${category.slug}`}
                 className="hover:text-gray-800"
               >
                 {category.name}
