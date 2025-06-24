@@ -1,31 +1,16 @@
-"use client";
-
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
+// app/(admin)/medya/page.tsx veya başka bir yerden tetiklenen bir modal olabilir
+import { prisma } from "@/lib/prisma";
 import MediaModal from "./MediaModal";
 
-const dummyMedias = [
-  {
-    id: "1",
-    urls: ["https://via.placeholder.com/300x200.png?text=Image+1"],
-  },
-  {
-    id: "2",
-    urls: ["https://via.placeholder.com/300x200.png?text=Image+2"],
-  },
-  {
-    id: "3",
-    urls: ["https://via.placeholder.com/300x200.png?text=Image+3"],
-  },
-];
-
-export default function MediaModalExample() {
-  const [open, setOpen] = useState(false);
+export default async function MediaModalPage() {
+  const medias = await prisma.media.findMany({
+    orderBy: { createdAt: "desc" },
+  });
 
   return (
     <div>
-      <Button onClick={() => setOpen(true)}>Medya Yöneticisini Aç</Button>
-      <MediaModal open={open} onClose={() => setOpen(false)} medias={dummyMedias} />
+      {/* modal burada açılır (ister sayfada, ister butonla tetiklenebilir) */}
+      <MediaModal open={true} onClose={() => {}} medias={medias} />
     </div>
   );
 }
