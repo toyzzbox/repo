@@ -1,4 +1,4 @@
-// app/(admin)/medya/page.tsx veya başka bir yerden tetiklenen bir modal olabilir
+"use client"
 import { prisma } from "@/lib/prisma";
 import MediaModal from "./MediaModal";
 
