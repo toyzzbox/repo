@@ -56,18 +56,23 @@ export default function MediaModal({ open, onClose, medias }: MediaModalProps) {
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
+  
     const { url, publicUrl } = await getPresignedUrl(file.name, file.type);
-
+  
     await fetch(url, {
       method: "PUT",
       headers: { "Content-Type": file.type },
       body: file,
     });
-
+  
     const newMedia = await createMedia([publicUrl]);
-    setOptimisticMedias(newMedia);
+  
+    // ✅ Burayı düzelttik:
+    startTransition(() => {
+      setOptimisticMedias(newMedia);
+    });
   };
+  
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
