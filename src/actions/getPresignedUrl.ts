@@ -15,7 +15,7 @@ export async function getPresignedUrl(fileName: string, fileType: string) {
   const key = `uploads/${Date.now()}-${fileName}`;
 
   const command = new PutObjectCommand({
-    Bucket: process.env.S3_BUCKET_NAME!,
+    Bucket: process.env.NEXT_AWS_S3_BUCKET_NAME,
     Key: key,
     ContentType: fileType,
   });
