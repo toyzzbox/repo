@@ -41,7 +41,7 @@ export default function MediaModal({ open, onClose, medias }: MediaModalProps) {
 
   const handleDelete = () => {
     startTransition(() => {
-      setOptimisticMedias(selectedIds); // Optimistic UI
+      setOptimisticMedias(selectedIds);
       deleteMedias(selectedIds);
       setSelectedIds([]);
     });
@@ -54,7 +54,7 @@ export default function MediaModal({ open, onClose, medias }: MediaModalProps) {
           <DialogTitle>Medya Yöneticisi</DialogTitle>
         </DialogHeader>
 
-        {/* Sticky kontrol alanı */}
+        {/* Sticky üst bar */}
         <div className="sticky top-0 bg-white z-10 pb-4">
           <div className="flex justify-between items-center gap-2 mb-4">
             <div className="flex gap-2">
@@ -76,7 +76,6 @@ export default function MediaModal({ open, onClose, medias }: MediaModalProps) {
           </div>
         </div>
 
-        {/* Medya listesi */}
         <div className="grid grid-cols-3 gap-4">
           {filtered.map((media) => (
             <div
