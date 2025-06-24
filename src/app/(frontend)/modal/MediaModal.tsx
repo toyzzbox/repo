@@ -26,7 +26,7 @@ export default function MediaModal({ open, onClose, medias }: MediaModalProps) {
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-<DialogContent className="w-[1200px] max-h-[140vh] overflow-y-auto">
+<DialogContent className="w-[1400px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Medya Yöneticisi</DialogTitle>
         </DialogHeader>
