@@ -41,7 +41,7 @@ export default function MediaModal({ open, onClose, medias }: MediaModalProps) {
 
   const handleDelete = () => {
     startTransition(() => {
-      setOptimisticMedias(selectedIds); // optimistic UI
+      setOptimisticMedias(selectedIds); // Optimistic UI
       deleteMedias(selectedIds);
       setSelectedIds([]);
     });
@@ -54,25 +54,29 @@ export default function MediaModal({ open, onClose, medias }: MediaModalProps) {
           <DialogTitle>Medya Yöneticisi</DialogTitle>
         </DialogHeader>
 
-        <div className="flex justify-between items-center gap-2 mb-4">
-          <div className="flex gap-2">
-            <Button onClick={() => console.log("Ekle")}>Ekle</Button>
-            <Button
-              variant="destructive"
-              onClick={handleDelete}
-              disabled={selectedIds.length === 0 || isPending}
-            >
-              {isPending ? "Siliniyor..." : `Sil (${selectedIds.length})`}
-            </Button>
+        {/* Sticky kontrol alanı */}
+        <div className="sticky top-0 bg-white z-10 pb-4">
+          <div className="flex justify-between items-center gap-2 mb-4">
+            <div className="flex gap-2">
+              <Button onClick={() => console.log("Ekle")}>Ekle</Button>
+              <Button
+                variant="destructive"
+                onClick={handleDelete}
+                disabled={selectedIds.length === 0 || isPending}
+              >
+                {isPending ? "Siliniyor..." : `Sil (${selectedIds.length})`}
+              </Button>
+            </div>
+            <Input
+              placeholder="Ara..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-1/3"
+            />
           </div>
-          <Input
-            placeholder="Ara..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-1/3"
-          />
         </div>
 
+        {/* Medya listesi */}
         <div className="grid grid-cols-3 gap-4">
           {filtered.map((media) => (
             <div
