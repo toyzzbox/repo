@@ -8,7 +8,7 @@ import Image from "next/image";
 
 interface Media {
   id: string;
-  urls: string[]; // ilk url’i kullanacağız
+  urls: string[];
 }
 
 interface MediaModalProps {
@@ -20,46 +20,44 @@ interface MediaModalProps {
 export default function MediaModal({ open, onClose, medias }: MediaModalProps) {
   const [search, setSearch] = useState("");
 
-  const filteredMedias = medias.filter((media) =>
-    media.urls[0]?.toLowerCase().includes(search.toLowerCase())
+  const filtered = medias.filter((m) =>
+    m.urls[0]?.toLowerCase().includes(search.toLowerCase())
   );
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl">
+      <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Medya Yöneticisi</DialogTitle>
         </DialogHeader>
 
-        {/* 🔘 Üst Butonlar */}
-        <div className="flex items-center justify-between gap-2 mb-4">
+        <div className="flex justify-between items-center gap-2 mb-4">
           <div className="flex gap-2">
             <Button onClick={() => console.log("Ekle")}>Ekle</Button>
             <Button variant="destructive" onClick={() => console.log("Sil")}>Sil</Button>
           </div>
           <Input
-            placeholder="Medya ara..."
+            placeholder="Ara..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-1/3"
           />
         </div>
 
-        {/* 🖼️ Medya Listesi */}
-        <div className="grid grid-cols-3 gap-4 max-h-[60vh] overflow-y-auto">
-          {filteredMedias.map((media) => (
-            <div key={media.id} className="border rounded-md overflow-hidden">
+        <div className="grid grid-cols-3 gap-4">
+          {filtered.map((media) => (
+            <div key={media.id} className="border rounded overflow-hidden">
               <Image
                 src={media.urls[0]}
-                alt="Media"
+                alt="media"
                 width={300}
                 height={200}
-                className="w-full h-48 object-cover"
+                className="object-cover w-full h-48"
               />
             </div>
           ))}
-          {filteredMedias.length === 0 && (
-            <p className="col-span-3 text-center text-gray-500">Hiçbir medya bulunamadı.</p>
+          {filtered.length === 0 && (
+            <div className="col-span-3 text-center text-gray-500">Sonuç bulunamadı.</div>
           )}
         </div>
       </DialogContent>
