@@ -11,7 +11,7 @@ import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
     },
   });
 
-export async function getPresignedUrl(fileName: string, fileType: string) {
+export async function getPresignedUrlsaas(fileName: string, fileType: string) {
   const key = `uploads/${Date.now()}-${fileName}`;
 
   const command = new PutObjectCommand({
