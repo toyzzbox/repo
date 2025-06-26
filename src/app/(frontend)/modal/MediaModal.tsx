@@ -8,7 +8,7 @@ import Image from "next/image";
 import clsx from "clsx";
 import { deleteMedias } from "@/actions/deleteMedias";
 import { getPresignedUrl } from "@/actions/getPresignedUrl";
-import { createMedia } from "@/actions/createMedia";
+import { createSignedUrl } from "@/actions/createMedia";
 
 interface Media {
   id: string;
@@ -65,7 +65,7 @@ export default function MediaModal({ open, onClose, medias }: MediaModalProps) {
       body: file,
     });
   
-    const newMedia = await createMedia([publicUrl]);
+    const newMedia = await createSignedUrl([publicUrl]);
   
     // ✅ Burayı düzelttik:
     startTransition(() => {
