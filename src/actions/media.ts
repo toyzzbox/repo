@@ -1,9 +1,7 @@
-// src/actions/media.ts
-
 "use server";
 
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
-import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { getSignedUrl as getS3SignedUrl } from "@aws-sdk/s3-request-presigner"; // 👈 burada isim değiştirildi
 
 const s3 = new S3Client({
   region: process.env.NEXT_AWS_S3_REGION!,
@@ -24,7 +22,7 @@ export async function getSignedUrl(fileName: string, fileType: string) {
     ContentType: fileType,
   });
 
-  const url = await getSignedUrl(s3, command, { expiresIn: 60 });
+  const url = await getS3SignedUrl(s3, command, { expiresIn: 60 }); // 👈 burada da yeni ismi kullandık
   const publicUrl = `https://${bucket}.s3.${region}.amazonaws.com/${key}`;
 
   return { url, publicUrl };
