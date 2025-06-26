@@ -19,7 +19,7 @@ export default function MediaSelector({
   onChange,
 }: MediaSelectorProps) {
   const [selectedIds, setSelectedIds] = useState<string[]>(
-    () => [...defaultSelected] // ✅ sadece ilk render’da çalışır
+    () => [...defaultSelected]
   );
 
   const onChangeRef = useRef(onChange);
@@ -45,21 +45,25 @@ export default function MediaSelector({
       <h2 className="text-sm font-medium text-muted-foreground">Medya Seç</h2>
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
         {medias.map((media) => {
+          const url = media.urls?.[0];
+          if (!url) return null; // 👈 hatalı url varsa atla
+
           const isSelected = selectedIds.includes(media.id);
+
           return (
             <div
               key={media.id}
+              onClick={() => toggleSelection(media.id)}
               className={`relative rounded-lg overflow-hidden border-2 cursor-pointer transition-all duration-200 ${
                 isSelected ? 'border-green-500 ring-2 ring-green-200' : 'border-gray-300'
               }`}
             >
               <Image
-                src={media.urls[0]}
+                src={url}
                 alt="Media"
                 width={300}
                 height={200}
                 className="w-full h-32 object-cover"
-                onClick={() => toggleSelection(media.id)}
               />
               <div 
                 className="absolute top-2 left-2 bg-white/80 rounded p-1 shadow"
