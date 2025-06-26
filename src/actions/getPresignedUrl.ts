@@ -31,7 +31,14 @@ export async function getPresignedUrl(fileName: string, fileType: string) {
   });
 
   const url = await getSignedUrl(s3, command, { expiresIn: 60 });
+
+  // ✅ public URL doğru şekilde oluşturuluyor:
   const publicUrl = `https://${bucket}.s3.${region}.amazonaws.com/${key}`;
 
-  return { url, publicUrl };
+  console.log("🌍 publicUrl:", publicUrl);
+
+  return {
+    url,        // PUT için kullanılan presigned URL
+    publicUrl,  // S3’ten erişilebilir görsel URL’si (next/image için)
+  };
 }
