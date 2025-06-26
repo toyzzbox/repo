@@ -139,13 +139,15 @@ export default function MediaModal({ open, onClose, medias }: MediaModalProps) {
                 )}
                 onClick={() => toggleSelect(media.id)}
               >
-                <Image
-                  src={media.urls[0]}
-                  alt="media"
-                  width={300}
-                  height={200}
-                  className="object-cover w-full h-48"
-                />
+                {media.urls[0] && (
+  <Image
+    src={media.urls[0]}
+    alt="media"
+    width={300}
+    height={200}
+    className="object-cover w-full h-48"
+  />
+)}
                 {selectedIds.includes(media.id) && (
                   <div className="absolute top-2 right-2 bg-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold text-orange-500 border border-orange-500">
                     ✓
