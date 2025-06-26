@@ -1,14 +1,12 @@
 "use client";
 
-import { useState, useTransition, useOptimistic, useRef } from "react";
+import { useState, useTransition, useOptimistic } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import Image from "next/image";
 import clsx from "clsx";
 import { deleteMedias } from "@/actions/deleteMedias";
-import { createMedia } from "@/actions/createMedia";
-import { getSignedUrl } from "@/actions/media";
 
 interface Media {
   id: string;
@@ -25,14 +23,10 @@ export default function MediaModal({ open, onClose, medias }: MediaModalProps) {
   const [search, setSearch] = useState("");
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [isPending, startTransition] = useTransition();
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [optimisticMedias, setOptimisticMedias] = useOptimistic(
     medias,
-    (state, update: Media | string[]) =>
-      Array.isArray(update)
-        ? state.filter((m) => !update.includes(m.id))
-        : [update, ...state]
+    (state, update: string[]) => state.filter((m) => !update.includes(m.id))
   );
 
   const filtered = optimisticMedias.filter((m) =>
@@ -53,41 +47,6 @@ export default function MediaModal({ open, onClose, medias }: MediaModalProps) {
     });
   };
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-  
-    // Presigned URL al
-    const { url, publicUrl } = await getSignedUrl(file.name, file.type);
-  
-    // Dosyayı S3'e yükle
-    await fetch(url, {
-      method: "PUT",
-      headers: { "Content-Type": file.type },
-      body: file,
-    });
-  
-    // Medya tipini belirle (image / video)
-    const type = file.type.startsWith("video") ? "video" : "image";
-  
-    // Medyayı veritabanına kaydet
-    const result = await createMedia({
-      urls: [publicUrl],
-      type,
-    });
-  
-    // Başarıyla eklendiyse optimistik olarak listeye ekle
-    if ("success" in result) {
-      const newMedia = result.success;
-  
-      startTransition(() => {
-        setOptimisticMedias(newMedia); // ✅ çünkü reducer bir Media bekliyor
-      });
-    } else {
-      console.error("Media creation failed:", result.failure);
-    }
-  };
-  
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="w-[1400px] max-h-[90vh] overflow-y-auto p-0">
@@ -100,17 +59,6 @@ export default function MediaModal({ open, onClose, medias }: MediaModalProps) {
           <div className="sticky top-0 bg-white z-10 px-6 pb-4 pt-2 border-b">
             <div className="flex justify-between items-center gap-2">
               <div className="flex gap-2">
-                <Button onClick={() => fileInputRef.current?.click()} disabled={isPending}>
-                  {isPending ? "Yükleniyor..." : "Ekle"}
-                </Button>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  hidden
-                  onChange={handleFileChange}
-                  accept="image/*"
-                />
-
                 <Button
                   variant="destructive"
                   onClick={handleDelete}
@@ -140,14 +88,14 @@ export default function MediaModal({ open, onClose, medias }: MediaModalProps) {
                 onClick={() => toggleSelect(media.id)}
               >
                 {media.urls[0] && (
-  <Image
-    src={media.urls[0]}
-    alt="media"
-    width={300}
-    height={200}
-    className="object-cover w-full h-48"
-  />
-)}
+                  <Image
+                    src={media.urls[0]}
+                    alt="media"
+                    width={300}
+                    height={200}
+                    className="object-cover w-full h-48"
+                  />
+                )}
                 {selectedIds.includes(media.id) && (
                   <div className="absolute top-2 right-2 bg-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold text-orange-500 border border-orange-500">
                     ✓
