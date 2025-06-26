@@ -7,8 +7,8 @@ import { Input } from "@/components/ui/input";
 import Image from "next/image";
 import clsx from "clsx";
 import { deleteMedias } from "@/actions/deleteMedias";
-import { getPresignedUrl } from "@/actions/getPresignedUrl";
 import { createMedia } from "@/actions/createMedia";
+import { getSignedUrl } from "@/actions/media";
 
 interface Media {
   id: string;
@@ -58,7 +58,7 @@ export default function MediaModal({ open, onClose, medias }: MediaModalProps) {
     if (!file) return;
   
     // Presigned URL al
-    const { url, publicUrl } = await getPresignedUrl(file.name, file.type);
+    const { url, publicUrl } = await getSignedUrl(file.name, file.type);
   
     // Dosyayı S3'e yükle
     await fetch(url, {
