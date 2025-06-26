@@ -57,29 +57,37 @@ export default function MediaModal({ open, onClose, medias }: MediaModalProps) {
     const file = e.target.files?.[0];
     if (!file) return;
   
+    // Presigned URL al
     const { url, publicUrl } = await getPresignedUrl(file.name, file.type);
   
+    // Dosyayı S3'e yükle
     await fetch(url, {
       method: "PUT",
       headers: { "Content-Type": file.type },
       body: file,
     });
   
+    // Medya tipini belirle (image / video)
+    const type = file.type.startsWith("video") ? "video" : "image";
+  
+    // Medyayı veritabanına kaydet
     const result = await createMedia({
       urls: [publicUrl],
-      type: "image", // veya dinamik: file.type.includes("video") ? "video" : "image"
+      type,
     });
   
+    // Başarıyla eklendiyse optimistik olarak listeye ekle
     if ("success" in result) {
       const newMedia = result.success;
   
       startTransition(() => {
-        setOptimisticMedias(newMedia); // ✅ çünkü `Media` bekliyor      });
-     else {
+        setOptimisticMedias(newMedia); // ✅ çünkü reducer bir Media bekliyor
+      });
+    } else {
       console.error("Media creation failed:", result.failure);
     }
   };
-
+  
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="w-[1400px] max-h-[90vh] overflow-y-auto p-0">
