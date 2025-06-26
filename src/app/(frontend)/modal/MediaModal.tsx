@@ -8,7 +8,7 @@ import Image from "next/image";
 import clsx from "clsx";
 import { deleteMedias } from "@/actions/deleteMedias";
 import { getPresignedUrl } from "@/actions/getPresignedUrl";
-import { createSignedUrl } from "@/actions/createMedia";
+import { createMedia } from "@/actions/createMedia";
 
 interface Media {
   id: string;
@@ -65,14 +65,20 @@ export default function MediaModal({ open, onClose, medias }: MediaModalProps) {
       body: file,
     });
   
-    const newMedia = await createSignedUrl([publicUrl]);
-  
-    // ✅ Burayı düzelttik:
-    startTransition(() => {
-      setOptimisticMedias(newMedia);
+    const result = await createMedia({
+      urls: [publicUrl],
+      type: "image", // veya dinamik: file.type.includes("video") ? "video" : "image"
     });
-  };
   
+    if ("success" in result) {
+      const newMedia = result.success;
+  
+      startTransition(() => {
+        setOptimisticMedias(newMedia); // ✅ çünkü `Media` bekliyor      });
+     else {
+      console.error("Media creation failed:", result.failure);
+    }
+  };
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
