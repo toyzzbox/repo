@@ -76,41 +76,43 @@ export default function MediaModal({ open, onClose, medias }: MediaModalProps) {
     if (!files || files.length === 0) return;
 
     setIsUploading(true);
-
     const tempId = `temp-${Date.now()}`;
 
-    try {
-      const formData = new FormData();
-      Array.from(files).forEach((file) => {
-        formData.append("files", file);
-      });
-
-      // Geçici önizleme
-      const tempMedia: Media = {
-        id: tempId,
-        urls: [URL.createObjectURL(files[0])],
-      };
-      updateOptimisticMedias({ type: "add", payload: tempMedia });
-
-      const result = await uploadMedia(formData);
-      console.log("Upload result:", result);
-
-      if (result.success && result.media) {
-        updateOptimisticMedias({
-          type: "replace",
-          payload: { tempId: tempMedia.id, realMedia: result.media },
+    // Tüm optimistic update'leri startTransition içine alıyoruz
+    startTransition(async () => {
+      try {
+        const formData = new FormData();
+        Array.from(files).forEach((file) => {
+          formData.append("files", file);
         });
-      } else {
-        console.error("Upload failed:", result.error);
-        updateOptimisticMedias({ type: "delete", payload: [tempMedia.id] });
+
+        // Geçici önizleme - startTransition içinde
+        const tempMedia: Media = {
+          id: tempId,
+          urls: [URL.createObjectURL(files[0])],
+        };
+        updateOptimisticMedias({ type: "add", payload: tempMedia });
+
+        const result = await uploadMedia(formData);
+        console.log("Upload result:", result);
+
+        if (result.success && result.media) {
+          updateOptimisticMedias({
+            type: "replace",
+            payload: { tempId: tempMedia.id, realMedia: result.media },
+          });
+        } else {
+          console.error("Upload failed:", result.error);
+          updateOptimisticMedias({ type: "delete", payload: [tempMedia.id] });
+        }
+      } catch (error) {
+        console.error("Upload error:", error);
+        updateOptimisticMedias({ type: "delete", payload: [tempId] });
+      } finally {
+        setIsUploading(false);
+        event.target.value = "";
       }
-    } catch (error) {
-      console.error("Upload error:", error);
-      updateOptimisticMedias({ type: "delete", payload: [tempId] });
-    } finally {
-      setIsUploading(false);
-      event.target.value = "";
-    }
+    });
   };
 
   return (
