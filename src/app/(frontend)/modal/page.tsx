@@ -1,6 +1,6 @@
 // app/admin/medias/page.tsx
 import { prisma } from "@/lib/prisma";
-import MediasPageClient from "./MediasPageClient";
+import MediaModalButton from "./MediaModalButton";
 
 export default async function MediasPage() {
   const medias = await prisma.media.findMany({
@@ -13,9 +13,8 @@ export default async function MediasPage() {
         <h1 className="text-xl font-bold">Medya Yöneticisi</h1>
       </div>
 
-      <MediasPageClient medias={medias} />;    </div>
+      <MediaModalButton medias={medias} />
+    </div>
   );
-
+  
 }
-
-
