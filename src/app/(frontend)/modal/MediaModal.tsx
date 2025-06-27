@@ -44,7 +44,7 @@ export default function MediaModal({ open, onClose, medias }: MediaModalProps) {
   );
 
   const filtered = optimisticMedias.filter((m) =>
-    m.urls[0]?.toLowerCase().includes(search.toLowerCase())
+    m.urls && m.urls[0] && m.urls[0].toLowerCase().includes(search.toLowerCase())
   );
 
   const toggleSelect = (id: string) => {
