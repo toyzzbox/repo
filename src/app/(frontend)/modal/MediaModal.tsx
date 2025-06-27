@@ -18,11 +18,21 @@ interface MediaModalProps {
   open: boolean;
   onClose: () => void;
   medias: Media[];
+  onSelectMedia?: (selectedMedias: Media[]) => void; // Seçili medyaları döndürmek için
+  selectedMediaIds?: string[]; // Önceden seçili medyalar
+  isSelectionMode?: boolean; // Seçim modu aktif mi?
 }
 
-export default function MediaModal({ open, onClose, medias }: MediaModalProps) {
+export default function MediaModal({ 
+  open, 
+  onClose, 
+  medias, 
+  onSelectMedia,
+  selectedMediaIds = [],
+  isSelectionMode = false 
+}: MediaModalProps) {
   const [search, setSearch] = useState("");
-  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [selectedIds, setSelectedIds] = useState<string[]>(selectedMediaIds);
   const [isPending, startTransition] = useTransition();
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -48,9 +58,12 @@ export default function MediaModal({ open, onClose, medias }: MediaModalProps) {
   );
 
   const toggleSelect = (id: string) => {
-    setSelectedIds((prev) =>
-      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
-    );
+    setSelectedIds((prev) => {
+      const newSelection = prev.includes(id) 
+        ? prev.filter((i) => i !== id) 
+        : [...prev, id];
+      return newSelection;
+    });
   };
 
   const handleDelete = async () => {
@@ -78,7 +91,6 @@ export default function MediaModal({ open, onClose, medias }: MediaModalProps) {
     setIsUploading(true);
     const tempId = `temp-${Date.now()}`;
 
-    // Tüm optimistic update'leri startTransition içine alıyoruz
     startTransition(async () => {
       try {
         const formData = new FormData();
@@ -86,7 +98,6 @@ export default function MediaModal({ open, onClose, medias }: MediaModalProps) {
           formData.append("files", file);
         });
 
-        // Geçici önizleme - startTransition içinde
         const tempMedia: Media = {
           id: tempId,
           urls: [URL.createObjectURL(files[0])],
@@ -115,43 +126,76 @@ export default function MediaModal({ open, onClose, medias }: MediaModalProps) {
     });
   };
 
+  const handleConfirmSelection = () => {
+    if (onSelectMedia && isSelectionMode) {
+      const selectedMedias = optimisticMedias.filter(media => 
+        selectedIds.includes(media.id)
+      );
+      onSelectMedia(selectedMedias);
+    }
+    onClose();
+  };
+
+  const handleClose = () => {
+    if (isSelectionMode) {
+      setSelectedIds(selectedMediaIds); // Seçimi sıfırla
+    }
+    onClose();
+  };
+
   return (
-    <Dialog open={open} onOpenChange={onClose}>
+    <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="w-[1400px] max-h-[90vh] overflow-y-auto p-0">
         <div className="max-h-[90vh] overflow-y-auto">
           <DialogHeader className="p-6">
-            <DialogTitle>Medya Yöneticisi</DialogTitle>
+            <DialogTitle>
+              {isSelectionMode ? "Medya Seç" : "Medya Yöneticisi"}
+            </DialogTitle>
           </DialogHeader>
 
           {/* Kontrol Bar */}
           <div className="sticky top-0 bg-white z-10 px-6 pb-4 pt-2 border-b">
             <div className="flex justify-between items-center gap-2">
               <div className="flex gap-2">
-                <Button
-                  variant="destructive"
-                  onClick={handleDelete}
-                  disabled={selectedIds.length === 0 || isPending}
-                >
-                  {isPending ? "Siliniyor..." : `Sil (${selectedIds.length})`}
-                </Button>
+                {!isSelectionMode && (
+                  <>
+                    <Button
+                      variant="destructive"
+                      onClick={handleDelete}
+                      disabled={selectedIds.length === 0 || isPending}
+                    >
+                      {isPending ? "Siliniyor..." : `Sil (${selectedIds.length})`}
+                    </Button>
 
-                <Button
-                  variant="default"
-                  disabled={isUploading}
-                  onClick={handleFileButtonClick}
-                >
-                  {isUploading ? "Yükleniyor..." : "Medya Ekle"}
-                </Button>
+                    <Button
+                      variant="default"
+                      disabled={isUploading}
+                      onClick={handleFileButtonClick}
+                    >
+                      {isUploading ? "Yükleniyor..." : "Medya Ekle"}
+                    </Button>
 
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  multiple
-                  accept="image/*,video/*"
-                  onChange={handleFileUpload}
-                  className="hidden"
-                  disabled={isUploading}
-                />
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      multiple
+                      accept="image/*,video/*"
+                      onChange={handleFileUpload}
+                      className="hidden"
+                      disabled={isUploading}
+                    />
+                  </>
+                )}
+
+                {isSelectionMode && (
+                  <Button
+                    variant="default"
+                    onClick={handleConfirmSelection}
+                    disabled={selectedIds.length === 0}
+                  >
+                    Seç ({selectedIds.length})
+                  </Button>
+                )}
               </div>
 
               <Input
@@ -169,12 +213,12 @@ export default function MediaModal({ open, onClose, medias }: MediaModalProps) {
               <div
                 key={media.id}
                 className={clsx(
-                  "border rounded overflow-hidden cursor-pointer relative transition-all",
-                  selectedIds.includes(media.id) && "ring-4 ring-orange-500"
+                  "border rounded overflow-hidden cursor-pointer relative transition-all hover:shadow-lg",
+                  selectedIds.includes(media.id) && "ring-4 ring-blue-500"
                 )}
                 onClick={() => toggleSelect(media.id)}
               >
-                {media.urls[0] && (
+                {media.urls && media.urls[0] && (
                   <Image
                     src={media.urls[0]}
                     alt="media"
@@ -185,14 +229,14 @@ export default function MediaModal({ open, onClose, medias }: MediaModalProps) {
                   />
                 )}
                 {selectedIds.includes(media.id) && (
-                  <div className="absolute top-2 right-2 bg-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold text-orange-500 border border-orange-500">
+                  <div className="absolute top-2 right-2 bg-blue-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold">
                     ✓
                   </div>
                 )}
               </div>
             ))}
             {filtered.length === 0 && (
-              <div className="col-span-3 text-center text-gray-500">
+              <div className="col-span-3 text-center text-gray-500 py-8">
                 Sonuç bulunamadı.
               </div>
             )}
