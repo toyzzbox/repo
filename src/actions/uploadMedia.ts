@@ -22,10 +22,11 @@ export async function uploadMedia(formData: FormData) {
       return { success: false, error: "No files provided" };
     }
 
-    const urls: string[] = [];
+    const created: Media[] = [];
 
     for (const file of files) {
-      const key = `uploads/${Date.now()}-${file.name}`;
+      const fileExtension = file.name.split(".").pop() || "bin";
+      const key = `uploads/${randomUUID()}.${fileExtension}`;
       const buffer = await file.arrayBuffer();
 
       const command = new PutObjectCommand({
@@ -38,20 +39,21 @@ export async function uploadMedia(formData: FormData) {
       await s3.send(command);
 
       const publicUrl = `https://${BUCKET}.s3.${REGION}.amazonaws.com/${key}`;
-      urls.push(publicUrl);
-    }
 
-    const created = await prisma.media.create({
-      data: {
-        urls,
-        type: MediaType.image, // veya file.type.startsWith("video") ? MediaType.video : MediaType.image
-      },
-    });
+      const media = await prisma.media.create({
+        data: {
+          urls: [publicUrl],
+          type: file.type.startsWith("video") ? MediaType.video : MediaType.image,
+        },
+      });
+
+      created.push(media);
+    }
 
     return { success: true, media: created };
 
   } catch (error) {
-    console.error("uploadMedia error:", error);
+    console.error("uploadMedia error:", error instanceof Error ? error.message : error);
     return { success: false, error: "Upload failed" };
   }
 }
