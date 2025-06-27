@@ -33,7 +33,6 @@ export default function MediaModal({ open, onClose, medias }: MediaModalProps) {
       } else if (action.type === "add") {
         return [...state, action.payload];
       } else if (action.type === "replace") {
-        // temp media yerine gerçek media ekleme
         return state.map((m) => (m.id === action.payload.tempId ? action.payload.realMedia : m));
       }
       return state;
@@ -83,21 +82,18 @@ export default function MediaModal({ open, onClose, medias }: MediaModalProps) {
         id: tempId,
         urls: [URL.createObjectURL(files[0])],
       };
-
       updateOptimisticMedias({ type: "add", payload: tempMedia });
 
       // Sunucuya yükle
       const result = await uploadMedia(formData);
 
       if (result.success && result.media) {
-        // Temp media'yı gerçek media ile değiştir
         updateOptimisticMedias({
           type: "replace",
           payload: { tempId: tempMedia.id, realMedia: result.media },
         });
       } else {
         console.error("Upload failed:", result.error);
-        // Temp media'yı kaldır
         updateOptimisticMedias({ type: "delete", payload: [tempMedia.id] });
       }
     } catch (error) {
@@ -105,7 +101,7 @@ export default function MediaModal({ open, onClose, medias }: MediaModalProps) {
       updateOptimisticMedias({ type: "delete", payload: [tempId] });
     } finally {
       setIsUploading(false);
-      event.target.value = ""; // input temizle
+      event.target.value = "";
     }
   };
 
@@ -130,22 +126,20 @@ export default function MediaModal({ open, onClose, medias }: MediaModalProps) {
                 </Button>
 
                 <div className="relative">
+                  <label htmlFor="media-upload">
+                    <Button variant="default" disabled={isUploading}>
+                      {isUploading ? "Yükleniyor..." : "Medya Ekle"}
+                    </Button>
+                  </label>
                   <input
                     type="file"
                     id="media-upload"
                     multiple
                     accept="image/*,video/*"
                     onChange={handleFileUpload}
-                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                    className="hidden"
                     disabled={isUploading}
                   />
-                  <Button
-                    variant="default"
-                    disabled={isUploading}
-                    className="relative"
-                  >
-                    {isUploading ? "Yükleniyor..." : "Medya Ekle"}
-                  </Button>
                 </div>
               </div>
               <Input
