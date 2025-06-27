@@ -1,4 +1,5 @@
 "use client";
+
 import { useState, useTransition, useOptimistic } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -84,10 +85,13 @@ export default function MediaModal({ open, onClose, medias }: MediaModalProps) {
       };
       updateOptimisticMedias({ type: "add", payload: tempMedia });
 
-      // Sunucuya yükle
+      // 🔧 Sunucuya yükle
       const result = await uploadMedia(formData);
 
+      console.log("Upload result:", result); // ✅ DEBUG
+
       if (result.success && result.media) {
+        // ✅ Temp media'yı gerçek media ile değiştir
         updateOptimisticMedias({
           type: "replace",
           payload: { tempId: tempMedia.id, realMedia: result.media },
@@ -101,7 +105,7 @@ export default function MediaModal({ open, onClose, medias }: MediaModalProps) {
       updateOptimisticMedias({ type: "delete", payload: [tempId] });
     } finally {
       setIsUploading(false);
-      event.target.value = "";
+      event.target.value = ""; // input temizle
     }
   };
 
