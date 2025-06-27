@@ -24,15 +24,17 @@ export default function MediaModal({ open, onClose, medias }: MediaModalProps) {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [isPending, startTransition] = useTransition();
   const [isUploading, setIsUploading] = useState(false);
-  
-  // useOptimistic düzeltmesi
+
   const [optimisticMedias, updateOptimisticMedias] = useOptimistic(
     medias,
-    (state: Media[], action: { type: 'delete' | 'add', payload: any }) => {
-      if (action.type === 'delete') {
+    (state: Media[], action: { type: "delete" | "add" | "replace"; payload: any }) => {
+      if (action.type === "delete") {
         return state.filter((m) => !action.payload.includes(m.id));
-      } else if (action.type === 'add') {
+      } else if (action.type === "add") {
         return [...state, action.payload];
+      } else if (action.type === "replace") {
+        // temp media yerine gerçek media ekleme
+        return state.map((m) => (m.id === action.payload.tempId ? action.payload.realMedia : m));
       }
       return state;
     }
@@ -50,20 +52,14 @@ export default function MediaModal({ open, onClose, medias }: MediaModalProps) {
 
   const handleDelete = async () => {
     if (selectedIds.length === 0) return;
-    
+
     startTransition(async () => {
-      // Optimistic update
-      updateOptimisticMedias({ type: 'delete', payload: selectedIds });
-      
+      updateOptimisticMedias({ type: "delete", payload: selectedIds });
       try {
-        // Server action'ı çağır
         await deleteMedias(selectedIds);
-        // Başarılı olursa seçimleri temizle
         setSelectedIds([]);
       } catch (error) {
-        // Hata durumunda kullanıcıya bilgi verilebilir
         console.error("Delete failed:", error);
-        // Gerekirse optimistic update'i geri al
       }
     });
   };
@@ -73,39 +69,43 @@ export default function MediaModal({ open, onClose, medias }: MediaModalProps) {
     if (!files || files.length === 0) return;
 
     setIsUploading(true);
-    
+
+    const tempId = `temp-${Date.now()}`;
+
     try {
       const formData = new FormData();
       Array.from(files).forEach((file) => {
-        formData.append('files', file);
+        formData.append("files", file);
       });
 
-      // Optimistic update - temporary ID ile yeni media ekle
+      // Geçici media ekle (ilk dosya preview)
       const tempMedia: Media = {
-        id: `temp-${Date.now()}`,
-        urls: [URL.createObjectURL(files[0])] // Preview için
+        id: tempId,
+        urls: [URL.createObjectURL(files[0])],
       };
-      
-      updateOptimisticMedias({ type: 'add', payload: tempMedia });
 
-      // Server action'ı çağır
+      updateOptimisticMedias({ type: "add", payload: tempMedia });
+
+      // Sunucuya yükle
       const result = await uploadMedia(formData);
-      
-      // Başarılı upload sonrası gerçek data ile güncelle
-      if (result.success) {
-        // Temp media'yı kaldır ve gerçek media'yı ekle
-        updateOptimisticMedias({ type: 'delete', payload: [tempMedia.id] });
-        updateOptimisticMedias({ type: 'add', payload: result.media });
+
+      if (result.success && result.media) {
+        // Temp media'yı gerçek media ile değiştir
+        updateOptimisticMedias({
+          type: "replace",
+          payload: { tempId: tempMedia.id, realMedia: result.media },
+        });
+      } else {
+        console.error("Upload failed:", result.error);
+        // Temp media'yı kaldır
+        updateOptimisticMedias({ type: "delete", payload: [tempMedia.id] });
       }
-      
     } catch (error) {
-      console.error("Upload failed:", error);
-      // Temp media'yı kaldır
-      updateOptimisticMedias({ type: 'delete', payload: [`temp-${Date.now()}`] });
+      console.error("Upload error:", error);
+      updateOptimisticMedias({ type: "delete", payload: [tempId] });
     } finally {
       setIsUploading(false);
-      // Input'u temizle
-      event.target.value = '';
+      event.target.value = ""; // input temizle
     }
   };
 
@@ -116,7 +116,7 @@ export default function MediaModal({ open, onClose, medias }: MediaModalProps) {
           <DialogHeader className="p-6">
             <DialogTitle>Medya Yöneticisi</DialogTitle>
           </DialogHeader>
-          
+
           {/* Sticky kontrol barı */}
           <div className="sticky top-0 bg-white z-10 px-6 pb-4 pt-2 border-b">
             <div className="flex justify-between items-center gap-2">
@@ -128,7 +128,7 @@ export default function MediaModal({ open, onClose, medias }: MediaModalProps) {
                 >
                   {isPending ? "Siliniyor..." : `Sil (${selectedIds.length})`}
                 </Button>
-                
+
                 <div className="relative">
                   <input
                     type="file"
@@ -175,7 +175,7 @@ export default function MediaModal({ open, onClose, medias }: MediaModalProps) {
                     width={300}
                     height={200}
                     className="object-cover w-full h-48"
-                    unoptimized // Eğer external URL'ler kullanıyorsanız
+                    unoptimized
                   />
                 )}
                 {selectedIds.includes(media.id) && (
