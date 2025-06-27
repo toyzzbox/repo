@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import Image from "next/image";
 import clsx from "clsx";
 import { deleteMedias } from "@/actions/deleteMedias";
+import { uploadMedia } from "@/actions/uploadMedia";
 
 interface Media {
   id: string;
@@ -22,12 +23,18 @@ export default function MediaModal({ open, onClose, medias }: MediaModalProps) {
   const [search, setSearch] = useState("");
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [isPending, startTransition] = useTransition();
+  const [isUploading, setIsUploading] = useState(false);
   
   // useOptimistic düzeltmesi
-  const [optimisticMedias, addOptimisticDelete] = useOptimistic(
+  const [optimisticMedias, updateOptimisticMedias] = useOptimistic(
     medias,
-    (state: Media[], deletedIds: string[]) => {
-      return state.filter((m) => !deletedIds.includes(m.id));
+    (state: Media[], action: { type: 'delete' | 'add', payload: any }) => {
+      if (action.type === 'delete') {
+        return state.filter((m) => !action.payload.includes(m.id));
+      } else if (action.type === 'add') {
+        return [...state, action.payload];
+      }
+      return state;
     }
   );
 
@@ -46,7 +53,7 @@ export default function MediaModal({ open, onClose, medias }: MediaModalProps) {
     
     startTransition(async () => {
       // Optimistic update
-      addOptimisticDelete(selectedIds);
+      updateOptimisticMedias({ type: 'delete', payload: selectedIds });
       
       try {
         // Server action'ı çağır
@@ -59,6 +66,47 @@ export default function MediaModal({ open, onClose, medias }: MediaModalProps) {
         // Gerekirse optimistic update'i geri al
       }
     });
+  };
+
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (!files || files.length === 0) return;
+
+    setIsUploading(true);
+    
+    try {
+      const formData = new FormData();
+      Array.from(files).forEach((file) => {
+        formData.append('files', file);
+      });
+
+      // Optimistic update - temporary ID ile yeni media ekle
+      const tempMedia: Media = {
+        id: `temp-${Date.now()}`,
+        urls: [URL.createObjectURL(files[0])] // Preview için
+      };
+      
+      updateOptimisticMedias({ type: 'add', payload: tempMedia });
+
+      // Server action'ı çağır
+      const result = await uploadMedia(formData);
+      
+      // Başarılı upload sonrası gerçek data ile güncelle
+      if (result.success) {
+        // Temp media'yı kaldır ve gerçek media'yı ekle
+        updateOptimisticMedias({ type: 'delete', payload: [tempMedia.id] });
+        updateOptimisticMedias({ type: 'add', payload: result.media });
+      }
+      
+    } catch (error) {
+      console.error("Upload failed:", error);
+      // Temp media'yı kaldır
+      updateOptimisticMedias({ type: 'delete', payload: [`temp-${Date.now()}`] });
+    } finally {
+      setIsUploading(false);
+      // Input'u temizle
+      event.target.value = '';
+    }
   };
 
   return (
@@ -80,6 +128,25 @@ export default function MediaModal({ open, onClose, medias }: MediaModalProps) {
                 >
                   {isPending ? "Siliniyor..." : `Sil (${selectedIds.length})`}
                 </Button>
+                
+                <div className="relative">
+                  <input
+                    type="file"
+                    id="media-upload"
+                    multiple
+                    accept="image/*,video/*"
+                    onChange={handleFileUpload}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                    disabled={isUploading}
+                  />
+                  <Button
+                    variant="default"
+                    disabled={isUploading}
+                    className="relative"
+                  >
+                    {isUploading ? "Yükleniyor..." : "Medya Ekle"}
+                  </Button>
+                </div>
               </div>
               <Input
                 placeholder="Ara..."
