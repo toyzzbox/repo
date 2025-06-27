@@ -1,5 +1,6 @@
 "use client";
-import { useState, useTransition, useOptimistic } from "react";
+
+import { useRef, useState, useTransition, useOptimistic } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,6 +25,7 @@ export default function MediaModal({ open, onClose, medias }: MediaModalProps) {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [isPending, startTransition] = useTransition();
   const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [optimisticMedias, updateOptimisticMedias] = useOptimistic(
     medias,
@@ -33,7 +35,9 @@ export default function MediaModal({ open, onClose, medias }: MediaModalProps) {
       } else if (action.type === "add") {
         return [...state, action.payload];
       } else if (action.type === "replace") {
-        return state.map((m) => (m.id === action.payload.tempId ? action.payload.realMedia : m));
+        return state.map((m) =>
+          m.id === action.payload.tempId ? action.payload.realMedia : m
+        );
       }
       return state;
     }
@@ -63,11 +67,16 @@ export default function MediaModal({ open, onClose, medias }: MediaModalProps) {
     });
   };
 
+  const handleFileButtonClick = () => {
+    fileInputRef.current?.click();
+  };
+
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (!files || files.length === 0) return;
 
     setIsUploading(true);
+
     const tempId = `temp-${Date.now()}`;
 
     try {
@@ -76,40 +85,28 @@ export default function MediaModal({ open, onClose, medias }: MediaModalProps) {
         formData.append("files", file);
       });
 
-      // Geçici media ekle
+      // Geçici önizleme
       const tempMedia: Media = {
         id: tempId,
         urls: [URL.createObjectURL(files[0])],
       };
+      updateOptimisticMedias({ type: "add", payload: tempMedia });
 
-      startTransition(() => {
-        updateOptimisticMedias({ type: "add", payload: tempMedia });
-      });
-
-      // Sunucuya yükle
       const result = await uploadMedia(formData);
       console.log("Upload result:", result);
 
       if (result.success && result.media) {
-        // temp media'yı replace et
-        startTransition(() => {
-          updateOptimisticMedias({
-            type: "replace",
-            payload: { tempId: tempMedia.id, realMedia: result.media[0] }, // media array ise [0]
-          });
+        updateOptimisticMedias({
+          type: "replace",
+          payload: { tempId: tempMedia.id, realMedia: result.media },
         });
       } else {
         console.error("Upload failed:", result.error);
-        // temp media'yı sil
-        startTransition(() => {
-          updateOptimisticMedias({ type: "delete", payload: [tempMedia.id] });
-        });
+        updateOptimisticMedias({ type: "delete", payload: [tempMedia.id] });
       }
     } catch (error) {
       console.error("Upload error:", error);
-      startTransition(() => {
-        updateOptimisticMedias({ type: "delete", payload: [tempId] });
-      });
+      updateOptimisticMedias({ type: "delete", payload: [tempId] });
     } finally {
       setIsUploading(false);
       event.target.value = "";
@@ -124,7 +121,7 @@ export default function MediaModal({ open, onClose, medias }: MediaModalProps) {
             <DialogTitle>Medya Yöneticisi</DialogTitle>
           </DialogHeader>
 
-          {/* Sticky kontrol barı */}
+          {/* Kontrol Bar */}
           <div className="sticky top-0 bg-white z-10 px-6 pb-4 pt-2 border-b">
             <div className="flex justify-between items-center gap-2">
               <div className="flex gap-2">
@@ -136,23 +133,25 @@ export default function MediaModal({ open, onClose, medias }: MediaModalProps) {
                   {isPending ? "Siliniyor..." : `Sil (${selectedIds.length})`}
                 </Button>
 
-                <div className="relative">
-                  <label htmlFor="media-upload">
-                    <Button variant="default" disabled={isUploading}>
-                      {isUploading ? "Yükleniyor..." : "Medya Ekle"}
-                    </Button>
-                  </label>
-                  <input
-                    type="file"
-                    id="media-upload"
-                    multiple
-                    accept="image/*,video/*"
-                    onChange={handleFileUpload}
-                    className="hidden"
-                    disabled={isUploading}
-                  />
-                </div>
+                <Button
+                  variant="default"
+                  disabled={isUploading}
+                  onClick={handleFileButtonClick}
+                >
+                  {isUploading ? "Yükleniyor..." : "Medya Ekle"}
+                </Button>
+
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  multiple
+                  accept="image/*,video/*"
+                  onChange={handleFileUpload}
+                  className="hidden"
+                  disabled={isUploading}
+                />
               </div>
+
               <Input
                 placeholder="Ara..."
                 value={search}
@@ -162,7 +161,7 @@ export default function MediaModal({ open, onClose, medias }: MediaModalProps) {
             </div>
           </div>
 
-          {/* Medya listesi */}
+          {/* Medya Listesi */}
           <div className="grid grid-cols-3 gap-4 p-6">
             {filtered.map((media) => (
               <div
