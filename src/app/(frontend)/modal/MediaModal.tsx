@@ -1,5 +1,4 @@
 "use client";
-
 import { useState, useTransition, useOptimistic } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -23,10 +22,13 @@ export default function MediaModal({ open, onClose, medias }: MediaModalProps) {
   const [search, setSearch] = useState("");
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [isPending, startTransition] = useTransition();
-
-  const [optimisticMedias, setOptimisticMedias] = useOptimistic(
+  
+  // useOptimistic düzeltmesi
+  const [optimisticMedias, addOptimisticDelete] = useOptimistic(
     medias,
-    (state, update: string[]) => state.filter((m) => !update.includes(m.id))
+    (state: Media[], deletedIds: string[]) => {
+      return state.filter((m) => !deletedIds.includes(m.id));
+    }
   );
 
   const filtered = optimisticMedias.filter((m) =>
@@ -39,11 +41,23 @@ export default function MediaModal({ open, onClose, medias }: MediaModalProps) {
     );
   };
 
-  const handleDelete = () => {
-    startTransition(() => {
-      setOptimisticMedias(selectedIds);
-      deleteMedias(selectedIds);
-      setSelectedIds([]);
+  const handleDelete = async () => {
+    if (selectedIds.length === 0) return;
+    
+    startTransition(async () => {
+      // Optimistic update
+      addOptimisticDelete(selectedIds);
+      
+      try {
+        // Server action'ı çağır
+        await deleteMedias(selectedIds);
+        // Başarılı olursa seçimleri temizle
+        setSelectedIds([]);
+      } catch (error) {
+        // Hata durumunda kullanıcıya bilgi verilebilir
+        console.error("Delete failed:", error);
+        // Gerekirse optimistic update'i geri al
+      }
     });
   };
 
@@ -54,7 +68,7 @@ export default function MediaModal({ open, onClose, medias }: MediaModalProps) {
           <DialogHeader className="p-6">
             <DialogTitle>Medya Yöneticisi</DialogTitle>
           </DialogHeader>
-
+          
           {/* Sticky kontrol barı */}
           <div className="sticky top-0 bg-white z-10 px-6 pb-4 pt-2 border-b">
             <div className="flex justify-between items-center gap-2">
@@ -82,7 +96,7 @@ export default function MediaModal({ open, onClose, medias }: MediaModalProps) {
               <div
                 key={media.id}
                 className={clsx(
-                  "border rounded overflow-hidden cursor-pointer relative",
+                  "border rounded overflow-hidden cursor-pointer relative transition-all",
                   selectedIds.includes(media.id) && "ring-4 ring-orange-500"
                 )}
                 onClick={() => toggleSelect(media.id)}
@@ -94,6 +108,7 @@ export default function MediaModal({ open, onClose, medias }: MediaModalProps) {
                     width={300}
                     height={200}
                     className="object-cover w-full h-48"
+                    unoptimized // Eğer external URL'ler kullanıyorsanız
                   />
                 )}
                 {selectedIds.includes(media.id) && (
@@ -104,7 +119,9 @@ export default function MediaModal({ open, onClose, medias }: MediaModalProps) {
               </div>
             ))}
             {filtered.length === 0 && (
-              <div className="col-span-3 text-center text-gray-500">Sonuç bulunamadı.</div>
+              <div className="col-span-3 text-center text-gray-500">
+                Sonuç bulunamadı.
+              </div>
             )}
           </div>
         </div>
