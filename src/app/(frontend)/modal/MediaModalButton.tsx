@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import MediaModal from "./MediaModal";
+import MediaModal from "@/components/MediaModal"; // modal component’ini ayrı tuttuğumuzu varsayıyorum
 
 interface Media {
   id: string;
