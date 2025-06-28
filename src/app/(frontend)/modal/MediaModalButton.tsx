@@ -56,13 +56,16 @@ function SortableMediaItem({ media, index, onRemove }: SortableMediaItemProps) {
     opacity: isDragging ? 0.5 : 1,
   };
 
+  // Drag listeners'ı sadece resim alanına uygula
+  const dragListeners = {
+    ...listeners,
+  };
+
   return (
     <div
       ref={setNodeRef}
       style={style}
-      {...attributes}
-      {...listeners}
-      className={`relative border rounded overflow-hidden cursor-move transition-all hover:scale-105 ${
+      className={`relative border rounded overflow-hidden transition-all hover:scale-105 ${
         isDragging ? 'z-50 rotate-3 shadow-2xl' : 'shadow-md'
       }`}
       style={{
@@ -71,14 +74,21 @@ function SortableMediaItem({ media, index, onRemove }: SortableMediaItemProps) {
         height: '90px'
       }}
     >
-      <Image
-        src={media.urls[0]}
-        alt="Selected media"
-        width={120}
-        height={90}
-        className="object-cover w-full h-full pointer-events-none"
-        unoptimized
-      />
+      {/* Drag area - sadece resim kısmı */}
+      <div
+        {...attributes}
+        {...dragListeners}
+        className="cursor-move w-full h-full"
+      >
+        <Image
+          src={media.urls[0]}
+          alt="Selected media"
+          width={120}
+          height={90}
+          className="object-cover w-full h-full pointer-events-none"
+          unoptimized
+        />
+      </div>
       
       {/* Sıra numarası */}
       <div className="absolute top-1 left-1 bg-blue-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold shadow-md">
@@ -88,11 +98,21 @@ function SortableMediaItem({ media, index, onRemove }: SortableMediaItemProps) {
       {/* Silme butonu */}
       <button
         onClick={(e) => {
+          e.preventDefault();
           e.stopPropagation();
           onRemove(media.id);
         }}
-        className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600 transition-colors shadow-md z-10"
-        style={{ pointerEvents: 'auto' }}
+        onPointerDown={(e) => {
+          e.stopPropagation();
+        }}
+        onMouseDown={(e) => {
+          e.stopPropagation();
+        }}
+        className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600 transition-colors shadow-md z-20 cursor-pointer"
+        style={{ 
+          pointerEvents: 'auto',
+          touchAction: 'none'
+        }}
       >
         ×
       </button>
@@ -134,6 +154,7 @@ export default function MediaModalButton({ medias }: MediaModalButtonProps) {
   };
 
   const removeMedia = (mediaId: string) => {
+    console.log('Removing media:', mediaId); // Debug için
     const updated = selectedMedias.filter(m => m.id !== mediaId);
     setSelectedMedias(updated);
   };
