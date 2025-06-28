@@ -18,11 +18,19 @@ interface MediaModalProps {
   open: boolean;
   onClose: () => void;
   medias: Media[];
+  onSelectedMediasChange?: (selectedMedias: Media[]) => void; // Yeni prop
+  selectedMediaIds?: string[]; // Mevcut seçili medyalar için
 }
 
-export default function MediaModal({ open, onClose, medias }: MediaModalProps) {
+export default function MediaModal({ 
+  open, 
+  onClose, 
+  medias, 
+  onSelectedMediasChange,
+  selectedMediaIds = []
+}: MediaModalProps) {
   const [search, setSearch] = useState("");
-  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [selectedIds, setSelectedIds] = useState<string[]>(selectedMediaIds);
   const [isPending, startTransition] = useTransition();
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -48,9 +56,19 @@ export default function MediaModal({ open, onClose, medias }: MediaModalProps) {
   );
 
   const toggleSelect = (id: string) => {
-    setSelectedIds((prev) =>
-      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
-    );
+    const newSelectedIds = selectedIds.includes(id) 
+      ? selectedIds.filter((i) => i !== id) 
+      : [...selectedIds, id];
+    
+    setSelectedIds(newSelectedIds);
+    
+    // Parent component'e seçili medyaları gönder
+    if (onSelectedMediasChange) {
+      const selectedMedias = optimisticMedias.filter(media => 
+        newSelectedIds.includes(media.id)
+      );
+      onSelectedMediasChange(selectedMedias);
+    }
   };
 
   const handleDelete = async () => {
@@ -61,10 +79,19 @@ export default function MediaModal({ open, onClose, medias }: MediaModalProps) {
       try {
         await deleteMedias(selectedIds);
         setSelectedIds([]);
+        // Silinen medyalar için parent'ı güncelle
+        if (onSelectedMediasChange) {
+          onSelectedMediasChange([]);
+        }
       } catch (error) {
         console.error("Delete failed:", error);
       }
     });
+  };
+
+  const handleConfirmSelection = () => {
+    // Seçimi onayla ve modalı kapat
+    onClose();
   };
 
   const handleFileButtonClick = () => {
@@ -78,7 +105,6 @@ export default function MediaModal({ open, onClose, medias }: MediaModalProps) {
     setIsUploading(true);
     const tempId = `temp-${Date.now()}`;
 
-    // Tüm optimistic update'leri startTransition içine alıyoruz
     startTransition(async () => {
       try {
         const formData = new FormData();
@@ -86,7 +112,6 @@ export default function MediaModal({ open, onClose, medias }: MediaModalProps) {
           formData.append("files", file);
         });
 
-        // Geçici önizleme - startTransition içinde
         const tempMedia: Media = {
           id: tempId,
           urls: [URL.createObjectURL(files[0])],
@@ -154,12 +179,23 @@ export default function MediaModal({ open, onClose, medias }: MediaModalProps) {
                 />
               </div>
 
-              <Input
-                placeholder="Ara..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="w-1/3"
-              />
+              <div className="flex gap-2 items-center">
+                <Input
+                  placeholder="Ara..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  className="w-64"
+                />
+                
+                {selectedIds.length > 0 && (
+                  <Button 
+                    onClick={handleConfirmSelection}
+                    variant="outline"
+                  >
+                    Seçimi Onayla ({selectedIds.length})
+                  </Button>
+                )}
+              </div>
             </div>
           </div>
 
