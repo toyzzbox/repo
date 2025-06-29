@@ -3,6 +3,7 @@
 import { useActionState, useState } from "react";
 import { createProduct } from "./action";
 import RichTextEditor from "@/components/(frontend)/rich-text-editor";
+import MediaModalButton from "@/app/(frontend)/modal/MediaModalButton";
 
 interface Brand {
   id: string;
@@ -37,20 +38,8 @@ export default function ProductForm({
   const [descriptionHtml, setDescriptionHtml] = useState("");
   const [selectedMedias, setSelectedMedias] = useState<Media[]>([]);
 
-  const handleMediaSelect = (media: Media) => {
-    setSelectedMedias((prev) => [...prev, media]);
-  };
-
-  const handleSubmit = (formData: FormData) => {
-    // mediaIds’i formData’ya ekle
-    selectedMedias.forEach((media) => {
-      formData.append("mediaIds", media.id);
-    });
-    formAction(formData);
-  };
-
   return (
-    <form action={handleSubmit} className="space-y-4">
+    <form action={formAction} className="space-y-4">
       <h1 className="text-2xl font-bold">Ürün Ekle</h1>
 
       {/* Ürün Grubu */}
@@ -74,6 +63,7 @@ export default function ProductForm({
             setDescriptionHtml(html);
           }}
         />
+        <input type="hidden" name="description" value={descriptionHtml} />
       </div>
 
       {/* Marka Seçimi */}
@@ -100,7 +90,20 @@ export default function ProductForm({
         </select>
       </div>
 
+      {/* Seçili Medyalar Hidden Input */}
+      {selectedMedias.map((media) => (
+        <input key={media.id} type="hidden" name="mediaIds" value={media.id} />
+      ))}
 
+      {/* Medya Seçimi */}
+      <div>
+        <label className="block mb-2">Ürün Medyaları</label>
+        <MediaModalButton
+          medias={medias}
+          onSelectedMediasChange={setSelectedMedias}
+          selectedMedias={selectedMedias}
+        />
+      </div>
 
       <button
         type="submit"

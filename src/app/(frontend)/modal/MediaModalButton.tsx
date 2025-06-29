@@ -31,8 +31,10 @@ interface Media {
 }
 
 interface MediaModalButtonProps {
-  medias: Media[];
-}
+    medias: Media[];
+    onSelectedMediasChange?: (selectedMedias: Media[]) => void;
+    selectedMedias?: Media[];
+  }
 
 interface SortableMediaItemProps {
   media: Media;
