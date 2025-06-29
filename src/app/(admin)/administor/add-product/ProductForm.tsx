@@ -157,10 +157,13 @@ export default function ProductForm({
       <div>
         <label className="block mb-2">Ürün Medyaları</label>
         <MediaModalButton
-          medias={medias}
-          onSelectedMediasChange={setSelectedMedias}
-          selectedMedias={selectedMedias}
-        />
+  medias={medias}
+  onSelectedMediasChange={(newSelectedMedias) => {
+    console.log('ProductForm: Received selected medias:', newSelectedMedias);
+    setSelectedMedias(newSelectedMedias);
+  }}
+  selectedMedias={selectedMedias}
+/>
       </div>
 
       <button
