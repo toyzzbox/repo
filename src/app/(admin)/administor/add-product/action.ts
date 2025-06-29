@@ -54,6 +54,8 @@ export async function createProduct(prevState: any, formData: FormData) {
     };
     const data = schema.parse(raw);
 
+
+    console.log("mediaIds:", data.mediaIds);
     // 2️⃣ Kategori zincirini genişlet
     const fullCategoryIds = await collectAncestorIds(data.categoryIds as string[]);
 
