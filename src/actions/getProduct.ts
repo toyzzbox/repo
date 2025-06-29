@@ -13,12 +13,13 @@ export async function getProducts(): Promise<Product[]> {
         price: true,
         medias: {
           select: {
+            id: true,       // ✅ id eklendi
             urls: true,
           },
         },
         group: {
           select: {
-            name: true, // ✅ ProductCard için gerekli
+            name: true,
           },
         },
       },
