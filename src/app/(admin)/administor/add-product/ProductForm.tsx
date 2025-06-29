@@ -42,10 +42,68 @@ export default function ProductForm({
     <form action={formAction} className="space-y-4">
       <h1 className="text-2xl font-bold">Ürün Ekle</h1>
 
-      {/* Ürün Grubu */}
+      {/* Ürün Adı */}
+      <div>
+        <label>Ürün Adı</label>
+        <input
+          type="text"
+          name="name"
+          required
+          className="border px-2 py-1 rounded w-full"
+        />
+      </div>
+
+      {/* Seri Numarası */}
+      <div>
+        <label>Seri Numarası (opsiyonel)</label>
+        <input
+          type="text"
+          name="serial"
+          className="border px-2 py-1 rounded w-full"
+        />
+      </div>
+
+      {/* Stok */}
+      <div>
+        <label>Stok</label>
+        <input
+          type="number"
+          name="stock"
+          required
+          min={0}
+          className="border px-2 py-1 rounded w-full"
+        />
+      </div>
+
+      {/* Fiyat */}
+      <div>
+        <label>Fiyat</label>
+        <input
+          type="number"
+          step="0.01"
+          name="price"
+          required
+          className="border px-2 py-1 rounded w-full"
+        />
+      </div>
+
+      {/* İndirim */}
+      <div>
+        <label>İndirim (%)</label>
+        <input
+          type="number"
+          name="discount"
+          min={0}
+          max={100}
+          defaultValue={0}
+          className="border px-2 py-1 rounded w-full"
+        />
+      </div>
+
+      {/* Ürün Grubu (opsiyonel) */}
       <div>
         <label>Ürün Grubu (opsiyonel)</label>
-        <select name="groupId">
+        <select name="groupId" className="border px-2 py-1 rounded w-full">
           <option value="">— Grupsuz Ürün —</option>
           {productGroups.map((group) => (
             <option key={group.id} value={group.id}>
@@ -69,7 +127,7 @@ export default function ProductForm({
       {/* Marka Seçimi */}
       <div>
         <label>Markalar</label>
-        <select name="brandId">
+        <select name="brandIds[]" multiple className="border px-2 py-1 rounded w-full">
           {brands.map((brand) => (
             <option key={brand.id} value={brand.id}>
               {brand.name}
@@ -81,7 +139,7 @@ export default function ProductForm({
       {/* Kategori Seçimi */}
       <div>
         <label>Kategoriler</label>
-        <select name="categoryId">
+        <select name="categoryIds[]" multiple className="border px-2 py-1 rounded w-full">
           {categories.map((category) => (
             <option key={category.id} value={category.id}>
               {category.name}
@@ -92,7 +150,7 @@ export default function ProductForm({
 
       {/* Seçili Medyalar Hidden Input */}
       {selectedMedias.map((media) => (
-        <input key={media.id} type="hidden" name="mediaIds" value={media.id} />
+        <input key={media.id} type="hidden" name="mediaIds[]" value={media.id} />
       ))}
 
       {/* Medya Seçimi */}
