@@ -31,7 +31,7 @@ export const BrandCard: React.FC<BrandCardProps> = ({ brand }) => {
           width={150}
           height={150}
           alt={brand.name}
-          className="w-full h-16 object-cover rounded-t-lg"
+          className="w-full h-16 object-contain rounded-t-lg"
         />
       ) : (
         <div className="w-full h-48 bg-gray-300 rounded-t-lg flex items-center justify-center text-white">

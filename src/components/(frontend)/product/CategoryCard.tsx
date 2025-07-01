@@ -32,7 +32,7 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({ category }) => {
           width={400}
           height={300}
           alt={category.name}
-          className="w-full h-48 object-cover rounded-t-lg"
+          className="w-full h-48 object-contain rounded-t-lg"
         />
       ) : (
         <div className="w-full h-48 bg-gray-300 rounded-t-lg flex items-center justify-center text-white">
