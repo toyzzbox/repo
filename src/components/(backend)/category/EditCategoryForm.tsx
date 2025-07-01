@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import RichTextEditor from "@/app/(admin)/administor/ui/RichTextEditor";
 import { updateCategory } from "@/actions/updateCategory";
+import MediaModal from "@/app/(frontend)/modal/MediaModal";
 
 interface Media {
   id: string;
@@ -43,6 +44,8 @@ export default function EditCategoryForm({
   const [mediaIds, setMediaIds] = useState<string[]>(category.mediaIds || []);
   const [parentId, setParentId] = useState<string | undefined>(category.parentId);
 
+  const [isMediaModalOpen, setIsMediaModalOpen] = useState(false);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -63,6 +66,10 @@ export default function EditCategoryForm({
         setError(res.error);
       }
     });
+  };
+
+  const handleMediaChange = (selectedMedias: Media[]) => {
+    setMediaIds(selectedMedias.map((m) => m.id));
   };
 
   return (
@@ -109,20 +116,28 @@ export default function EditCategoryForm({
       </select>
 
       <label className="font-medium">Medya</label>
-      <select
-        multiple
-        value={mediaIds}
-        onChange={(e) =>
-          setMediaIds(Array.from(e.target.selectedOptions, (opt) => opt.value))
-        }
-        className="py-2 px-3 border rounded"
-      >
-        {medias.map((media) => (
-          <option key={media.id} value={media.id}>
-            {media.urls[0]?.split("/").pop()?.slice(0, 40) || "Medya"}
-          </option>
-        ))}
-      </select>
+      <div className="flex flex-col gap-2">
+        <button
+          type="button"
+          onClick={() => setIsMediaModalOpen(true)}
+          className="bg-gray-200 py-2 px-4 rounded hover:bg-gray-300 transition text-left"
+        >
+          Medya Seç ({mediaIds.length})
+        </button>
+
+        <div className="flex flex-wrap gap-2">
+          {medias
+            .filter((m) => mediaIds.includes(m.id))
+            .map((media) => (
+              <img
+                key={media.id}
+                src={media.urls[0]}
+                alt="selected"
+                className="w-16 h-16 object-cover rounded"
+              />
+            ))}
+        </div>
+      </div>
 
       <button
         disabled={isPending}
@@ -132,6 +147,15 @@ export default function EditCategoryForm({
       </button>
 
       {error && <p className="text-red-500">{error}</p>}
+
+      {/* 🔥 Media Modal */}
+      <MediaModal
+        open={isMediaModalOpen}
+        onClose={() => setIsMediaModalOpen(false)}
+        medias={medias}
+        selectedMediaIds={mediaIds}
+        onSelectedMediasChange={handleMediaChange}
+      />
     </form>
   );
 }
