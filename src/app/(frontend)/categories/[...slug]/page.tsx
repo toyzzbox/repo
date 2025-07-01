@@ -127,13 +127,13 @@ export default async function CategoryPage({
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-2xl font-semibold mb-6">{category.name}</h1>
-<div className="flex">
-<SortSelect />
-      <MobileFilterButton
-      subcategories={subcategories}
-      brands={brands}
-      attributeGroups={attributeGroups}
-    />
+      <div className="grid grid-cols-2 gap-2 mb-6">
+  <SortSelect />
+  <MobileFilterButton
+    subcategories={subcategories}
+    brands={brands}
+    attributeGroups={attributeGroups}
+  />
 </div>
   
 

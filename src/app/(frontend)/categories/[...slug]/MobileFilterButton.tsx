@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -9,6 +8,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+
+import { Filter } from "lucide-react"; // Filtre ikonu
 
 import CategoryFilters from "@/components/(frontend)/category/CategoryFilters";
 
@@ -27,7 +28,11 @@ export default function MobileFilterButton({
     <div className="lg:hidden sticky top-0 z-20 bg-white border-b">
       <Dialog>
         <DialogTrigger asChild>
-          <Button variant="outline" className="w-full rounded-none py-4">
+          <Button
+            variant="outline"
+            className="w-full rounded-none py-4 flex items-center justify-center gap-2"
+          >
+            <Filter className="w-5 h-5" />
             Filtrele
           </Button>
         </DialogTrigger>
@@ -42,13 +47,6 @@ export default function MobileFilterButton({
             brands={brands}
             attributeGroups={attributeGroups}
           />
-
-          {/* İsteğe bağlı: Kapat butonu */}
-          {/* 
-          <Button onClick={() => setIsOpen(false)} className="w-full mt-4">
-            Kapat
-          </Button>
-          */}
         </DialogContent>
       </Dialog>
     </div>

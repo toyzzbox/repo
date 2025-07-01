@@ -1,5 +1,6 @@
 "use client";
 
+import { SortAsc } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 export default function SortSelect() {
@@ -14,8 +15,9 @@ export default function SortSelect() {
   };
 
   return (
-    <div className="mb-6">
-      <label className="mr-2 font-medium">Sırala:</label>
+    <div className="mb-6 flex items-center gap-2">
+      <SortAsc className="w-5 h-5 text-gray-500" />
+      <label className="font-medium">Sırala:</label>
       <select
         value={current}
         onChange={handleChange}
