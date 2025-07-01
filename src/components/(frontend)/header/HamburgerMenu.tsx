@@ -12,6 +12,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Heart,
+  LocationEdit,
   Menu,
   User,
 } from "lucide-react";
@@ -94,13 +95,14 @@ export default function HamburgerMenu() {
               onClick={() => setActiveMenu("ciltBakimi")}
             >
               <span>Hediyelik</span>
-              <div
+            
+              <ChevronRight size={20} />
+            </div>
+            <div
               className="border-b p-4 flex justify-between items-center cursor-pointer"
               onClick={() => setActiveMenu("ciltBakimi")}
             >
               <span>Elektronik</span>
-              <ChevronRight size={20} />
-            </div>
               <ChevronRight size={20} />
             </div>
             <div className="border-b p-4">Markalar</div>
@@ -109,6 +111,27 @@ export default function HamburgerMenu() {
             </div>
           </div>
         )}
+
+<div className="border-b p-4">Diğerleri</div>
+
+<div
+  className="border-b p-4 flex items-center cursor-pointer"
+  onClick={() => router.push("/giris")}
+>
+  <span className="mr-2"><LocationEdit /></span> Mağazalar
+</div>
+<div
+  className="border-b p-4 flex items-center cursor-pointer"
+  onClick={() => router.push("/giris")}
+>
+  <span className="mr-2"><LocationEdit /></span> Yardım
+</div>
+<div
+  className="border-b p-4 flex items-center cursor-pointer"
+  onClick={() => router.push("/giris")}
+>
+  <span className="mr-2"><LocationEdit /></span> İletişim
+</div>
 
         {/* 2. Seviye Menü - Cilt Bakımı */}
         {activeMenu === "ciltBakimi" && (
