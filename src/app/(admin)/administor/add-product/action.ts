@@ -4,26 +4,31 @@ import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 import slugify from "slugify";
 
-/** Yardımcı: Seçilen kategorilerin tüm ata-kimliklerini döndürür */
+/**
+ * Yardımcı: Seçilen kategorilerin tüm ata-kimliklerini döndürür
+ */
 async function collectAncestorIds(initialIds: string[]): Promise<string[]> {
   const allIds = new Set<string>(initialIds);
-  const stack = [...initialIds];           // DFS / BFS için kuyruk
+  const stack = [...initialIds]; // DFS / BFS için kuyruk
 
   while (stack.length > 0) {
     const id = stack.pop()!;
-    const { parentId } = await prisma.category.findUnique({
+    const { parentId } = (await prisma.category.findUnique({
       where: { id },
       select: { parentId: true },
-    }) ?? {};
+    })) ?? {};
 
     if (parentId && !allIds.has(parentId)) {
       allIds.add(parentId);
-      stack.push(parentId);                // bir üst basamağı da ara
+      stack.push(parentId); // bir üst basamağı da ara
     }
   }
-  return [...allIds];                      // dizi olarak dön
+  return [...allIds]; // dizi olarak dön
 }
 
+/**
+ * Zod doğrulama şeması
+ */
 const schema = z.object({
   groupId: z.string().optional(),
   name: z.string().min(1),
@@ -37,6 +42,9 @@ const schema = z.object({
   description: z.string().optional(),
 });
 
+/**
+ * Ürün oluşturma fonksiyonu
+ */
 export async function createProduct(prevState: any, formData: FormData) {
   try {
     // 1️⃣ Form verisini oku & doğrula
@@ -54,8 +62,8 @@ export async function createProduct(prevState: any, formData: FormData) {
     };
     const data = schema.parse(raw);
 
-
     console.log("mediaIds:", data.mediaIds);
+
     // 2️⃣ Kategori zincirini genişlet
     const fullCategoryIds = await collectAncestorIds(data.categoryIds as string[]);
 
@@ -65,8 +73,8 @@ export async function createProduct(prevState: any, formData: FormData) {
       strict: true,
     });
 
-    // 4️⃣ Ürünü kaydet
-    await prisma.product.create({
+    // 4️⃣ Ürünü kaydet (medyaların eklenip eklenmediğini kontrol için include ekledim)
+    const createdProduct = await prisma.product.create({
       data: {
         name: data.name,
         slug,
@@ -86,7 +94,17 @@ export async function createProduct(prevState: any, formData: FormData) {
           ? { connect: fullCategoryIds.map((id) => ({ id })) }
           : undefined,
       },
+      include: {
+        medias: true, // ürünle birlikte medias ilişkisini de getir
+      },
     });
+
+    // 5️⃣ Medya eklenip eklenmediğini kontrol et
+    if (createdProduct.medias && createdProduct.medias.length > 0) {
+      console.log("✅ Resimler başarıyla ürüne kaydedildi");
+    } else {
+      console.log("❌ Resimler kaydedilmedi");
+    }
 
     return null; // başarı
   } catch (err) {
