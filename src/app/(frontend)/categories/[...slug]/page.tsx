@@ -5,6 +5,7 @@ import Link from "next/link";
 import SortSelect from "@/components/(frontend)/category/SortSelect";
 import CategoryFilters from "@/components/(frontend)/category/CategoryFilters";
 import { ProductCard } from "@/components/(frontend)/product/ProductCard";
+import MobileFilterButton from "./MobileFilterButton";
 
 /* ----------- tip & yardımcı ----------- */
 type DeepCategory = Prisma.CategoryGetPayload<{
@@ -128,6 +129,11 @@ export default async function CategoryPage({
       <h1 className="text-2xl font-semibold mb-6">{category.name}</h1>
 
       <SortSelect />
+      <MobileFilterButton
+      subcategories={subcategories}
+      brands={brands}
+      attributeGroups={attributeGroups}
+    />
 
       <div className="grid lg:grid-cols-[260px_1fr] gap-8">
         {/* SOL: Filtre paneli */}
