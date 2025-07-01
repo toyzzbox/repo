@@ -127,22 +127,25 @@ export default async function CategoryPage({
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-2xl font-semibold mb-6">{category.name}</h1>
-
-      <SortSelect />
+<div>
+<SortSelect />
       <MobileFilterButton
       subcategories={subcategories}
       brands={brands}
       attributeGroups={attributeGroups}
     />
+</div>
+  
 
       <div className="grid lg:grid-cols-[260px_1fr] gap-8">
         {/* SOL: Filtre paneli */}
-        <CategoryFilters
-          subcategories={subcategories}
-          brands={brands}
-          attributeGroups={attributeGroups}
-        />
-
+        <div className="hidden lg:block">
+  <CategoryFilters
+    subcategories={subcategories}
+    brands={brands}
+    attributeGroups={attributeGroups}
+  />
+</div>
         {/* SAĞ: Ürün listesi */}
         {products.length ? (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
