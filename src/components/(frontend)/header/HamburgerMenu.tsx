@@ -36,7 +36,6 @@ export default function HamburgerMenu() {
           <div>
             <div className="flex justify-between items-center p-4 border-b font-bold text-lg">
               <span>TOYZZ BOX</span>
-              <button onClick={() => console.log("Kapat")}>✕</button>
             </div>
 
             <div className="border-b p-4">Hesabım</div>
@@ -67,6 +66,20 @@ export default function HamburgerMenu() {
               onClick={() => setActiveMenu("ciltBakimi")}
             >
               <span>Oyuncaklar</span>
+              <ChevronRight size={20} />
+            </div>
+            <div
+              className="border-b p-4 flex justify-between items-center cursor-pointer"
+              onClick={() => setActiveMenu("ciltBakimi")}
+            >
+              <span>Anne & Bebek</span>
+              <ChevronRight size={20} />
+            </div>
+            <div
+              className="border-b p-4 flex justify-between items-center cursor-pointer"
+              onClick={() => setActiveMenu("ciltBakimi")}
+            >
+              <span>Spor & Outdoor</span>
               <ChevronRight size={20} />
             </div>
 
