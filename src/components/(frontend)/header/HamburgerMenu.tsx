@@ -1,127 +1,93 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
-import { Menu, ChevronDown, ChevronRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
+import { useRouter } from "next/navigation";
 import {
   Sheet,
   SheetContent,
   SheetTrigger,
   SheetTitle,
 } from "@/components/ui/sheet";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
-/* ----------- Types ----------- */
+export default function HamburgerMenu() {
+  const [activeMenu, setActiveMenu] = useState<"main" | "ciltBakimi">("main");
+  const router = useRouter();
 
-type Category = {
-  title: string;
-  href?: string;
-  subCategories?: Category[]; // recursive yapı
-};
-
-/* ----------- Sample Data ----------- */
-
-const menuItems: Category[] = [
-  {
-    title: "Oyuncaklar",
-    subCategories: [
-      {
-        title: "Oyuncak Arabalar",
-        subCategories: [
-          { title: "Kumandalı Arabalar", href: "/oyuncaklar/arabalar/kumandali" },
-          { title: "Model Arabalar", href: "/oyuncaklar/arabalar/model" },
-        ],
-      },
-      { title: "Peluşlar", href: "/oyuncaklar/pelus" },
-    ],
-  },
-  {
-    title: "Anne & Bebek",
-    subCategories: [
-      { title: "Bebek Arabaları", href: "/anne-bebek/bebek-arabalari" },
-      { title: "Bebek Bakımı", href: "/anne-bebek/bebek-bakimi" },
-    ],
-  },
-];
-
-/* ----------- Recursive CategoryItem Component ----------- */
-
-const CategoryItem = ({ category }: { category: Category }) => {
-  const [isOpen, setIsOpen] = useState(false);
-
-  const hasSubCategories = category.subCategories && category.subCategories.length > 0;
-
-  return (
-    <Collapsible open={isOpen} onOpenChange={setIsOpen} className="w-full mb-2">
-      <div className="flex items-center justify-between p-2 hover:bg-gray-100 rounded-md">
-        {category.href ? (
-          <Link href={category.href} className="font-medium block w-full">
-            {category.title}
-          </Link>
-        ) : (
-          <span className="font-medium">{category.title}</span>
-        )}
-
-        {hasSubCategories && (
-          <CollapsibleTrigger asChild>
-            <Button variant="ghost" size="sm" className="w-10 h-10 p-0">
-              {isOpen ? <ChevronDown size={20} /> : <ChevronRight size={16} />}
-            </Button>
-          </CollapsibleTrigger>
-        )}
-      </div>
-
-      {hasSubCategories && (
-        <CollapsibleContent>
-          <div className="pl-4 py-2 space-y-1">
-            {category.subCategories!.map((sub, idx) => (
-              <CategoryItem key={idx} category={sub} />
-            ))}
-          </div>
-        </CollapsibleContent>
-      )}
-    </Collapsible>
-  );
-};
-
-/* ----------- MobileSidebar Component ----------- */
-
-const MobileSidebar = () => {
   return (
     <Sheet>
-      <SheetTrigger asChild>
-        <Button variant="ghost" size="lg" className="md:hidden">
-          <Menu className="text-2xl" />
-          <span className="sr-only">Menüyü Aç</span>
-        </Button>
-      </SheetTrigger>
+      <SheetTrigger className="p-2 border">Menüyü Aç</SheetTrigger>
 
-      <SheetContent side="left" className="w-[80%] max-w-xs">
-        <SheetTitle className="text-xl font-bold px-4 pb-4">Toyzzbox</SheetTitle>
+      <SheetContent side="left" className="p-0 w-[320px]">
+        {activeMenu === "main" && (
+          <div>
+            <div className="flex justify-between items-center p-4 border-b font-bold text-lg">
+              <span>SEPHORA</span>
+              <button onClick={() => console.log("Kapat")}>✕</button>
+            </div>
 
-        <div className="py-6">
-          <div className="mt-6 px-2">
-            <Link href="/login">
-              <Button variant="outline" className="w-full">
-                Giriş Yap
-              </Button>
-            </Link>
+            <div className="border-b p-4">Hesabım</div>
+
+            <div
+              className="border-b p-4 flex items-center cursor-pointer"
+              onClick={() => router.push("/giris")}
+            >
+              <span className="mr-2">👤</span> Giriş yap
+            </div>
+
+            <div
+              className="border-b p-4 flex items-center cursor-pointer"
+              onClick={() => router.push("/favoriler")}
+            >
+              <span className="mr-2">🤍</span> Favorilerim
+            </div>
+
+            <div
+              className="border-b p-4 flex items-center cursor-pointer"
+              onClick={() => router.push("/siparis-takibi")}
+            >
+              <span className="mr-2">📦</span> Sipariş takibi
+            </div>
+
+            <div
+              className="border-b p-4 flex justify-between items-center cursor-pointer"
+              onClick={() => setActiveMenu("ciltBakimi")}
+            >
+              <span>Kategoriler</span>
+              <ChevronRight size={20} />
+            </div>
+
+            <div className="border-b p-4">Büyük İndirim</div>
+            <div className="border-b p-4">Güneş Bakım</div>
+            <div className="border-b p-4">En Yeniler</div>
+            <div className="border-b p-4 text-pink-600 font-medium">
+              Sephora Collection
+            </div>
           </div>
+        )}
 
-          <div className="space-y-1 mt-4">
-            {menuItems.map((category, index) => (
-              <CategoryItem key={index} category={category} />
-            ))}
+        {activeMenu === "ciltBakimi" && (
+          <div>
+            <div className="flex items-center p-4 border-b font-bold text-lg">
+              <button onClick={() => setActiveMenu("main")} className="mr-2">
+                <ChevronLeft size={20} />
+              </button>
+              <span>Cilt Bakımı</span>
+            </div>
+
+            <div className="border-b p-4">Tümünü Gör</div>
+            <div className="border-b p-4">Çok Satanlar</div>
+            <div className="border-b p-4">K-Beauty</div>
+            <div className="border-b p-4">Bakım Türü</div>
+            <div className="border-b p-4">Yüz Maskesi</div>
+            <div className="border-b p-4">Tıraş</div>
+            <div className="border-b p-4">Makyaj Temizleyici ve Arındırıcı</div>
+            <div className="border-b p-4">Erkek Yüz Bakımı</div>
+            <div className="border-b p-4">Yüz Bakım Ürünleri</div>
+            <div className="border-b p-4">Endişeye Göre</div>
           </div>
-        </div>
+        )}
       </SheetContent>
     </Sheet>
   );
-};
-
-export default MobileSidebar;
+}
