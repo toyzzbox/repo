@@ -3,6 +3,7 @@
 import { useTransition, useState } from "react";
 import RichTextEditor from "@/app/(admin)/administor/ui/RichTextEditor";
 import { updateProduct } from "@/actions/updateProduct";
+import MediaModalButton from "@/app/(frontend)/modal/MediaModalButton";
 
 interface Brand {
   id: string;
@@ -58,8 +59,12 @@ export default function EditProductForm({
   const [price, setPrice] = useState(product.price);
   const [brandIds, setBrandIds] = useState<string[]>(product.brandIds);
   const [categoryIds, setCategoryIds] = useState<string[]>(product.categoryIds);
-  const [mediaIds, setMediaIds] = useState<string[]>(product.mediaIds);
   const [attributeIds, setAttributeIds] = useState<string[]>(product.attributeIds);
+
+  // Media state artık Media[] olarak tutuluyor
+  const [selectedMedias, setSelectedMedias] = useState<Media[]>(
+    medias.filter((m) => product.mediaIds.includes(m.id))
+  );
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -69,10 +74,13 @@ export default function EditProductForm({
     formData.append("name", name);
     formData.append("description", description);
     formData.append("price", String(price));
-    brandIds.forEach(id => formData.append("brandIds[]", id));
-    categoryIds.forEach(id => formData.append("categoryIds[]", id));
-    mediaIds.forEach(id => formData.append("mediaIds[]", id));
-    attributeIds.forEach(id => formData.append("attributeIds[]", id));
+
+    brandIds.forEach((id) => formData.append("brandIds[]", id));
+    categoryIds.forEach((id) => formData.append("categoryIds[]", id));
+    attributeIds.forEach((id) => formData.append("attributeIds[]", id));
+    selectedMedias.forEach((media) =>
+      formData.append("mediaIds[]", media.id)
+    );
 
     startTransition(async () => {
       const res = await updateProduct(product.id, formData);
@@ -81,7 +89,10 @@ export default function EditProductForm({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-4 max-w-lg mx-auto px-2">
+    <form
+      onSubmit={handleSubmit}
+      className="flex flex-col gap-4 max-w-lg mx-auto px-2"
+    >
       <h1 className="text-xl font-bold mb-4">Ürünü Güncelle</h1>
 
       <input
@@ -138,22 +149,6 @@ export default function EditProductForm({
         ))}
       </select>
 
-      <label className="font-medium">Medya Dosyaları</label>
-      <select
-        multiple
-        value={mediaIds}
-        onChange={(e) =>
-          setMediaIds(Array.from(e.target.selectedOptions, (opt) => opt.value))
-        }
-        className="py-2 px-3 border rounded"
-      >
-        {medias.map((media) => (
-          <option key={media.id} value={media.id}>
-            {media.urls[0]?.slice(-40) || "Media"}
-          </option>
-        ))}
-      </select>
-
       <label className="font-medium">Nitelikler</label>
       <select
         multiple
@@ -161,7 +156,7 @@ export default function EditProductForm({
         onChange={(e) =>
           setAttributeIds(Array.from(e.target.selectedOptions, (opt) => opt.value))
         }
-        className="py-2 px-3 rounded-sm"
+        className="py-2 px-3 rounded-sm border"
       >
         {attributes.map((attr) => (
           <option key={attr.id} value={attr.id}>
@@ -169,6 +164,20 @@ export default function EditProductForm({
           </option>
         ))}
       </select>
+
+      <div>
+        <label className="font-medium block mb-2">Medya Dosyaları</label>
+        <MediaModalButton
+          medias={medias}
+          selectedMedias={selectedMedias}
+          onSelectedMediasChange={setSelectedMedias}
+        />
+      </div>
+
+      {/* Opsiyonel: selectedMedias hidden inputları */}
+      {selectedMedias.map((media) => (
+        <input key={media.id} type="hidden" name="mediaIds[]" value={media.id} />
+      ))}
 
       <button
         disabled={isPending}
