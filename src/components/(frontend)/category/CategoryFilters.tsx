@@ -1,9 +1,19 @@
-'use client';
+"use client";
 
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from "next/navigation";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import {
+  Accordion,
+  AccordionItem,
+  AccordionTrigger,
+  AccordionContent,
+} from "@/components/ui/accordion";
+import { Slider } from "@/components/ui/slider";
 
 interface CategoryFiltersProps {
-  subcategories?: { id: string; name: string }[];
+  subcategories?: { id: string; name: string; _count?: { products: number } }[];
   brands?: { slug: string; name: string }[];
   attributeGroups?: {
     id: string;
@@ -20,103 +30,121 @@ export default function CategoryFilters({
   const router = useRouter();
   const params = useSearchParams();
 
-  /* ---------------- helpers ---------------- */
   const toggleMulti = (key: string, value: string) => {
     const url = new URL(window.location.href);
     const values = new Set(url.searchParams.getAll(key));
     values.has(value) ? values.delete(value) : values.add(value);
     url.searchParams.delete(key);
     values.forEach((v) => url.searchParams.append(key, v));
-    router.push('?' + url.searchParams.toString());
+    router.push("?" + url.searchParams.toString());
   };
 
   const setSingle = (key: string, value: string | null) => {
     const url = new URL(window.location.href);
     value ? url.searchParams.set(key, value) : url.searchParams.delete(key);
-    router.push('?' + url.searchParams.toString());
+    router.push("?" + url.searchParams.toString());
   };
 
-  /* ---------------- UI ---------------- */
   return (
     <aside className="mb-8 space-y-6">
-      {/* ALT KATEGORİLER */}
-      {subcategories.length > 0 && (
-        <section>
-          <h3 className="font-semibold mb-1">Alt Kategoriler</h3>
-          {subcategories.map((c) => (
-            <label key={c.id} className="flex items-center gap-2 text-sm py-[2px]">
-              <input
-                type="checkbox"
-                checked={params.getAll('category').includes(c.id)}
-                onChange={() => toggleMulti('category', c.id)}
-              />
-              {c.name}
-            </label>
-          ))}
-        </section>
-      )}
+      <Accordion type="multiple" defaultValue={["subcategories", "brands", "price", "attributes"]}>
+        {/* ALT KATEGORİLER */}
+        {subcategories.length > 0 && (
+          <AccordionItem value="subcategories">
+            <AccordionTrigger>Alt Kategoriler</AccordionTrigger>
+            <AccordionContent>
+              {subcategories.map((c) => (
+                <div key={c.id} className="flex items-center gap-2 mb-1">
+                  <Checkbox
+                    checked={params.getAll("category").includes(c.id)}
+                    onCheckedChange={() => toggleMulti("category", c.id)}
+                    id={`category-${c.id}`}
+                  />
+                  <label htmlFor={`category-${c.id}`} className="text-sm">
+                    {c.name}
+                    {c._count?.products ? ` (${c._count.products})` : ""}
+                  </label>
+                </div>
+              ))}
+            </AccordionContent>
+          </AccordionItem>
+        )}
 
-      {/* MARKALAR */}
-      {brands.length > 0 && (
-        <section>
-          <h3 className="font-semibold mb-1">Markalar</h3>
-          {brands.map((b) => (
-            <label key={b.slug} className="flex items-center gap-2 text-sm py-[2px]">
-              <input
-                type="checkbox"
-                checked={params.getAll('brand').includes(b.slug)}
-                onChange={() => toggleMulti('brand', b.slug)}
-              />
-              {b.name}
-            </label>
-          ))}
-        </section>
-      )}
+        {/* MARKALAR */}
+        {brands.length > 0 && (
+          <AccordionItem value="brands">
+            <AccordionTrigger>Markalar</AccordionTrigger>
+            <AccordionContent>
+              {brands.map((b) => (
+                <div key={b.slug} className="flex items-center gap-2 mb-1">
+                  <Checkbox
+                    checked={params.getAll("brand").includes(b.slug)}
+                    onCheckedChange={() => toggleMulti("brand", b.slug)}
+                    id={`brand-${b.slug}`}
+                  />
+                  <label htmlFor={`brand-${b.slug}`} className="text-sm">
+                    {b.name}
+                  </label>
+                </div>
+              ))}
+            </AccordionContent>
+          </AccordionItem>
+        )}
 
-      {/* FİYAT ARALIĞI */}
-      <section>
-        <h3 className="font-semibold mb-1">Fiyat Aralığı</h3>
-        <div className="flex gap-2">
-          <input
-            type="number"
-            placeholder="Min"
-            defaultValue={params.get('minPrice') ?? ''}
-            onBlur={(e) =>
-              setSingle('minPrice', e.target.value ? e.target.value : null)
-            }
-            className="w-20 border px-2 py-1 rounded text-sm"
-          />
-          <span className="px-1">-</span>
-          <input
-            type="number"
-            placeholder="Max"
-            defaultValue={params.get('maxPrice') ?? ''}
-            onBlur={(e) =>
-              setSingle('maxPrice', e.target.value ? e.target.value : null)
-            }
-            className="w-20 border px-2 py-1 rounded text-sm"
-          />
-        </div>
-      </section>
+        {/* FİYAT ARALIĞI SLIDER */}
+        <AccordionItem value="price">
+          <AccordionTrigger>Fiyat Aralığı</AccordionTrigger>
+          <AccordionContent>
+            <Slider
+              defaultValue={[
+                Number(params.get("minPrice") ?? 0),
+                Number(params.get("maxPrice") ?? 10000),
+              ]}
+              min={0}
+              max={10000}
+              step={10}
+              onValueCommit={(values) => {
+                setSingle("minPrice", String(values[0]));
+                setSingle("maxPrice", String(values[1]));
+              }}
+            />
+            <div className="flex justify-between text-sm mt-2">
+              <span>{params.get("minPrice") ?? 0} TL</span>
+              <span>{params.get("maxPrice") ?? 10000} TL</span>
+            </div>
+          </AccordionContent>
+        </AccordionItem>
 
-      {/* ATTRIBUTE GRUPLARI */}
-      {attributeGroups.length > 0 && (
-        attributeGroups.map((g) => (
-          <section key={g.id}>
-            <h3 className="font-semibold mb-1">{g.name}</h3>
-            {g.attributes.map((a) => (
-              <label key={a.id} className="flex items-center gap-2 text-sm py-[2px]">
-                <input
-                  type="checkbox"
-                  checked={params.getAll('attribute').includes(a.id)}
-                  onChange={() => toggleMulti('attribute', a.id)}
-                />
-                {a.name}
-              </label>
-            ))}
-          </section>
-        ))
-      )}
+        {/* ATTRIBUTE GRUPLARI */}
+        {attributeGroups.length > 0 && (
+          attributeGroups.map((g) => (
+            <AccordionItem value={`attr-${g.id}`} key={g.id}>
+              <AccordionTrigger>{g.name}</AccordionTrigger>
+              <AccordionContent>
+                {g.attributes.map((a) => (
+                  <div key={a.id} className="flex items-center gap-2 mb-1">
+                    <Checkbox
+                      checked={params.getAll("attribute").includes(a.id)}
+                      onCheckedChange={() => toggleMulti("attribute", a.id)}
+                      id={`attr-${a.id}`}
+                    />
+                    <label htmlFor={`attr-${a.id}`} className="text-sm">
+                      {a.name}
+                    </label>
+                  </div>
+                ))}
+              </AccordionContent>
+            </AccordionItem>
+          ))
+        )}
+      </Accordion>
+
+      <Separator />
+
+      {/* RESET BUTONU */}
+      <Button variant="outline" onClick={() => router.push(window.location.pathname)} className="w-full">
+        Filtreleri Temizle
+      </Button>
     </aside>
   );
 }
