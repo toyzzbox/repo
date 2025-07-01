@@ -168,7 +168,7 @@ const DesktopProductDetails: React.FC<ProductDetailsProps> = ({
                 <div key={variant.id} className="text-center">
                   <button
                     type="button"
-                    onClick={() => router.push(`/products/${variant.slug}`)}
+                    onClick={() => router.push(`/product/${variant.slug}`)}
                     className={`border rounded px-3 py-2 flex flex-col items-center gap-1 w-24 ${
                       activeVariant.id === variant.id
                         ? "border-orange-500 bg-orange-100"
