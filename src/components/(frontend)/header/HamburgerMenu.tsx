@@ -8,7 +8,8 @@ import {
   SheetTrigger,
   SheetTitle,
 } from "@/components/ui/sheet";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Menu } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export default function HamburgerMenu() {
   const [activeMenu, setActiveMenu] = useState<"main" | "ciltBakimi">("main");
@@ -16,9 +17,15 @@ export default function HamburgerMenu() {
 
   return (
     <Sheet>
-      <SheetTrigger className="p-2 border">Menüyü Aç</SheetTrigger>
+  <SheetTrigger asChild>
+        <Button variant="ghost" size="lg" className="md:hidden">
+          <Menu className="text-2xl" />
+          <span className="sr-only">Menüyü Aç</span>
+        </Button>
+      </SheetTrigger>
 
-      <SheetContent side="left" className="p-0 w-[320px]">
+
+      <SheetContent side="left" className="w-[80%] max-w-xs">
         {activeMenu === "main" && (
           <div>
             <div className="flex justify-between items-center p-4 border-b font-bold text-lg">
@@ -91,3 +98,5 @@ export default function HamburgerMenu() {
     </Sheet>
   );
 }
+
+
