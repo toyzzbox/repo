@@ -1,8 +1,8 @@
 "use server";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
-import { randomUUID } from "crypto";
 import { prisma } from "@/lib/prisma";
 import { MediaType } from "@prisma/client";
+import slugify from "slugify";
 
 const s3 = new S3Client({
   region: process.env.NEXT_AWS_S3_REGION!,
@@ -26,9 +26,24 @@ export async function uploadMedia(formData: FormData) {
 
     for (const file of files) {
       const fileExtension = file.name.split(".").pop() || "bin";
-      const key = `uploads/${randomUUID()}.${fileExtension}`;
+
+      // ✅ Orijinal dosya adını slugify et (Türkçe karakterler dahil temizler)
+      const baseName = file.name.replace(`.${fileExtension}`, "");
+      const safeName = slugify(baseName, { lower: true, strict: true });
+
+      // ✅ Timestamp ekle (overwrite riskini sıfırlar)
+      const timestamp = Date.now();
+
+      // ✅ Final dosya ismi: anlamlı + timestamp + uzantı
+      const finalFileName = `${safeName}-${timestamp}.${fileExtension}`;
+
+      // ✅ S3 key
+      const key = `uploads/${finalFileName}`;
+
+      // ✅ File buffer
       const buffer = await file.arrayBuffer();
 
+      // ✅ Upload to S3
       const command = new PutObjectCommand({
         Bucket: BUCKET,
         Key: key,
@@ -38,8 +53,10 @@ export async function uploadMedia(formData: FormData) {
 
       await s3.send(command);
 
+      // ✅ Public URL
       const publicUrl = `https://${BUCKET}.s3.${REGION}.amazonaws.com/${key}`;
 
+      // ✅ Kaydı DB'ye yaz
       const media = await prisma.media.create({
         data: {
           urls: [publicUrl],
