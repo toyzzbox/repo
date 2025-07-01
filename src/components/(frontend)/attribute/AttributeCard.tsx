@@ -39,12 +39,7 @@ export const AttributeCard: React.FC<AttributeCardProps> = ({ attribute }) => {
           No Image Available
         </div>
       )}
-  <h3
-  className="truncate max-w-[250px] mx-auto text-lg font-semibold transition group-hover:text-primary"
-  title={attribute.name}
->
-  {attribute.name}
-</h3>
+
     
     </div>
   );
