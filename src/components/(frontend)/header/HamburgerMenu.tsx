@@ -31,7 +31,7 @@ export default function HamburgerMenu() {
         </Button>
       </SheetTrigger>
 
-      <SheetContent side="left" className="w-[80%] max-w-xs">
+      <SheetContent side="left" className="w-[80%] max-w-xs h-screen overflow-y-auto">
         {/* Ana Menü */}
         {activeMenu === "main" && (
           <div>
