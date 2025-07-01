@@ -82,12 +82,16 @@ export default function HamburgerMenu() {
               <span>Spor & Outdoor</span>
               <ChevronRight size={20} />
             </div>
-
-            <div className="border-b p-4">Büyük İndirim</div>
-            <div className="border-b p-4">Güneş Bakım</div>
-            <div className="border-b p-4">En Yeniler</div>
+            <div
+              className="border-b p-4 flex justify-between items-center cursor-pointer"
+              onClick={() => setActiveMenu("ciltBakimi")}
+            >
+              <span>Okul & Kırtasiye</span>
+              <ChevronRight size={20} />
+            </div>
+            <div className="border-b p-4">Markalar</div>
             <div className="border-b p-4 text-pink-600 font-medium">
-              Sephora Collection
+            Fırsatlar
             </div>
           </div>
         )}
@@ -103,13 +107,13 @@ export default function HamburgerMenu() {
             </div>
 
             <div className="border-b p-4">Tümünü Gör</div>
-            <div className="border-b p-4">Çok Satanlar</div>
-            <div className="border-b p-4">K-Beauty</div>
-            <div className="border-b p-4">Bakım Türü</div>
-            <div className="border-b p-4">Yüz Maskesi</div>
-            <div className="border-b p-4">Tıraş</div>
-            <div className="border-b p-4">Makyaj Temizleyici ve Arındırıcı</div>
-            <div className="border-b p-4">Erkek Yüz Bakımı</div>
+            <div
+              className="border-b p-4 flex justify-between items-center cursor-pointer"
+              onClick={() => setActiveMenu("yuzBakimUrunleri")}
+            >
+              <span>Yüz Bakım Ürünleri</span>
+              <ChevronRight size={20} />
+            </div>
 
             <div
               className="border-b p-4 flex justify-between items-center cursor-pointer"
@@ -118,6 +122,14 @@ export default function HamburgerMenu() {
               <span>Yüz Bakım Ürünleri</span>
               <ChevronRight size={20} />
             </div>
+            <div
+              className="border-b p-4 flex justify-between items-center cursor-pointer"
+              onClick={() => setActiveMenu("yuzBakimUrunleri")}
+            >
+              <span>Yüz Bakım Ürünleri</span>
+              <ChevronRight size={20} />
+            </div>
+
 
             <div className="border-b p-4">Endişeye Göre</div>
           </div>
