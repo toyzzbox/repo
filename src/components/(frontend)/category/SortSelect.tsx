@@ -1,6 +1,7 @@
 "use client";
 
-import { SortAsc } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { ArrowUpDown } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 export default function SortSelect() {
@@ -15,13 +16,19 @@ export default function SortSelect() {
   };
 
   return (
-    <div className="mb-6 flex items-center gap-2">
-      <SortAsc className="w-5 h-5 text-gray-500" />
-      <label className="font-medium">Sırala:</label>
+    <Button
+      variant="outline"
+      className="w-full rounded-none py-4 flex items-center justify-center gap-2"
+    >
+      <ArrowUpDown className="w-5 h-5" />
+      <label htmlFor="sort" className="font-medium">
+        Sırala
+      </label>
       <select
+        id="sort"
         value={current}
         onChange={handleChange}
-        className="border border-gray-300 rounded p-2"
+        className="bg-transparent outline-none"
       >
         <option value="newest">En Yeni</option>
         <option value="price_asc">Fiyat: Artan</option>
@@ -29,6 +36,6 @@ export default function SortSelect() {
         <option value="name_asc">İsim: A → Z</option>
         <option value="name_desc">İsim: Z → A</option>
       </select>
-    </div>
+    </Button>
   );
 }
