@@ -13,6 +13,7 @@ import ProductDetailTabsMobile from "./ProductDetailTabsMobile";
 import ProductBreadcrumb from "./ProductBreadcrumb";
 import { toggleFavorite } from "@/app/(admin)/administor/favorites/action";
 import CommentForm from "../comment/CommentForm";
+import { toast } from "sonner";
 
 interface MobileProductDetailsProps {
   product: any;
@@ -66,8 +67,12 @@ export default function MobileProductDetails({
         price: activeVariant.price,
         quantity,
         url: activeVariant.medias?.[0]?.urls?.[0] ?? "",
-      })
+      }),
     );
+    toast.success("Ürün sepete eklendi", {
+      description: `${activeVariant.name} başarıyla sepete eklendi.`,
+    });
+    
   };
 
   const imageUrls =
