@@ -1,11 +1,10 @@
-'use client';
+"use client";
 
 import { useState, useTransition } from "react";
-
 import { Brand } from "@/types/brand";
 import { Media } from "@/types/product";
 import { updateBrand } from "@/actions/updateBrand";
-import MediaSelector from "@/app/(admin)/administor/add-product/MediaSelector";
+import MediaModalButton from "@/app/(frontend)/modal/MediaModalButton";
 
 interface Props {
   brand: Brand & { mediaIds: string[] };
@@ -17,7 +16,10 @@ export default function EditBrandForm({ brand, medias }: Props) {
   const [error, setError] = useState<string | null>(null);
   const [name, setName] = useState(brand.name);
   const [description, setDescription] = useState(brand.description ?? "");
-  const [selectedMediaIds, setSelectedMediaIds] = useState<string[]>(brand.mediaIds || []);
+
+  const [selectedMedias, setSelectedMedias] = useState<Media[]>(
+    medias.filter((m) => brand.mediaIds.includes(m.id))
+  );
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -26,7 +28,9 @@ export default function EditBrandForm({ brand, medias }: Props) {
     const formData = new FormData();
     formData.append("name", name);
     formData.append("description", description);
-    selectedMediaIds.forEach((id) => formData.append("mediaIds[]", id));
+    selectedMedias.forEach((media) =>
+      formData.append("mediaIds[]", media.id)
+    );
 
     startTransition(async () => {
       const result = await updateBrand(brand.id, formData);
@@ -60,11 +64,14 @@ export default function EditBrandForm({ brand, medias }: Props) {
           required
         />
 
-<MediaSelector
-  medias={medias}
-  defaultSelected={selectedMediaIds}
-  onChange={setSelectedMediaIds}
-/>
+        <div>
+          <label className="font-medium block mb-2">Marka Medyaları</label>
+          <MediaModalButton
+            medias={medias}
+            selectedMedias={selectedMedias}
+            onSelectedMediasChange={setSelectedMedias}
+          />
+        </div>
 
         <button
           type="submit"
