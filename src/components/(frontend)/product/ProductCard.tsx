@@ -37,7 +37,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             width={400}
             height={300}
             alt={displayName}
-            className="w-full h-48 object-cover transition-opacity duration-300 group-hover:opacity-90"
+            className="w-full h-48 object-contain transition-opacity duration-300 group-hover:opacity-90"
           />
         </div>
       ) : (
