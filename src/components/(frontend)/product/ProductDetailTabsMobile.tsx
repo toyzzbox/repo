@@ -22,7 +22,7 @@ export default function ProductDetailTabsMobile({
 }: ProductDetailTabsProps) {
   return (
     <div className="block sm:hidden mt-6">
-      <Accordion type="multiple">
+   <Accordion type="multiple" defaultValue={["description"]}>
         <AccordionItem value="description">
           <AccordionTrigger>Açıklama</AccordionTrigger>
           <AccordionContent>
