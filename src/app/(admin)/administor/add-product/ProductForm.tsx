@@ -4,6 +4,16 @@ import { useActionState, useState } from "react";
 import { createProduct } from "./action";
 import RichTextEditor from "@/components/(frontend)/rich-text-editor";
 import MediaModalButton from "@/app/(frontend)/modal/MediaModalButton";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectTrigger,
+  SelectContent,
+  SelectItem,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface Brand {
   id: string;
@@ -42,137 +52,83 @@ export default function ProductForm({
     <form action={formAction} className="space-y-4">
       <h1 className="text-2xl font-bold">Ürün Ekle</h1>
 
-      {/* Ürün Adı */}
-      <div>
-        <label>Ürün Adı</label>
-        <input
-          type="text"
-          name="name"
-          required
-          className="border px-2 py-1 rounded w-full"
-        />
+      <div className="space-y-2">
+        <Label htmlFor="name">Ürün Adı</Label>
+        <Input id="name" name="name" required />
       </div>
 
-      {/* Seri Numarası */}
-      <div>
-        <label>Seri Numarası (opsiyonel)</label>
-        <input
-          type="text"
-          name="serial"
-          className="border px-2 py-1 rounded w-full"
-        />
+      <div className="space-y-2">
+        <Label htmlFor="serial">Seri Numarası (opsiyonel)</Label>
+        <Input id="serial" name="serial" />
       </div>
 
-      {/* Stok */}
-      <div>
-        <label>Stok</label>
-        <input
-          type="number"
-          name="stock"
-          required
-          min={0}
-          className="border px-2 py-1 rounded w-full"
-        />
+      <div className="space-y-2">
+        <Label htmlFor="stock">Stok</Label>
+        <Input id="stock" name="stock" type="number" min={0} required />
       </div>
 
-      {/* Fiyat */}
-      <div>
-        <label>Fiyat</label>
-        <input
-          type="number"
-          step="0.01"
-          name="price"
-          required
-          className="border px-2 py-1 rounded w-full"
-        />
+      <div className="space-y-2">
+        <Label htmlFor="price">Fiyat</Label>
+        <Input id="price" name="price" type="number" step="0.01" required />
       </div>
 
-      {/* İndirim */}
-      <div>
-        <label>İndirim (%)</label>
-        <input
-          type="number"
+      <div className="space-y-2">
+        <Label htmlFor="discount">İndirim (%)</Label>
+        <Input
+          id="discount"
           name="discount"
+          type="number"
           min={0}
           max={100}
           defaultValue={0}
-          className="border px-2 py-1 rounded w-full"
         />
       </div>
 
-      {/* Ürün Grubu (opsiyonel) */}
-      <div>
-        <label>Ürün Grubu (opsiyonel)</label>
-        <select name="groupId" className="border px-2 py-1 rounded w-full">
-          <option value="">— Grupsuz Ürün —</option>
-          {productGroups.map((group) => (
-            <option key={group.id} value={group.id}>
-              {group.name}
-            </option>
-          ))}
-        </select>
+      <div className="space-y-2">
+        <Label>Ürün Grubu (opsiyonel)</Label>
+        <Select name="groupId">
+          <SelectTrigger>
+            <SelectValue placeholder="— Grupsuz Ürün —" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="">— Grupsuz Ürün —</SelectItem>
+            {productGroups.map((group) => (
+              <SelectItem key={group.id} value={group.id}>
+                {group.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
-      {/* Açıklama */}
-      <div>
-        <label>Açıklama</label>
-        <RichTextEditor
-          onChange={(html) => {
-            setDescriptionHtml(html);
-          }}
-        />
+      <div className="space-y-2">
+        <Label>Açıklama</Label>
+        <RichTextEditor onChange={setDescriptionHtml} />
         <input type="hidden" name="description" value={descriptionHtml} />
       </div>
 
-      {/* Marka Seçimi */}
-      <div>
-        <label>Markalar</label>
-        <select name="brandIds[]" multiple className="border px-2 py-1 rounded w-full">
-          {brands.map((brand) => (
-            <option key={brand.id} value={brand.id}>
-              {brand.name}
-            </option>
-          ))}
-        </select>
-      </div>
+      {/* Marka ve Kategori multiple select için react-select tavsiye edilir. */}
 
-      {/* Kategori Seçimi */}
-      <div>
-        <label>Kategoriler</label>
-        <select name="categoryIds[]" multiple className="border px-2 py-1 rounded w-full">
-          {categories.map((category) => (
-            <option key={category.id} value={category.id}>
-              {category.name}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      {/* Seçili Medyalar Hidden Input */}
-      {selectedMedias.map((media) => (
-        <input key={media.id} type="hidden" name="mediaIds[]" value={media.id} />
-      ))}
-
-      {/* Medya Seçimi */}
-      <div>
-        <label className="block mb-2">Ürün Medyaları</label>
+      <div className="space-y-2">
+        <Label>Ürün Medyaları</Label>
         <MediaModalButton
-  medias={medias}
-  onSelectedMediasChange={(newSelectedMedias) => {
-    console.log('ProductForm: Received selected medias:', newSelectedMedias);
-    setSelectedMedias(newSelectedMedias);
-  }}
-  selectedMedias={selectedMedias}
-/>
+          medias={medias}
+          onSelectedMediasChange={setSelectedMedias}
+          selectedMedias={selectedMedias}
+        />
+        {selectedMedias.map((media) => (
+          <input
+            key={media.id}
+            type="hidden"
+            name="mediaIds[]"
+            value={media.id}
+          />
+        ))}
       </div>
 
-      <button
-        type="submit"
-        disabled={isPending}
-        className="bg-blue-600 text-white px-4 py-2 rounded"
-      >
+      <Button type="submit" disabled={isPending}>
         {isPending ? "Kaydediliyor..." : "Ürünü Kaydet"}
-      </button>
+      </Button>
 
       {state && <div className="text-red-500">{state}</div>}
     </form>
