@@ -73,14 +73,12 @@ export default function ProductForm({
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="discount">İndirim (%)</Label>
+        <Label htmlFor="discount">İndirimli Fiyat</Label>
         <Input
           id="discount"
           name="discount"
           type="number"
-          min={0}
-          max={100}
-          defaultValue={0}
+          step="0.01" 
         />
       </div>
 
