@@ -20,7 +20,7 @@ export const updateProduct = async (
   const name = formData.get("name") as string;
   const description = formData.get("description") as string;
   const price = formData.get("price");
-
+  const discount = formData.get("discount");
   const brandIds = formData.getAll("brandIds[]") as string[];
   const categoryIds = formData.getAll("categoryIds[]") as string[];
   const mediaIds = formData.getAll("mediaIds[]") as string[];
@@ -38,6 +38,7 @@ export const updateProduct = async (
         name,
         slug,
         description,
+        discount: discount ? Number(discount) : null, // 👈 burada
         price: Number(price),
         brands: {
           set: brandIds.map((id) => ({ id })),

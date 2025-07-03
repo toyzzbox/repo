@@ -76,6 +76,7 @@ export default function EditProductForm({
     formData.append("name", name);
     formData.append("description", description);
     formData.append("price", String(price));
+    formData.append("discount", String(discount)); // 👈 discount alanı eklendi
 
     brandIds.forEach((id) => formData.append("brandIds[]", id));
     categoryIds.forEach((id) => formData.append("categoryIds[]", id));
