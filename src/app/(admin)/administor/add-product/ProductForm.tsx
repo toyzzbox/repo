@@ -89,12 +89,14 @@ export default function ProductForm({
             <SelectValue placeholder="— Grupsuz Ürün —" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">— Grupsuz Ürün —</SelectItem>
-            {productGroups.map((group) => (
-              <SelectItem key={group.id} value={group.id}>
-                {group.name}
-              </SelectItem>
-            ))}
+   
+             <SelectItem value="none">— Grupsuz Ürün —</SelectItem>
+             {productGroups.map((group) => (
+               <SelectItem key={group.id} value={group.id}>
+                 {group.name}
+               </SelectItem>
+             ))}
+       
           </SelectContent>
         </Select>
       </div>
