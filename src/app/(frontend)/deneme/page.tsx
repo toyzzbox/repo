@@ -2,8 +2,7 @@
 
 import * as React from "react";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
-import { Button } from "@/components/ui/button";
-import { Check, ChevronDown } from "lucide-react";
+import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const categories = [
@@ -13,8 +12,7 @@ const categories = [
   { id: "4", name: "Appliances > Refrigerators" },
 ];
 
-export default function MultiSelectDropdown() {
-  const [open, setOpen] = React.useState(false);
+export default function MultiSelectList() {
   const [selected, setSelected] = React.useState<string[]>([]);
 
   const toggleCategory = (id: string) => {
@@ -24,51 +22,32 @@ export default function MultiSelectDropdown() {
   };
 
   return (
-    <div className="w-[300px]">
-      <div
-        onClick={() => setOpen(!open)}
-        className={cn(
-          "flex items-center justify-between border rounded px-3 py-2 cursor-pointer",
-          open && "ring-2 ring-ring"
-        )}
-      >
-        <span className="text-sm text-muted-foreground">
-          {selected.length > 0
-            ? `${selected.length} kategori seçildi`
-            : "Kategori seçin"}
-        </span>
-        <ChevronDown className="h-4 w-4" />
-      </div>
-
-      {open && (
-        <div className="mt-2 border rounded bg-white shadow-md max-h-60 overflow-auto z-50">
-          <Command>
-            <CommandInput placeholder="Kategori ara..." />
-            <CommandEmpty>Sonuç bulunamadı.</CommandEmpty>
-            <CommandGroup>
-              {categories.map((category) => (
-                <CommandItem
-                  key={category.id}
-                  onSelect={() => toggleCategory(category.id)}
-                >
-                  <Check
-                    className={cn(
-                      "mr-2 h-4 w-4",
-                      selected.includes(category.id)
-                        ? "opacity-100"
-                        : "opacity-0"
-                    )}
-                  />
-                  {category.name}
-                </CommandItem>
-              ))}
-            </CommandGroup>
-          </Command>
-        </div>
-      )}
+    <div className="w-[300px] space-y-4">
+      <Command>
+        <CommandInput placeholder="Kategori ara..." />
+        <CommandEmpty>Sonuç bulunamadı.</CommandEmpty>
+        <CommandGroup>
+          {categories.map((category) => (
+            <CommandItem
+              key={category.id}
+              onSelect={() => toggleCategory(category.id)}
+            >
+              <Check
+                className={cn(
+                  "mr-2 h-4 w-4",
+                  selected.includes(category.id)
+                    ? "opacity-100"
+                    : "opacity-0"
+                )}
+              />
+              {category.name}
+            </CommandItem>
+          ))}
+        </CommandGroup>
+      </Command>
 
       {/* Seçilen kategorileri altta göster */}
-      <div className="mt-4 space-y-2">
+      <div className="space-y-2">
         {selected.map((id) => {
           const cat = categories.find((c) => c.id === id);
           return (
