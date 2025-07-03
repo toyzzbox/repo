@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import MediaModal from "./MediaModal";
 import Image from "next/image";
@@ -17,13 +16,11 @@ import {
   arrayMove,
   SortableContext,
   sortableKeyboardCoordinates,
-  verticalListSortingStrategy,
   horizontalListSortingStrategy,
 } from '@dnd-kit/sortable';
-import {
-  useSortable,
-} from '@dnd-kit/sortable';
+import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { useState } from "react";
 
 interface Media {
   id: string;
@@ -31,12 +28,11 @@ interface Media {
 }
 
 interface MediaModalButtonProps {
-    medias: Media[];
-    onSelectedMediasChange?: (selectedMedias: Media[]) => void;
-    selectedMedias?: Media[];
-  }
+  medias: Media[];
+  onSelectedMediasChange: (selectedMedias: Media[]) => void;
+  selectedMedias: Media[];
+}
 
-  
 interface SortableMediaItemProps {
   media: Media;
   index: number;
@@ -57,11 +53,8 @@ function SortableMediaItem({ media, index, onRemove }: SortableMediaItemProps) {
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.5 : 1,
-  };
-
-  // Drag listeners'ı sadece resim alanına uygula
-  const dragListeners = {
-    ...listeners,
+    width: '120px',
+    height: '90px',
   };
 
   return (
@@ -71,16 +64,10 @@ function SortableMediaItem({ media, index, onRemove }: SortableMediaItemProps) {
       className={`relative border rounded overflow-hidden transition-all hover:scale-105 ${
         isDragging ? 'z-50 rotate-3 shadow-2xl' : 'shadow-md'
       }`}
-      style={{
-        ...style,
-        width: '120px',
-        height: '90px'
-      }}
     >
-      {/* Drag area - sadece resim kısmı */}
       <div
         {...attributes}
-        {...dragListeners}
+        {...listeners}
         className="cursor-move w-full h-full"
       >
         <Image
@@ -92,35 +79,23 @@ function SortableMediaItem({ media, index, onRemove }: SortableMediaItemProps) {
           unoptimized
         />
       </div>
-      
-      {/* Sıra numarası */}
+
       <div className="absolute top-1 left-1 bg-blue-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold shadow-md">
         {index + 1}
       </div>
-      
-      {/* Silme butonu */}
+
       <button
         onClick={(e) => {
           e.preventDefault();
           e.stopPropagation();
           onRemove(media.id);
         }}
-        onPointerDown={(e) => {
-          e.stopPropagation();
-        }}
-        onMouseDown={(e) => {
-          e.stopPropagation();
-        }}
         className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600 transition-colors shadow-md z-20 cursor-pointer"
-        style={{ 
-          pointerEvents: 'auto',
-          touchAction: 'none'
-        }}
+        style={{ pointerEvents: 'auto', touchAction: 'none' }}
       >
         ×
       </button>
-      
-      {/* Drag handle göstergesi */}
+
       <div className="absolute bottom-1 right-1 text-white bg-black bg-opacity-50 rounded p-1">
         <svg width="12" height="12" viewBox="0 0 12 12">
           <circle cx="3" cy="3" r="1" fill="currentColor" />
@@ -133,10 +108,13 @@ function SortableMediaItem({ media, index, onRemove }: SortableMediaItemProps) {
   );
 }
 
-export default function MediaModalButton({ medias }: MediaModalButtonProps) {
+export default function MediaModalButton({
+  medias,
+  onSelectedMediasChange,
+  selectedMedias,
+}: MediaModalButtonProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedMedias, setSelectedMedias] = useState<Media[]>([]);
-  
+
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
@@ -144,44 +122,32 @@ export default function MediaModalButton({ medias }: MediaModalButtonProps) {
     })
   );
 
-  const handleOpenModal = () => {
-    setIsModalOpen(true);
+  const handleOpenModal = () => setIsModalOpen(true);
+  const handleCloseModal = () => setIsModalOpen(false);
+
+  const removeMedia = (mediaId: string) => {
+    const updated = selectedMedias.filter((m) => m.id !== mediaId);
+    onSelectedMediasChange(updated);
   };
 
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (active.id !== over?.id) {
+      const oldIndex = selectedMedias.findIndex((item) => item.id === active.id);
+      const newIndex = selectedMedias.findIndex((item) => item.id === over?.id);
+      const reordered = arrayMove(selectedMedias, oldIndex, newIndex);
+      onSelectedMediasChange(reordered);
+    }
   };
 
   const handleSelectedMediasChange = (medias: Media[]) => {
-    setSelectedMedias(medias);
+    onSelectedMediasChange(medias);
   };
-
-  const removeMedia = (mediaId: string) => {
-    console.log('Removing media:', mediaId); // Debug için
-    const updated = selectedMedias.filter(m => m.id !== mediaId);
-    setSelectedMedias(updated);
-  };
-
-  function handleDragEnd(event: DragEndEvent) {
-    const { active, over } = event;
-
-    if (active.id !== over?.id) {
-      setSelectedMedias((items) => {
-        const oldIndex = items.findIndex((item) => item.id === active.id);
-        const newIndex = items.findIndex((item) => item.id === over?.id);
-
-        return arrayMove(items, oldIndex, newIndex);
-      });
-    }
-  }
 
   return (
     <div className="space-y-4">
-      <Button onClick={handleOpenModal}>
-        Medya Seç
-      </Button>
+      <Button onClick={handleOpenModal}>Medya Seç</Button>
 
-      {/* Seçili Medyaları Göster */}
       <div className="space-y-2">
         <h3 className="text-lg font-semibold">
           Seçili Medyalar ({selectedMedias.length})
@@ -198,7 +164,7 @@ export default function MediaModalButton({ medias }: MediaModalButtonProps) {
               onDragEnd={handleDragEnd}
             >
               <SortableContext
-                items={selectedMedias.map(media => media.id)}
+                items={selectedMedias.map((media) => media.id)}
                 strategy={horizontalListSortingStrategy}
               >
                 <div className="flex flex-wrap gap-2">
@@ -222,7 +188,7 @@ export default function MediaModalButton({ medias }: MediaModalButtonProps) {
         onClose={handleCloseModal}
         medias={medias}
         onSelectedMediasChange={handleSelectedMediasChange}
-        selectedMediaIds={selectedMedias.map(m => m.id)}
+        selectedMediaIds={selectedMedias.map((m) => m.id)}
       />
     </div>
   );
