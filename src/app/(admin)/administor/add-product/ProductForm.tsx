@@ -4,25 +4,15 @@ import { useActionState, useState } from "react";
 import { createProduct } from "./action";
 import RichTextEditor from "@/components/(frontend)/rich-text-editor";
 import MediaModalButton from "@/app/(frontend)/modal/MediaModalButton";
+import MultiSelect from "@/components/ui/MultiSelect"; // import et
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 
-interface Brand {
-  id: string;
-  name: string;
-}
-interface Category {
-  id: string;
-  name: string;
-}
-interface Media {
-  id: string;
-  urls: string[];
-}
-interface ProductGroup {
-  id: string;
-  name: string;
-}
+interface Brand { id: string; name: string; }
+interface Category { id: string; name: string; }
+interface Media { id: string; urls: string[]; }
+interface ProductGroup { id: string; name: string; }
+
 interface ProductFormProps {
   brands: Brand[];
   categories: Category[];
@@ -40,120 +30,44 @@ export default function ProductForm({
   const [descriptionHtml, setDescriptionHtml] = useState("");
   const [selectedMedias, setSelectedMedias] = useState<Media[]>([]);
 
+  // Yeni: MultiSelect state'leri
+  const [selectedBrandIds, setSelectedBrandIds] = useState<string[]>([]);
+  const [selectedCategoryIds, setSelectedCategoryIds] = useState<string[]>([]);
+
   return (
     <form action={formAction} className="space-y-4">
       <h1 className="text-2xl font-bold">Ürün Ekle</h1>
 
-      {/* Ürün Adı */}
-      <div>
-        <label>Ürün Adı</label>
-        <input
-          type="text"
-          name="name"
-          required
-          className="border px-2 py-1 rounded w-full"
-        />
-      </div>
+      {/* ...diğer inputlar */}
 
-      {/* Seri Numarası */}
-      <div>
-        <label>Seri Numarası (opsiyonel)</label>
-        <input
-          type="text"
-          name="serial"
-          className="border px-2 py-1 rounded w-full"
-        />
-      </div>
+      {/* MultiSelect Brand */}
+      <MultiSelect
+        items={brands}
+        selected={selectedBrandIds}
+        setSelected={setSelectedBrandIds}
+        placeholder="Marka ara..."
+        label="Markalar"
+      />
 
-      {/* Stok */}
-      <div>
-        <label>Stok</label>
-        <input
-          type="number"
-          name="stock"
-          required
-          min={0}
-          className="border px-2 py-1 rounded w-full"
-        />
-      </div>
+      {/* MultiSelect Category */}
+      <MultiSelect
+        items={categories}
+        selected={selectedCategoryIds}
+        setSelected={setSelectedCategoryIds}
+        placeholder="Kategori ara..."
+        label="Kategoriler"
+      />
 
-      {/* Fiyat */}
-      <div>
-        <label>Fiyat</label>
-        <input
-          type="number"
-          step="0.01"
-          name="price"
-          required
-          className="border px-2 py-1 rounded w-full"
-        />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="discount">İndirimli Fiyat</Label>
-        <Input
-          id="discount"
-          name="discount"
-          type="number"
-          step="0.01" 
-        />
-      </div>
-
-
-      {/* Ürün Grubu (opsiyonel) */}
-      <div>
-        <label>Ürün Grubu (opsiyonel)</label>
-        <select name="groupId" className="border px-2 py-1 rounded w-full">
-          <option value="">— Grupsuz Ürün —</option>
-          {productGroups.map((group) => (
-            <option key={group.id} value={group.id}>
-              {group.name}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      {/* Açıklama */}
-      <div>
-        <label>Açıklama</label>
-        <RichTextEditor
-          onChange={(html) => {
-            setDescriptionHtml(html);
-          }}
-        />
-        <input type="hidden" name="description" value={descriptionHtml} />
-      </div>
-
-      {/* Marka Seçimi */}
-      <div>
-        <label>Markalar</label>
-        <select name="brandIds[]" multiple className="border px-2 py-1 rounded w-full">
-          {brands.map((brand) => (
-            <option key={brand.id} value={brand.id}>
-              {brand.name}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      {/* Kategori Seçimi */}
-      <div>
-        <label>Kategoriler</label>
-        <select name="categoryIds[]" multiple className="border px-2 py-1 rounded w-full">
-          {categories.map((category) => (
-            <option key={category.id} value={category.id}>
-              {category.name}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      {/* Seçili Medyalar Hidden Input */}
-      {selectedMedias.map((media) => (
-        <input key={media.id} type="hidden" name="mediaIds[]" value={media.id} />
+      {/* Hidden inputs for selected brands & categories */}
+      {selectedBrandIds.map((id) => (
+        <input key={id} type="hidden" name="brandIds[]" value={id} />
+      ))}
+      {selectedCategoryIds.map((id) => (
+        <input key={id} type="hidden" name="categoryIds[]" value={id} />
       ))}
 
-<div className="space-y-2">
+      {/* Media, description, diğer inputlar */}
+      <div className="space-y-2">
         <Label>Ürün Medyaları</Label>
         <MediaModalButton
           medias={medias}
