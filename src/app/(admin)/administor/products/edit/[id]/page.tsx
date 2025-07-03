@@ -41,6 +41,7 @@ export default async function EditProductPage({ params }: { params: { id: string
         name: fullProduct.name,
         description: fullProduct.description ?? "",
         price: fullProduct.price,
+        discount: fullProduct.discount ?? 0, // 👈 EKLENDİ
         brandIds: fullProduct.brands.map((b) => b.id),
         categoryIds: fullProduct.categories.map((c) => c.id),
         mediaIds: fullProduct.medias.map((m) => m.id),
