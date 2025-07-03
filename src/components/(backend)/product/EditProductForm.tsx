@@ -34,6 +34,7 @@ interface Product {
   categoryIds: string[];
   mediaIds: string[];
   attributeIds: string[];
+  discount?: number; // 👈 indirimli fiyat
 }
 
 interface EditProductFormProps {
@@ -60,6 +61,7 @@ export default function EditProductForm({
   const [brandIds, setBrandIds] = useState<string[]>(product.brandIds);
   const [categoryIds, setCategoryIds] = useState<string[]>(product.categoryIds);
   const [attributeIds, setAttributeIds] = useState<string[]>(product.attributeIds);
+  const [discount, setDiscount] = useState(product.discount ?? 0);
 
   // Media state artık Media[] olarak tutuluyor
   const [selectedMedias, setSelectedMedias] = useState<Media[]>(
@@ -106,16 +108,24 @@ export default function EditProductForm({
 
       <label className="font-medium">Açıklama</label>
       <RichTextEditor value={description} onChange={setDescription} />
-
       <input
-        type="number"
-        value={price}
-        onChange={(e) => setPrice(parseFloat(e.target.value))}
-        placeholder="Fiyat"
-        className="py-2 px-3 border rounded"
-        step="0.01"
-        required
-      />
+  type="number"
+  value={price}
+  onChange={(e) => setPrice(parseFloat(e.target.value))}
+  placeholder="Fiyat"
+  className="py-2 px-3 border rounded"
+  step="0.01"
+  required
+/>
+
+<input
+  type="number"
+  value={discount}
+  onChange={(e) => setDiscount(parseFloat(e.target.value))}
+  placeholder="İndirimli Fiyat"
+  className="py-2 px-3 border rounded"
+  step="0.01"
+/>
 
       <label className="font-medium">Markalar</label>
       <select
