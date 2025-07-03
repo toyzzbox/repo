@@ -22,10 +22,12 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     ? `${product.group.name} – ${product.name}`
     : product.name;
 
-  // ✅ Yeni mantık: discount = indirimli fiyat
-  const discountedPrice = product.discount ?? product.price;
   const hasDiscount =
-    typeof product.discount === "number" && product.discount < product.price;
+    typeof product.discount === "number" &&
+    product.discount > 0 &&
+    product.discount < product.price;
+
+  const discountedPrice = hasDiscount ? product.discount : null;
 
   return (
     <div
@@ -56,7 +58,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           {displayName}
         </h3>
 
-        {hasDiscount ? (
+        {hasDiscount && discountedPrice !== null ? (
           <div className="flex justify-center gap-2 items-center mt-1">
             <span className="text-lg font-bold text-red-600">
               {formatPrice(discountedPrice)}
