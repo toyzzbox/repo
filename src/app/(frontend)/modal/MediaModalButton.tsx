@@ -30,12 +30,13 @@ interface Media {
   urls: string[];
 }
 
-
-  interface MediaModalButtonProps {
+interface MediaModalButtonProps {
     medias: Media[];
-    onSelectedMediasChange: (selectedMedias: Media[]) => void;
-    selectedMedias: Media[];
+    onSelectedMediasChange?: (selectedMedias: Media[]) => void;
+    selectedMedias?: Media[];
   }
+
+  
 interface SortableMediaItemProps {
   media: Media;
   index: number;
