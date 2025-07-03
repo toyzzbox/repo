@@ -43,30 +43,31 @@ export default async function Home() {
         </Carousel>
       )}
        <h1 className="text-2xl font-bold text-center p-5">En İndirimli Ürünler</h1>
-    {discountProducts.length === 0 ? (
-        <p className="text-center text-gray-500">Ürün bulunamadı.</p>
-      ) : (
-        <Carousel
-          opts={{
-            align: "start",
-            loop: true,
-          }}
-          className="w-full"
-        > 
-          <CarouselContent>
-            {products.map((product) => (
-            <CarouselItem
-            key={product.id}
-            className="basis-1/2 sm:basis-1/2 md:basis-1/3 lg:basis-1/5 xl:basis-1/6"          >
-            <ProductCard product={product} />
-          </CarouselItem>
-            ))}
-          </CarouselContent>
+       {discountProducts.length === 0 ? (
+  <p className="text-center text-gray-500">Ürün bulunamadı.</p>
+) : (
+  <Carousel
+    opts={{
+      align: "start",
+      loop: true,
+    }}
+    className="w-full"
+  > 
+    <CarouselContent>
+      {discountProducts.map((product) => ( // ✅ Burada discountProducts kullanılıyor
+        <CarouselItem
+          key={product.id}
+          className="basis-1/2 sm:basis-1/2 md:basis-1/3 lg:basis-1/5 xl:basis-1/6"
+        >
+          <ProductCard product={product} />
+        </CarouselItem>
+      ))}
+    </CarouselContent>
 
-          <CarouselPrevious />
-          <CarouselNext />
-        </Carousel>
-      )}
+    <CarouselPrevious />
+    <CarouselNext />
+  </Carousel>
+)}
 
 
 <h1 className="text-2xl font-bold text-center p-5">En Popüler Markalar</h1>
