@@ -11,6 +11,7 @@ export async function getProducts(): Promise<Product[]> {
         name: true,
         slug: true,
         price: true,
+        discount:true,
         medias: {
           select: {
             id: true,       // ✅ id eklendi
