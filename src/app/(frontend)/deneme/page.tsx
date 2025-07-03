@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
-import { Check } from "lucide-react";
+import { Check, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const categories = [
@@ -19,6 +19,10 @@ export default function MultiSelectList() {
     setSelected((prev) =>
       prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
     );
+  };
+
+  const removeCategory = (id: string) => {
+    setSelected((prev) => prev.filter((item) => item !== id));
   };
 
   return (
@@ -53,9 +57,15 @@ export default function MultiSelectList() {
           return (
             <div
               key={id}
-              className="border p-2 rounded bg-gray-50 text-sm"
+              className="flex items-center justify-between border p-2 rounded bg-gray-50 text-sm"
             >
-              {cat?.name}
+              <span>{cat?.name}</span>
+              <button
+                onClick={() => removeCategory(id)}
+                className="text-gray-400 hover:text-red-500"
+              >
+                <X className="w-4 h-4" />
+              </button>
             </div>
           );
         })}
