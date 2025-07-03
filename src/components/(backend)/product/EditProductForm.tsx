@@ -117,11 +117,13 @@ export default function EditProductForm({
   step="0.01"
   required
 />
-
 <input
   type="number"
-  value={discount}
-  onChange={(e) => setDiscount(parseFloat(e.target.value))}
+  value={discount || ""}
+  onChange={(e) => {
+    const val = parseFloat(e.target.value);
+    setDiscount(isNaN(val) ? 0 : val);
+  }}
   placeholder="İndirimli Fiyat"
   className="py-2 px-3 border rounded"
   step="0.01"
