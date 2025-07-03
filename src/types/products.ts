@@ -3,6 +3,7 @@ export interface Product {
     name: string;
     slug: string;
     description: string | null;
+    discount:number;
     price: number;
     originalPrice: number | null;
     stockQuantity: number | null;
