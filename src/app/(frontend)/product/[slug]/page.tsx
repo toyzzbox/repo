@@ -24,8 +24,8 @@ const product = await prisma.product.findUnique({
         slug: true,
       },
     },
-    categories: { select: { id: true, name: true } },
-   group: {
+    categories: { select: { id: true, name: true, slug: true } },
+       group: {
   include: {
     products: {
       select: {
