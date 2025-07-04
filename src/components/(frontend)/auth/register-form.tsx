@@ -50,10 +50,10 @@ const RegisterForm = () => {
     
     return (
    <CardWrapper 
-   headerLabel='Kayıt Ol ve Fırsatlardan Yararlanmaya Şimdi Başla'
+   headerLabel='Kayıt Ol ve Fırsatlardan Yararlanmaya Şimdi Başla !'
    title=""
    backButtonHref='/login'
-   backButtonLabel='Hesanız var ise giriş yapmak için'
+   backButtonLabel='Hesabınız var ise giriş yapmak için'
    showSocial
   >
     <Form {...form}>
@@ -68,7 +68,7 @@ const RegisterForm = () => {
                     <FormControl>
                         <Input
                          {...field} 
-                         placeholder="johndoe@email.com"
+                         placeholder=""
                         type='email'
                         />
                     </FormControl>
@@ -85,7 +85,7 @@ const RegisterForm = () => {
                     <FormControl>
                         <Input
                          {...field} 
-                         placeholder="johndoe@email.com"
+                         placeholder=""
                         type="text"
                         />
                     </FormControl>
@@ -124,7 +124,7 @@ const RegisterForm = () => {
             </div>
             <FormSuccess message={success}/>
             <FormError message={error}/>
-            <Button type="submit" className='w-full' disabled={loading}>
+            <Button type="submit" className='w-full' disabled={loading} variant="secondary">
                 {loading ? "Loading..." : "Kayıt Ol"}
             </Button>
             
