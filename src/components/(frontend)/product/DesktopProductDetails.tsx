@@ -152,9 +152,9 @@ const DesktopProductDetails: React.FC<ProductDetailsProps> = ({
       <Link 
         key={brand.id}
         href={`/marka/${brand.slug}`}
-        className="text-orange-500 hover:text-orange-600 font-medium hover:underline transition-colors"
+        className=" hover:text-orange-600 font-medium hover:transition-colors"
       >
-        {brand.name} <span className="text-gray-500">diğer ürünleri</span>
+        {brand.name} <span className="text-orange-500">diğer ürünleri</span>
       </Link>
     ))}
   </div>
