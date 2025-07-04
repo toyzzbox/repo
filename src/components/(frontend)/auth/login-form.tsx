@@ -69,7 +69,7 @@ const LoginForm = () => {
                     <FormControl>
                         <Input
                          {...field} 
-                         placeholder="johndoe@email.com"
+                         placeholder=""
                         type='email'
                         />
                     </FormControl>
