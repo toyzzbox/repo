@@ -98,7 +98,7 @@ const LoginForm = () => {
             </div>
             <FormSuccess message={success}/>
             <FormError message={error}/>
-            <Button type="submit" className='w-full' disabled={loading}>
+            <Button type="submit" className='w-full' disabled={loading} variant="default">
                 {loading ? "Loading..." : "Giriş Yap"}
             </Button>
         </form>
