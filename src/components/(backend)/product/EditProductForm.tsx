@@ -35,7 +35,7 @@ interface Product {
   categoryIds: string[];
   mediaIds: string[];
   attributeIds: string[];
-  discount?: number; // 👈 indirimli fiyat
+  discount?: number;
 }
 
 interface EditProductFormProps {
@@ -63,8 +63,8 @@ export default function EditProductForm({
   const [categoryIds, setCategoryIds] = useState<string[]>(product.categoryIds);
   const [attributeIds, setAttributeIds] = useState<string[]>(product.attributeIds);
   const [discount, setDiscount] = useState(product.discount ?? 0);
-  const [selectedCategoryIds, setSelectedCategoryIds] = useState<string[]>([]);
-  const [selectedBrandIds, setSelectedBrandIds] = useState<string[]>([]);
+  const [selectedCategoryIds, setSelectedCategoryIds] = useState<string[]>(product.categoryIds);
+  const [selectedBrandIds, setSelectedBrandIds] = useState<string[]>(product.brandIds);
 
   // Media state artık Media[] olarak tutuluyor
   const [selectedMedias, setSelectedMedias] = useState<Media[]>(
@@ -75,22 +75,31 @@ export default function EditProductForm({
     e.preventDefault();
     setError(null);
 
+    // Güncellenen markaları ve kategorileri set et
+    setBrandIds(selectedBrandIds);
+    setCategoryIds(selectedCategoryIds);
+
     const formData = new FormData();
     formData.append("name", name);
     formData.append("description", description);
     formData.append("price", String(price));
-    formData.append("discount", String(discount)); // 👈 discount alanı eklendi
+    formData.append("discount", String(discount));
 
+    // Markalar, kategoriler, nitelikler ve medya dosyalarını formData'ya ekle
     brandIds.forEach((id) => formData.append("brandIds[]", id));
     categoryIds.forEach((id) => formData.append("categoryIds[]", id));
     attributeIds.forEach((id) => formData.append("attributeIds[]", id));
-    selectedMedias.forEach((media) =>
-      formData.append("mediaIds[]", media.id)
-    );
+    selectedMedias.forEach((media) => formData.append("mediaIds[]", media.id));
 
+    // Güncelleme işlemi başlat
     startTransition(async () => {
       const res = await updateProduct(product.id, formData);
-      if (res?.error) setError(res.error);
+      if (res?.error) {
+        setError(res.error);
+      } else {
+        // Başarılı güncelleme sonrası yapılacak işlemler
+        console.log("Ürün başarıyla güncellendi");
+      }
     });
   };
 
@@ -113,26 +122,26 @@ export default function EditProductForm({
       <label className="font-medium">Açıklama</label>
       <RichTextEditor value={description} onChange={setDescription} />
       <input
-  type="number"
-  value={price}
-  onChange={(e) => setPrice(parseFloat(e.target.value))}
-  placeholder="Fiyat"
-  className="py-2 px-3 border rounded"
-  step="0.01"
-  required
-/>
-<input
-  type="number"
-  value={discount || ""}
-  onChange={(e) => {
-    const val = parseFloat(e.target.value);
-    setDiscount(isNaN(val) ? 0 : val);
-  }}
-  placeholder="İndirimli Fiyat"
-  className="py-2 px-3 border rounded"
-  step="0.01"
-/>
-<MultiSelect
+        type="number"
+        value={price}
+        onChange={(e) => setPrice(parseFloat(e.target.value))}
+        placeholder="Fiyat"
+        className="py-2 px-3 border rounded"
+        step="0.01"
+        required
+      />
+      <input
+        type="number"
+        value={discount || ""}
+        onChange={(e) => {
+          const val = parseFloat(e.target.value);
+          setDiscount(isNaN(val) ? 0 : val);
+        }}
+        placeholder="İndirimli Fiyat"
+        className="py-2 px-3 border rounded"
+        step="0.01"
+      />
+      <MultiSelect
         items={brands}
         selected={selectedBrandIds}
         setSelected={setSelectedBrandIds}
