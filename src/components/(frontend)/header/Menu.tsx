@@ -55,21 +55,15 @@ export function MenuBar() {
           <NavigationMenuTrigger>Oyuncaklar</NavigationMenuTrigger>
           <NavigationMenuContent>
             <ul className="grid gap-3 p-4 md:w-[400px] lg:w-[1000px] lg:grid-cols-[.75fr_1fr] bg-white">
-              <li className="row-span-3">
-                <ListItem href="/docs" title="Oyuncak Arabalar">
-                  Uzaktan Kumandalı Arabalar
-                </ListItem>
-              </li>
-              <li>
-                <ListItem href="/docs/installation" title="Oyuncak Bebekler">
-                  How to install dependencies and structure your app.
-                </ListItem>
-              </li>
-              <li>
-                <ListItem href="/docs/primitives/typography" title="Typography">
-                  Styles for headings, paragraphs, lists...etc
-                </ListItem>
-              </li>
+              <ListItem href="/docs" title="Oyuncak Arabalar">
+                Uzaktan Kumandalı Arabalar
+              </ListItem>
+              <ListItem href="/docs/installation" title="Oyuncak Bebekler">
+                How to install dependencies and structure your app.
+              </ListItem>
+              <ListItem href="/docs/primitives/typography" title="Typography">
+                Styles for headings, paragraphs, lists...etc
+              </ListItem>
             </ul>
           </NavigationMenuContent>
         </NavigationMenuItem>
