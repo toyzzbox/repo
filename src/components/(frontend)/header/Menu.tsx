@@ -56,52 +56,41 @@ export function MenuBar() {
           <NavigationMenuContent>
             <ul className="grid gap-3 p-4 md:w-[400px] lg:w-[1000px] lg:grid-cols-[.75fr_1fr] bg-white">
               <li className="row-span-3">
-                <NavigationMenuLink asChild>
-                  <Link
-                    className="flex h-full w-full select-none flex-col justify-end rounded-md bg-white p-6 no-underline outline-none focus:shadow-md"
-                    href="/"
-                  >
-                    <div className="mb-2 mt-4 text-lg font-medium">
-                      shadcn/ui
-                    </div>
-                    <p className="text-sm leading-tight text-muted-foreground">
-                      Beautifully designed components built with Radix UI and Tailwind CSS.
-                    </p>
-                  </Link>
-                </NavigationMenuLink>
+                <ListItem href="/docs" title="Oyuncak Arabalar">
+                  Uzaktan Kumandalı Arabalar
+                </ListItem>
               </li>
-              <ListItem href="/docs" title="Oyuncak Arabalar">
-                Uzaktan Kumandalı Arabalar
-              </ListItem>
-              <ListItem href="/docs/installation" title="Oyuncak Bebekler">
-                How to install dependencies and structure your app.
-              </ListItem>
-              <ListItem href="/docs/primitives/typography" title="Typography">
-                Styles for headings, paragraphs, lists...etc
-              </ListItem>
+              <li>
+                <ListItem href="/docs/installation" title="Oyuncak Bebekler">
+                  How to install dependencies and structure your app.
+                </ListItem>
+              </li>
+              <li>
+                <ListItem href="/docs/primitives/typography" title="Typography">
+                  Styles for headings, paragraphs, lists...etc
+                </ListItem>
+              </li>
             </ul>
           </NavigationMenuContent>
         </NavigationMenuItem>
 
         {/* Diğer Menü Kalemleri */}
-        {["Anne & Bebek", "Spor & Outdoor","Hediyelik","Elektronik", "Okul & Kırtasiye", "Fırsatlar", ].map((menuTitle) => (
-          <NavigationMenuItem key={menuTitle}>
-            <NavigationMenuTrigger>{menuTitle}</NavigationMenuTrigger>
-            <NavigationMenuContent>
-            <ul className="grid gap-3 p-4 md:w-[400px] lg:w-[1000px] lg:grid-cols-[.75fr_1fr] bg-white">
-                {components.map((component) => (
-                  <ListItem
-                    key={component.title}
-                    title={component.title}
-                    href={component.href}
-                  >
-                    {component.description}
-                  </ListItem>
-                ))}
-              </ul>
-            </NavigationMenuContent>
-          </NavigationMenuItem>
-        ))}
+        {["Anne & Bebek", "Spor & Outdoor", "Hediyelik", "Elektronik", "Okul & Kırtasiye", "Fırsatlar"].map(
+          (menuTitle) => (
+            <NavigationMenuItem key={menuTitle}>
+              <NavigationMenuTrigger>{menuTitle}</NavigationMenuTrigger>
+              <NavigationMenuContent>
+                <ul className="grid gap-3 p-4 md:w-[400px] lg:w-[1000px] lg:grid-cols-[.75fr_1fr] bg-white">
+                  {components.map((component) => (
+                    <ListItem key={component.title} title={component.title} href={component.href}>
+                      {component.description}
+                    </ListItem>
+                  ))}
+                </ul>
+              </NavigationMenuContent>
+            </NavigationMenuItem>
+          )
+        )}
 
         <NavigationMenuItem>
           <Link href="/markalar" legacyBehavior passHref>
@@ -112,7 +101,7 @@ export function MenuBar() {
         </NavigationMenuItem>
       </NavigationMenuList>
     </NavigationMenu>
-  )
+  );
 }
 
 const ListItem = React.forwardRef<
@@ -137,6 +126,6 @@ const ListItem = React.forwardRef<
         </a>
       </NavigationMenuLink>
     </li>
-  )
-})
-ListItem.displayName = "ListItem"
+  );
+});
+ListItem.displayName = "ListItem";
