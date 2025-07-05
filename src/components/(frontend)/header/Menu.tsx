@@ -145,7 +145,7 @@ export default function MenuBar() {
 
             {category.subcategories.length > 0 && (
               <NavigationMenuContent>
-                <div className="grid grid-cols-4 gap-6 p-6 w-[1000px]">
+                <div className="grid grid-cols-3 gap-6 p-6 w-[1200px]">
                   {category.subcategories.map((group) => (
                     <div key={group.group}>
                       <h4 className="font-semibold mb-2 text-sm">{group.group}</h4> {/* Adjusted font size */}
