@@ -1,171 +1,219 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import Link from "next/link"
+import * as React from "react";
+import Link from "next/link";
 
-import { cn } from "@/lib/utils"
 import {
   NavigationMenu,
-  NavigationMenuContent,
-  NavigationMenuItem,
-  NavigationMenuLink,
   NavigationMenuList,
+  NavigationMenuItem,
   NavigationMenuTrigger,
-  navigationMenuTriggerStyle,
-} from "@/components/ui/navigation-menu"
+  NavigationMenuContent,
+  NavigationMenuLink,
+} from "@/components/ui/navigation-menu";
 
-// Oyuncak kategorileri ve alt kategorileri
-const oyuncakKategorileri = [
+// Tüm kategori datası:
+const categories = [
   {
-    title: "Oyuncak Arabalar",
-    href: "/oyuncaklar/arabalar",
-    description: "Uzaktan kumandalı arabalar, metal arabalar ve daha fazlası",
+    name: "Oyuncak",
+    subcategories: [
+      {
+        group: "Açık Hava, Deniz ve Spor",
+        items: [
+          "Açık Hava Oyuncakları",
+          "Bahçe Oyuncakları",
+          "Çadırlar",
+          "Deniz & Havuz Oyuncakları",
+          "Spor Oyuncakları",
+          "Su Tabancaları",
+          "Toplar",
+        ],
+      },
+      {
+        group: "Ahşap Oyuncaklar",
+        items: ["Ahşap Oyuncaklar"],
+      },
+      {
+        group: "Bebek Oyuncakları",
+        items: [
+          "Aktivite Masası",
+          "Banyo Oyuncakları",
+          "Çıngırak ve Dişlik",
+          "Oyun Halısı",
+        ],
+      },
+      {
+        group: "Çocuk Kulaklıkları",
+        items: ["Çocuk Kulaklıkları"],
+      },
+      {
+        group: "Eğitici Oyuncaklar",
+        items: [
+          "Elektronik Öğretici Oyuncaklar",
+          "Oyun Hamurları",
+          "Rubik Zeka Küpü",
+        ],
+      },
+      {
+        group: "Figür Oyuncaklar",
+        items: ["Hayvan Figürleri", "Karakter Figürleri"],
+      },
+      {
+        group: "Hediyelik",
+        items: ["Hediye Kart"],
+      },
+      {
+        group: "Hobi Oyuncakları",
+        items: [
+          "Kendin Tasarla",
+          "Maket Oyuncaklar",
+          "Model Araçlar",
+          "Şaka Malzemeleri",
+        ],
+      },
+      {
+        group: "Kutu Oyuncuları",
+        items: ["Çocuk Kutu Oyuncuları", "Yetişkin Kutu Oyuncuları"],
+      },
+      {
+        group: "Müzik Aletleri",
+        items: ["Müzik Aletleri"],
+      },
+      {
+        group: "Oyuncak Arabalar",
+        items: [
+          "Kumandasız Arabalar",
+          "Model Arabalar ve Araçlar",
+          "Uzaktan Kumandalı Arabalar",
+          "Yarış Pistleri",
+        ],
+      },
+      {
+        group: "Oyuncak Bebekler ve Aksesuarları",
+        items: [
+          "Aksesuarlar",
+          "Bebekler",
+          "Bez Bebekler",
+          "Manken Bebekler",
+        ],
+      },
+      {
+        group: "Oyuncak Silahlar",
+        items: ["Oyuncak Silahlar"],
+      },
+      {
+        group: "Oyun Setleri",
+        items: [
+          "Bilim Setleri",
+          "Çocuk Oyun Setleri",
+          "Kız Oyun Setleri",
+          "Kum ve Kinetik Kum Setleri",
+        ],
+      },
+      {
+        group: "Peluş Oyuncaklar",
+        items: [
+          "Hareketli Peluş Oyuncaklar",
+          "Lisanslı Peluş",
+          "Peluş Ayı",
+          "Peluş Köpek",
+          "Peluş Tavşan",
+        ],
+      },
+      {
+        group: "Puzzle",
+        items: [
+          "1000 Parça Puzzle",
+          "1500 Parça Puzzle",
+          "2000 Parça Puzzle",
+          "3000 Parça Puzzle",
+          "500 Parça Puzzle",
+          "Ahşap Puzzle",
+          "Çocuk Puzzle",
+        ],
+      },
+      {
+        group: "Yapım Oyuncakları",
+        items: ["Yapım Oyuncakları"],
+      },
+    ],
   },
   {
-    title: "Oyuncak Bebekler",
-    href: "/oyuncaklar/bebekler",
-    description: "Bebek oyuncakları, aksesuarları ve bakım setleri",
+    name: "Araçlar",
+    subcategories: [],
   },
   {
-    title: "Lego & Yapı Blokları",
-    href: "/oyuncaklar/lego",
-    description: "Lego setleri, yapı blokları ve inşaat oyuncakları",
+    name: "Kırtasiye & Okul",
+    subcategories: [],
   },
   {
-    title: "Eğitici Oyuncaklar",
-    href: "/oyuncaklar/egitici",
-    description: "Zeka geliştiren, öğretici ve eğlendirici oyuncaklar",
+    name: "Anne & Bebek",
+    subcategories: [],
   },
   {
-    title: "Peluş Oyuncaklar",
-    href: "/oyuncaklar/pelus",
-    description: "Yumuşak peluş oyuncaklar ve sevimli karakterler",
+    name: "Pet Shop",
+    subcategories: [],
   },
   {
-    title: "Puzzle & Bulmaca",
-    href: "/oyuncaklar/puzzle",
-    description: "Yaş grubuna uygun puzzle ve bulmaca oyunları",
+    name: "Karakterler",
+    subcategories: [],
   },
   {
-    title: "Oyuncak Silahlar",
-    href: "/oyuncaklar/silahlar",
-    description: "Su tabancaları, Nerf silahları ve güvenli oyuncak silahlar",
+    name: "Fırsatlar",
+    subcategories: [],
   },
-  {
-    title: "Müzik Oyuncakları",
-    href: "/oyuncaklar/muzik",
-    description: "Müzik aletleri, sesli oyuncaklar ve ritim oyuncakları",
-  },
-]
+];
 
-// Diğer kategoriler için genel içerik (mevcut components array'i)
-const components: { title: string; href: string; description: string }[] = [
-  {
-    title: "Alert Dialog",
-    href: "/docs/primitives/alert-dialog",
-    description: "A modal dialog that interrupts the user with important content and expects a response.",
-  },
-  {
-    title: "Hover Card",
-    href: "/docs/primitives/hover-card",
-    description: "For sighted users to preview content available behind a link.",
-  },
-  {
-    title: "Progress",
-    href: "/docs/primitives/progress",
-    description: "Displays an indicator showing the completion progress of a task, typically displayed as a progress bar.",
-  },
-  {
-    title: "Scroll-area",
-    href: "/docs/primitives/scroll-area",
-    description: "Visually or semantically separates content.",
-  },
-  {
-    title: "Tabs",
-    href: "/docs/primitives/tabs",
-    description: "A set of layered sections of content—known as tab panels—that are displayed one at a time.",
-  },
-  {
-    title: "Tooltip",
-    href: "/docs/primitives/tooltip",
-    description: "A popup that displays information related to an element when the element receives keyboard focus or the mouse hovers over it.",
-  },
-]
-
-export function MenuBar() {
+export default function MenuBar() {
   return (
     <NavigationMenu>
       <NavigationMenuList>
-        {/* Oyuncaklar kategorisi - dinamik alt kategoriler */}
-        <NavigationMenuItem>
-          <NavigationMenuTrigger>Oyuncaklar</NavigationMenuTrigger>
-          <NavigationMenuContent>
-            <ul className="grid gap-3 p-4 md:w-[400px] lg:w-[1000px] lg:grid-cols-2 bg-white">
-              {oyuncakKategorileri.map((kategori) => (
-                <ListItem 
-                  key={kategori.title} 
-                  title={kategori.title} 
-                  href={kategori.href}
-                >
-                  {kategori.description}
-                </ListItem>
-              ))}
-            </ul>
-          </NavigationMenuContent>
-        </NavigationMenuItem>
+        {categories.map((category) => (
+          <NavigationMenuItem key={category.name}>
+            <NavigationMenuTrigger>{category.name}</NavigationMenuTrigger>
 
-        {/* Diğer Menü Kalemleri */}
-        {["Anne & Bebek", "Spor & Outdoor", "Hediyelik", "Elektronik", "Okul & Kırtasiye", "Fırsatlar"].map(
-          (menuTitle) => (
-            <NavigationMenuItem key={menuTitle}>
-              <NavigationMenuTrigger>{menuTitle}</NavigationMenuTrigger>
+            {category.subcategories.length > 0 && (
               <NavigationMenuContent>
-                <ul className="grid gap-3 p-4 md:w-[400px] lg:w-[1000px] lg:grid-cols-2 bg-white">
-                  {components.map((component) => (
-                    <ListItem key={component.title} title={component.title} href={component.href}>
-                      {component.description}
-                    </ListItem>
+                <div className="grid grid-cols-3 gap-6 p-6 w-[900px]">
+                  {category.subcategories.map((group) => (
+                    <div key={group.group}>
+                      <h4 className="font-semibold mb-2">{group.group}</h4>
+                      <ul className="space-y-1">
+                        {group.items.map((item) => (
+                          <li key={item}>
+                            <NavigationMenuLink asChild>
+                              <Link
+                                href={`/kategori/${slugify(item)}`}
+                                className="hover:underline text-sm"
+                              >
+                                {item}
+                              </Link>
+                            </NavigationMenuLink>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
                   ))}
-                </ul>
+                </div>
               </NavigationMenuContent>
-            </NavigationMenuItem>
-          )
-        )}
-
-        <NavigationMenuItem>
-          <Link href="/markalar" legacyBehavior passHref>
-            <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-              Markalar
-            </NavigationMenuLink>
-          </Link>
-        </NavigationMenuItem>
+            )}
+          </NavigationMenuItem>
+        ))}
       </NavigationMenuList>
     </NavigationMenu>
   );
 }
 
-const ListItem = React.forwardRef<
-  React.ElementRef<"a">,
-  React.ComponentPropsWithoutRef<"a">
->(({ className, title, children, ...props }, ref) => {
-  return (
-    <li>
-      <NavigationMenuLink asChild>
-        <a
-          ref={ref}
-          className={cn(
-            "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground bg-white",
-            className
-          )}
-          {...props}
-        >
-          <div className="text-sm font-medium leading-none">{title}</div>
-          <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-            {children}
-          </p>
-        </a>
-      </NavigationMenuLink>
-    </li>
-  );
-});
-ListItem.displayName = "ListItem";
+// Yardımcı: basit slugify
+function slugify(text: string) {
+  return text
+    .toLowerCase()
+    .replace(/ /g, "-")
+    .replace(/ç/g, "c")
+    .replace(/ş/g, "s")
+    .replace(/ı/g, "i")
+    .replace(/ö/g, "o")
+    .replace(/ü/g, "u")
+    .replace(/ğ/g, "g")
+    .replace(/[^a-z0-9-]/g, "");
+}
