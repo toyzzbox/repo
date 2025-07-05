@@ -15,37 +15,15 @@ import {
 // Tüm kategori datası:
 const categories = [
   {
-    name: "Oyuncak",
+    name: "Oyuncaklar",
     subcategories: [
-      {
-        group: "Açık Hava, Deniz ve Spor",
-        items: [
-          "Açık Hava Oyuncakları",
-          "Bahçe Oyuncakları",
-          "Çadırlar",
-          "Deniz & Havuz Oyuncakları",
-          "Spor Oyuncakları",
-          "Su Tabancaları",
-          "Toplar",
-        ],
-      },
+
       {
         group: "Ahşap Oyuncaklar",
         items: ["Ahşap Oyuncaklar"],
       },
-      {
-        group: "Bebek Oyuncakları",
-        items: [
-          "Aktivite Masası",
-          "Banyo Oyuncakları",
-          "Çıngırak ve Dişlik",
-          "Oyun Halısı",
-        ],
-      },
-      {
-        group: "Çocuk Kulaklıkları",
-        items: ["Çocuk Kulaklıkları"],
-      },
+ 
+
       {
         group: "Eğitici Oyuncaklar",
         items: [
@@ -58,19 +36,8 @@ const categories = [
         group: "Figür Oyuncaklar",
         items: ["Hayvan Figürleri", "Karakter Figürleri"],
       },
-      {
-        group: "Hediyelik",
-        items: ["Hediye Kart"],
-      },
-      {
-        group: "Hobi Oyuncakları",
-        items: [
-          "Kendin Tasarla",
-          "Maket Oyuncaklar",
-          "Model Araçlar",
-          "Şaka Malzemeleri",
-        ],
-      },
+ 
+    
       {
         group: "Kutu Oyuncuları",
         items: ["Çocuk Kutu Oyuncuları", "Yetişkin Kutu Oyuncuları"],
