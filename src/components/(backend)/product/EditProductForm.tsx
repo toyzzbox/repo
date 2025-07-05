@@ -4,6 +4,7 @@ import { useTransition, useState } from "react";
 import RichTextEditor from "@/app/(admin)/administor/ui/RichTextEditor";
 import { updateProduct } from "@/actions/updateProduct";
 import MediaModalButton from "@/app/(frontend)/modal/MediaModalButton";
+import MultiSelect from "@/components/ui/MultiSelect";
 
 interface Brand {
   id: string;
@@ -62,6 +63,8 @@ export default function EditProductForm({
   const [categoryIds, setCategoryIds] = useState<string[]>(product.categoryIds);
   const [attributeIds, setAttributeIds] = useState<string[]>(product.attributeIds);
   const [discount, setDiscount] = useState(product.discount ?? 0);
+  const [selectedCategoryIds, setSelectedCategoryIds] = useState<string[]>([]);
+  const [selectedBrandIds, setSelectedBrandIds] = useState<string[]>([]);
 
   // Media state artık Media[] olarak tutuluyor
   const [selectedMedias, setSelectedMedias] = useState<Media[]>(
@@ -129,38 +132,22 @@ export default function EditProductForm({
   className="py-2 px-3 border rounded"
   step="0.01"
 />
+<MultiSelect
+        items={brands}
+        selected={selectedBrandIds}
+        setSelected={setSelectedBrandIds}
+        placeholder="Marka ara..."
+        label="Markalar"
+      />
 
-      <label className="font-medium">Markalar</label>
-      <select
-        multiple
-        value={brandIds}
-        onChange={(e) =>
-          setBrandIds(Array.from(e.target.selectedOptions, (opt) => opt.value))
-        }
-        className="py-2 px-3 border rounded"
-      >
-        {brands.map((brand) => (
-          <option key={brand.id} value={brand.id}>
-            {brand.name}
-          </option>
-        ))}
-      </select>
-
-      <label className="font-medium">Kategoriler</label>
-      <select
-        multiple
-        value={categoryIds}
-        onChange={(e) =>
-          setCategoryIds(Array.from(e.target.selectedOptions, (opt) => opt.value))
-        }
-        className="py-2 px-3 border rounded"
-      >
-        {categories.map((cat) => (
-          <option key={cat.id} value={cat.id}>
-            {cat.name}
-          </option>
-        ))}
-      </select>
+      {/* MultiSelect Category */}
+      <MultiSelect
+        items={categories}
+        selected={selectedCategoryIds}
+        setSelected={setSelectedCategoryIds}
+        placeholder="Kategori ara..."
+        label="Kategoriler"
+      />
 
       <label className="font-medium">Nitelikler</label>
       <select
