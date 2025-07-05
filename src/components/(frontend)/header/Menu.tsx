@@ -106,27 +106,31 @@ const categories = [
     ],
   },
   {
-    name: "Araçlar",
-    subcategories: [],
-  },
-  {
-    name: "Kırtasiye & Okul",
-    subcategories: [],
-  },
-  {
     name: "Anne & Bebek",
     subcategories: [],
   },
   {
-    name: "Pet Shop",
+    name: "Spor & Outdoor",
     subcategories: [],
   },
   {
-    name: "Karakterler",
+    name: "Hediyelik",
+    subcategories: [],
+  },
+  {
+    name: "Elektronik",
+    subcategories: [],
+  },
+  {
+    name: "Okul & Kırtasiye",
     subcategories: [],
   },
   {
     name: "Fırsatlar",
+    subcategories: [],
+  },
+  {
+    name: "Markalar",
     subcategories: [],
   },
 ];
