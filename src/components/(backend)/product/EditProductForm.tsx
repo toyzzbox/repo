@@ -1,49 +1,51 @@
 "use client";
 
-import { useTransition, useState } from "react";
-import RichTextEditor from "@/app/(admin)/administor/ui/RichTextEditor";
-import { updateProduct } from "@/actions/updateProduct";
+import { useActionState, useState } from "react";
+import RichTextEditor from "@/components/(frontend)/rich-text-editor";
 import MediaModalButton from "@/app/(frontend)/modal/MediaModalButton";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import MultiSelect from "@/components/ui/MultiSelect";
+import { updateProduct } from "@/actions/updateProduct";
 
 interface Brand {
   id: string;
   name: string;
 }
-
-interface Attribute {
-  id: string;
-  name: string;
-}
-
 interface Category {
   id: string;
   name: string;
 }
-
 interface Media {
   id: string;
   urls: string[];
 }
+interface ProductGroup {
+  id: string;
+  name: string;
+}
 
+// Güncellenecek ürün bilgilerini içeren interface
 interface Product {
   id: string;
   name: string;
-  description: string;
+  serial?: string;
+  stock: number;
   price: number;
+  discount?: number;
+  groupId?: string;
+  description?: string;
   brandIds: string[];
   categoryIds: string[];
   mediaIds: string[];
-  attributeIds: string[];
-  discount?: number;
 }
 
-interface EditProductFormProps {
-  product: Product;
+interface ProductUpdateFormProps {
+  product: Product; // Mevcut ürün bilgileri
   brands: Brand[];
   categories: Category[];
   medias: Media[];
-  attributes: Attribute[];
+  productGroups: ProductGroup[];
 }
 
 export default function EditProductForm({
@@ -51,103 +53,115 @@ export default function EditProductForm({
   brands,
   categories,
   medias,
-  attributes,
-}: EditProductFormProps) {
-  const [isPending, startTransition] = useTransition();
-  const [error, setError] = useState<string | null>(null);
-
-  const [name, setName] = useState(product.name);
-  const [description, setDescription] = useState(product.description);
-  const [price, setPrice] = useState(product.price);
-  const [brandIds, setBrandIds] = useState<string[]>(product.brandIds);
-  const [categoryIds, setCategoryIds] = useState<string[]>(product.categoryIds);
-  const [attributeIds, setAttributeIds] = useState<string[]>(product.attributeIds);
-  const [discount, setDiscount] = useState(product.discount ?? 0);
+  productGroups,
+}: ProductUpdateFormProps) {
+  const [state, formAction, isPending] = useActionState(updateProduct, null);
+  
+  // Mevcut ürün bilgileri ile state'leri initialize et
+  const [descriptionHtml, setDescriptionHtml] = useState(product.description || "");
+  const [selectedMedias, setSelectedMedias] = useState<Media[]>(
+    medias.filter(media => product.mediaIds.includes(media.id))
+  );
   const [selectedCategoryIds, setSelectedCategoryIds] = useState<string[]>(product.categoryIds);
   const [selectedBrandIds, setSelectedBrandIds] = useState<string[]>(product.brandIds);
 
-  // Media state artık Media[] olarak tutuluyor
-  const [selectedMedias, setSelectedMedias] = useState<Media[]>(
-    medias.filter((m) => product.mediaIds.includes(m.id))
-  );
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
-
-    // Güncellenen markaları ve kategorileri set et
-    setBrandIds(selectedBrandIds);
-    setCategoryIds(selectedCategoryIds);
-
-    const formData = new FormData();
-    formData.append("name", name);
-    formData.append("description", description);
-    formData.append("price", String(price));
-    formData.append("discount", String(discount));
-
-    // Markalar, kategoriler, nitelikler ve medya dosyalarını formData'ya ekle
-    brandIds.forEach((id) => formData.append("brandIds[]", id));
-    categoryIds.forEach((id) => formData.append("categoryIds[]", id));
-    attributeIds.forEach((id) => formData.append("attributeIds[]", id));
-    selectedMedias.forEach((media) => formData.append("mediaIds[]", media.id));
-
-    // Güncelleme işlemi başlat
-    startTransition(async () => {
-      const res = await updateProduct(product.id, formData);
-      if (res?.error) {
-        setError(res.error);
-      } else {
-        // Başarılı güncelleme sonrası yapılacak işlemler
-        console.log("Ürün başarıyla güncellendi");
-      }
-    });
-  };
-
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="flex flex-col gap-4 max-w-lg mx-auto px-2"
-    >
-      <h1 className="text-xl font-bold mb-4">Ürünü Güncelle</h1>
+    <form action={formAction} className="space-y-4">
+      <h1 className="text-2xl font-bold">Ürün Güncelle</h1>
 
-      <input
-        type="text"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        placeholder="Ürün Adı"
-        className="py-2 px-3 border rounded"
-        required
-      />
+      {/* Ürün ID'si hidden input olarak gönderilir */}
+      <input type="hidden" name="id" value={product.id} />
 
-      <label className="font-medium">Açıklama</label>
-      <RichTextEditor value={description} onChange={setDescription} />
-      <input
-        type="number"
-        value={price}
-        onChange={(e) => setPrice(parseFloat(e.target.value))}
-        placeholder="Fiyat"
-        className="py-2 px-3 border rounded"
-        step="0.01"
-        required
-      />
-      <input
-        type="number"
-        value={discount || ""}
-        onChange={(e) => {
-          const val = parseFloat(e.target.value);
-          setDiscount(isNaN(val) ? 0 : val);
-        }}
-        placeholder="İndirimli Fiyat"
-        className="py-2 px-3 border rounded"
-        step="0.01"
-      />
-      <MultiSelect
-        items={brands}
-        selected={selectedBrandIds}
-        setSelected={setSelectedBrandIds}
-        placeholder="Marka ara..."
-        label="Markalar"
-      />
+      {/* Ürün Adı */}
+      <div>
+        <Label htmlFor="name">Ürün Adı</Label>
+        <Input 
+          type="text" 
+          id="name" 
+          name="name" 
+          required 
+          defaultValue={product.name}
+        />
+      </div>
+
+      {/* Seri Numarası */}
+      <div>
+        <Label htmlFor="serial">Seri Numarası (opsiyonel)</Label>
+        <Input 
+          type="text" 
+          id="serial" 
+          name="serial" 
+          defaultValue={product.serial || ""}
+        />
+      </div>
+
+      {/* Stok */}
+      <div>
+        <Label htmlFor="stock">Stok</Label>
+        <Input 
+          type="number" 
+          id="stock" 
+          name="stock" 
+          required 
+          min={0} 
+          defaultValue={product.stock}
+        />
+      </div>
+
+      {/* Fiyat */}
+      <div>
+        <Label htmlFor="price">Fiyat</Label>
+        <Input 
+          type="number" 
+          step="0.01" 
+          id="price" 
+          name="price" 
+          required 
+          defaultValue={product.price}
+        />
+      </div>
+
+      {/* İndirim */}
+      <div>
+        <Label htmlFor="discount">İndirimli Fiyat</Label>
+        <Input 
+          type="number" 
+          step="0.01" 
+          id="discount" 
+          name="discount" 
+          defaultValue={product.discount || ""}
+        />
+      </div>
+
+      {/* Ürün Grubu */}
+      <div>
+        <Label htmlFor="groupId">Ürün Grubu (opsiyonel)</Label>
+        <select 
+          id="groupId" 
+          name="groupId" 
+          className="border px-2 py-1 rounded w-full"
+          defaultValue={product.groupId || ""}
+        >
+          <option value="">— Grupsuz Ürün —</option>
+          {productGroups.map((group) => (
+            <option key={group.id} value={group.id}>
+              {group.name}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {/* Açıklama */}
+      <div>
+        <Label>Açıklama</Label>
+        <RichTextEditor
+          onChange={(html) => {
+            setDescriptionHtml(html);
+          }}
+          initialContent={product.description || ""}
+        />
+        <input type="hidden" name="description" value={descriptionHtml} />
+      </div>
 
       {/* MultiSelect Category */}
       <MultiSelect
@@ -158,44 +172,50 @@ export default function EditProductForm({
         label="Kategoriler"
       />
 
-      <label className="font-medium">Nitelikler</label>
-      <select
-        multiple
-        value={attributeIds}
-        onChange={(e) =>
-          setAttributeIds(Array.from(e.target.selectedOptions, (opt) => opt.value))
-        }
-        className="py-2 px-3 rounded-sm border"
-      >
-        {attributes.map((attr) => (
-          <option key={attr.id} value={attr.id}>
-            {attr.name}
-          </option>
-        ))}
-      </select>
+      {/* MultiSelect Brand */}
+      <MultiSelect
+        items={brands}
+        selected={selectedBrandIds}
+        setSelected={setSelectedBrandIds}
+        placeholder="Marka ara..."
+        label="Markalar"
+      />
 
-      <div>
-        <label className="font-medium block mb-2">Medya Dosyaları</label>
-        <MediaModalButton
-          medias={medias}
-          selectedMedias={selectedMedias}
-          onSelectedMediasChange={setSelectedMedias}
-        />
-      </div>
-
-      {/* Opsiyonel: selectedMedias hidden inputları */}
-      {selectedMedias.map((media) => (
-        <input key={media.id} type="hidden" name="mediaIds[]" value={media.id} />
+      {/* Hidden inputs for selected brands & categories */}
+      {selectedBrandIds.map((id) => (
+        <input key={id} type="hidden" name="brandIds[]" value={id} />
+      ))}
+      {selectedCategoryIds.map((id) => (
+        <input key={id} type="hidden" name="categoryIds[]" value={id} />
       ))}
 
+      {/* Media */}
+      <div className="space-y-2">
+        <Label>Ürün Medyaları</Label>
+        <MediaModalButton
+          medias={medias}
+          onSelectedMediasChange={setSelectedMedias}
+          selectedMedias={selectedMedias}
+        />
+        {selectedMedias.map((media) => (
+          <input
+            key={media.id}
+            type="hidden"
+            name="mediaIds[]"
+            value={media.id}
+          />
+        ))}
+      </div>
+
       <button
+        type="submit"
         disabled={isPending}
-        className="bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 transition"
+        className="bg-blue-600 text-white px-4 py-2 rounded"
       >
         {isPending ? "Güncelleniyor..." : "Ürünü Güncelle"}
       </button>
 
-      {error && <p className="text-red-500">{error}</p>}
+      {state && <div className="text-red-500">{state}</div>}
     </form>
   );
 }

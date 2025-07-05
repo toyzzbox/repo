@@ -2,64 +2,72 @@
 
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 
-// Slug oluşturma fonksiyonu
-function slugify(text: string): string {
-  return text
-    .toLowerCase()
-    .trim()
-    .replace(/\s+/g, "-")
-    .replace(/[^\w\-]+/g, "")
-    .replace(/\-\-+/g, "-");
-}
-
-export const updateProduct = async (
-  id: string,
-  formData: FormData
-): Promise<{ success?: boolean; error?: string }> => {
-  const name = formData.get("name") as string;
-  const description = formData.get("description") as string;
-  const price = formData.get("price");
-  const discount = formData.get("discount");
-  const brandIds = formData.getAll("brandIds[]") as string[];
-  const categoryIds = formData.getAll("categoryIds[]") as string[];
-  const mediaIds = formData.getAll("mediaIds[]") as string[];
-  const attributeIds = formData.getAll("attributeIds[]") as string[];
-
-  if (!name) return { error: "Ürün adı gereklidir." };
-  if (!price || isNaN(Number(price))) return { error: "Geçerli bir fiyat girin." };
-
-  const slug = slugify(name);
-
+export async function updateProduct(prevState: any, formData: FormData) {
   try {
-    await prisma.product.update({
+    const id = formData.get("id") as string;
+    const name = formData.get("name") as string;
+    const serial = formData.get("serial") as string;
+    const stock = parseInt(formData.get("stock") as string);
+    const price = parseFloat(formData.get("price") as string);
+    const discount = formData.get("discount") ? parseFloat(formData.get("discount") as string) : null;
+    const groupId = formData.get("groupId") as string || null;
+    const description = formData.get("description") as string;
+    
+    // Array değerlerini al
+    const brandIds = formData.getAll("brandIds[]") as string[];
+    const categoryIds = formData.getAll("categoryIds[]") as string[];
+    const mediaIds = formData.getAll("mediaIds[]") as string[];
+
+    // Validation
+    if (!name || !id) {
+      return "Ürün ID'si ve adı gereklidir.";
+    }
+
+    if (stock < 0) {
+      return "Stok negatif olamaz.";
+    }
+
+    if (price <= 0) {
+      return "Fiyat pozitif bir değer olmalıdır.";
+    }
+
+    // Database güncellemesi (örnek)
+    const updatedProduct = await prisma.product.update({
       where: { id },
       data: {
         name,
-        slug,
+        serial: serial || null,
+        stock,
+        price,
+        discount,
+        groupId,
         description,
-        discount: discount ? Number(discount) : null, // 👈 burada
-        price: Number(price),
+        // İlişkisel tablolar için
         brands: {
-          set: brandIds.map((id) => ({ id })),
+          set: [], // Önce mevcut ilişkileri temizle
+          connect: brandIds.map(id => ({ id })) // Yeni ilişkileri ekle
         },
         categories: {
-          set: categoryIds.map((id) => ({ id })),
+          set: [], // Önce mevcut ilişkileri temizle
+          connect: categoryIds.map(id => ({ id })) // Yeni ilişkileri ekle
         },
         medias: {
-          set: mediaIds.map((id) => ({ id })),
-        },
-        attributes: {
-          set: attributeIds.map((id) => ({ id })),
-        },
-      },
+          set: [], // Önce mevcut ilişkileri temizle
+          connect: mediaIds.map(id => ({ id })) // Yeni ilişkileri ekle
+        }
+      }
     });
 
+    // Cache'i yenile
     revalidatePath("/admin/products");
-    revalidatePath(`/product/${slug}`);
-    return { success: true };
-  } catch (err) {
-    console.error(err);
-    return { error: "Ürün güncellenirken bir hata oluştu." };
+    
+    // Başarılı güncelleme sonrası yönlendirme
+    redirect("/admin/products");
+    
+  } catch (error) {
+    console.error("Ürün güncellenirken hata:", error);
+    return "Ürün güncellenirken bir hata oluştu.";
   }
-};
+}
