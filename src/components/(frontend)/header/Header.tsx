@@ -6,8 +6,8 @@ import Favorites from './Favorites'
 import CartCount from './CartCount'
 import UserMenu from './UserMenu'
 import MobileHeader from './MobileHeader'
-import { MenuBar } from './Menu'
 import LiveSearch from '../search/LiveSearch'
+import MenuBar from './Menu'
 const Header = () => {
   return (
    <> <div className='hidden sm:block '>
