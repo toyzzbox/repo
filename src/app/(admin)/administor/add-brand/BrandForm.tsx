@@ -1,7 +1,9 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { createBrand } from "./action";
+import { Label } from "@/components/ui/label";
+import MediaModalButton from "@/app/(frontend)/modal/MediaModalButton";
 
 
 interface Media {
@@ -16,6 +18,7 @@ interface BrandFormProps {
 
 export default function BrandForm({ medias }: BrandFormProps) {
   const [error, action, isPending] = useActionState(createBrand, null);
+  const [selectedMedias, setSelectedMedias] = useState<Media[]>([]);
 
   return (
     <main className="mx-auto max-w-lg">
@@ -38,17 +41,21 @@ export default function BrandForm({ medias }: BrandFormProps) {
     required
   />
 
-  <div className="flex flex-col">
-    <label className="font-medium mb-1">Medya Dosyaları</label>
-    <select name="mediaIds[]" multiple className="py-2 px-3 border rounded w-full">
-      {medias.map((media) => (
-        <option key={media.id} value={media.id}>
-          {media.urls[0]?.slice(-40) || "Media"}
-        </option>
-      ))}
-    </select>
-  </div>
-
+        <Label>Ürün Medyaları</Label>
+        <MediaModalButton
+          medias={medias}
+          onSelectedMediasChange={setSelectedMedias}
+          selectedMedias={selectedMedias}
+        />
+        {selectedMedias.map((media) => (
+          <input
+            key={media.id}
+            type="hidden"
+            name="mediaIds[]"
+            value={media.id}
+          />
+        ))}
+      
   <button
     disabled={isPending}
     className="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition w-full"
