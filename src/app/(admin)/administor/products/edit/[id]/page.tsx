@@ -4,14 +4,21 @@ import { Media, Product } from "@/types/product";
 import { Brand } from "@/types/brand";
 import { Category } from "@/types/category";
 import { Attribute } from "@/types/attribute";
-import { ProductGroup } from "@/types/product-group"; // Eğer type'ınız varsa
+
+// ProductGroup interface'ini burada tanımlayın
+interface ProductGroup {
+  id: string;
+  name: string;
+  slug: string;
+  description?: string;
+}
 
 type ProductWithRelations = Product & {
   brands: Brand[];
   categories: Category[];
   medias: Media[];
   attributes: Attribute[];
-  productGroup?: ProductGroup; // Eğer ilişki varsa
+  group?: ProductGroup; // Schema'da 'group' olarak tanımlanmış
 };
 
 export default async function EditProductPage({ params }: { params: { id: string } }) {
@@ -22,7 +29,7 @@ export default async function EditProductPage({ params }: { params: { id: string
       categories: true,
       medias: true,
       attributes: true,
-      productGroup: true, // Eğer ilişki varsa
+      group: true, // Schema'da 'group' olarak tanımlanmış
     },
   });
 
@@ -37,7 +44,7 @@ export default async function EditProductPage({ params }: { params: { id: string
   const categories = await prisma.category.findMany();
   const medias = await prisma.media.findMany();
   const attributes = await prisma.attribute.findMany();
-  const productGroups = await prisma.productGroup.findMany(); // Eğer ProductGroup tablonuz varsa
+  const productGroups = await prisma.productGroup.findMany(); // ProductGroup tablonuz var
 
   return (
     <EditProductForm
@@ -45,11 +52,11 @@ export default async function EditProductPage({ params }: { params: { id: string
         id: fullProduct.id,
         name: fullProduct.name,
         description: fullProduct.description ?? "",
-        serial: fullProduct.serial ?? "", // 👈 EKLENDİ
-        stock: fullProduct.stock ?? 0, // 👈 EKLENDİ
+        serial: fullProduct.serial ?? "",
+        stock: fullProduct.stock ?? 0,
         price: fullProduct.price,
         discount: fullProduct.discount ?? 0,
-        groupId: fullProduct.groupId ?? "", // 👈 EKLENDİ (ProductGroup ilişkisi için)
+        groupId: fullProduct.groupId ?? "", // Schema'da groupId var
         brandIds: fullProduct.brands.map((b) => b.id),
         categoryIds: fullProduct.categories.map((c) => c.id),
         mediaIds: fullProduct.medias.map((m) => m.id),
@@ -59,7 +66,7 @@ export default async function EditProductPage({ params }: { params: { id: string
       categories={categories}
       medias={medias}
       attributes={attributes}
-      productGroups={productGroups} // 👈 EKLENDİ
+      productGroups={productGroups}
     />
   );
 }
