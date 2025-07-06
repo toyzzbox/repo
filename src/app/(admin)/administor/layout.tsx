@@ -12,9 +12,9 @@ export default function AdminLayout({
     <div>
       <Topbar />
       <div className="flex min-h-screen">
-        <aside className="w-1/6 bg-gray-800 p-4 text-white">
+
           <Sidebar />
-        </aside>
+
         <main className="flex-1 p-6 bg-gray-100 text-gray-900">{children}</main>
       </div>
     </div>
