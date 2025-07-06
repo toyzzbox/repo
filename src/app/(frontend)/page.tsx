@@ -2,6 +2,7 @@ import { getAttributes } from "@/actions/getAttributes";
 import { getBrands } from "@/actions/getBrands";
 import { getCategories } from "@/actions/getCategories";
 import { getDiscountedProducts } from "@/actions/getDiscountedProducts";
+import { getPopularProducts } from "@/actions/getPopularProducts";
 import { getProducts } from "@/actions/getProduct";
 import { AttributeCard } from "@/components/(frontend)/attribute/AttributeCard";
 import { BrandCard } from "@/components/(frontend)/product/BrandCard";
@@ -10,7 +11,8 @@ import  {ProductCard}  from "@/components/(frontend)/product/ProductCard";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 
 export default async function Home() {
-  const products = await getProducts();
+  const product = await getProducts();
+  const products = await getPopularProducts();
   const brands = await getBrands();
   const categories = await getCategories();
   const attributes = await getAttributes();

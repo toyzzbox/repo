@@ -13,47 +13,52 @@ type PageProps = {
 export default async function ProductPage({ params }: PageProps) {
   const session = await auth(); // 🔐 Kullanıcı oturumu
 
-const product = await prisma.product.findUnique({
-  where: { slug: params.slug },
-  include: {
-    medias: { select: { urls: true } },
-    brands: {
-      select: {
-        id: true,
-        name: true,
-        slug: true,
+  const product = await prisma.product.update({
+    where: { slug: params.slug },
+    data: {
+      views: {
+        increment: 1,
       },
     },
-    categories: { select: { id: true, name: true, slug: true } },
-       group: {
-  include: {
-    products: {
-      select: {
-        id: true,
-        slug: true,
-        name: true,
-        price: true,
-        description: true,
-        stock: true,
-        medias: { select: { urls: true } },
+    include: {
+      medias: { select: { urls: true } },
+      brands: {
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+        },
+      },
+      categories: { select: { id: true, name: true, slug: true } },
+      group: {
+        include: {
+          products: {
+            select: {
+              id: true,
+              slug: true,
+              name: true,
+              price: true,
+              description: true,
+              stock: true,
+              medias: { select: { urls: true } },
+            },
+          },
+        },
+      },
+      favorites: session?.user?.id
+        ? {
+            where: { userId: session.user.id },
+            select: { id: true },
+          }
+        : undefined,
+      comments: {
+        include: {
+          user: { select: { name: true, image: true } },
+        },
+        orderBy: { createdAt: "desc" },
       },
     },
-  },
-},
-    favorites: session?.user?.id
-      ? {
-          where: { userId: session.user.id },
-          select: { id: true },
-        }
-      : undefined,
-    comments: {
-      include: {
-        user: { select: { name: true, image: true } },
-      },
-      orderBy: { createdAt: "desc" },
-    },
-  },
-});
+  });
 
   if (!product) {
     return notFound();

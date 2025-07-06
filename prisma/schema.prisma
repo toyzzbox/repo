@@ -128,6 +128,7 @@ model Product {
   description String? @db.Text
   favorites Favorite[] // 👈 bu ürünü favorileyen kullanıcılar
   comments  Comment[] // ✅ EKLENDİ
+  views Int    @default(0)
 
   groupId     String? // ✅ Opsiyonel
   group       ProductGroup? @relation(fields: [groupId], references: [id])
