@@ -10,10 +10,11 @@ export default function AdminLayout({
 }) {
   return (
     <div>
-  
+     <Sidebar />
+      <Topbar />    
       <div className="flex min-h-screen">
-      <Topbar />
-          <Sidebar />
+
+      
 
         <main className="flex-1 p-6 bg-gray-100 text-gray-900">{children}</main>
       </div>
