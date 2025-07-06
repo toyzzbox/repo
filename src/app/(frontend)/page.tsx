@@ -11,7 +11,7 @@ import  {ProductCard}  from "@/components/(frontend)/product/ProductCard";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 
 export default async function Home() {
-  const product = await getProducts();
+  const productNew = await getProducts();
   const products = await getPopularProducts();
   const brands = await getBrands();
   const categories = await getCategories();
@@ -57,6 +57,33 @@ export default async function Home() {
   > 
     <CarouselContent>
       {discountProducts.map((product) => ( // ✅ Burada discountProducts kullanılıyor
+        <CarouselItem
+          key={product.id}
+          className="basis-1/2 sm:basis-1/2 md:basis-1/3 lg:basis-1/5 xl:basis-1/6"
+        >
+          <ProductCard product={product} />
+        </CarouselItem>
+      ))}
+    </CarouselContent>
+
+    <CarouselPrevious />
+    <CarouselNext />
+  </Carousel>
+)}
+
+<h1 className="text-2xl font-bold text-center p-5">En Yeni Ürünler</h1>
+       {productNew.length === 0 ? (
+  <p className="text-center text-gray-500">Ürün bulunamadı.</p>
+) : (
+  <Carousel
+    opts={{
+      align: "start",
+      loop: true,
+    }}
+    className="w-full"
+  > 
+    <CarouselContent>
+      {productNew.map((product) => ( // ✅ Burada discountProducts kullanılıyor
         <CarouselItem
           key={product.id}
           className="basis-1/2 sm:basis-1/2 md:basis-1/3 lg:basis-1/5 xl:basis-1/6"
