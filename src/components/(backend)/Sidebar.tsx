@@ -69,7 +69,7 @@ const Sidebar = () => {
           bg-gray-800 text-white min-h-screen p-4 pt-16 md:pt-4
           fixed top-0 left-0 z-50 transition-transform duration-300
           transform ${isExpanded ? "translate-x-0" : "-translate-x-full"}
-          md:translate-x-0 md:w-64 w-64
+          md:translate-x-0 md:w-48 w-48
         `}
         aria-label="Sidebar"
       >
