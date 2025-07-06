@@ -16,7 +16,7 @@ import {
 const Sidebar = () => {
   const [isExpanded, setIsExpanded] = useState(false);
 
-  // Body scroll kilitleme (mobile)
+  // Body scroll kilitleme
   useEffect(() => {
     if (isExpanded) {
       document.body.style.overflow = "hidden";
@@ -45,7 +45,7 @@ const Sidebar = () => {
 
   return (
     <>
-      {/* Hamburger Button (mobile only) */}
+      {/* Toggle Button */}
       <button
         onClick={() => setIsExpanded(true)}
         className="md:hidden p-2 fixed top-4 left-4 z-50 bg-gray-800 text-white rounded"
@@ -54,7 +54,7 @@ const Sidebar = () => {
         <Menu />
       </button>
 
-      {/* Overlay (mobile only) */}
+      {/* Overlay */}
       {isExpanded && (
         <div
           className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"
@@ -68,14 +68,12 @@ const Sidebar = () => {
         className={`
           bg-gray-800 text-white min-h-screen p-4 pt-16 md:pt-4
           fixed top-0 left-0 z-50 transition-transform duration-300
-          transform
-          ${isExpanded ? "translate-x-0" : "-translate-x-full"}
-          md:translate-x-0
-          w-64
+          transform ${isExpanded ? "translate-x-0" : "-translate-x-full"}
+          md:translate-x-0 md:w-64 w-64
         `}
         aria-label="Sidebar"
       >
-        {/* Close Button (mobile only) */}
+        {/* Close button (mobile only) */}
         <button
           onClick={() => setIsExpanded(false)}
           className="md:hidden mb-4"
@@ -90,7 +88,7 @@ const Sidebar = () => {
               key={label}
               href={href}
               className="flex items-center gap-3 hover:bg-gray-700 p-2 rounded transition"
-              onClick={() => setIsExpanded(false)} // mobile'da linke basınca menü kapansın
+              onClick={() => setIsExpanded(false)} // mobile'da link tıklanınca menüyü kapat
             >
               {icon}
               <span className="text-sm">{label}</span>
