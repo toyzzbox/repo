@@ -58,7 +58,7 @@ const Sidebar = () => {
       {isExpanded && (
         <div
           className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"
-          onClick={() => setIsExpanded(false)}
+          onClick={() => setIsExpanded(false)} // Menü kapatıldığında overlay kapanacak
           aria-hidden="true"
         ></div>
       )}
