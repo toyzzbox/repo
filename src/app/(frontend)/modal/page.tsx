@@ -4,7 +4,7 @@ import MediaModalButton from "./MediaModalButton";
 
 export default async function MediasPage() {
   const medias = await prisma.media.findMany({
-    orderBy: { createdAt: "desc" },
+    orderBy: { createdAt: "asc" },
   });
 
   return (
