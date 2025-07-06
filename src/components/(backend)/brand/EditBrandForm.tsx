@@ -2,10 +2,14 @@
 
 import { useState, useTransition } from "react";
 import { Brand } from "@/types/brand";
-import { Media } from "@/types/product";
 import { updateBrand } from "@/actions/updateBrand";
 import MediaModalButton from "@/app/(frontend)/modal/MediaModalButton";
+import { Label } from "@/components/ui/label";
 
+interface Media {
+  id: string;
+  urls: string[];
+}
 interface Props {
   brand: Brand & { mediaIds: string[] };
   medias: Media[];
@@ -18,7 +22,7 @@ export default function EditBrandForm({ brand, medias }: Props) {
   const [description, setDescription] = useState(brand.description ?? "");
 
   const [selectedMedias, setSelectedMedias] = useState<Media[]>(
-    medias.filter((m) => brand.mediaIds.includes(m.id))
+    medias.filter(media => brand.mediaIds.includes(media.id))
   );
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -64,14 +68,22 @@ export default function EditBrandForm({ brand, medias }: Props) {
           required
         />
 
-        <div>
-          <label className="font-medium block mb-2">Marka Medyaları</label>
-          <MediaModalButton
-            medias={medias}
-            selectedMedias={selectedMedias}
-            onSelectedMediasChange={setSelectedMedias}
+<div className="space-y-2">
+        <Label>Ürün Medyaları</Label>
+        <MediaModalButton
+          medias={medias}
+          onSelectedMediasChange={setSelectedMedias}
+          selectedMedias={selectedMedias}
+        />
+        {selectedMedias.map((media) => (
+          <input
+            key={media.id}
+            type="hidden"
+            name="mediaIds[]"
+            value={media.id}
           />
-        </div>
+        ))}
+      </div>
 
         <button
           type="submit"
