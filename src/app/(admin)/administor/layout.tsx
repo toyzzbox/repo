@@ -1,5 +1,7 @@
-import Topbar from "@/components/(backend)/Topbar";
+// app/(admin)/layout.tsx
+
 import Sidebar from "@/components/(backend)/Sidebar";
+import Topbar from "@/components/(backend)/Topbar";
 
 export default function AdminLayout({
   children,
@@ -9,8 +11,10 @@ export default function AdminLayout({
   return (
     <div>
       <Topbar />
-      <div className="flex min-h-screen pt-14"> {/* pt-14 topbar yüksekliği kadar padding */}
-        <Sidebar />
+      <div className="flex min-h-screen">
+        <aside className="w-1/6 bg-gray-800 p-4 text-white">
+          <Sidebar />
+        </aside>
         <main className="flex-1 p-6 bg-gray-100 text-gray-900">{children}</main>
       </div>
     </div>
