@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   Home,
   Package,
@@ -10,20 +10,10 @@ import {
   Users,
   MessageSquare,
   Menu,
-  X,
 } from "lucide-react";
 
 const Sidebar = () => {
   const [isExpanded, setIsExpanded] = useState(false);
-
-  // Body scroll kilitleme
-  useEffect(() => {
-    if (isExpanded) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
-  }, [isExpanded]);
 
   const menuItems = [
     { href: "/administor", icon: <Home size={20} />, label: "Dashboard" },
@@ -45,53 +35,40 @@ const Sidebar = () => {
 
   return (
     <>
-      {/* Toggle Button */}
+      {/* Menü toggle düğmesi */}
       <button
-        onClick={() => setIsExpanded(true)}
+        onClick={() => setIsExpanded(!isExpanded)}
         className="md:hidden p-2 fixed top-4 left-4 z-50 bg-gray-800 text-white rounded"
-        aria-label="Menüyü Aç"
       >
         <Menu />
       </button>
-
-      {/* Overlay */}
-      {isExpanded && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"
-          onClick={() => setIsExpanded(false)} // Menü kapatıldığında overlay kapanacak
-          aria-hidden="true"
-        ></div>
-      )}
 
       {/* Sidebar */}
       <aside
         className={`
           bg-gray-800 text-white min-h-screen p-4 pt-16 md:pt-4
-          fixed top-0 left-0 z-50 transition-transform duration-300
-          transform ${isExpanded ? "translate-x-0" : "-translate-x-full"}
-          md:translate-x-0 md:w-64 w-64
+          fixed top-0 left-0 z-40 transition-all duration-300
+          ${isExpanded ? "w-64" : "w-16"}
+          md:w-64
         `}
-        aria-label="Sidebar"
       >
-        {/* Close button (mobile only) */}
-        <button
-          onClick={() => setIsExpanded(false)}
-          className="md:hidden mb-4"
-          aria-label="Menüyü Kapat"
-        >
-          <X />
-        </button>
-
         <div className="flex flex-col gap-4">
           {menuItems.map(({ href, icon, label }) => (
             <Link
               key={label}
               href={href}
               className="flex items-center gap-3 hover:bg-gray-700 p-2 rounded transition"
-              onClick={() => setIsExpanded(false)} // mobile'da link tıklanınca menüyü kapat
             >
               {icon}
-              <span className="text-sm">{label}</span>
+              <span
+                className={`
+                  text-sm transition-opacity duration-200
+                  ${isExpanded ? "opacity-100" : "opacity-0 md:opacity-100"}
+                  ${isExpanded ? "inline" : "hidden md:inline"}
+                `}
+              >
+                {label}
+              </span>
             </Link>
           ))}
         </div>
