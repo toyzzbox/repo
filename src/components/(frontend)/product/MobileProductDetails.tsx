@@ -14,6 +14,7 @@ import ProductBreadcrumb from "./ProductBreadcrumb";
 import { toggleFavorite } from "@/app/(admin)/administor/favorites/action";
 import CommentForm from "../comment/CommentForm";
 import { toast } from "sonner";
+import { ProductCard } from "./ProductCard";
 
 interface MobileProductDetailsProps {
   product: any;
@@ -178,26 +179,17 @@ export default function MobileProductDetails({
   />
 </div>
 {/* Benzer Ürünler */}
+<h2 className="text-lg font-semibold mb-4">Benzer Ürünler</h2>
 {relatedProducts.length > 0 && (
   <div className="mt-8">
-    <h2 className="text-lg font-semibold mb-4">Benzer Ürünler</h2>
     <div className="flex overflow-x-auto gap-4">
       {relatedProducts.map((related) => (
-        <button
+        <div
           key={related.id}
-          onClick={() => router.push(`/products/${related.slug}`)}
           className="flex-shrink-0 w-32"
         >
-          <div className="w-full h-32 relative border rounded">
-            <Image
-              src={related.medias?.[0]?.urls?.[0] || "/placeholder.png"}
-              alt={related.name}
-              fill
-              className="object-cover rounded"
-            />
-          </div>
-          <div className="mt-2 text-xs text-center">{related.name}</div>
-        </button>
+          <ProductCard product={related} />
+        </div>
       ))}
     </div>
   </div>
