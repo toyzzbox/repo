@@ -17,6 +17,7 @@ import { toggleFavorite } from "@/app/(admin)/administor/favorites/action";
 import { BsHeartFill } from "react-icons/bs";
 import CommentForm from "../comment/CommentForm";
 import { ProductCard } from "./ProductCard";
+import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
 
 interface Comment {
   id: string;
@@ -287,20 +288,29 @@ const DesktopProductDetails: React.FC<ProductDetailsProps> = ({
           questions={<div>Henüz soru bulunmamaktadır.</div>}
         />
       </div>
-      <h2 className="text-lg font-semibold mb-4">Benzer Ürünler</h2>
-{relatedProducts.length > 0 && (
-  <div className="mt-8">
-    <div className="flex overflow-x-auto gap-4">
-      {relatedProducts.map((related) => (
-        <div
-          key={related.id}
-          className="flex-shrink-0 w-32"
+      <h2 className="text-lg font-semibold mt-4">Benzer Ürünler</h2>
+
+{relatedProducts.length === 0 ? (
+  <p className="text-center text-gray-500">Ürün bulunamadı.</p>
+) : (
+  <Carousel
+    opts={{
+      align: "start",
+      loop: true,
+    }}
+    className="w-full"
+  > 
+    <CarouselContent>
+      {relatedProducts.map((product) => ( // ✅ Burada discountProducts kullanılıyor
+        <CarouselItem
+          key={product.id}
+          className="basis-1/2 sm:basis-1/2 md:basis-1/3 lg:basis-1/5 xl:basis-1/6"
         >
-          <ProductCard product={related} />
-        </div>
+          <ProductCard product={product} />
+        </CarouselItem>
       ))}
-    </div>
-  </div>
+    </CarouselContent>
+  </Carousel>
 )}
     </div>
   );
