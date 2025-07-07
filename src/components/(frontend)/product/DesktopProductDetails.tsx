@@ -16,6 +16,7 @@ import CartSuccessToast from "./CartSuccessToast";
 import { toggleFavorite } from "@/app/(admin)/administor/favorites/action";
 import { BsHeartFill } from "react-icons/bs";
 import CommentForm from "../comment/CommentForm";
+import { ProductCard } from "./ProductCard";
 
 interface Comment {
   id: string;
@@ -36,7 +37,7 @@ interface ProductDetailsProps {
     description?: string;
     price: number;
     medias: { urls: string[] }[];
-    categories?: { id: string; name: string }[];
+    categories?: { id: string; name: string  }[];
     brands?: { id: string; name: string; slug: string }[];
     group?: {
       name: string;
@@ -286,6 +287,21 @@ const DesktopProductDetails: React.FC<ProductDetailsProps> = ({
           questions={<div>Henüz soru bulunmamaktadır.</div>}
         />
       </div>
+      <h2 className="text-lg font-semibold mb-4">Benzer Ürünler</h2>
+{relatedProducts.length > 0 && (
+  <div className="mt-8">
+    <div className="flex overflow-x-auto gap-4">
+      {relatedProducts.map((related) => (
+        <div
+          key={related.id}
+          className="flex-shrink-0 w-32"
+        >
+          <ProductCard product={related} />
+        </div>
+      ))}
+    </div>
+  </div>
+)}
     </div>
   );
 };
