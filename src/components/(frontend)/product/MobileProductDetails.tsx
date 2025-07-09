@@ -118,7 +118,7 @@ export default function MobileProductDetails({
             {variants.map((variant) => (
               <div key={variant.id}>
                 <button
-                  onClick={() => router.push(`/products/${variant.slug}`)}
+                  onClick={() => router.push(`/${variant.slug}`)}
                   className={`border rounded px-3 py-2 flex flex-col items-center gap-1 w-24 ${
                     activeVariant.id === variant.id
                       ? "border-orange-500 bg-orange-100"
