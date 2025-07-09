@@ -26,7 +26,7 @@ export default function MultiSelect({
   placeholder = "Ara...",
   label,
 }: MultiSelectProps) {
-  const [showAll, setShowAll] = React.useState(false);
+  const [query, setQuery] = React.useState("");
 
   const toggleItem = (id: string) => {
     setSelected((prev) =>
@@ -38,17 +38,19 @@ export default function MultiSelect({
     setSelected((prev) => prev.filter((item) => item !== id));
   };
 
-  const displayedItems = showAll ? items : items.slice(0, 5);
+  const filteredItems = items.filter((item) =>
+    item.name.toLowerCase().includes(query.toLowerCase())
+  );
 
   return (
     <div className="space-y-2">
       {label && <label className="font-medium">{label}</label>}
 
       <Command>
-        <CommandInput placeholder={placeholder} />
+        <CommandInput placeholder={placeholder} onValueChange={setQuery} />
         <CommandEmpty>Sonuç bulunamadı.</CommandEmpty>
-        <CommandGroup>
-          {displayedItems.map((item) => (
+        <CommandGroup className="max-h-60 overflow-y-auto">
+          {filteredItems.map((item) => (
             <CommandItem key={item.id} onSelect={() => toggleItem(item.id)}>
               <Check
                 className={cn(
@@ -59,16 +61,6 @@ export default function MultiSelect({
               {item.name}
             </CommandItem>
           ))}
-
-          {/* Tümünü gör / gizle */}
-          {items.length > 5 && (
-            <CommandItem
-              onSelect={() => setShowAll(!showAll)}
-              className="text-blue-600 cursor-pointer"
-            >
-              {showAll ? "Daha az göster" : `Tümünü gör (${items.length})`}
-            </CommandItem>
-          )}
         </CommandGroup>
       </Command>
 
