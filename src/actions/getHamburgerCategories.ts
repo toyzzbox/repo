@@ -7,19 +7,22 @@ import { prisma } from "@/lib/prisma";
  */
 export async function getAllCategories() {
     try {
-      const categories = await prisma.category.findMany({
-        where: {
-          parentId: null,
-        },
-        include: {
-          children: {
-            include: {
-              children: true,
+        const categories = await prisma.category.findMany({
+            where: {
+              parentId: null,
             },
-          },
-        },
-      });
-  
+            include: {
+              children: {
+                include: {
+                  children: {
+                    include: {
+                      children: true, // 3. seviye
+                    },
+                  },
+                },
+              },
+            },
+          });
       // 🎯 İstenen sıralama
       const desiredOrder = [
         "Oyuncaklar",
