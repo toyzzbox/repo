@@ -11,10 +11,12 @@ export default function AdminLayout({
   return (
     <div>
       <Topbar />
-      <div className="flex min-h-screen">
-        <Sidebar /> {/* direkt Sidebar çağır */}
-        <main className="flex-1 bg-gray-100 text-gray-900">{children}</main>
-      </div>
+      <div>
+      <Sidebar />
+      <main className="min-h-screen bg-gray-100 text-gray-900 md:pl-64 pt-16 md:pt-0">
+        {children}
+      </main>
+    </div>
     </div>
   );
 }
