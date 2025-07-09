@@ -8,18 +8,26 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import {
-  BoxIcon,
   ChevronLeft,
   ChevronRight,
-  Heart,
-  LocationEdit,
   Menu,
-  User,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-export default function HamburgerMenu() {
-  const [activeMenu, setActiveMenu] = useState<"main" | "ciltBakimi" | "yuzBakimUrunleri">("main");
+type Category = {
+  id: string;
+  name: string;
+  slug: string;
+  children: Category[];
+};
+
+interface HamburgerMenuProps {
+  categories: Category[];
+}
+
+export default function HamburgerMenu({ categories }: HamburgerMenuProps) {
+  const [activeMenu, setActiveMenu] = useState<"main" | string>("main");
+  const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const router = useRouter();
 
   return (
@@ -36,119 +44,48 @@ export default function HamburgerMenu() {
         {/* Ana Menü */}
         {activeMenu === "main" && (
           <div>
-            <div className="flex justify-between items-center p-4 border-b font-bold text-lg">
-              <span>TOYZZ BOX</span>
-            </div>
+            <div className="p-4 font-bold text-lg border-b">TOYZZ BOX</div>
 
-            <div className="border-b p-4">Hesabım</div>
-
-            <div
-              className="border-b p-4 flex items-center cursor-pointer"
-              onClick={() => router.push("/giris")}
-            >
-              <User className="mr-2" /> Giriş yap
-            </div>
-
-            <div
-              className="border-b p-4 flex items-center cursor-pointer"
-              onClick={() => router.push("/favoriler")}
-            >
-              <Heart className="mr-2" /> Favorilerim
-            </div>
-
-            <div
-              className="border-b p-4 flex items-center cursor-pointer"
-              onClick={() => router.push("/siparis-takibi")}
-            >
-              <BoxIcon className="mr-2" /> Sipariş takibi
-            </div>
-
-            {/* Kategoriler */}
-            {[
-              "Oyuncaklar",
-              "Anne & Bebek",
-              "Spor & Outdoor",
-              "Okul & Kırtasiye",
-              "Hediyelik",
-              "Elektronik",
-            ].map((category) => (
+            {/* Dinamik kategoriler */}
+            {categories.map((category) => (
               <div
-                key={category}
+                key={category.id}
                 className="border-b p-4 flex justify-between items-center cursor-pointer"
-                onClick={() => setActiveMenu("ciltBakimi")} // TODO: her kategori için farklı menu state setle
+                onClick={() => {
+                  if (category.children.length > 0) {
+                    setSelectedCategory(category);
+                    setActiveMenu(category.slug);
+                  } else {
+                    router.push(`/category/${category.slug}`);
+                  }
+                }}
               >
-                <span>{category}</span>
-                <ChevronRight size={20} />
+                <span>{category.name}</span>
+                {category.children.length > 0 && <ChevronRight size={20} />}
               </div>
             ))}
 
-            <div className="border-b p-4">Markalar</div>
             <div className="border-b p-4 text-pink-600 font-medium">Fırsatlar</div>
-
-            {/* Diğerleri */}
-            <div className="border-b p-4">Diğerleri</div>
-
-            <div
-              className="border-b p-4 flex items-center cursor-pointer"
-              onClick={() => router.push("/magazalar")}
-            >
-              <LocationEdit className="mr-2" /> Mağazalar
-            </div>
-            <div
-              className="border-b p-4 flex items-center cursor-pointer"
-              onClick={() => router.push("/yardim")}
-            >
-              <LocationEdit className="mr-2" /> Yardım
-            </div>
-            <div
-              className="border-b p-4 flex items-center cursor-pointer"
-              onClick={() => router.push("/iletisim")}
-            >
-              <LocationEdit className="mr-2" /> İletişim
-            </div>
           </div>
         )}
 
-        {/* 2. Seviye Menü - Cilt Bakımı */}
-        {activeMenu === "ciltBakimi" && (
+        {/* Alt Kategori Menü */}
+        {activeMenu !== "main" && selectedCategory && (
           <div>
             <div className="flex items-center p-4 border-b font-bold text-lg">
               <button onClick={() => setActiveMenu("main")} className="mr-2">
                 <ChevronLeft size={20} />
               </button>
-              <span>Cilt Bakımı</span>
+              <span>{selectedCategory.name}</span>
             </div>
 
-            <div className="border-b p-4">Tümünü Gör</div>
-
-            {["Yüz Bakım Ürünleri", "Göz Bakımı", "Vücut Bakımı"].map((item) => (
+            {selectedCategory.children.map((sub) => (
               <div
-                key={item}
-                className="border-b p-4 flex justify-between items-center cursor-pointer"
-                onClick={() => setActiveMenu("yuzBakimUrunleri")}
+                key={sub.id}
+                className="border-b p-4 cursor-pointer"
+                onClick={() => router.push(`/category/${sub.slug}`)}
               >
-                <span>{item}</span>
-                <ChevronRight size={20} />
-              </div>
-            ))}
-
-            <div className="border-b p-4">Endişeye Göre</div>
-          </div>
-        )}
-
-        {/* 3. Seviye Menü - Yüz Bakım Ürünleri Alt Kategorileri */}
-        {activeMenu === "yuzBakimUrunleri" && (
-          <div>
-            <div className="flex items-center p-4 border-b font-bold text-lg">
-              <button onClick={() => setActiveMenu("ciltBakimi")} className="mr-2">
-                <ChevronLeft size={20} />
-              </button>
-              <span>Yüz Bakım Ürünleri</span>
-            </div>
-
-            {["Serumlar", "Nemlendiriciler", "Göz Kremleri", "Tonikler", "Peelingler"].map((sub) => (
-              <div key={sub} className="border-b p-4">
-                {sub}
+                {sub.name}
               </div>
             ))}
           </div>
