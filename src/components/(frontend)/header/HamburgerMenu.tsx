@@ -32,6 +32,7 @@ export default function HamburgerMenu() {
       </SheetTrigger>
 
       <SheetContent side="left" className="w-[80%] max-w-xs h-screen overflow-y-auto">
+        
         {/* Ana Menü */}
         {activeMenu === "main" && (
           <div>
@@ -45,93 +46,68 @@ export default function HamburgerMenu() {
               className="border-b p-4 flex items-center cursor-pointer"
               onClick={() => router.push("/giris")}
             >
-              <span className="mr-2"><User /></span> Giriş yap
+              <User className="mr-2" /> Giriş yap
             </div>
 
             <div
               className="border-b p-4 flex items-center cursor-pointer"
               onClick={() => router.push("/favoriler")}
             >
-              <span className="mr-2"><Heart /></span> Favorilerim
+              <Heart className="mr-2" /> Favorilerim
             </div>
 
             <div
               className="border-b p-4 flex items-center cursor-pointer"
               onClick={() => router.push("/siparis-takibi")}
             >
-              <span className="mr-2"><BoxIcon /></span> Sipariş takibi
+              <BoxIcon className="mr-2" /> Sipariş takibi
             </div>
 
-            <div
-              className="border-b p-4 flex justify-between items-center cursor-pointer"
-              onClick={() => setActiveMenu("ciltBakimi")}
-            >
-              <span>Oyuncaklar</span>
-              <ChevronRight size={20} />
-            </div>
-            <div
-              className="border-b p-4 flex justify-between items-center cursor-pointer"
-              onClick={() => setActiveMenu("ciltBakimi")}
-            >
-              <span>Anne & Bebek</span>
-              <ChevronRight size={20} />
-            </div>
-            <div
-              className="border-b p-4 flex justify-between items-center cursor-pointer"
-              onClick={() => setActiveMenu("ciltBakimi")}
-            >
-              <span>Spor & Outdoor</span>
-              <ChevronRight size={20} />
-            </div>
-            <div
-              className="border-b p-4 flex justify-between items-center cursor-pointer"
-              onClick={() => setActiveMenu("ciltBakimi")}
-            >
-              <span>Okul & Kırtasiye</span>
-              <ChevronRight size={20} />
-            </div>
-            <div
-              className="border-b p-4 flex justify-between items-center cursor-pointer"
-              onClick={() => setActiveMenu("ciltBakimi")}
-            >
-              <span>Hediyelik</span>
-            
-              <ChevronRight size={20} />
-            </div>
-            <div
-              className="border-b p-4 flex justify-between items-center cursor-pointer"
-              onClick={() => setActiveMenu("ciltBakimi")}
-            >
-              <span>Elektronik</span>
-              <ChevronRight size={20} />
-            </div>
+            {/* Kategoriler */}
+            {[
+              "Oyuncaklar",
+              "Anne & Bebek",
+              "Spor & Outdoor",
+              "Okul & Kırtasiye",
+              "Hediyelik",
+              "Elektronik",
+            ].map((category) => (
+              <div
+                key={category}
+                className="border-b p-4 flex justify-between items-center cursor-pointer"
+                onClick={() => setActiveMenu("ciltBakimi")} // TODO: her kategori için farklı menu state setle
+              >
+                <span>{category}</span>
+                <ChevronRight size={20} />
+              </div>
+            ))}
+
             <div className="border-b p-4">Markalar</div>
-            <div className="border-b p-4 text-pink-600 font-medium">
-            Fırsatlar
+            <div className="border-b p-4 text-pink-600 font-medium">Fırsatlar</div>
+
+            {/* Diğerleri */}
+            <div className="border-b p-4">Diğerleri</div>
+
+            <div
+              className="border-b p-4 flex items-center cursor-pointer"
+              onClick={() => router.push("/magazalar")}
+            >
+              <LocationEdit className="mr-2" /> Mağazalar
+            </div>
+            <div
+              className="border-b p-4 flex items-center cursor-pointer"
+              onClick={() => router.push("/yardim")}
+            >
+              <LocationEdit className="mr-2" /> Yardım
+            </div>
+            <div
+              className="border-b p-4 flex items-center cursor-pointer"
+              onClick={() => router.push("/iletisim")}
+            >
+              <LocationEdit className="mr-2" /> İletişim
             </div>
           </div>
         )}
-
-<div className="border-b p-4">Diğerleri</div>
-
-<div
-  className="border-b p-4 flex items-center cursor-pointer"
-  onClick={() => router.push("/giris")}
->
-  <span className="mr-2"><LocationEdit /></span> Mağazalar
-</div>
-<div
-  className="border-b p-4 flex items-center cursor-pointer"
-  onClick={() => router.push("/giris")}
->
-  <span className="mr-2"><LocationEdit /></span> Yardım
-</div>
-<div
-  className="border-b p-4 flex items-center cursor-pointer"
-  onClick={() => router.push("/giris")}
->
-  <span className="mr-2"><LocationEdit /></span> İletişim
-</div>
 
         {/* 2. Seviye Menü - Cilt Bakımı */}
         {activeMenu === "ciltBakimi" && (
@@ -144,29 +120,17 @@ export default function HamburgerMenu() {
             </div>
 
             <div className="border-b p-4">Tümünü Gör</div>
-            <div
-              className="border-b p-4 flex justify-between items-center cursor-pointer"
-              onClick={() => setActiveMenu("yuzBakimUrunleri")}
-            >
-              <span>Yüz Bakım Ürünleri</span>
-              <ChevronRight size={20} />
-            </div>
 
-            <div
-              className="border-b p-4 flex justify-between items-center cursor-pointer"
-              onClick={() => setActiveMenu("yuzBakimUrunleri")}
-            >
-              <span>Yüz Bakım Ürünleri</span>
-              <ChevronRight size={20} />
-            </div>
-            <div
-              className="border-b p-4 flex justify-between items-center cursor-pointer"
-              onClick={() => setActiveMenu("yuzBakimUrunleri")}
-            >
-              <span>Yüz Bakım Ürünleri</span>
-              <ChevronRight size={20} />
-            </div>
-
+            {["Yüz Bakım Ürünleri", "Göz Bakımı", "Vücut Bakımı"].map((item) => (
+              <div
+                key={item}
+                className="border-b p-4 flex justify-between items-center cursor-pointer"
+                onClick={() => setActiveMenu("yuzBakimUrunleri")}
+              >
+                <span>{item}</span>
+                <ChevronRight size={20} />
+              </div>
+            ))}
 
             <div className="border-b p-4">Endişeye Göre</div>
           </div>
@@ -182,13 +146,14 @@ export default function HamburgerMenu() {
               <span>Yüz Bakım Ürünleri</span>
             </div>
 
-            <div className="border-b p-4">Serumlar</div>
-            <div className="border-b p-4">Nemlendiriciler</div>
-            <div className="border-b p-4">Göz Kremleri</div>
-            <div className="border-b p-4">Tonikler</div>
-            <div className="border-b p-4">Peelingler</div>
+            {["Serumlar", "Nemlendiriciler", "Göz Kremleri", "Tonikler", "Peelingler"].map((sub) => (
+              <div key={sub} className="border-b p-4">
+                {sub}
+              </div>
+            ))}
           </div>
         )}
+
       </SheetContent>
     </Sheet>
   );
