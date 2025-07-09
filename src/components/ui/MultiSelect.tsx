@@ -49,19 +49,23 @@ export default function MultiSelect({
       <Command>
         <CommandInput placeholder={placeholder} onValueChange={setQuery} />
         <CommandEmpty>Sonuç bulunamadı.</CommandEmpty>
-        <CommandGroup className="max-h-60 overflow-y-auto">
-          {filteredItems.map((item) => (
-            <CommandItem key={item.id} onSelect={() => toggleItem(item.id)}>
-              <Check
-                className={cn(
-                  "mr-2 h-4 w-4",
-                  selected.includes(item.id) ? "opacity-100" : "opacity-0"
-                )}
-              />
-              {item.name}
-            </CommandItem>
-          ))}
-        </CommandGroup>
+
+        {/* 🟢 Scroll container eklendi */}
+        <div className="max-h-60 overflow-y-auto">
+          <CommandGroup>
+            {filteredItems.map((item) => (
+              <CommandItem key={item.id} onSelect={() => toggleItem(item.id)}>
+                <Check
+                  className={cn(
+                    "mr-2 h-4 w-4",
+                    selected.includes(item.id) ? "opacity-100" : "opacity-0"
+                  )}
+                />
+                {item.name}
+              </CommandItem>
+            ))}
+          </CommandGroup>
+        </div>
       </Command>
 
       {/* Seçilenleri göster */}
