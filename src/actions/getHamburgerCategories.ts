@@ -6,30 +6,50 @@ import { prisma } from "@/lib/prisma";
  * Tüm kategorileri parent-child hiyerarşisiyle getirir
  */
 export async function getAllCategories() {
-  try {
-    const categories = await prisma.category.findMany({
-      where: {
-        parentId: null, // sadece root kategoriler
-      },
-      include: {
-        children: {
-          include: {
-            children: true, // 2. seviye alt kategoriler
+    try {
+      const categories = await prisma.category.findMany({
+        where: {
+          parentId: null,
+        },
+        include: {
+          children: {
+            include: {
+              children: true,
+            },
           },
         },
-      },
-      orderBy: {
-        name: "asc",
-      },
-    });
-
-    return categories;
-  } catch (error) {
-    console.error("getAllCategories error:", error);
-    throw new Error("Kategoriler getirilemedi");
+      });
+  
+      // 🎯 İstenen sıralama
+      const desiredOrder = [
+        "Oyuncaklar",
+        "Anne & Bebek",
+        "Spor & Outdoor",
+        "Okul & Kırtasiye",
+        "Hediyelik",
+        "Elektronik",
+      ];
+  
+      const sorted = categories.sort((a, b) => {
+        const indexA = desiredOrder.indexOf(a.name);
+        const indexB = desiredOrder.indexOf(b.name);
+  
+        if (indexA === -1 && indexB === -1) {
+          return a.name.localeCompare(b.name); // listedeyoksa alfabetik
+        }
+        if (indexA === -1) return 1;
+        if (indexB === -1) return -1;
+  
+        return indexA - indexB;
+      });
+  
+      return sorted;
+    } catch (error) {
+      console.error("getAllCategories error:", error);
+      throw new Error("Kategoriler getirilemedi");
+    }
   }
-}
-
+  
 /**
  * Belirli bir kategoriyi slug ile getirir
  */
