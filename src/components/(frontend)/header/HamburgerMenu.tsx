@@ -36,7 +36,7 @@ export default function HamburgerMenu({ categories }: HamburgerMenuProps) {
     if (category.children.length > 0) {
       setMenuStack((prev) => [...prev, category]);
     } else {
-      router.push(`/category/${category.slug}`);
+      router.push(`/categories/${category.slug}`);
     }
   };
 
