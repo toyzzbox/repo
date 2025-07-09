@@ -26,9 +26,23 @@ interface HamburgerMenuProps {
 }
 
 export default function HamburgerMenu({ categories }: HamburgerMenuProps) {
-  const [activeMenu, setActiveMenu] = useState<"main" | string>("main");
-  const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
+  const [menuStack, setMenuStack] = useState<Category[]>([]);
   const router = useRouter();
+
+  const currentMenu = menuStack[menuStack.length - 1];
+  const currentCategories = currentMenu ? currentMenu.children : categories;
+
+  const handleCategoryClick = (category: Category) => {
+    if (category.children.length > 0) {
+      setMenuStack((prev) => [...prev, category]);
+    } else {
+      router.push(`/category/${category.slug}`);
+    }
+  };
+
+  const handleBack = () => {
+    setMenuStack((prev) => prev.slice(0, -1));
+  };
 
   return (
     <Sheet>
@@ -41,56 +55,31 @@ export default function HamburgerMenu({ categories }: HamburgerMenuProps) {
 
       <SheetContent side="left" className="w-[80%] max-w-xs h-screen overflow-y-auto">
         
-        {/* Ana Menü */}
-        {activeMenu === "main" && (
-          <div>
-            <div className="p-4 font-bold text-lg border-b">TOYZZ BOX</div>
-
-            {/* Dinamik kategoriler */}
-            {categories.map((category) => (
-              <div
-                key={category.id}
-                className="border-b p-4 flex justify-between items-center cursor-pointer"
-                onClick={() => {
-                  if (category.children.length > 0) {
-                    setSelectedCategory(category);
-                    setActiveMenu(category.slug);
-                  } else {
-                    router.push(`/category/${category.slug}`);
-                  }
-                }}
-              >
-                <span>{category.name}</span>
-                {category.children.length > 0 && <ChevronRight size={20} />}
-              </div>
-            ))}
-
-            <div className="border-b p-4 text-pink-600 font-medium">Fırsatlar</div>
-          </div>
-        )}
-
-        {/* Alt Kategori Menü */}
-        {activeMenu !== "main" && selectedCategory && (
-          <div>
-            <div className="flex items-center p-4 border-b font-bold text-lg">
-              <button onClick={() => setActiveMenu("main")} className="mr-2">
+        <div>
+          <div className="p-4 font-bold text-lg border-b flex items-center">
+            {menuStack.length > 0 && (
+              <button onClick={handleBack} className="mr-2">
                 <ChevronLeft size={20} />
               </button>
-              <span>{selectedCategory.name}</span>
-            </div>
-
-            {selectedCategory.children.map((sub) => (
-              <div
-                key={sub.id}
-                className="border-b p-4 cursor-pointer"
-                onClick={() => router.push(`/category/${sub.slug}`)}
-              >
-                {sub.name}
-              </div>
-            ))}
+            )}
+            <span>{currentMenu ? currentMenu.name : "TOYZZ BOX"}</span>
           </div>
-        )}
 
+          {currentCategories.map((category) => (
+            <div
+              key={category.id}
+              className="border-b p-4 flex justify-between items-center cursor-pointer"
+              onClick={() => handleCategoryClick(category)}
+            >
+              <span>{category.name}</span>
+              {category.children.length > 0 && <ChevronRight size={20} />}
+            </div>
+          ))}
+
+          {menuStack.length === 0 && (
+            <div className="border-b p-4 text-pink-600 font-medium">Fırsatlar</div>
+          )}
+        </div>
       </SheetContent>
     </Sheet>
   );
