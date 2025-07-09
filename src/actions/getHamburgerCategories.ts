@@ -2,6 +2,25 @@
 
 import { prisma } from "@/lib/prisma";
 
+
+
+export async function getAllCategoriesFlat() {
+    try {
+      const categories = await prisma.category.findMany({
+        include: {
+          parent: true,
+        },
+        orderBy: {
+          name: "asc",
+        },
+      });
+  
+      return categories;
+    } catch (error) {
+      console.error("getAllCategoriesFlat error:", error);
+      throw new Error("Kategoriler getirilemedi");
+    }
+  }
 /**
  * Tüm kategorileri parent-child hiyerarşisiyle getirir
  */
