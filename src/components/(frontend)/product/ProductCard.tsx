@@ -13,7 +13,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const router = useRouter();
 
   const handleClick = () => {
-    if (product.slug) router.push(`/product/${product.slug}`);
+    if (product.slug) router.push(`/${product.slug}`);
   };
 
   const imageUrl = product.medias?.[0]?.urls?.[0] ?? null;
