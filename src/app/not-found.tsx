@@ -3,24 +3,25 @@
 
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Moon, Sun } from "lucide-react"; // Opsiyonel ikon
+import Lottie from "lottie-react";
 
 export default function NotFound() {
-  return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-6 py-12 bg-background text-foreground transition-colors">
-      <div className="text-center max-w-xl">
-        <h1 className="text-[80px] font-bold text-red-600 dark:text-red-400 leading-none">404</h1>
-        <h2 className="text-2xl font-semibold mt-4">Sayfa Bulunamadı</h2>
-        <p className="mt-2 text-muted-foreground">
-          Aradığınız sayfa bulunamadı. Adres yanlış yazılmış olabilir ya da içerik kaldırılmış olabilir.
-        </p>
+  const animationUrl = "/animations/404.json"; // public klasöründen alınır
 
-        <div className="mt-6">
-          <Button asChild>
-            <Link href="/">Ana Sayfaya Dön</Link>
-          </Button>
-        </div>
+  return (
+    <div className="min-h-screen flex flex-col items-center justify-center px-6 py-12 bg-background text-foreground">
+      <div className="w-96 h-96">
+        <Lottie path={animationUrl} loop autoplay />
       </div>
+
+      <h1 className="text-3xl font-bold mt-6">Sayfa Bulunamadı</h1>
+      <p className="text-muted-foreground mt-2 text-center max-w-md">
+        Aradığınız sayfa bulunamadı. Lütfen adresi kontrol edin veya ana sayfaya dönün.
+      </p>
+
+      <Button asChild className="mt-6">
+        <Link href="/">Ana Sayfaya Dön</Link>
+      </Button>
     </div>
   );
 }
