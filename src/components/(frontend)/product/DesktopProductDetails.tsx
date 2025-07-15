@@ -138,7 +138,11 @@ const DesktopProductDetails: React.FC<ProductDetailsProps> = ({
       />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mt-4">
-        <ProductImageGallery images={imageUrls} productName={activeVariant.name} />
+      <ProductImageGallery 
+  images={activeVariant.images} 
+  productName={activeVariant.name}
+  productGroupImages={productGroup?.otherProductImages || []}
+/>
 
         <div className="flex flex-col gap-4 text-slate-600 text-sm">
           <h2 className="text-3xl font-semibold text-slate-800">
