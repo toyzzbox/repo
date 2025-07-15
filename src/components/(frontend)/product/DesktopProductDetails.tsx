@@ -120,6 +120,26 @@ const DesktopProductDetails: React.FC<ProductDetailsProps> = ({
     ?.flatMap(p => p.medias?.map(m => m.urls[0]) || []) // Her ürünün ilk resmini al
     ?.filter(Boolean) || []; // Boş olanları filtrele
 
+  // Resim-ürün eşleştirmesi için map oluştur
+  const imageToProductMap = new Map();
+  product.group?.products
+    ?.filter(p => p.id !== activeVariant.id)
+    ?.forEach(p => {
+      p.medias?.forEach(m => {
+        if (m.urls[0]) {
+          imageToProductMap.set(m.urls[0], p);
+        }
+      });
+    });
+
+  // Grup resmine tıklandığında o ürüne git
+  const handleGroupImageClick = (imageUrl: string) => {
+    const targetProduct = imageToProductMap.get(imageUrl);
+    if (targetProduct) {
+      router.push(`/product/${targetProduct.slug}`);
+    }
+  };
+
   const [favorited, setFavorited] = useState(isFavorited);
   const [isPending, startTransition] = useTransition();
 
@@ -148,6 +168,7 @@ const DesktopProductDetails: React.FC<ProductDetailsProps> = ({
           images={imageUrls} 
           productName={activeVariant.name}
           productGroupImages={productGroupImages}
+          onGroupImageClick={handleGroupImageClick}
         />
 
         <div className="flex flex-col gap-4 text-slate-600 text-sm">

@@ -7,9 +7,10 @@ type Props = {
   images: string[];
   productName: string;
   productGroupImages?: string[]; // Ürün grubuna ait diğer ürünlerin resimleri
+  onGroupImageClick?: (imageUrl: string) => void; // Grup resmine tıklandığında çağrılacak fonksiyon
 };
 
-export default function ProductImageGallery({ images, productName, productGroupImages = [] }: Props) {
+export default function ProductImageGallery({ images, productName, productGroupImages = [], onGroupImageClick }: Props) {
   // Aktif ürün resimleri + grup resimleri
   const allImages = [...images, ...productGroupImages];
   const [selectedImage, setSelectedImage] = useState(allImages[0]);
@@ -62,7 +63,13 @@ export default function ProductImageGallery({ images, productName, productGroupI
             <img
               src={img}
               alt={`Grup Ürünü - Resim ${index + 1}`}
-              onClick={() => setSelectedImage(img)}
+              onClick={() => {
+                if (onGroupImageClick) {
+                  onGroupImageClick(img);
+                } else {
+                  setSelectedImage(img);
+                }
+              }}
               className={`h-20 w-20 object-cover rounded-md border cursor-pointer transition-all ${
                 selectedImage === img
                   ? 'border-orange-500 ring-2 ring-orange-400'
