@@ -39,11 +39,11 @@ interface ProductDetailsProps {
     discount: number;
     price: number;
     medias: { urls: string[] }[];
-    categories?: { id: string; name: string  }[];
+    categories?: { id: string; name: string; slug: string; parent?: { name: string; slug: string } }[];
     brands?: { id: string; name: string; slug: string }[];
     group?: {
       name: string;
-      description?: string | null; // ✅ EKLENDİ
+      description?: string | null;
       products: {
         id: string;
         slug: string;
@@ -99,7 +99,6 @@ const DesktopProductDetails: React.FC<ProductDetailsProps> = ({
         price: activeVariant.price,
         quantity,
         url: activeVariant.medias?.[0]?.urls?.[0] ?? "",
-        
       })
     );
     toast.custom(() => <CartSuccessToast productName={activeVariant.name} />);
@@ -132,6 +131,7 @@ const DesktopProductDetails: React.FC<ProductDetailsProps> = ({
   return (
     <div className="p-4">
       <ProductBreadcrumb
+        parentCategory={product.categories?.[0]?.parent}
         category={product.categories?.[0]}
         groupName={product.group?.name}
         productName={activeVariant.name}
@@ -147,23 +147,19 @@ const DesktopProductDetails: React.FC<ProductDetailsProps> = ({
               : activeVariant.name}
           </h2>
 
-          {/* Marka Linki */}
           {product.brands?.length > 0 && (
-  <div className="flex items-center gap-2">
-   
-    {product.brands.map((brand) => (
-      <Link 
-        key={brand.id}
-        href={`/marka/${brand.slug}`}
-        className=" hover:text-orange-600 font-medium hover:transition-colors"
-      >
-        {brand.name} <span className="text-orange-500">diğer ürünleri</span>
-      </Link>
-    ))}
-  </div>
-)}
-
-
+            <div className="flex items-center gap-2">
+              {product.brands.map((brand) => (
+                <Link
+                  key={brand.id}
+                  href={`/marka/${brand.slug}`}
+                  className="hover:text-orange-600 font-medium hover:transition-colors"
+                >
+                  {brand.name} <span className="text-orange-500">diğer ürünleri</span>
+                </Link>
+              ))}
+            </div>
+          )}
 
           {variants.length > 1 && (
             <div className="flex gap-2 flex-wrap">
@@ -194,35 +190,33 @@ const DesktopProductDetails: React.FC<ProductDetailsProps> = ({
             </div>
           )}
 
-<div className="mt-2">
-  {product.discount ? (
-    <div className="flex items-center gap-2">
-      <h1 className="text-2xl font-bold text-red-600">
-        {(product.discount).toFixed(2)} TL
-      </h1>
-      <span className="line-through text-gray-500">
-        {(product.price).toFixed(2)} TL
-      </span>
-    </div>
-  ) : (
-    <h1 className="text-2xl font-bold text-black">
-      {(product.price).toFixed(2)} TL
-    </h1>
-  )}
-</div>
-
-            <div className="flex items-center gap-4">
-              <span className="text-sm font-medium">Adet:</span>
-              <div className="flex items-center bg-gray-100 rounded px-3 py-1">
-                <button onClick={decrementQuantity} className="px-2 text-lg">−</button>
-                <span className="px-3">{quantity}</span>
-                <button onClick={incrementQuantity} className="px-2 text-lg">+</button>
+          <div className="mt-2">
+            {product.discount ? (
+              <div className="flex items-center gap-2">
+                <h1 className="text-2xl font-bold text-red-600">
+                  {product.discount.toFixed(2)} TL
+                </h1>
+                <span className="line-through text-gray-500">
+                  {product.price.toFixed(2)} TL
+                </span>
               </div>
-            </div>
-
+            ) : (
+              <h1 className="text-2xl font-bold text-black">
+                {product.price.toFixed(2)} TL
+              </h1>
+            )}
           </div>
 
-          <div className="flex gap-4"> 
+          <div className="flex items-center gap-4">
+            <span className="text-sm font-medium">Adet:</span>
+            <div className="flex items-center bg-gray-100 rounded px-3 py-1">
+              <button onClick={decrementQuantity} className="px-2 text-lg">−</button>
+              <span className="px-3">{quantity}</span>
+              <button onClick={incrementQuantity} className="px-2 text-lg">+</button>
+            </div>
+          </div>
+
+          <div className="flex gap-4">
             <button
               onClick={handleBuyNow}
               className="bg-white border border-orange-400 hover:bg-orange-600 text-orange-400 hover:text-white py-4 px-6 rounded transition"
@@ -248,22 +242,22 @@ const DesktopProductDetails: React.FC<ProductDetailsProps> = ({
               )}
             </button>
           </div>
-          <h2 className="p-2">En geç <b className="text-orange-400">yarın</b>  kargoda.</h2>
+
+          <h2 className="p-2">En geç <b className="text-orange-400">yarın</b> kargoda.</h2>
         </div>
       </div>
 
-      {/* Açıklama / Yorumlar / Sorular */}
       <div className="mt-8">
-      <ProductDetailTabs
-  product={{
-    description:
-      activeVariant.description ??
-      product.description ??
-      "Henüz açıklama bulunmamaktadır.",
-    group: product.group
-      ? { description: product.group.description ?? null }
-      : undefined,
-  }}
+        <ProductDetailTabs
+          product={{
+            description:
+              activeVariant.description ??
+              product.description ??
+              "Henüz açıklama bulunmamaktadır.",
+            group: product.group
+              ? { description: product.group.description ?? null }
+              : undefined,
+          }}
           comments={
             <>
               {comments.length === 0 ? (
@@ -293,38 +287,33 @@ const DesktopProductDetails: React.FC<ProductDetailsProps> = ({
                   ))}
                 </ul>
               )}
-
-              {/* ✅ Server Action tabanlı form */}
               <CommentForm productId={product.id} />
             </>
           }
           questions={<div>Henüz soru bulunmamaktadır.</div>}
         />
       </div>
-      <h2 className="text-lg font-semibold mt-4">Benzer Ürünler</h2>
 
-{relatedProducts.length === 0 ? (
-  <p className="text-center text-gray-500">Ürün bulunamadı.</p>
-) : (
-  <Carousel
-    opts={{
-      align: "start",
-      loop: true,
-    }}
-    className="w-full"
-  > 
-    <CarouselContent>
-      {relatedProducts.map((product) => ( // ✅ Burada discountProducts kullanılıyor
-        <CarouselItem
-          key={product.id}
-          className="basis-1/2 sm:basis-1/2 md:basis-1/3 lg:basis-1/5 xl:basis-1/6"
+      <h2 className="text-lg font-semibold mt-4">Benzer Ürünler</h2>
+      {relatedProducts.length === 0 ? (
+        <p className="text-center text-gray-500">Ürün bulunamadı.</p>
+      ) : (
+        <Carousel
+          opts={{ align: "start", loop: true }}
+          className="w-full"
         >
-          <ProductCard product={product} />
-        </CarouselItem>
-      ))}
-    </CarouselContent>
-  </Carousel>
-)}
+          <CarouselContent>
+            {relatedProducts.map((product) => (
+              <CarouselItem
+                key={product.id}
+                className="basis-1/2 sm:basis-1/2 md:basis-1/3 lg:basis-1/5 xl:basis-1/6"
+              >
+                <ProductCard product={product} />
+              </CarouselItem>
+            ))}
+          </CarouselContent>
+        </Carousel>
+      )}
     </div>
   );
 };
