@@ -114,6 +114,12 @@ const DesktopProductDetails: React.FC<ProductDetailsProps> = ({
       ? activeVariant.medias.map((m) => m.urls[0])
       : product.medias.map((m) => m.urls[0]);
 
+  // Grup içindeki diğer ürünlerin resimlerini topla
+  const productGroupImages = product.group?.products
+    ?.filter(p => p.id !== activeVariant.id) // Aktif ürünü hariç tut
+    ?.flatMap(p => p.medias?.map(m => m.urls[0]) || []) // Her ürünün ilk resmini al
+    ?.filter(Boolean) || []; // Boş olanları filtrele
+
   const [favorited, setFavorited] = useState(isFavorited);
   const [isPending, startTransition] = useTransition();
 
@@ -138,11 +144,11 @@ const DesktopProductDetails: React.FC<ProductDetailsProps> = ({
       />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mt-4">
-      <ProductImageGallery 
-  images={activeVariant.images} 
-  productName={activeVariant.name}
-  productGroupImages={productGroup?.otherProductImages || []}
-/>
+        <ProductImageGallery 
+          images={imageUrls} 
+          productName={activeVariant.name}
+          productGroupImages={productGroupImages}
+        />
 
         <div className="flex flex-col gap-4 text-slate-600 text-sm">
           <h2 className="text-3xl font-semibold text-slate-800">
