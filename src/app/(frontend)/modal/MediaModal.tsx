@@ -1,7 +1,18 @@
 "use client";
 
-import { useRef, useState, useTransition, useOptimistic, useEffect } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  useRef,
+  useState,
+  useTransition,
+  useOptimistic,
+  useEffect,
+} from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import Image from "next/image";
@@ -17,17 +28,17 @@ interface Media {
 interface MediaModalProps {
   open: boolean;
   onClose: () => void;
-  medias: Media[];
+  medias: Media[]; // DB'den createdAt: "desc" sıralı gelmeli
   onSelectedMediasChange?: (selectedMedias: Media[]) => void;
   selectedMediaIds?: string[];
 }
 
-export default function MediaModal({ 
-  open, 
-  onClose, 
-  medias, 
+export default function MediaModal({
+  open,
+  onClose,
+  medias,
   onSelectedMediasChange,
-  selectedMediaIds = []
+  selectedMediaIds = [],
 }: MediaModalProps) {
   const [search, setSearch] = useState("");
   const [selectedIds, setSelectedIds] = useState<string[]>(selectedMediaIds);
@@ -35,12 +46,10 @@ export default function MediaModal({
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // 🔥 FIX: selectedMediaIds prop'u değiştiğinde selectedIds state'ini güncelle
   useEffect(() => {
     setSelectedIds(selectedMediaIds);
   }, [selectedMediaIds]);
 
-  // 🔥 FIX: Modal açıldığında selectedIds'i resetle
   useEffect(() => {
     if (open) {
       setSelectedIds(selectedMediaIds);
@@ -49,11 +58,14 @@ export default function MediaModal({
 
   const [optimisticMedias, updateOptimisticMedias] = useOptimistic(
     medias,
-    (state: Media[], action: { type: "delete" | "add" | "replace"; payload: any }) => {
+    (
+      state: Media[],
+      action: { type: "delete" | "add" | "replace"; payload: any }
+    ) => {
       if (action.type === "delete") {
         return state.filter((m) => !action.payload.includes(m.id));
       } else if (action.type === "add") {
-        return [...state, action.payload];
+        return [action.payload, ...state]; // ✅ EN BAŞA EKLE
       } else if (action.type === "replace") {
         return state.map((m) =>
           m.id === action.payload.tempId ? action.payload.realMedia : m
@@ -63,23 +75,23 @@ export default function MediaModal({
     }
   );
 
-  const filtered = optimisticMedias.filter((m) =>
-    m.urls && m.urls[0] && m.urls[0].toLowerCase().includes(search.toLowerCase())
+  const filtered = optimisticMedias.filter(
+    (m) =>
+      m.urls &&
+      m.urls[0] &&
+      m.urls[0].toLowerCase().includes(search.toLowerCase())
   );
 
   const toggleSelect = (id: string) => {
-    const newSelectedIds = selectedIds.includes(id) 
-      ? selectedIds.filter((i) => i !== id) 
+    const newSelectedIds = selectedIds.includes(id)
+      ? selectedIds.filter((i) => i !== id)
       : [...selectedIds, id];
-    
     setSelectedIds(newSelectedIds);
-    
-    // 🔥 FIX: Parent component'e seçili medyaları gönder - optimisticMedias kullan
+
     if (onSelectedMediasChange) {
-      const selectedMedias = optimisticMedias.filter(media => 
+      const selectedMedias = optimisticMedias.filter((media) =>
         newSelectedIds.includes(media.id)
       );
-      console.log('MediaModal: Sending selected medias to parent:', selectedMedias); // Debug log
       onSelectedMediasChange(selectedMedias);
     }
   };
@@ -91,14 +103,13 @@ export default function MediaModal({
       updateOptimisticMedias({ type: "delete", payload: selectedIds });
       try {
         await deleteMedias(selectedIds);
-        const remainingSelectedIds = selectedIds.filter(id => 
-          !optimisticMedias.some(media => media.id === id)
+        const remainingSelectedIds = selectedIds.filter(
+          (id) => !optimisticMedias.some((media) => media.id === id)
         );
         setSelectedIds(remainingSelectedIds);
-        
-        // 🔥 FIX: Silinen medyalardan sonra kalan seçili medyaları parent'a gönder
+
         if (onSelectedMediasChange) {
-          const remainingSelectedMedias = optimisticMedias.filter(media => 
+          const remainingSelectedMedias = optimisticMedias.filter((media) =>
             remainingSelectedIds.includes(media.id)
           );
           onSelectedMediasChange(remainingSelectedMedias);
@@ -110,12 +121,10 @@ export default function MediaModal({
   };
 
   const handleConfirmSelection = () => {
-    // 🔥 FIX: Modalı kapatmadan önce final seçimi parent'a gönder
     if (onSelectedMediasChange) {
-      const selectedMedias = optimisticMedias.filter(media => 
+      const selectedMedias = optimisticMedias.filter((media) =>
         selectedIds.includes(media.id)
       );
-      console.log('MediaModal: Confirming selection:', selectedMedias); // Debug log
       onSelectedMediasChange(selectedMedias);
     }
     onClose();
@@ -125,7 +134,9 @@ export default function MediaModal({
     fileInputRef.current?.click();
   };
 
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const files = event.target.files;
     if (!files || files.length === 0) return;
 
@@ -143,10 +154,10 @@ export default function MediaModal({
           id: tempId,
           urls: [URL.createObjectURL(files[0])],
         };
+
         updateOptimisticMedias({ type: "add", payload: tempMedia });
 
         const result = await uploadMedia(formData);
-        console.log("Upload result:", result);
 
         if (result.success && result.media) {
           updateOptimisticMedias({
@@ -155,11 +166,17 @@ export default function MediaModal({
           });
         } else {
           console.error("Upload failed:", result.error);
-          updateOptimisticMedias({ type: "delete", payload: [tempMedia.id] });
+          updateOptimisticMedias({
+            type: "delete",
+            payload: [tempMedia.id],
+          });
         }
       } catch (error) {
         console.error("Upload error:", error);
-        updateOptimisticMedias({ type: "delete", payload: [tempId] });
+        updateOptimisticMedias({
+          type: "delete",
+          payload: [tempId],
+        });
       } finally {
         setIsUploading(false);
         event.target.value = "";
@@ -213,12 +230,9 @@ export default function MediaModal({
                   onChange={(e) => setSearch(e.target.value)}
                   className="w-64"
                 />
-                
+
                 {selectedIds.length > 0 && (
-                  <Button 
-                    onClick={handleConfirmSelection}
-                    variant="outline"
-                  >
+                  <Button onClick={handleConfirmSelection} variant="outline">
                     Seçimi Onayla ({selectedIds.length})
                   </Button>
                 )}
