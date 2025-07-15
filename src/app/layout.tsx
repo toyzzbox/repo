@@ -1,28 +1,36 @@
+import GtagClient from "@/components/(frontend)/analytics/GtagClient";
 import "./globals.css";
-import { Geist, Geist_Mono } from "next/font/google";
-import type { Metadata } from "next";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+import { Metadata } from "next";
+import Script from "next/script"; // ✅ Next.js Script komponenti
 
 export const metadata: Metadata = {
-  title: "Toyzz Box Oyuncak",
-  description: "Oyuncak Adına Her Şey",
+  title: "Toyzz Box",
+  description: "E-ticaret sitesi",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="tr">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+      <head>
+        {/* ✅ GA4 Tag */}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-8P7CCYJ18M"
+          strategy="afterInteractive"
+        />
+        <Script id="gtag-init" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-8P7CCYJ18M');
+          `}
+        </Script>
+      </head>
+      <body>
+        <GtagClient/>
         {children}
       </body>
     </html>
   );
 }
+

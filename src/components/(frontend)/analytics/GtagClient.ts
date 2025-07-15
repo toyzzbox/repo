@@ -1,7 +1,8 @@
-'use client';
+// components/GtagClient.tsx
+"use client";
 
-import { usePathname, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
 
 export default function GtagClient() {
   const pathname = usePathname();
