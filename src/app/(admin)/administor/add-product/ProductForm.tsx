@@ -19,6 +19,7 @@ interface Category {
 interface Media {
   id: string;
   urls: string[];
+  
 }
 interface ProductGroup {
   id: string;
