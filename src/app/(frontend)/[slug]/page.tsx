@@ -29,7 +29,20 @@ export default async function ProductPage({ params }: PageProps) {
           slug: true,
         },
       },
-      categories: { select: { id: true, name: true, slug: true } },
+      categories: {
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          parent: {
+            select: {
+              id: true,
+              name: true,
+              slug: true,
+            },
+          },
+        },
+      },
       group: {
         include: {
           products: {
