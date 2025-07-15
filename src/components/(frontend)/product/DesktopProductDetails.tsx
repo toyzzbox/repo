@@ -36,6 +36,7 @@ interface ProductDetailsProps {
     slug: string;
     name: string;
     description?: string;
+    discount: number;
     price: number;
     medias: { urls: string[] }[];
     categories?: { id: string; name: string  }[];
@@ -193,10 +194,22 @@ const DesktopProductDetails: React.FC<ProductDetailsProps> = ({
             </div>
           )}
 
-          <div className="mt-2">
-            <h1 className="text-2xl font-bold text-black">
-              {(product.price).toFixed(2)} TL
-            </h1>
+<div className="mt-2">
+  {product.discount ? (
+    <div className="flex items-center gap-2">
+      <h1 className="text-2xl font-bold text-red-600">
+        {(product.discount).toFixed(2)} TL
+      </h1>
+      <span className="line-through text-gray-500">
+        {(product.price).toFixed(2)} TL
+      </span>
+    </div>
+  ) : (
+    <h1 className="text-2xl font-bold text-black">
+      {(product.price).toFixed(2)} TL
+    </h1>
+  )}
+</div>
 
             <div className="flex items-center gap-4">
               <span className="text-sm font-medium">Adet:</span>
