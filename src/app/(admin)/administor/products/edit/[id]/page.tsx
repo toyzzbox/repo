@@ -27,11 +27,7 @@ export default async function EditProductPage({ params }: { params: { id: string
     include: {
       brands: true,
       categories: true,
-      medias: {
-        orderBy: {
-          createdAt: 'desc', // 🧠 Önemli kısım
-        },
-      },
+      medias: true,
       attributes: true,
       group: true, // Schema'da 'group' olarak tanımlanmış
     },
@@ -46,7 +42,11 @@ export default async function EditProductPage({ params }: { params: { id: string
   // Tüm seçenekleri çek
   const brands = await prisma.brand.findMany();
   const categories = await prisma.category.findMany();
-  const medias = await prisma.media.findMany();
+  const medias = await prisma.media.findMany({
+    orderBy: {
+      createdAt: 'desc',
+    },
+  });
   const attributes = await prisma.attribute.findMany();
   const productGroups = await prisma.productGroup.findMany(); // ProductGroup tablonuz var
 
