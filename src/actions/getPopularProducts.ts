@@ -5,6 +5,11 @@ export async function getPopularProducts() {
     orderBy: {
       views: "desc", // views alanına göre popüler
     },
+    group: {
+        select: {
+          name: true,
+        },
+      },
     take: 20, // ilk 20 ürün
     include: {
       medias: true,

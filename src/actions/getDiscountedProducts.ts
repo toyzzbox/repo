@@ -18,6 +18,11 @@ export async function getDiscountedProducts() {
         gt: 0
       }
     },
+    group: {
+      select: {
+        name: true,
+      },
+    },
     orderBy: {
       createdAt: "desc"
     },
