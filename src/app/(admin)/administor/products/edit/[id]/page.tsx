@@ -27,7 +27,11 @@ export default async function EditProductPage({ params }: { params: { id: string
     include: {
       brands: true,
       categories: true,
-      medias: true,
+      medias: {
+        orderBy: {
+          createdAt: 'desc', // 🧠 Önemli kısım
+        },
+      },
       attributes: true,
       group: true, // Schema'da 'group' olarak tanımlanmış
     },
