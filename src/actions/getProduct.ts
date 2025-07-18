@@ -18,10 +18,11 @@ export async function getProducts(): Promise<Product[]> {
             urls: true,
           },
         },
-        group: {
-          select: {
-            name: true,
-          },
+   
+      },
+      group: {
+        select: {
+          name: true,
         },
       },
     });
