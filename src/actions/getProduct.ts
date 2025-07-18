@@ -11,18 +11,17 @@ export async function getProducts(): Promise<Product[]> {
         name: true,
         slug: true,
         price: true,
-        discount:true,
+        discount: true,
         medias: {
           select: {
-            id: true,       // ✅ id eklendi
+            id: true,
             urls: true,
           },
         },
-   
-      },
-      group: {
-        select: {
-          name: true,
+        group: {
+          select: {
+            name: true,
+          },
         },
       },
     });
