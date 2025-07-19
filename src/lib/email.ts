@@ -1,8 +1,7 @@
 import nodemailer from "nodemailer";
-import { SESClient, SendRawEmailCommand } from "@aws-sdk/client-ses";
+import { SESv2Client } from "@aws-sdk/client-sesv2";
 
-// Amazon SES client'ı oluştur
-const ses = new SESClient({
+const ses = new SESv2Client({
   region: process.env.SES_REGION!,
   credentials: {
     accessKeyId: process.env.SES_ACCESS_KEY_ID!,
@@ -10,12 +9,10 @@ const ses = new SESClient({
   },
 });
 
-// Nodemailer transport ayarı
 export const transporter = nodemailer.createTransport({
-  SES: { ses, aws: { SendRawEmailCommand } },
+  SES: { ses },
 });
 
-// Mail gönderme fonksiyonu
 export async function sendEmail({
   to,
   subject,
