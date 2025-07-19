@@ -1,24 +1,13 @@
-"use client";
-import { useState, useTransition } from "react";
-import { sendTestMail } from "@/actions/sendTestMail";
+// src/app/test-mail/page.tsx
 
-export default function MailForm() {
-  const [email, setEmail] = useState("");
-  const [isPending, startTransition] = useTransition();
+import SendTestMailForm from "./SendTestMailForm";
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    startTransition(() => {
-      sendTestMail(email).then((res) => {
-        alert(res.success ? "Gönderildi!" : res.error);
-      });
-    });
-  };
 
+export default function Page() {
   return (
-    <form onSubmit={handleSubmit}>
-      <input value={email} onChange={(e) => setEmail(e.target.value)} />
-      <button disabled={isPending}>Gönder</button>
-    </form>
+    <main className="max-w-md mx-auto p-8">
+      <h1 className="text-xl font-semibold mb-4">Amazon SES Test Mail</h1>
+      <SendTestMailForm />
+    </main>
   );
 }
