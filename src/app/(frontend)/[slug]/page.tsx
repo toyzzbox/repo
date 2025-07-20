@@ -11,18 +11,18 @@ type PageProps = {
 };
 
 export default async function ProductPage({ params }: PageProps) {
-  const session = await auth();
+  const session = await auth(); // 🔐 Kullanıcı oturumu
 
-  let product;
-  try {
-    product = await prisma.product.update({
-      where: { slug: params.slug },
-      data: {
-        views: { increment: 1 },
+  const product = await prisma.product.update({
+    where: { slug: params.slug },
+    data: {
+      views: {
+        increment: 1,
       },
-      include: {
+    },
+    include: {
         medias: {
-          orderBy: { order: "asc" }, // 🔥 Sıralama önemli
+          orderBy: { order: "asc" },
           include: {
             media: {
               select: {
@@ -60,8 +60,8 @@ export default async function ProductPage({ params }: PageProps) {
                 slug: true,
                 name: true,
                 price: true,
-                stock: true,
                 description: true,
+                stock: true,
                 medias: {
                   orderBy: { order: "asc" },
                   include: {
@@ -74,8 +74,6 @@ export default async function ProductPage({ params }: PageProps) {
                 },
               },
             },
-            description: true,
-            name: true,
           },
         },
         favorites: session?.user?.id
@@ -86,21 +84,21 @@ export default async function ProductPage({ params }: PageProps) {
           : undefined,
         comments: {
           include: {
-            user: {
-              select: { name: true, image: true },
-            },
+            user: { select: { name: true, image: true } },
           },
           orderBy: { createdAt: "desc" },
         },
-      },
-    });
-  } catch (error) {
+      }
+   
+  });
+
+  if (!product) {
     return notFound();
   }
 
   const isFavorited = !!product.favorites?.length;
-  const categoryIds = product.categories?.map((cat) => cat.id) || [];
 
+  const categoryIds = product.categories?.map((cat) => cat.id) || [];
   const relatedProducts = categoryIds.length
     ? await getRelatedProducts(product.id, categoryIds)
     : [];
