@@ -7,7 +7,17 @@ export async function getPopularProducts() {
     },
     take: 20, // ilk 20 ürün
     include: {
-      medias: true,
+        medias: {
+            orderBy: { order: "asc" },
+            include: {
+              media: {
+                select: {
+                  id: true,
+                  urls: true,
+                },
+              },
+            },
+          },
       brands: true,
       categories: true,
       group: {

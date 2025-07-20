@@ -16,7 +16,17 @@ export async function getDiscountedProducts() {
     },
     take: 20,
     include: {
-      medias: true,
+      medias: {
+        orderBy: { order: "asc" },
+        include: {
+          media: {
+            select: {
+              id: true,
+              urls: true,
+            },
+          },
+        },
+      },
       group: {
         select: {
           name: true,
