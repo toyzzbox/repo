@@ -73,24 +73,52 @@ export default function MobileProductDetails({
     toast.success("Ürün sepete eklendi", {
       description: `${activeVariant.name} başarıyla sepete eklendi.`,
     });
-    
   };
 
   const imageUrls =
-    activeVariant?.medias?.length && activeVariant?.medias[0]?.urls?.length
-      ? activeVariant.medias.map((m: any) => m.urls[0])
-      : product.medias.map((m: any) => m.urls[0]);
+  activeVariant?.medias?.length && activeVariant?.medias[0]?.media?.urls?.length
+    ? activeVariant.medias.map((m) => m.media.urls[0])
+    : product.medias.map((m) => m.media.urls[0]);
+
+const productGroupImages = product.group?.products
+  ?.filter((p) => p.id !== activeVariant.id)
+  ?.flatMap((p) => p.medias?.map((m) => m.media.urls[0]) || [])
+  ?.filter(Boolean) || [];
+
+const imageToProductMap = new Map();
+product.group?.products
+  ?.filter((p) => p.id !== activeVariant.id)
+  ?.forEach((p) => {
+    p.medias?.forEach((m) => {
+      const url = m.media.urls[0];
+      if (url) imageToProductMap.set(url, p);
+    });
+  });
+
+  // Grup resmine tıklandığında o ürüne git
+  const handleGroupImageClick = (imageUrl: string) => {
+    const targetProduct = imageToProductMap.get(imageUrl);
+    if (targetProduct) {
+      router.push(`/product/${targetProduct.slug}`);
+    }
+  };
 
   return (
     <>
       {/* Breadcrumb + Galeri + Favori */}
       <div className="relative">
         <ProductBreadcrumb
+          parentCategory={product.categories?.[0]?.parent}
           category={product.categories?.[0]}
           groupName={product.group?.name}
           productName={activeVariant.name}
         />
-        <ProductImageGallery images={imageUrls} productName={activeVariant.name} />
+        <ProductImageGallery 
+          images={imageUrls} 
+          productName={activeVariant.name}
+          productGroupImages={productGroupImages}
+          onGroupImageClick={handleGroupImageClick}
+        />
         <button
           onClick={handleToggleFavorite}
           disabled={isFavPending}
@@ -118,7 +146,7 @@ export default function MobileProductDetails({
             {variants.map((variant) => (
               <div key={variant.id}>
                 <button
-                  onClick={() => router.push(`/${variant.slug}`)}
+                  onClick={() => router.push(`/product/${variant.slug}`)}
                   className={`border rounded px-3 py-2 flex flex-col items-center gap-1 w-24 ${
                     activeVariant.id === variant.id
                       ? "border-orange-500 bg-orange-100"
@@ -149,51 +177,52 @@ export default function MobileProductDetails({
 
         {/* Tabs */}
         <div className="mt-6">
-  <ProductDetailTabsMobile
-    product={{
-      description:
-        activeVariant.description ??
-        product.description ??
-        "Henüz açıklama bulunmuyor.",
-    }}
-    comments={
-      <>
-        {comments.length ? (
-          <ul className="space-y-2">
-            {comments.map((c: any) => (
-              <li key={c.id}>
-                <strong>{c.user.name ?? "Kullanıcı"}:</strong> {c.content}{" "}
-                <span className="text-yellow-500">({c.rating}⭐)</span>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <div>Henüz yorum bulunmamaktadır.</div>
-        )}
+          <ProductDetailTabsMobile
+            product={{
+              description:
+                activeVariant.description ??
+                product.description ??
+                "Henüz açıklama bulunmuyor.",
+            }}
+            comments={
+              <>
+                {comments.length ? (
+                  <ul className="space-y-2">
+                    {comments.map((c: any) => (
+                      <li key={c.id}>
+                        <strong>{c.user.name ?? "Kullanıcı"}:</strong> {c.content}{" "}
+                        <span className="text-yellow-500">({c.rating}⭐)</span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <div>Henüz yorum bulunmamaktadır.</div>
+                )}
 
-        {/* ✅ Yorum ekleme formunu mobilde de gösteriyoruz */}
-        <CommentForm productId={product.id} />
-      </>
-    }
-    questions={<div>Henüz soru bulunmamaktadır.</div>}
-  />
-</div>
-{/* Benzer Ürünler */}
-<h2 className="text-lg font-semibold mb-4">Benzer Ürünler</h2>
-{relatedProducts.length > 0 && (
-  <div className="mt-8">
-    <div className="flex overflow-x-auto gap-4">
-      {relatedProducts.map((related) => (
-        <div
-          key={related.id}
-          className="flex-shrink-0 w-32"
-        >
-          <ProductCard product={related} />
+                {/* ✅ Yorum ekleme formunu mobilde de gösteriyoruz */}
+                <CommentForm productId={product.id} />
+              </>
+            }
+            questions={<div>Henüz soru bulunmamaktadır.</div>}
+          />
         </div>
-      ))}
-    </div>
-  </div>
-)}
+
+        {/* Benzer Ürünler */}
+        <h2 className="text-lg font-semibold mb-4">Benzer Ürünler</h2>
+        {relatedProducts.length > 0 && (
+          <div className="mt-8">
+            <div className="flex overflow-x-auto gap-4">
+              {relatedProducts.map((related) => (
+                <div
+                  key={related.id}
+                  className="flex-shrink-0 w-32"
+                >
+                  <ProductCard product={related} />
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Sabit Sepete Ekle Butonu */}
