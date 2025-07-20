@@ -20,6 +20,23 @@ import clsx from "clsx";
 import { deleteMedias } from "@/actions/deleteMedias";
 import { uploadMedia } from "@/actions/uploadMedia";
 
+// ✅ SEO uyumlu isim oluşturucu
+function slugify(text: string) {
+  return text
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/ç/g, "c")
+    .replace(/ğ/g, "g")
+    .replace(/ı/g, "i")
+    .replace(/ö/g, "o")
+    .replace(/ş/g, "s")
+    .replace(/ü/g, "u")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .replace(/-+/g, "-");
+}
+
 interface Media {
   id: string;
   urls: string[];
@@ -28,7 +45,7 @@ interface Media {
 interface MediaModalProps {
   open: boolean;
   onClose: () => void;
-  medias: Media[]; // DB'den createdAt: "desc" sıralı gelmeli
+  medias: Media[];
   onSelectedMediasChange?: (selectedMedias: Media[]) => void;
   selectedMediaIds?: string[];
 }
@@ -65,7 +82,7 @@ export default function MediaModal({
       if (action.type === "delete") {
         return state.filter((m) => !action.payload.includes(m.id));
       } else if (action.type === "add") {
-        return [action.payload, ...state]; // ✅ EN BAŞA EKLE
+        return [action.payload, ...state];
       } else if (action.type === "replace") {
         return state.map((m) =>
           m.id === action.payload.tempId ? action.payload.realMedia : m
@@ -146,8 +163,17 @@ export default function MediaModal({
     startTransition(async () => {
       try {
         const formData = new FormData();
+
         Array.from(files).forEach((file) => {
-          formData.append("files", file);
+          const ext = file.name.split(".").pop();
+          const base = file.name.replace(/\.[^/.]+$/, "");
+          const newName = slugify(base) + "." + ext;
+
+          const renamedFile = new File([file], newName, {
+            type: file.type,
+          });
+
+          formData.append("files", renamedFile);
         });
 
         const tempMedia: Media = {

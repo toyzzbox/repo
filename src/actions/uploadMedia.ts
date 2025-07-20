@@ -3,6 +3,7 @@ import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { prisma } from "@/lib/prisma";
 import { MediaType } from "@prisma/client";
 import slugify from "slugify";
+import sharp from "sharp"; // ✅ WebP dönüşümü için
 
 const s3 = new S3Client({
   region: process.env.NEXT_AWS_S3_REGION!,
@@ -25,42 +26,32 @@ export async function uploadMedia(formData: FormData) {
     const created: Media[] = [];
 
     for (const file of files) {
-      const fileExtension = file.name.split(".").pop() || "bin";
-
-      // ✅ Orijinal dosya adını slugify et (Türkçe karakterler dahil temizler)
-      const baseName = file.name.replace(`.${fileExtension}`, "");
+      const baseName = file.name.replace(/\.[^/.]+$/, "");
       const safeName = slugify(baseName, { lower: true, strict: true });
-
-      // ✅ Timestamp ekle (overwrite riskini sıfırlar)
       const timestamp = Date.now();
-
-      // ✅ Final dosya ismi: anlamlı + timestamp + uzantı
-      const finalFileName = `${safeName}-${timestamp}.${fileExtension}`;
-
-      // ✅ S3 key
+      const finalFileName = `${safeName}-${timestamp}.webp`; // ✅ WebP format
       const key = `uploads/${finalFileName}`;
 
-      // ✅ File buffer
       const buffer = await file.arrayBuffer();
+      const webpBuffer = await sharp(Buffer.from(buffer))
+        .webp({ quality: 80 })
+        .toBuffer();
 
-      // ✅ Upload to S3
       const command = new PutObjectCommand({
         Bucket: BUCKET,
         Key: key,
-        Body: new Uint8Array(buffer),
-        ContentType: file.type,
+        Body: webpBuffer,
+        ContentType: "image/webp",
       });
 
       await s3.send(command);
 
-      // ✅ Public URL
       const publicUrl = `https://${BUCKET}.s3.${REGION}.amazonaws.com/${key}`;
 
-      // ✅ Kaydı DB'ye yaz
       const media = await prisma.media.create({
         data: {
           urls: [publicUrl],
-          type: file.type.startsWith("video") ? MediaType.video : MediaType.image,
+          type: MediaType.image, // WebP olduğundan image sabit
         },
       });
 
