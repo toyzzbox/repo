@@ -38,7 +38,7 @@ interface ProductDetailsProps {
     description?: string;
     discount: number;
     price: number;
-    medias: { media: { urls: string[] } }[];
+    medias: { urls: string[] }[];
     categories?: { id: string; name: string; slug: string; parent?: { name: string; slug: string } }[];
     brands?: { id: string; name: string; slug: string }[];
     group?: {
@@ -50,7 +50,7 @@ interface ProductDetailsProps {
         name: string;
         price: number;
         stock?: number | null;
-        medias: { media: { urls: string[] } }[];
+        medias: { urls: string[] }[];
         description?: string | null;
       }[];
     };
@@ -60,7 +60,7 @@ interface ProductDetailsProps {
     name: string;
     slug: string;
     price: number;
-    medias: { media: { urls: string[] } }[];
+    medias: { urls: string[] }[];
   }[];
   isFavorited: boolean;
   comments: Comment[];
@@ -98,7 +98,7 @@ const DesktopProductDetails: React.FC<ProductDetailsProps> = ({
         name: activeVariant.name,
         price: activeVariant.price,
         quantity,
-        url: activeVariant.medias?.[0]?.media?.urls?.[0] ?? "",
+        url: activeVariant.medias?.[0]?.urls?.[0] ?? "",
       })
     );
     toast.custom(() => <CartSuccessToast productName={activeVariant.name} />);
@@ -110,25 +110,29 @@ const DesktopProductDetails: React.FC<ProductDetailsProps> = ({
   };
 
   const imageUrls =
-    activeVariant?.medias?.length && activeVariant?.medias[0]?.media?.urls?.length
-      ? activeVariant.medias.map((m) => m.media.urls[0])
-      : product.medias.map((m) => m.media.urls[0]);
+    activeVariant?.medias?.length && activeVariant?.medias[0]?.urls?.length
+      ? activeVariant.medias.map((m) => m.urls[0])
+      : product.medias.map((m) => m.urls[0]);
 
+  // Grup içindeki diğer ürünlerin resimlerini topla
   const productGroupImages = product.group?.products
-    ?.filter(p => p.id !== activeVariant.id)
-    ?.flatMap(p => p.medias?.map(m => m.media.urls[0]) || [])
-    ?.filter(Boolean) || [];
+    ?.filter(p => p.id !== activeVariant.id) // Aktif ürünü hariç tut
+    ?.flatMap(p => p.medias?.map(m => m.urls[0]) || []) // Her ürünün ilk resmini al
+    ?.filter(Boolean) || []; // Boş olanları filtrele
 
+  // Resim-ürün eşleştirmesi için map oluştur
   const imageToProductMap = new Map();
   product.group?.products
     ?.filter(p => p.id !== activeVariant.id)
     ?.forEach(p => {
       p.medias?.forEach(m => {
-        const url = m.media.urls[0];
-        if (url) imageToProductMap.set(url, p);
+        if (m.urls[0]) {
+          imageToProductMap.set(m.urls[0], p);
+        }
       });
     });
 
+  // Grup resmine tıklandığında o ürüne git
   const handleGroupImageClick = (imageUrl: string) => {
     const targetProduct = imageToProductMap.get(imageUrl);
     if (targetProduct) {
@@ -203,7 +207,7 @@ const DesktopProductDetails: React.FC<ProductDetailsProps> = ({
                   >
                     <div className="w-full h-16 relative">
                       <Image
-                        src={variant.medias?.[0]?.media?.urls?.[0] || "/placeholder.png"}
+                        src={variant.medias?.[0]?.urls?.[0] || "/placeholder.png"}
                         alt={variant.name}
                         fill
                         className="object-cover rounded"
@@ -325,7 +329,10 @@ const DesktopProductDetails: React.FC<ProductDetailsProps> = ({
       {relatedProducts.length === 0 ? (
         <p className="text-center text-gray-500">Ürün bulunamadı.</p>
       ) : (
-        <Carousel opts={{ align: "start", loop: true }} className="w-full">
+        <Carousel
+          opts={{ align: "start", loop: true }}
+          className="w-full"
+        >
           <CarouselContent>
             {relatedProducts.map((product) => (
               <CarouselItem
