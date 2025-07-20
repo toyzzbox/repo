@@ -57,10 +57,15 @@ export async function searchProducts(query: string) {
         },
       },
       medias: {
-        select: {
-          urls: true,
-        },
+        orderBy: { order: "asc" },
         take: 1,
+        include: {
+          media: {
+            select: {
+              urls: true,
+            },
+          },
+        },
       },
     },
     take: 10,
