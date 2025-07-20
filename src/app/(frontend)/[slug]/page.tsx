@@ -11,18 +11,18 @@ type PageProps = {
 };
 
 export default async function ProductPage({ params }: PageProps) {
-  const session = await auth(); // 🔐 Kullanıcı oturumu
+  const session = await auth();
 
-  const product = await prisma.product.update({
-    where: { slug: params.slug },
-    data: {
-      views: {
-        increment: 1,
+  let product;
+  try {
+    product = await prisma.product.update({
+      where: { slug: params.slug },
+      data: {
+        views: { increment: 1 },
       },
-    },
-    include: {
+      include: {
         medias: {
-          orderBy: { order: "asc" },
+          orderBy: { order: "asc" }, // 🔥 Sıralama önemli
           include: {
             media: {
               select: {
@@ -60,8 +60,8 @@ export default async function ProductPage({ params }: PageProps) {
                 slug: true,
                 name: true,
                 price: true,
-                description: true,
                 stock: true,
+                description: true,
                 medias: {
                   orderBy: { order: "asc" },
                   include: {
@@ -74,6 +74,8 @@ export default async function ProductPage({ params }: PageProps) {
                 },
               },
             },
+            description: true,
+            name: true,
           },
         },
         favorites: session?.user?.id
@@ -84,21 +86,21 @@ export default async function ProductPage({ params }: PageProps) {
           : undefined,
         comments: {
           include: {
-            user: { select: { name: true, image: true } },
+            user: {
+              select: { name: true, image: true },
+            },
           },
           orderBy: { createdAt: "desc" },
         },
-      }
-   
-  });
-
-  if (!product) {
+      },
+    });
+  } catch (error) {
     return notFound();
   }
 
   const isFavorited = !!product.favorites?.length;
-
   const categoryIds = product.categories?.map((cat) => cat.id) || [];
+
   const relatedProducts = categoryIds.length
     ? await getRelatedProducts(product.id, categoryIds)
     : [];
