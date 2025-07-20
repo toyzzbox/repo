@@ -110,27 +110,24 @@ const DesktopProductDetails: React.FC<ProductDetailsProps> = ({
   };
 
   const imageUrls =
-    activeVariant?.medias?.length && activeVariant?.medias[0]?.urls?.length
-      ? activeVariant.medias.map((m) => m.urls[0])
-      : product.medias.map((m) => m.urls[0]);
+  activeVariant?.medias?.length && activeVariant?.medias[0]?.media?.urls?.length
+    ? activeVariant.medias.map((m) => m.media.urls[0])
+    : product.medias.map((m) => m.media.urls[0]);
 
-  // Grup içindeki diğer ürünlerin resimlerini topla
-  const productGroupImages = product.group?.products
-    ?.filter(p => p.id !== activeVariant.id) // Aktif ürünü hariç tut
-    ?.flatMap(p => p.medias?.map(m => m.urls[0]) || []) // Her ürünün ilk resmini al
-    ?.filter(Boolean) || []; // Boş olanları filtrele
+const productGroupImages = product.group?.products
+  ?.filter(p => p.id !== activeVariant.id)
+  ?.flatMap(p => p.medias?.map(m => m.media.urls[0]) || [])
+  ?.filter(Boolean) || [];
 
-  // Resim-ürün eşleştirmesi için map oluştur
-  const imageToProductMap = new Map();
-  product.group?.products
-    ?.filter(p => p.id !== activeVariant.id)
-    ?.forEach(p => {
-      p.medias?.forEach(m => {
-        if (m.urls[0]) {
-          imageToProductMap.set(m.urls[0], p);
-        }
-      });
+const imageToProductMap = new Map();
+product.group?.products
+  ?.filter(p => p.id !== activeVariant.id)
+  ?.forEach(p => {
+    p.medias?.forEach(m => {
+      const url = m.media.urls[0];
+      if (url) imageToProductMap.set(url, p);
     });
+  });
 
   // Grup resmine tıklandığında o ürüne git
   const handleGroupImageClick = (imageUrl: string) => {
