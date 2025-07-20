@@ -11,30 +11,23 @@ export async function updateProduct(prevState: any, formData: FormData) {
     const serial = formData.get("serial") as string;
     const stock = parseInt(formData.get("stock") as string);
     const price = parseFloat(formData.get("price") as string);
-    const discount = formData.get("discount") ? parseFloat(formData.get("discount") as string) : null;
-    const groupId = formData.get("groupId") as string || null;
+    const discount = formData.get("discount")
+      ? parseFloat(formData.get("discount") as string)
+      : null;
+    const groupId = formData.get("groupId") || null;
     const description = formData.get("description") as string;
-    
-    // Array değerlerini al
+
     const brandIds = formData.getAll("brandIds[]") as string[];
     const categoryIds = formData.getAll("categoryIds[]") as string[];
     const mediaIds = formData.getAll("mediaIds[]") as string[];
 
     // Validation
-    if (!name || !id) {
-      return "Ürün ID'si ve adı gereklidir.";
-    }
+    if (!name || !id) return "Ürün ID'si ve adı gereklidir.";
+    if (stock < 0) return "Stok negatif olamaz.";
+    if (price <= 0) return "Fiyat pozitif olmalıdır.";
 
-    if (stock < 0) {
-      return "Stok negatif olamaz.";
-    }
-
-    if (price <= 0) {
-      return "Fiyat pozitif bir değer olmalıdır.";
-    }
-
-    // Database güncellemesi (örnek)
-    const updatedProduct = await prisma.product.update({
+    // 1. Ürün temel bilgilerini güncelle
+    await prisma.product.update({
       where: { id },
       data: {
         name,
@@ -42,30 +35,39 @@ export async function updateProduct(prevState: any, formData: FormData) {
         stock,
         price,
         discount,
-        groupId,
+        groupId: groupId || null,
         description,
-        // İlişkisel tablolar için
         brands: {
-          set: [], // Önce mevcut ilişkileri temizle
-          connect: brandIds.map(id => ({ id })) // Yeni ilişkileri ekle
+          set: [],
+          connect: brandIds.map((bid) => ({ id: bid })),
         },
         categories: {
-          set: [], // Önce mevcut ilişkileri temizle
-          connect: categoryIds.map(id => ({ id })) // Yeni ilişkileri ekle
+          set: [],
+          connect: categoryIds.map((cid) => ({ id: cid })),
         },
-        medias: {
-          set: [], // Önce mevcut ilişkileri temizle
-          connect: mediaIds.map(id => ({ id })) // Yeni ilişkileri ekle
-        }
-      }
+      },
     });
 
-    // Cache'i yenile
+    // 2. Eski medya ilişkilerini temizle
+    await prisma.productMedia.deleteMany({
+      where: { productId: id },
+    });
+
+    // 3. Yeni medya ilişkilerini sıraya göre oluştur
+    const mediaConnections = mediaIds.map((mediaId, index) => ({
+      productId: id,
+      mediaId,
+      order: index,
+    }));
+
+    await prisma.productMedia.createMany({
+      data: mediaConnections,
+    });
+
+    // 4. Cache ve yönlendirme
     revalidatePath("/admin/products");
-    
-    // Başarılı güncelleme sonrası yönlendirme
     redirect("/admin/products");
-    
+
   } catch (error) {
     console.error("Ürün güncellenirken hata:", error);
     return "Ürün güncellenirken bir hata oluştu.";

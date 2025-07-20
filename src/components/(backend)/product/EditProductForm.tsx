@@ -25,7 +25,6 @@ interface ProductGroup {
   name: string;
 }
 
-// Güncellenecek ürün bilgilerini içeren interface
 interface Product {
   id: string;
   name: string;
@@ -41,7 +40,7 @@ interface Product {
 }
 
 interface ProductUpdateFormProps {
-  product: Product; // Mevcut ürün bilgileri
+  product: Product;
   brands: Brand[];
   categories: Category[];
   medias: Media[];
@@ -56,11 +55,10 @@ export default function EditProductForm({
   productGroups,
 }: ProductUpdateFormProps) {
   const [state, formAction, isPending] = useActionState(updateProduct, null);
-  
-  // Mevcut ürün bilgileri ile state'leri initialize et
+
   const [descriptionHtml, setDescriptionHtml] = useState(product.description || "");
   const [selectedMedias, setSelectedMedias] = useState<Media[]>(
-    medias.filter(media => product.mediaIds.includes(media.id))
+    product.mediaIds.map((id) => medias.find((m) => m.id === id)!).filter(Boolean)
   );
   const [selectedCategoryIds, setSelectedCategoryIds] = useState<string[]>(product.categoryIds);
   const [selectedBrandIds, setSelectedBrandIds] = useState<string[]>(product.brandIds);
@@ -69,79 +67,42 @@ export default function EditProductForm({
     <form action={formAction} className="space-y-4">
       <h1 className="text-2xl font-bold">Ürün Güncelle</h1>
 
-      {/* Ürün ID'si hidden input olarak gönderilir */}
       <input type="hidden" name="id" value={product.id} />
 
-      {/* Ürün Adı */}
       <div>
         <Label htmlFor="name">Ürün Adı</Label>
-        <Input 
-          type="text" 
-          id="name" 
-          name="name" 
-          required 
-          defaultValue={product.name}
-        />
+        <Input type="text" id="name" name="name" required defaultValue={product.name} />
       </div>
 
-      {/* Seri Numarası */}
       <div>
         <Label htmlFor="serial">Seri Numarası (opsiyonel)</Label>
-        <Input 
-          type="text" 
-          id="serial" 
-          name="serial" 
-          defaultValue={product.serial || ""}
-        />
+        <Input type="text" id="serial" name="serial" defaultValue={product.serial || ""} />
       </div>
 
-      {/* Stok */}
       <div>
         <Label htmlFor="stock">Stok</Label>
-        <Input 
-          type="number" 
-          id="stock" 
-          name="stock" 
-          required 
-          min={0} 
-          defaultValue={product.stock}
-        />
+        <Input type="number" id="stock" name="stock" required min={0} defaultValue={product.stock} />
       </div>
 
-      {/* Fiyat */}
       <div>
         <Label htmlFor="price">Fiyat</Label>
-        <Input 
-          type="number" 
-          step="0.01" 
-          id="price" 
-          name="price" 
-          required 
-          defaultValue={product.price}
-        />
+        <Input type="number" step="0.01" id="price" name="price" required defaultValue={product.price} />
       </div>
 
-      {/* İndirim */}
       <div>
         <Label htmlFor="discount">İndirimli Fiyat</Label>
-        <Input 
-          type="number" 
-          step="0.01" 
-          id="discount" 
-          name="discount" 
+        <Input
+          type="number"
+          step="0.01"
+          id="discount"
+          name="discount"
           defaultValue={product.discount || ""}
         />
       </div>
 
-      {/* Ürün Grubu */}
       <div>
         <Label htmlFor="groupId">Ürün Grubu (opsiyonel)</Label>
-        <select 
-          id="groupId" 
-          name="groupId" 
-          className="border px-2 py-1 rounded w-full"
-          defaultValue={product.groupId || ""}
-        >
+        <select id="groupId" name="groupId" className="border px-2 py-1 rounded w-full" defaultValue={product.groupId || ""}>
           <option value="">— Grupsuz Ürün —</option>
           {productGroups.map((group) => (
             <option key={group.id} value={group.id}>
@@ -151,19 +112,12 @@ export default function EditProductForm({
         </select>
       </div>
 
-      {/* Açıklama */}
       <div>
         <Label>Açıklama</Label>
-        <RichTextEditor
-          onChange={(html) => {
-            setDescriptionHtml(html);
-          }}
-          initialContent={product.description || ""}
-        />
+        <RichTextEditor onChange={setDescriptionHtml} initialContent={product.description || ""} />
         <input type="hidden" name="description" value={descriptionHtml} />
       </div>
 
-      {/* MultiSelect Category */}
       <MultiSelect
         items={categories}
         selected={selectedCategoryIds}
@@ -172,7 +126,6 @@ export default function EditProductForm({
         label="Kategoriler"
       />
 
-      {/* MultiSelect Brand */}
       <MultiSelect
         items={brands}
         selected={selectedBrandIds}
@@ -181,7 +134,6 @@ export default function EditProductForm({
         label="Markalar"
       />
 
-      {/* Hidden inputs for selected brands & categories */}
       {selectedBrandIds.map((id) => (
         <input key={id} type="hidden" name="brandIds[]" value={id} />
       ))}
@@ -189,7 +141,6 @@ export default function EditProductForm({
         <input key={id} type="hidden" name="categoryIds[]" value={id} />
       ))}
 
-      {/* Media */}
       <div className="space-y-2">
         <Label>Ürün Medyaları</Label>
         <MediaModalButton
@@ -197,21 +148,15 @@ export default function EditProductForm({
           onSelectedMediasChange={setSelectedMedias}
           selectedMedias={selectedMedias}
         />
-        {selectedMedias.map((media) => (
-          <input
-            key={media.id}
-            type="hidden"
-            name="mediaIds[]"
-            value={media.id}
-          />
+        {selectedMedias.map((media, index) => (
+          <div key={media.id}>
+            <input type="hidden" name="mediaIds[]" value={media.id} />
+            <input type="hidden" name="mediaOrders[]" value={index} />
+          </div>
         ))}
       </div>
 
-      <button
-        type="submit"
-        disabled={isPending}
-        className="bg-blue-600 text-white px-4 py-2 rounded"
-      >
+      <button type="submit" disabled={isPending} className="bg-blue-600 text-white px-4 py-2 rounded">
         {isPending ? "Güncelleniyor..." : "Ürünü Güncelle"}
       </button>
 
