@@ -190,6 +190,13 @@ export default function MediaModalButton({
         onSelectedMediasChange={handleSelectedMediasChange}
         selectedMediaIds={selectedMedias.map((m) => m.id)}
       />
+      {/* ✅ Form'a sıralı şekilde medya bilgilerini yolla */}
+{selectedMedias.map((media, index) => (
+  <div key={media.id}>
+    <input type="hidden" name={`mediaIds[${index}].id`} value={media.id} />
+    <input type="hidden" name={`mediaIds[${index}].order`} value={index} />
+  </div>
+))}
     </div>
   );
 }
