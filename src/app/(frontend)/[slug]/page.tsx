@@ -21,56 +21,75 @@ export default async function ProductPage({ params }: PageProps) {
       },
     },
     include: {
-      medias: { select: { urls: true } },
-      brands: {
-        select: {
-          id: true,
-          name: true,
-          slug: true,
-        },
-      },
-      categories: {
-        select: {
-          id: true,
-          name: true,
-          slug: true,
-          parent: {
-            select: {
-              id: true,
-              name: true,
-              slug: true,
+        medias: {
+          orderBy: { order: "asc" },
+          include: {
+            media: {
+              select: {
+                urls: true,
+              },
             },
           },
         },
-      },
-      group: {
-        include: {
-          products: {
-            select: {
-              id: true,
-              slug: true,
-              name: true,
-              price: true,
-              description: true,
-              stock: true,
-              medias: { select: { urls: true } },
+        brands: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+          },
+        },
+        categories: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+            parent: {
+              select: {
+                id: true,
+                name: true,
+                slug: true,
+              },
             },
           },
         },
-      },
-      favorites: session?.user?.id
-        ? {
-            where: { userId: session.user.id },
-            select: { id: true },
-          }
-        : undefined,
-      comments: {
-        include: {
-          user: { select: { name: true, image: true } },
+        group: {
+          include: {
+            products: {
+              select: {
+                id: true,
+                slug: true,
+                name: true,
+                price: true,
+                description: true,
+                stock: true,
+                medias: {
+                  orderBy: { order: "asc" },
+                  include: {
+                    media: {
+                      select: {
+                        urls: true,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
         },
-        orderBy: { createdAt: "desc" },
-      },
-    },
+        favorites: session?.user?.id
+          ? {
+              where: { userId: session.user.id },
+              select: { id: true },
+            }
+          : undefined,
+        comments: {
+          include: {
+            user: { select: { name: true, image: true } },
+          },
+          orderBy: { createdAt: "desc" },
+        },
+      }
+   
   });
 
   if (!product) {
