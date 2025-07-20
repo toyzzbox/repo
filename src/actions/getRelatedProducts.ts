@@ -22,8 +22,14 @@ export async function getRelatedProducts(productId: string, categoryIds: string[
       slug: true,
       price: true,
       medias: {
-        select: {
-          urls: true,
+        orderBy: { order: "asc" },
+        take: 1,
+        include: {
+          media: {
+            select: {
+              urls: true,
+            },
+          },
         },
       },
     },
