@@ -5,7 +5,6 @@ import { Brand } from "@/types/brand";
 import { Category } from "@/types/category";
 import { Attribute } from "@/types/attribute";
 
-// ProductGroup interface'ini burada tanımlayın
 interface ProductGroup {
   id: string;
   name: string;
@@ -16,9 +15,12 @@ interface ProductGroup {
 type ProductWithRelations = Product & {
   brands: Brand[];
   categories: Category[];
-  medias: Media[];
+  medias: {
+    media: Media;
+    order: number;
+  }[];
   attributes: Attribute[];
-  group?: ProductGroup; // Schema'da 'group' olarak tanımlanmış
+  group?: ProductGroup;
 };
 
 export default async function EditProductPage({ params }: { params: { id: string } }) {
@@ -27,9 +29,14 @@ export default async function EditProductPage({ params }: { params: { id: string
     include: {
       brands: true,
       categories: true,
-      medias: true,
       attributes: true,
-      group: true, // Schema'da 'group' olarak tanımlanmış
+      group: true,
+      medias: {
+        orderBy: { order: "asc" },
+        include: {
+          media: true,
+        },
+      },
     },
   });
 
@@ -44,11 +51,11 @@ export default async function EditProductPage({ params }: { params: { id: string
   const categories = await prisma.category.findMany();
   const medias = await prisma.media.findMany({
     orderBy: {
-      createdAt: 'desc',
+      createdAt: "desc",
     },
   });
   const attributes = await prisma.attribute.findMany();
-  const productGroups = await prisma.productGroup.findMany(); // ProductGroup tablonuz var
+  const productGroups = await prisma.productGroup.findMany();
 
   return (
     <EditProductForm
@@ -60,10 +67,10 @@ export default async function EditProductPage({ params }: { params: { id: string
         stock: fullProduct.stock ?? 0,
         price: fullProduct.price,
         discount: fullProduct.discount ?? 0,
-        groupId: fullProduct.groupId ?? "", // Schema'da groupId var
+        groupId: fullProduct.groupId ?? "",
         brandIds: fullProduct.brands.map((b) => b.id),
         categoryIds: fullProduct.categories.map((c) => c.id),
-        mediaIds: fullProduct.medias.map((m) => m.id),
+        mediaIds: fullProduct.medias.map((m) => m.media.id), // ✅ düzeltildi
         attributeIds: fullProduct.attributes.map((a) => a.id),
       }}
       brands={brands}
