@@ -29,7 +29,7 @@ export async function uploadMedia(formData: FormData) {
       const baseName = file.name.replace(/\.[^/.]+$/, "");
       const safeName = slugify(baseName, { lower: true, strict: true });
       const timestamp = Date.now();
-      const finalFileName = `${safeName}-${timestamp}.webp`; // ✅ WebP format
+      const finalFileName = `${safeName}.webp`; // ✅ WebP format
       const key = `uploads/${finalFileName}`;
 
       const buffer = await file.arrayBuffer();
@@ -65,3 +65,4 @@ export async function uploadMedia(formData: FormData) {
     return { success: false, error: "Upload failed" };
   }
 }
+s
