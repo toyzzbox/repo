@@ -9,7 +9,7 @@ import slugify from "slugify";
  */
 async function collectAncestorIds(initialIds: string[]): Promise<string[]> {
   const allIds = new Set<string>(initialIds);
-  const stack = [...initialIds]; // DFS / BFS için kuyruk
+  const stack = [...initialIds];
 
   while (stack.length > 0) {
     const id = stack.pop()!;
@@ -20,14 +20,14 @@ async function collectAncestorIds(initialIds: string[]): Promise<string[]> {
 
     if (parentId && !allIds.has(parentId)) {
       allIds.add(parentId);
-      stack.push(parentId); // bir üst basamağı da ara
+      stack.push(parentId);
     }
   }
-  return [...allIds]; // dizi olarak dön
+  return [...allIds];
 }
 
 /**
- * Zod doğrulama şeması
+ * Zod doğrulama şeması (medya buradan çıkarıldı, özel olarak işlenecek)
  */
 const schema = z.object({
   groupId: z.string().optional(),
@@ -38,7 +38,6 @@ const schema = z.object({
   discount: z.coerce.number().min(0).optional(),
   brandIds: z.array(z.string()).default([]),
   categoryIds: z.array(z.string()).default([]),
-  mediaIds: z.array(z.string()).default([]),
   description: z.string().optional(),
 });
 
@@ -47,7 +46,7 @@ const schema = z.object({
  */
 export async function createProduct(prevState: any, formData: FormData) {
   try {
-    // 1️⃣ Form verisini oku & doğrula
+    // 1️⃣ Form verisini oku
     const raw = {
       groupId: formData.get("groupId") || undefined,
       name: formData.get("name"),
@@ -57,23 +56,30 @@ export async function createProduct(prevState: any, formData: FormData) {
       discount: formData.get("discount"),
       brandIds: formData.getAll("brandIds[]"),
       categoryIds: formData.getAll("categoryIds[]"),
-      mediaIds: formData.getAll("mediaIds[]"),
       description: formData.get("description")?.toString() || undefined,
     };
+
     const data = schema.parse(raw);
 
-    console.log("mediaIds:", data.mediaIds);
+    // 2️⃣ Medyaları sıralı olarak al
+    const mediaIds: { id: string; order: number }[] = [];
+    for (let i = 0; ; i++) {
+      const id = formData.get(`mediaIds[${i}].id`);
+      const order = formData.get(`mediaIds[${i}].order`);
+      if (!id || order === null) break;
+      mediaIds.push({ id: String(id), order: Number(order) });
+    }
 
-    // 2️⃣ Kategori zincirini genişlet
+    // 3️⃣ Kategori zincirini genişlet
     const fullCategoryIds = await collectAncestorIds(data.categoryIds as string[]);
 
-    // 3️⃣ Slug oluştur
+    // 4️⃣ Slug oluştur
     const slug = slugify(`${data.name}-${data.serial || Date.now()}`, {
       lower: true,
       strict: true,
     });
 
-    // 4️⃣ Ürünü kaydet (medyaların eklenip eklenmediğini kontrol için include ekledim)
+    // 5️⃣ Ürünü oluştur
     const createdProduct = await prisma.product.create({
       data: {
         name: data.name,
@@ -84,9 +90,6 @@ export async function createProduct(prevState: any, formData: FormData) {
         discount: typeof data.discount === "number" ? data.discount : undefined,
         description: data.description,
         group: data.groupId ? { connect: { id: data.groupId } } : undefined,
-        medias: data.mediaIds.length
-          ? { connect: data.mediaIds.map((id) => ({ id })) }
-          : undefined,
         brands: data.brandIds.length
           ? { connect: data.brandIds.map((id) => ({ id })) }
           : undefined,
@@ -94,21 +97,22 @@ export async function createProduct(prevState: any, formData: FormData) {
           ? { connect: fullCategoryIds.map((id) => ({ id })) }
           : undefined,
       },
-      include: {
-        medias: true, // ürünle birlikte medias ilişkisini de getir
-      },
     });
 
-    // 5️⃣ Medya eklenip eklenmediğini kontrol et
-    if (createdProduct.medias && createdProduct.medias.length > 0) {
-      console.log("✅ Resimler başarıyla ürüne kaydedildi");
-    } else {
-      console.log("❌ Resimler kaydedilmedi");
+    // 6️⃣ Medya ilişkilerini sırayla ProductMedia tablosuna ekle
+    if (mediaIds.length > 0) {
+      await prisma.productMedia.createMany({
+        data: mediaIds.map((item) => ({
+          productId: createdProduct.id,
+          mediaId: item.id,
+          order: item.order,
+        })),
+      });
     }
 
-    return null; // başarı
+    return null; // başarılı
   } catch (err) {
-    console.error("Ürün oluşturulurken hata:", err);
+    console.error("❌ Ürün oluşturulurken hata:", err);
     return "Ürün oluşturulurken bir hata oluştu.";
   }
 }

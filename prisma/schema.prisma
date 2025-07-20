@@ -103,13 +103,12 @@ model Media {
   id        String    @id @default(cuid())
   type      MediaType
   urls      String[]
-  products  Product[] @relation("ProductToMedia")
   brands      Brand[]    @relation("BrandToMedia")
   categories  Category[]    @relation("CategoryToMedia")
   attributes  Attribute[]   @relation("AttributeToMedia")
   createdAt DateTime  @default(now())
   updatedAt   DateTime @updatedAt @default(now())  // 🔧 bu satır önemli
-
+  products  ProductMedia[] // ✅ Ekledik
 }
 
 
@@ -135,7 +134,7 @@ model Product {
 
   brands      Brand[]    @relation("ProductToBrand")
   categories  Category[] @relation("ProductToCategory")
-  medias      Media[]    @relation("ProductToMedia")
+medias      ProductMedia[] // ✅ DEĞİŞTİ
   attributes  Attribute[] @relation("ProductAttribute")
 
   createdAt   DateTime   @default(now())
@@ -144,6 +143,18 @@ model Product {
   sku         String?       // alternatif stok kodu
   discount    Float?        // indirimli fiyat
   isActive    Boolean       @default(true)
+}
+
+model ProductMedia {
+  product   Product @relation(fields: [productId], references: [id])
+  productId String
+
+  media     Media   @relation(fields: [mediaId], references: [id])
+  mediaId   String
+
+  order     Int
+
+  @@id([productId, mediaId])
 }
 
 model ProductGroup {
