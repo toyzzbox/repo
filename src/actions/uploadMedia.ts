@@ -28,7 +28,6 @@ export async function uploadMedia(formData: FormData) {
     for (const file of files) {
       const baseName = file.name.replace(/\.[^/.]+$/, "");
       const safeName = slugify(baseName, { lower: true, strict: true });
-      const timestamp = Date.now();
       const finalFileName = `${safeName}.webp`; // ✅ WebP format
       const key = `uploads/${finalFileName}`;
 
