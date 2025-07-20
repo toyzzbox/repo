@@ -13,9 +13,14 @@ export async function getProducts(): Promise<Product[]> {
         price: true,
         discount: true,
         medias: {
-          select: {
-            id: true,
-            urls: true,
+          orderBy: { order: "asc" },
+          include: {
+            media: {
+              select: {
+                id: true,
+                urls: true,
+              },
+            },
           },
         },
         group: {
