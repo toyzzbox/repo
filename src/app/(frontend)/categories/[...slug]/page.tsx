@@ -119,7 +119,15 @@ export default async function CategoryPage({
       slug: true,
       name: true,
       price: true,
-      medias: { select: { urls: true } },
+      medias: {
+        include: {
+          media: {
+            select: {
+              urls: true,
+            },
+          },
+        },
+      },
     },
   });
 
