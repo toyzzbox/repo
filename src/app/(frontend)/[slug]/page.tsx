@@ -116,7 +116,6 @@ export default async function ProductPage({ params }: PageProps) {
 export async function generateStaticParams() {
     const products = await prisma.product.findMany({
       select: { slug: true },
-      where: { isPublished: true }, // yayında olmayan ürünleri filtrele
     });
   
     return products.map((product) => ({
