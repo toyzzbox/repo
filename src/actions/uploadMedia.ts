@@ -1,3 +1,4 @@
+"use server"
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { prisma } from "@/lib/prisma";
 import { MediaType } from "@prisma/client";
