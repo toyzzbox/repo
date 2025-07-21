@@ -1,9 +1,8 @@
-"use server";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { prisma } from "@/lib/prisma";
 import { MediaType } from "@prisma/client";
 import slugify from "slugify";
-import sharp from "sharp"; // ✅ WebP dönüşümü için
+import sharp from "sharp";
 
 const s3 = new S3Client({
   region: process.env.NEXT_AWS_S3_REGION!,
@@ -26,15 +25,25 @@ export async function uploadMedia(formData: FormData) {
     const created: Media[] = [];
 
     for (const file of files) {
+      const ext = file.name.split(".").pop()?.toLowerCase();
+      if (!["png", "jpg", "jpeg", "webp"].includes(ext || "")) {
+        continue; // ❌ Geçersiz dosya uzantısı
+      }
+
       const baseName = file.name.replace(/\.[^/.]+$/, "");
       const safeName = slugify(baseName, { lower: true, strict: true });
-      const finalFileName = `${safeName}.webp`; // ✅ WebP format
+      const finalFileName = `${safeName}-${Date.now()}.webp`;
       const key = `uploads/${finalFileName}`;
 
       const buffer = await file.arrayBuffer();
       const webpBuffer = await sharp(Buffer.from(buffer))
         .webp({ quality: 80 })
         .toBuffer();
+
+      if (!webpBuffer || webpBuffer.length === 0) {
+        console.error("Empty webp buffer for:", file.name);
+        continue;
+      }
 
       const command = new PutObjectCommand({
         Bucket: BUCKET,
@@ -50,7 +59,7 @@ export async function uploadMedia(formData: FormData) {
       const media = await prisma.media.create({
         data: {
           urls: [publicUrl],
-          type: MediaType.image, // WebP olduğundan image sabit
+          type: MediaType.image,
         },
       });
 
@@ -58,10 +67,8 @@ export async function uploadMedia(formData: FormData) {
     }
 
     return { success: true, media: created };
-
   } catch (error) {
     console.error("uploadMedia error:", error instanceof Error ? error.message : error);
     return { success: false, error: "Upload failed" };
   }
 }
-
