@@ -18,7 +18,13 @@ export default async function BrandPage({ params, searchParams = {} }: PageProps
       name: true,
       description: true,
       medias: {
-        select: { urls: true },
+        select: {
+          media: {
+            select: {
+              urls: true,
+            },
+          },
+        },
       },
       products: {
         where: {
@@ -33,12 +39,19 @@ export default async function BrandPage({ params, searchParams = {} }: PageProps
           slug: true,
           price: true,
           medias: {
-            select: { urls: true },
+            select: {
+              media: {
+                select: {
+                  urls: true,
+                },
+              },
+            },
           },
         },
       },
     },
   });
+  
 
   if (!brand) return <div>Brand not found</div>;
 
