@@ -19,11 +19,7 @@ export default async function BrandPage({ params, searchParams = {} }: PageProps
       description: true,
       medias: {
         select: {
-          media: {
-            select: {
-              urls: true,
-            },
-          },
+          urls: true, // ✅ Doğrudan erişim
         },
       },
       products: {
