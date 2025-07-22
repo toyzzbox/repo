@@ -20,7 +20,7 @@ export default async function UserMenu() {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button size="logo" variant={"user"} className="flex items-center gap-2 py-2 px-4 rounded">
-          <User />
+        <User className="w-6 h-6" />
           {session?.user?.name?.split(" ")[0] ?? "Giriş Yap"}
         </Button>
       </DropdownMenuTrigger>
