@@ -1,4 +1,5 @@
 'use client';
+
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
@@ -8,19 +9,32 @@ type Props = {
   productName: string;
   productGroupImages?: string[]; // Ürün grubuna ait diğer ürünlerin resimleri
   onGroupImageClick?: (imageUrl: string) => void; // Grup resmine tıklandığında çağrılacak fonksiyon
+  favoriteButton?: React.ReactNode; // 🧡 Favori butonu (örneğin kalp)
 };
 
-export default function ProductImageGallery({ images, productName, productGroupImages = [], onGroupImageClick }: Props) {
-  // Aktif ürün resimleri + grup resimleri
+export default function ProductImageGallery({
+  images,
+  productName,
+  productGroupImages = [],
+  onGroupImageClick,
+  favoriteButton,
+}: Props) {
   const allImages = [...images, ...productGroupImages];
   const [selectedImage, setSelectedImage] = useState(allImages[0]);
 
   return (
     <div className="flex flex-col gap-4">
-      {/* Shadcn Modal Trigger */}
+      {/* Zoom Modal */}
       <Dialog>
         <DialogTrigger asChild>
-          <div className="cursor-zoom-in">
+          <div className="cursor-zoom-in relative">
+            {/* 🧡 Favori Butonu */}
+            {favoriteButton && (
+              <div className="absolute top-2 right-2 z-10">
+                {favoriteButton}
+              </div>
+            )}
+
             <AspectRatio ratio={16 / 9}>
               <img
                 src={selectedImage}
@@ -30,7 +44,7 @@ export default function ProductImageGallery({ images, productName, productGroupI
             </AspectRatio>
           </div>
         </DialogTrigger>
-        {/* Modal içeriği */}
+
         <DialogContent className="max-w-4xl p-0 bg-black">
           <img
             src={selectedImage}
@@ -42,7 +56,7 @@ export default function ProductImageGallery({ images, productName, productGroupI
 
       {/* Thumbnail'lar */}
       <div className="flex gap-2 overflow-x-auto">
-        {/* Aktif ürün resimleri */}
+        {/* Ana ürün görselleri */}
         {images.map((img, index) => (
           <img
             key={`current-${index}`}
@@ -57,7 +71,7 @@ export default function ProductImageGallery({ images, productName, productGroupI
           />
         ))}
 
-        {/* Grup resimleri - farklı stil ile */}
+        {/* Grup ürün görselleri */}
         {productGroupImages.map((img, index) => (
           <div key={`group-${index}`} className="relative">
             <img
@@ -76,8 +90,8 @@ export default function ProductImageGallery({ images, productName, productGroupI
                   : 'border-gray-300'
               }`}
             />
-            {/* Grup göstergesi */}
-            <div className="absolute -top-1 -right-1 w-3 h-3 bg-blue-500 rounded-full border border-white"></div>
+            {/* Grup etiketi */}
+            <div className="absolute -top-1 -right-1 w-3 h-3 bg-blue-500 rounded-full border border-white" />
           </div>
         ))}
       </div>
