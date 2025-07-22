@@ -128,7 +128,7 @@ product.group?.products
       {favorited ? (
         <BsHeartFill className="w-6 h-6 text-red-500" />
       ) : (
-        <Heart className="w-6 h-6 text-gray-600" />
+        <Heart className="w-6 h-6 text-orange-500" />
       )}
     </button>
   }
@@ -177,7 +177,7 @@ product.group?.products
                 <Link
                   key={brand.id}
                   href={`/marka/${brand.slug}`}
-                  className="hover:text-orange-600 font-medium hover:transition-colors"
+                  className="hover:text-orange-600 font-medium hover:transition-colors mt-2"
                 >
                   {brand.name} <span className="text-orange-500">diğer ürünleri</span>
                 </Link>
