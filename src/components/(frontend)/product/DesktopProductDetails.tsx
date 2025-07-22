@@ -38,6 +38,7 @@ interface ProductDetailsProps {
     description?: string;
     discount: number;
     price: number;
+    barcode: number;
     medias: { urls: string[] }[];
     categories?: { id: string; name: string; slug: string; parent?: { name: string; slug: string } }[];
     brands?: { id: string; name: string; slug: string }[];
@@ -276,16 +277,27 @@ product.group?.products
       </div>
 
       <div className="mt-8">
-        <ProductDetailTabs
-          product={{
-            description:
-              activeVariant.description ??
-              product.description ??
-              "Henüz açıklama bulunmamaktadır.",
-            group: product.group
-              ? { description: product.group.description ?? null }
-              : undefined,
-          }}
+      <ProductDetailTabs
+  product={{
+    description: (
+      <>
+        <p>
+          {activeVariant.description ??
+            product.description ??
+            "Henüz açıklama bulunmamaktadır."}
+        </p>
+
+        {(activeVariant.barcode || product.barcode) && (
+          <p className="mt-4">
+            <strong>Barkod:</strong> {activeVariant.barcode || product.barcode}
+          </p>
+        )}
+      </>
+    ),
+    group: product.group
+      ? { description: product.group.description ?? null }
+      : undefined,
+  }}
           comments={
             <>
               {comments.length === 0 ? (
