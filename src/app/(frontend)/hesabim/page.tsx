@@ -1,4 +1,4 @@
-// app/account/page.tsx
+export const dynamic = "force-dynamic";
 import { auth } from "@/auth"; // auth() ile sunucu taraflı kullanıcı bilgisini alıyoruz
 
 export default async function Hesabim() {
