@@ -123,6 +123,7 @@ model Product {
   name        String
   serial      String?    @unique // ✅ Opsiyonel
   stock       Int?                 // ✅ Opsiyonel
+  barcode     String?    @unique // ✅ Barkod alanı (EAN-13 gibi)
   price       Float
   description String? @db.Text
   favorites Favorite[] // 👈 bu ürünü favorileyen kullanıcılar

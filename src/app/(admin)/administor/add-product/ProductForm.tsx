@@ -74,6 +74,10 @@ export default function ProductForm({
 
       {/* Stok */}
       <div>
+  <Label htmlFor="barcode">Barkod (EAN-13)</Label>
+  <Input type="text" id="barcode" name="barcode" />
+</div>
+      <div>
         <Label htmlFor="stock">Stok</Label>
         <Input type="number" id="stock" name="stock" required min={0} />
       </div>

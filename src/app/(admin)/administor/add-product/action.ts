@@ -33,6 +33,7 @@ const schema = z.object({
   groupId: z.string().optional(),
   name: z.string().min(1),
   serial: z.string().optional(),
+  barcode: z.string().min(8).max(20).optional(), // ✅ Eklendi (EAN-13 veya benzeri için)
   stock: z.coerce.number().optional(),
   price: z.coerce.number().min(0),
   discount: z.coerce.number().min(0).optional(),
@@ -51,6 +52,7 @@ export async function createProduct(prevState: any, formData: FormData) {
       groupId: formData.get("groupId") || undefined,
       name: formData.get("name"),
       serial: formData.get("serial") || undefined,
+      barcode: formData.get("barcode")?.toString() || undefined, // ✅ eklendi
       stock: formData.get("stock"),
       price: formData.get("price"),
       discount: formData.get("discount"),
@@ -58,7 +60,6 @@ export async function createProduct(prevState: any, formData: FormData) {
       categoryIds: formData.getAll("categoryIds[]"),
       description: formData.get("description")?.toString() || undefined,
     };
-
     const data = schema.parse(raw);
 
     // 2️⃣ Medyaları sıralı olarak al
@@ -85,6 +86,7 @@ export async function createProduct(prevState: any, formData: FormData) {
         name: data.name,
         slug,
         serial: data.serial || undefined,
+        barcode: data.barcode || undefined, // ✅ Barkod eklendi
         stock: typeof data.stock === "number" ? data.stock : undefined,
         price: data.price,
         discount: typeof data.discount === "number" ? data.discount : undefined,
