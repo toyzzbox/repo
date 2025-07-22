@@ -39,21 +39,20 @@ const LoginForm = () => {
     try {
       const result = await login(data);
 
-      if (result?.error) {
+      if ("error" in result) {
         setError(result.error);
+        return;
       }
 
-      if (result?.success) {
+      if ("success" in result) {
         setSuccess(result.success);
-
-        // ✅ Oturum davranışını güncellemek için yönlendir + refresh
         startTransition(() => {
           router.push("/hesabim");
           router.refresh();
         });
       }
     } catch {
-      setError("Beklenmedik bir hata oluştu");
+      setError("Beklenmedik bir hata oluştu.");
     }
   };
 
@@ -68,7 +67,6 @@ const LoginForm = () => {
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <div className="space-y-4">
-            {/* Email */}
             <FormField
               control={form.control}
               name="email"
@@ -83,7 +81,6 @@ const LoginForm = () => {
               )}
             />
 
-            {/* Password */}
             <FormField
               control={form.control}
               name="password"
@@ -103,18 +100,15 @@ const LoginForm = () => {
             </Button>
           </div>
 
-          {/* Success & Error Messages */}
           <FormSuccess message={success} />
           <FormError message={error} />
 
-          {/* Submit Button */}
           <Button type="submit" className="w-full" disabled={isPending}>
             {isPending ? "Giriş Yapılıyor..." : "Giriş Yap"}
           </Button>
         </form>
       </Form>
 
-      {/* Google Login Butonu */}
       <GoogleLogin />
     </CardWrapper>
   );
