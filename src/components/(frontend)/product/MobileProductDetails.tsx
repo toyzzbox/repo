@@ -133,6 +133,7 @@ product.group?.products
   }
 />
        
+      </div>
 
       {/* Ürün Bilgileri */}
       <div className="p-4 pb-24 text-slate-600 text-sm">
