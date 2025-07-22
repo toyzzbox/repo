@@ -279,21 +279,15 @@ product.group?.products
       <div className="mt-8">
       <ProductDetailTabs
   product={{
-    description: (
-      <>
-        <p>
-          {activeVariant.description ??
-            product.description ??
-            "Henüz açıklama bulunmamaktadır."}
-        </p>
-
-        {(activeVariant.barcode || product.barcode) && (
-          <p className="mt-4">
-            <strong>Barkod:</strong> {activeVariant.barcode || product.barcode}
-          </p>
-        )}
-      </>
-    ),
+    description: `${
+      activeVariant.description ??
+      product.description ??
+      "Henüz açıklama bulunmamaktadır."
+    }${
+      activeVariant.barcode || product.barcode
+        ? `\n\nBarkod: ${activeVariant.barcode || product.barcode}`
+        : ""
+    }`,
     group: product.group
       ? { description: product.group.description ?? null }
       : undefined,
