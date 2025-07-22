@@ -6,6 +6,9 @@ import Script from "next/script"; // ✅ Next.js Script komponenti
 export const metadata: Metadata = {
   title: "Toyzz Box",
   description: "E-ticaret sitesi",
+  icons: {
+    icon: "/favicon.ico",
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
