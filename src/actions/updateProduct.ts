@@ -16,7 +16,7 @@ export async function updateProduct(prevState: any, formData: FormData) {
       : null;
     const groupId = formData.get("groupId") || null;
     const description = formData.get("description") as string;
-
+    const barcode = formData.get("barcode") as string;
     const brandIds = formData.getAll("brandIds[]") as string[];
     const categoryIds = formData.getAll("categoryIds[]") as string[];
     const mediaIds = formData.getAll("mediaIds[]") as string[];
@@ -37,6 +37,7 @@ export async function updateProduct(prevState: any, formData: FormData) {
         discount,
         groupId: groupId || null,
         description,
+        barcode,
         brands: {
           set: [],
           connect: brandIds.map((bid) => ({ id: bid })),
