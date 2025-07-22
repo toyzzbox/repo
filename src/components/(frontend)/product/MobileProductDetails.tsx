@@ -132,18 +132,7 @@ product.group?.products
     </button>
   }
 />
-        <button
-          onClick={handleToggleFavorite}
-          disabled={isFavPending}
-          className="absolute top-2 right-2 bg-white rounded-full p-2 shadow transition hover:scale-110"
-        >
-          {favorited ? (
-            <BsHeartFill className="w-6 h-6 text-red-500" />
-          ) : (
-            <Heart className="w-6 h-6 text-gray-600" />
-          )}
-        </button>
-      </div>
+       
 
       {/* Ürün Bilgileri */}
       <div className="p-4 pb-24 text-slate-600 text-sm">
