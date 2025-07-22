@@ -132,6 +132,15 @@ export default function ProductForm({
         label="Markalar"
       />
 
+
+<MultiSelect
+  items={attributes}
+  selected={selectedAttributeIds}
+  setSelected={setSelectedAttributeIds}
+  placeholder="Özellik ara..."
+  label="Özellikler"
+/>
+
       {/* Hidden inputs for selected brands & categories */}
       {selectedBrandIds.map((id) => (
         <input key={id} type="hidden" name="brandIds[]" value={id} />
@@ -143,14 +152,6 @@ export default function ProductForm({
   <input key={id} type="hidden" name="attributeIds[]" value={id} />
 ))}
 
-
-    <MultiSelect
-  items={attributes}
-  selected={selectedAttributeIds}
-  setSelected={setSelectedAttributeIds}
-  placeholder="Özellik ara..."
-  label="Özellikler"
-/>
 
 
       {/* Media, description, diğer inputlar */}
