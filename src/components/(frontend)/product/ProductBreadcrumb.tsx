@@ -23,12 +23,7 @@ export default function ProductBreadcrumb({
   return (
     <nav className="py-2 px-4 text-sm text-gray-600" aria-label="Breadcrumb">
       <ol className="flex flex-wrap items-center">
-        {/* Anasayfa */}
-        <li>
-          <Link href="/" className="hover:text-gray-800">
-            Anasayfa
-          </Link>
-        </li>
+
 
         {/* Oyuncaklar sabit varsa burada gösterilebilir */}
 
