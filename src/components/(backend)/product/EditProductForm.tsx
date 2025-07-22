@@ -32,6 +32,7 @@ interface Product {
   stock: number;
   price: number;
   discount?: number;
+  barcode?: string,
   groupId?: string;
   description?: string;
   brandIds: string[];
@@ -78,7 +79,18 @@ export default function EditProductForm({
         <Label htmlFor="serial">Seri Numarası (opsiyonel)</Label>
         <Input type="text" id="serial" name="serial" defaultValue={product.serial || ""} />
       </div>
-
+      <div className="flex flex-col gap-2">
+  <label htmlFor="barcode" className="font-medium text-sm">Barkod</label>
+  <input
+    type="text"
+    id="barcode"
+    name="barcode"
+    defaultValue={product.barcode}
+    className="input"
+    minLength={8}
+    maxLength={20}
+  />
+</div>
       <div>
         <Label htmlFor="stock">Stok</Label>
         <Input type="number" id="stock" name="stock" required min={0} defaultValue={product.stock} />
