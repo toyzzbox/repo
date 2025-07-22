@@ -65,6 +65,7 @@ export const loginWithoutRedirect = async (data: z.infer<typeof LoginSchema>) =>
       password,
       redirect: false,
     });
+    console.log("signIn result", result);
 
     // NextAuth v5'te redirect: false kullanıldığında
     // başarılı login sonrası null dönüyor
