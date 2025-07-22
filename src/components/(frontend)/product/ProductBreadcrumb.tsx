@@ -24,12 +24,6 @@ export default function ProductBreadcrumb({
     <nav className="py-2 px-4 text-sm text-gray-600" aria-label="Breadcrumb">
       <ol className="flex flex-wrap items-center">
 
-
-        {/* Oyuncaklar sabit varsa burada gösterilebilir */}
-
-        {/* Divider */}
-        <li><span className="mx-2">/</span></li>
-
         {/* Parent kategori */}
         {parentCategory && (
           <>

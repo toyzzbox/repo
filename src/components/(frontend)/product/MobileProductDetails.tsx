@@ -15,6 +15,7 @@ import { toggleFavorite } from "@/app/(admin)/administor/favorites/action";
 import CommentForm from "../comment/CommentForm";
 import { toast } from "sonner";
 import { ProductCard } from "./ProductCard";
+import Link from "next/link";
 
 interface MobileProductDetailsProps {
   product: any;
@@ -170,6 +171,19 @@ product.group?.products
             ))}
           </div>
         )}
+                  {product.brands?.length > 0 && (
+            <div className="flex items-center gap-2">
+              {product.brands.map((brand) => (
+                <Link
+                  key={brand.id}
+                  href={`/marka/${brand.slug}`}
+                  className="hover:text-orange-600 font-medium hover:transition-colors"
+                >
+                  {brand.name} <span className="text-orange-500">diğer ürünleri</span>
+                </Link>
+              ))}
+            </div>
+          )}
 
         {/* Fiyat */}
         <div className="mt-4">
