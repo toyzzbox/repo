@@ -81,7 +81,7 @@ const RegisterForm = () => {
             name='name'
             render={({field}) => (
                 <FormItem>
-                    <FormLabel>Name</FormLabel>
+                    <FormLabel>İsim</FormLabel>
                     <FormControl>
                         <Input
                          {...field} 

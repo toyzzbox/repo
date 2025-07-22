@@ -51,7 +51,7 @@ export default async function UserMenu() {
             <DropdownMenuLabel>Hoş geldiniz</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild>
-              <Link href="/api/auth/signin">Giriş Yap</Link>
+              <Link href="/login">Giriş Yap</Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
               <Link href="/register">Üye Ol</Link>

@@ -7,24 +7,25 @@ import { prisma } from "@/lib/prisma";
 
 export const register = async (data: z.infer<typeof RegisterSchema>) => {
   try {
-    const validatedData = RegisterSchema.parse(data);
-
-    const { email, name, password, passwordConfirmation } = validatedData;
-
-    if (password !== passwordConfirmation) {
-      return { error: "Passwords do not match" };
+    const result = RegisterSchema.safeParse(data);
+    if (!result.success) {
+      return { error: "Validation failed", details: result.error.flatten() };
     }
 
-    const lowerCaseEmail = email.toLowerCase();
+    const { email, name, password, passwordConfirmation } = result.data;
 
-    const userExist = await prisma.user.findFirst({
-      where: {
-        email: lowerCaseEmail,
-      },
+    if (password !== passwordConfirmation) {
+      return { error: "Şifreler uyuşmuyor" };
+    }
+
+    const lowerCaseEmail = email.trim().toLowerCase();
+
+    const userExist = await prisma.user.findUnique({
+      where: { email: lowerCaseEmail },
     });
 
     if (userExist) {
-      return { error: "User already exists" };
+      return { error: "Bu e-posta zaten kayıtlı." };
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -37,9 +38,9 @@ export const register = async (data: z.infer<typeof RegisterSchema>) => {
       },
     });
 
-    return { success: "User created successfully" };
+    return { success: "Kayıt başarılı, şimdi giriş yapabilirsiniz." };
   } catch (error) {
     console.error(error);
-    return { error: "An error occurred" };
+    return { error: "Beklenmeyen bir hata oluştu. Lütfen tekrar deneyin." };
   }
 };
