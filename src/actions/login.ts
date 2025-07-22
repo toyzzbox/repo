@@ -29,7 +29,8 @@ export const login = async (data: z.infer<typeof LoginSchema>): Promise<LoginRes
     const response = await signIn("credentials", {
       email,
       password,
-      redirect: false,
+      redirect: true,
+      callbackUrl: "/hesabim",
     });
 
     if (response?.error) {

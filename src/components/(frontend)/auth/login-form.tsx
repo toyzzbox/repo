@@ -1,28 +1,32 @@
 "use client";
 
-import React, { useState, useTransition } from 'react';
-import { useForm } from 'react-hook-form';
-import { LoginSchema } from '@/schema';
-import { z } from 'zod';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { login } from '@/actions/login';
-import { useRouter } from 'next/navigation';
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/navigation";
+import { signIn } from "next-auth/react";
 
-import CardWrapper from './card-wrapper';
-import GoogleLogin from './google-button';
-import Link from 'next/link';
+import { LoginSchema } from "@/schema";
+import CardWrapper from "./card-wrapper";
+import GoogleLogin from "./google-button";
+import Link from "next/link";
 
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { FormError } from './form-error';
-import { FormSuccess } from './form-success';
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { FormError } from "./form-error";
 
-const LoginForm = () => {
+export default function LoginForm() {
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
-  const [isPending, startTransition] = useTransition();
-  const router = useRouter();
+  const { push } = useRouter();
 
   const form = useForm<z.infer<typeof LoginSchema>>({
     resolver: zodResolver(LoginSchema),
@@ -33,26 +37,18 @@ const LoginForm = () => {
   });
 
   const onSubmit = async (data: z.infer<typeof LoginSchema>) => {
-    setError("");
-    setSuccess("");
+    setError(""); // önceki hatayı sıfırla
 
-    try {
-      const result = await login(data);
+    const res = await signIn("credentials", {
+      email: data.email,
+      password: data.password,
+      redirect: false, // kontrolü kendimiz yapacağız
+    });
 
-      if ("error" in result) {
-        setError(result.error);
-        return;
-      }
-
-      if ("success" in result) {
-        setSuccess(result.success);
-        startTransition(() => {
-          router.push("/hesabim");
-          router.refresh();
-        });
-      }
-    } catch {
-      setError("Beklenmedik bir hata oluştu.");
+    if (res?.error) {
+      setError("Geçersiz e-posta veya şifre.");
+    } else {
+      push("/hesabim"); // başarılıysa yönlendir
     }
   };
 
@@ -67,6 +63,7 @@ const LoginForm = () => {
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <div className="space-y-4">
+            {/* E-posta */}
             <FormField
               control={form.control}
               name="email"
@@ -74,13 +71,18 @@ const LoginForm = () => {
                 <FormItem>
                   <FormLabel>E-posta</FormLabel>
                   <FormControl>
-                    <Input {...field} type="email" placeholder="ornek@mail.com" />
+                    <Input
+                      {...field}
+                      type="email"
+                      placeholder="ornek@mail.com"
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
 
+            {/* Şifre */}
             <FormField
               control={form.control}
               name="password"
@@ -95,23 +97,27 @@ const LoginForm = () => {
               )}
             />
 
-            <Button size="sm" variant="link" asChild className="px-0 font-normal">
+            <Button
+              size="sm"
+              variant="link"
+              asChild
+              className="px-0 font-normal"
+            >
               <Link href="/login/reset">Parolamı unuttum</Link>
             </Button>
           </div>
 
-          <FormSuccess message={success} />
+          {/* Hata mesajı */}
           <FormError message={error} />
 
-          <Button type="submit" className="w-full" disabled={isPending}>
-            {isPending ? "Giriş Yapılıyor..." : "Giriş Yap"}
+          <Button type="submit" className="w-full">
+            Giriş Yap
           </Button>
         </form>
       </Form>
 
+      {/* Google ile giriş */}
       <GoogleLogin />
     </CardWrapper>
   );
-};
-
-export default LoginForm;
+}
