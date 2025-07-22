@@ -21,6 +21,13 @@ interface Media {
   urls: string[];
   
 }
+
+
+interface Attribute {
+  id: string;
+  name: string;
+  
+}
 interface ProductGroup {
   id: string;
   name: string;
@@ -31,6 +38,7 @@ interface ProductFormProps {
   categories: Category[];
   medias: Media[];
   productGroups: ProductGroup[];
+  attributes : Attribute[];
 }
 
 export default function ProductForm({
@@ -38,6 +46,7 @@ export default function ProductForm({
   categories,
   medias,
   productGroups,
+  attributes
 }: ProductFormProps) {
   const [state, formAction, isPending] = useActionState(createProduct, null);
   const [descriptionHtml, setDescriptionHtml] = useState("");
@@ -46,7 +55,7 @@ export default function ProductForm({
   // Eksik olan state tanımları eklendi:
   const [selectedCategoryIds, setSelectedCategoryIds] = useState<string[]>([]);
   const [selectedBrandIds, setSelectedBrandIds] = useState<string[]>([]);
-
+  const [selectedAttributeIds, setSelectedAttributeIds] = useState<string[]>([]);
   return (
     <form action={formAction} className="space-y-4">
       <h1 className="text-2xl font-bold">Ürün Ekle</h1>
@@ -130,6 +139,19 @@ export default function ProductForm({
       {selectedCategoryIds.map((id) => (
         <input key={id} type="hidden" name="categoryIds[]" value={id} />
       ))}
+      {selectedAttributeIds.map((id) => (
+  <input key={id} type="hidden" name="attributeIds[]" value={id} />
+))}
+
+
+    <MultiSelect
+  items={attributes}
+  selected={selectedAttributeIds}
+  setSelected={setSelectedAttributeIds}
+  placeholder="Özellik ara..."
+  label="Özellikler"
+/>
+
 
       {/* Media, description, diğer inputlar */}
       <div className="space-y-2">
