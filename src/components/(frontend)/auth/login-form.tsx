@@ -5,8 +5,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
-import { signIn } from "next-auth/react";
-
+import { signIn } from "@/auth";
 import { LoginSchema } from "@/schema";
 import CardWrapper from "./card-wrapper";
 import GoogleLogin from "./google-button";
