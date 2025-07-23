@@ -79,7 +79,7 @@ model Account {
 }
 
 model Session {
-  id           String   @default(cuid()) // ✅ normal sütun, @id değil!
+  id           String? // ❗ DİKKAT: required DEĞİL, default YOK
   sessionToken String   @unique
   userId       String
   expires      DateTime
@@ -88,7 +88,7 @@ model Session {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@id([sessionToken]) // ✅ hala eski ID sistemini kullanıyoruz
+  @@id([sessionToken])
   @@map("sessions")
 }
 
