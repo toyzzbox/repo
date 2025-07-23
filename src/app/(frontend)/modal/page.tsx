@@ -1,6 +1,10 @@
-// app/admin/medias/page.tsx
 import { prisma } from "@/lib/prisma";
-import MediaModalButton from "./MediaModalButton";
+import dynamic from "next/dynamic";
+
+// MediaModalButtonWrapper dinamik olarak sadece client'ta yüklenecek
+const MediaModalButtonWrapper = dynamic(() => import("./MediaModalButtonWrapper"), {
+  ssr: false,
+});
 
 export default async function MediasPage() {
   const medias = await prisma.media.findMany({
@@ -13,8 +17,7 @@ export default async function MediasPage() {
         <h1 className="text-xl font-bold">Medya Yöneticisi</h1>
       </div>
 
-      <MediaModalButton medias={medias} />
+      <MediaModalButtonWrapper initialMedias={medias} />
     </div>
   );
-  
 }

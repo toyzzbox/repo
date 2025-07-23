@@ -47,6 +47,7 @@ interface MediaModalProps {
   onClose: () => void;
   medias: Media[];
   onSelectedMediasChange?: (selectedMedias: Media[]) => void;
+  onNewMediaUploaded?: (newMedias: Media[]) => void; // 🆕 Parent’a yeni medyaları bildir
   selectedMediaIds?: string[];
 }
 
@@ -55,6 +56,7 @@ export default function MediaModal({
   onClose,
   medias,
   onSelectedMediasChange,
+  onNewMediaUploaded,
   selectedMediaIds = [],
 }: MediaModalProps) {
   const [search, setSearch] = useState("");
@@ -183,13 +185,17 @@ export default function MediaModal({
 
         updateOptimisticMedias({ type: "add", payload: tempMedia });
 
-        const result = await uploadMedia(formData);
+        const result = await uploadMedia(formData); // ✅ FormData gönderiliyor
 
         if (result.success && result.media) {
           updateOptimisticMedias({
             type: "replace",
             payload: { tempId: tempMedia.id, realMedia: result.media },
           });
+
+          if (onNewMediaUploaded) {
+            onNewMediaUploaded([result.media]); // ✅ Parent'a bildir
+          }
         } else {
           console.error("Upload failed:", result.error);
           updateOptimisticMedias({

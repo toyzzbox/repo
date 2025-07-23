@@ -29,8 +29,9 @@ interface Media {
 
 interface MediaModalButtonProps {
   medias: Media[];
-  onSelectedMediasChange: (selectedMedias: Media[]) => void;
   selectedMedias: Media[];
+  onSelectedMediasChange: (selectedMedias: Media[]) => void;
+  onMediasChange: (updated: Media[]) => void; // ✅ Yeni prop
 }
 
 interface SortableMediaItemProps {
@@ -110,8 +111,9 @@ function SortableMediaItem({ media, index, onRemove }: SortableMediaItemProps) {
 
 export default function MediaModalButton({
   medias,
-  onSelectedMediasChange,
   selectedMedias,
+  onSelectedMediasChange,
+  onMediasChange,
 }: MediaModalButtonProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -142,6 +144,11 @@ export default function MediaModalButton({
 
   const handleSelectedMediasChange = (medias: Media[]) => {
     onSelectedMediasChange(medias);
+  };
+
+  const handleNewMediaUploaded = (newItems: Media[]) => {
+    const updated = [...newItems, ...medias];
+    onMediasChange(updated);
   };
 
   return (
@@ -189,14 +196,16 @@ export default function MediaModalButton({
         medias={medias}
         onSelectedMediasChange={handleSelectedMediasChange}
         selectedMediaIds={selectedMedias.map((m) => m.id)}
+        onNewMediaUploaded={handleNewMediaUploaded} // ✅ Yeni medya geldiğinde ekle
       />
+
       {/* ✅ Form'a sıralı şekilde medya bilgilerini yolla */}
-{selectedMedias.map((media, index) => (
-  <div key={media.id}>
-    <input type="hidden" name={`mediaIds[${index}].id`} value={media.id} />
-    <input type="hidden" name={`mediaIds[${index}].order`} value={index} />
-  </div>
-))}
+      {selectedMedias.map((media, index) => (
+        <div key={media.id}>
+          <input type="hidden" name={`mediaIds[${index}].id`} value={media.id} />
+          <input type="hidden" name={`mediaIds[${index}].order`} value={index} />
+        </div>
+      ))}
     </div>
   );
 }
