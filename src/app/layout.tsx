@@ -1,7 +1,8 @@
-import GtagClient from "@/components/(frontend)/analytics/GtagClient";
 import "./globals.css";
+import GtagClient from "@/components/(frontend)/analytics/GtagClient";
+import { SessionProvider } from "next-auth/react";
 import { Metadata } from "next";
-import Script from "next/script"; // ✅ Next.js Script komponenti
+import Script from "next/script";
 
 export const metadata: Metadata = {
   title: "Toyzz Box",
@@ -15,7 +16,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="tr">
       <head>
-        {/* ✅ GA4 Tag */}
+        {/* ✅ GA4 Script Etiketi */}
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-8P7CCYJ18M"
           strategy="afterInteractive"
@@ -30,10 +31,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </Script>
       </head>
       <body>
-        <GtagClient/>
-        {children}
+        <SessionProvider> {/* ✅ Oturumu tüm app'e yayar */}
+          <GtagClient />
+          {children}
+        </SessionProvider>
       </body>
     </html>
   );
 }
-
