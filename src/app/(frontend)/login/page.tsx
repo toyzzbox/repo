@@ -1,4 +1,4 @@
-// ✅ Bu satır en üste, fonksiyonun dışına yazılır
+// ✅ Bu satır en üste
 export const dynamic = "force-dynamic";
 
 import { auth } from "@/auth";
@@ -6,14 +6,12 @@ import LoginForm from "@/components/(frontend)/auth/login-form";
 import { redirect } from "next/navigation";
 
 const LoginPage = async () => {
-  const session = await auth();
+  const session = await auth(); // ✅ Server-side oturumu getir
 
-  // ✅ Doğru yaklaşım: session varsa değil, session.user varsa yönlendirme
   if (session?.user) {
-    redirect("/hesabim");
+    redirect("/hesabim"); // ✅ Zaten giriş yaptıysa yönlendir
   }
 
-  // Kullanıcı oturum açmamışsa login formu göster
   return (
     <div className="flex justify-center mt-10">
       <LoginForm />
