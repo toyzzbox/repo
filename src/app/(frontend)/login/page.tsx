@@ -1,3 +1,4 @@
+// ✅ Bu satır en üste, fonksiyonun dışına yazılır
 export const dynamic = "force-dynamic";
 
 import { auth } from "@/auth";
