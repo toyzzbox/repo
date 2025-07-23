@@ -50,6 +50,8 @@ export const authConfig: NextAuthConfig = {
     async session({ session, user }) {
       session.user.id = user.id;
       session.user.role = user.role as "admin" | "user";
+      session.user.email = user.email; // 🟢 Bu satırı ekle
+    session.user.name = user.name; 
       return session;
     },
   },
