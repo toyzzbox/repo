@@ -1,6 +1,6 @@
 import "./globals.css";
 import GtagClient from "@/components/(frontend)/analytics/GtagClient";
-import { SessionProvider } from "next-auth/react";
+import SessionProviderWrapper from "@/components/providers/SessionProviderWrapper";
 import { Metadata } from "next";
 import Script from "next/script";
 
@@ -31,10 +31,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </Script>
       </head>
       <body>
-        <SessionProvider> {/* ✅ Oturumu tüm app'e yayar */}
+        <SessionProviderWrapper> {/* ✅ Artık session çalışır */}
           <GtagClient />
           {children}
-        </SessionProvider>
+        </SessionProviderWrapper>
       </body>
     </html>
   );
