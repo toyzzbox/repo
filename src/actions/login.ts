@@ -1,44 +1,30 @@
+// app/actions/login.ts
 "use server";
 
+import { signIn } from "@/auth"; // App Router uyumlu
+import { AuthError } from "next-auth";
 import * as z from "zod";
-import { signIn } from "@/auth";
 import { LoginSchema } from "@/schema";
-import { prisma } from "@/lib/prisma";
 
-type LoginResult =
-  | { success: string; error?: undefined }
-  | { error: string; success?: undefined };
-
-export const login = async (data: z.infer<typeof LoginSchema>): Promise<LoginResult> => {
+export const login = async (data: z.infer<typeof LoginSchema>) => {
   const validated = LoginSchema.safeParse(data);
   if (!validated.success) {
-    return { error: "Geçersiz giriş verileri" };
-  }
-
-  const { email, password } = validated.data;
-
-  const user = await prisma.user.findUnique({
-    where: { email },
-  });
-
-  if (!user || !user.password) {
-    return { error: "Kullanıcı bulunamadı veya şifre hatalı" };
+    return { error: "Geçersiz form verisi" };
   }
 
   try {
-    const response = await signIn("credentials", {
-      email,
-      password,
-      redirect: true,
-      callbackUrl: "/hesabim",
+    await signIn("credentials", {
+      email: validated.data.email,
+      password: validated.data.password,
+      redirect: false, // client yönlendirmesi
     });
 
-    if (response?.error) {
-      return { error: "Geçersiz e-posta veya şifre" };
+    return { success: true };
+  } catch (err) {
+    if (err instanceof AuthError) {
+      return { error: "E-posta veya şifre hatalı" };
     }
 
-    return { success: "Giriş başarılı!" };
-  } catch {
-    return { error: "Sunucu hatası: Giriş başarısız" };
+    return { error: "Giriş sırasında beklenmeyen bir hata oluştu" };
   }
 };
