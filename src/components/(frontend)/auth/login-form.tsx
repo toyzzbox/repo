@@ -26,7 +26,9 @@ import { FormError } from "./form-error";
 
 export default function LoginForm() {
   const [error, setError] = useState("");
-  const { push } = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const router = useRouter();
 
   const form = useForm<z.infer<typeof LoginSchema>>({
     resolver: zodResolver(LoginSchema),
@@ -37,18 +39,22 @@ export default function LoginForm() {
   });
 
   const onSubmit = async (data: z.infer<typeof LoginSchema>) => {
-    setError(""); // önceki hatayı sıfırla
+    setError("");
+    setIsLoading(true);
 
     const res = await signIn("credentials", {
       email: data.email,
       password: data.password,
-      redirect: false, // kontrolü kendimiz yapacağız
+      redirect: false,
     });
+
+    setIsLoading(false);
 
     if (res?.error) {
       setError("Geçersiz e-posta veya şifre.");
     } else {
-      push("/hesabim"); // başarılıysa yönlendir
+      router.push("/hesabim");
+      router.refresh(); // Oturum verisini client'a yansıtmak için
     }
   };
 
@@ -69,12 +75,14 @@ export default function LoginForm() {
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>E-posta</FormLabel>
+                  <FormLabel htmlFor="email">E-posta</FormLabel>
                   <FormControl>
                     <Input
                       {...field}
+                      id="email"
                       type="email"
                       placeholder="ornek@mail.com"
+                      disabled={isLoading}
                     />
                   </FormControl>
                   <FormMessage />
@@ -88,9 +96,24 @@ export default function LoginForm() {
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Şifre</FormLabel>
+                  <FormLabel htmlFor="password">Şifre</FormLabel>
                   <FormControl>
-                    <Input {...field} type="password" placeholder="••••••••" />
+                    <div className="relative">
+                      <Input
+                        {...field}
+                        id="password"
+                        type={showPassword ? "text" : "password"}
+                        placeholder="••••••••"
+                        disabled={isLoading}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword((prev) => !prev)}
+                        className="absolute inset-y-0 right-0 px-3 text-sm text-muted-foreground"
+                      >
+                        {showPassword ? "Gizle" : "Göster"}
+                      </button>
+                    </div>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -110,13 +133,12 @@ export default function LoginForm() {
           {/* Hata mesajı */}
           <FormError message={error} />
 
-          <Button type="submit" className="w-full">
-            Giriş Yap
+          <Button type="submit" className="w-full" disabled={isLoading}>
+            {isLoading ? "Giriş Yapılıyor..." : "Giriş Yap"}
           </Button>
         </form>
       </Form>
 
-      {/* Google ile giriş */}
       <GoogleLogin />
     </CardWrapper>
   );
