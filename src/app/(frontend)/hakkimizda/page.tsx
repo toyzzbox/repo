@@ -1,6 +1,4 @@
-// src/app/hakkimizda/page.tsx
-
-import React from "react";
+export const dynamic = "force-static"; // ✅ Bu sayfa tamamen statik olacak
 
 const HakkimizdaPage = () => {
   return (
