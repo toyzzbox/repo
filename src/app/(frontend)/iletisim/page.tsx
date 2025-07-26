@@ -1,11 +1,16 @@
-// src/app/hakkimizda/page.tsx veya contact/page.tsx
+import dynamic from "next/dynamic";
 
+// Sayfa statik render edilir
 export const dynamic = "force-static";
 
-import nextDynamic from "next/dynamic";
+export const metadata = {
+  title: "Bize Ulaşın - Toyzz Box",
+  description:
+    "Toyzz Box iletişim sayfasından adres, telefon ve harita bilgilerine kolayca ulaşabilirsiniz.",
+};
 
-
-const ContactMap = nextDynamic(
+// Dynamic import (lazy load)
+const ContactMap = dynamic(
   () => import("@/components/(frontend)/contact/ContactMap"),
   {
     ssr: false,
@@ -16,12 +21,6 @@ const ContactMap = nextDynamic(
     ),
   }
 );
-
-export const metadata = {
-  title: "Bize Ulaşın - Toyzz Box",
-  description:
-    "Toyzz Box iletişim sayfasından adres, telefon ve harita bilgilerine kolayca ulaşabilirsiniz.",
-};
 
 export default function ContactPage() {
   return (
