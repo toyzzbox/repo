@@ -10,10 +10,11 @@ import LiveSearch from '../search/LiveSearch'
 import MenuBar from './Menu'
 const Header = () => {
   return (
-   <> <div className='hidden sm:block w-[1200px] mx-auto'>
-   <TopBar/>
+   <> 
   
-   <div className="w-full px-[50px]"> {/* yaklaşık 20cm padding */}
+   <div className="w-[1200px] mx-auto px-[50px] "> {/* yaklaşık 20cm padding */}
+   <div className='hidden sm:block'>
+   <TopBar/>
   <div className='flex justify-between items-center gap-3'>
     <Logo />
     <LiveSearch />
