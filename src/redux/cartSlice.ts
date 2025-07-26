@@ -8,6 +8,7 @@ interface CartItem {
   slug: string; // Ürün slug'ı
   name: string; // Ürün adı
   price: number; // Ürün fiyatı
+  discountedPrice?: number; 
   url?: string; // Ürün görsel URL'si (isteğe bağlı)
   quantity: number; // Ürün miktarı
   

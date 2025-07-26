@@ -16,7 +16,8 @@ export type Product = {
   id: string;                // Ürünün benzersiz kimliği
   name: string;              // Ürün adı
   slug: string;              // URL dostu ad
-  price: number;             // Fiyat
+  price: number;      
+  discountedPrice?: number;        // Fiyat
   description?: string;      // Opsiyonel açıklama
   discount?: number;         // Opsiyonel indirim miktarı
   createdAt?: Date;
