@@ -14,7 +14,7 @@ const Header = () => {
    <TopBar/>
   
    <div className="w-full px-[50px]"> {/* yaklaşık 20cm padding */}
-  <div className='flex justify-between items-center gap-3'>
+  <div className='flex justify-between items-center gap-3 w-[1260px}'>
     <Logo />
     <LiveSearch />
     <div className='hidden sm:flex items-center gap-2 p-2'>
