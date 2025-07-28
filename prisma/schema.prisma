@@ -19,7 +19,7 @@ model User {
   addresses Address[]
   favorites Favorite[] // 👈 bir kullanıcının favorileri
   comments Comment[]  
-    accounts  Account[]
+  accounts  Account[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
