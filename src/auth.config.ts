@@ -8,19 +8,17 @@ import bcrypt from "bcryptjs";
 export const authConfig: NextAuthConfig = {
   adapter: PrismaAdapter(prisma),
   session: {
-    strategy: "database", // ✅ Session veritabanında tutulur
+    strategy: "database", // ✅ DB tabanlı oturum
   },
   trustHost: true,
-  secret: process.env.AUTH_SECRET, // ✅ .env içinde olmalı
+  secret: process.env.AUTH_SECRET,
 
   providers: [
-    // ✅ Google login desteği
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     }),
 
-    // ✅ Email + Şifre login
     CredentialsProvider({
       name: "Email & Şifre",
       credentials: {
@@ -39,7 +37,6 @@ export const authConfig: NextAuthConfig = {
         const isValid = await bcrypt.compare(credentials.password, user.password);
         if (!isValid) return null;
 
-        // ❗Güvenli return (password gibi hassas alanları çıkart)
         return {
           id: user.id,
           email: user.email,
@@ -49,35 +46,28 @@ export const authConfig: NextAuthConfig = {
       },
     }),
   ],
-  events: {
-    async signIn({ user, account }) {
-      console.log("✅ SIGN IN EVENT:", user, account);
-    },
-    async session({ session, token }) {
-      console.log("📦 SESSION CALLBACK:", session, token);
-    },
-    async error(error: unknown) {
-      if (error instanceof Error) {
-        console.error("❌ AUTH ERROR:", error.message);
-      } else {
-        console.error("❌ Unknown error:", error);
-      }
-    }
-  },
 
   callbacks: {
-    // ✅ Session içine id ve role gibi ekstra bilgiler ekle
-    async session({ session, user }) {
-      if (session.user) {
-        session.user.id = user.id;
-        session.user.role = user.role as "admin" | "user";
-        session.user.email = user.email;
-        session.user.name = user.name;
+    async session({ session, token }) {
+      if (session.user && token) {
+        session.user.id = token.sub!;
+        session.user.role = token.role as "admin" | "user";
+        session.user.email = token.email!;
+        session.user.name = token.name!;
       }
       return session;
     },
 
-    // (İsteğe bağlı) admin email tanımlaması
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id;
+        token.role = user.role;
+        token.email = user.email;
+        token.name = user.name;
+      }
+      return token;
+    },
+
     async signIn({ user }) {
       if (
         user.email === process.env.ADMIN_EMAIL &&
@@ -92,7 +82,16 @@ export const authConfig: NextAuthConfig = {
     },
   },
 
-  // (Opsiyonel) Cookie ayarları - https zorunluysa kullan
+  events: {
+    async signIn({ user, account }) {
+      console.log("✅ SIGN IN EVENT:", user, account);
+    },
+    async session({ session, token }) {
+      console.log("📦 SESSION CALLBACK:", session, token);
+    },
+  
+  },
+
   cookies: {
     sessionToken: {
       name: `__Secure-next-auth.session-token`,
@@ -100,7 +99,7 @@ export const authConfig: NextAuthConfig = {
         httpOnly: true,
         sameSite: "lax",
         path: "/",
-        secure: true, // ✅ HTTPS zorunlu
+        secure: true,
       },
     },
   },
