@@ -79,17 +79,15 @@ model Account {
 }
 
 model Session {
-  id           String? // ❗ DİKKAT: required DEĞİL, default YOK
+  id           String   @id @default(cuid()) // ✅ required + default
   sessionToken String   @unique
   userId       String
-  expires      DateTime
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expires      DateTime
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@id([sessionToken])
-  @@map("sessions")
+  @@map("sessions") // ✅ tablo adı lowercase olacaksa bu kalabilir
 }
 
 model VerificationToken {
