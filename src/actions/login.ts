@@ -2,7 +2,6 @@
 "use server";
 
 import { signIn } from "@/auth"; // App Router uyumlu
-import { AuthError } from "next-auth";
 import * as z from "zod";
 import { LoginSchema } from "@/schema";
 
@@ -12,19 +11,17 @@ export const login = async (data: z.infer<typeof LoginSchema>) => {
     return { error: "Geçersiz form verisi" };
   }
 
-  try {
-    await signIn("credentials", {
-      email: validated.data.email,
-      password: validated.data.password,
-      redirect: false, // client yönlendirmesi
-    });
+  const { email, password } = validated.data;
 
-    return { success: true };
-  } catch (err) {
-    if (err instanceof AuthError) {
-      return { error: "E-posta veya şifre hatalı" };
-    }
+  const result = await signIn("credentials", {
+    email,
+    password,
+    redirect: false,
+  });
 
-    return { error: "Giriş sırasında beklenmeyen bir hata oluştu" };
+  if (result?.error) {
+    return { error: "E-posta veya şifre hatalı" };
   }
+
+  return { success: true };
 };
