@@ -49,6 +49,21 @@ export const authConfig: NextAuthConfig = {
       },
     }),
   ],
+  events: {
+    async signIn({ user, account }) {
+      console.log("✅ SIGN IN EVENT:", user, account);
+    },
+    async session({ session, token }) {
+      console.log("📦 SESSION CALLBACK:", session, token);
+    },
+    async error(error: unknown) {
+      if (error instanceof Error) {
+        console.error("❌ AUTH ERROR:", error.message);
+      } else {
+        console.error("❌ Unknown error:", error);
+      }
+    }
+  },
 
   callbacks: {
     // ✅ Session içine id ve role gibi ekstra bilgiler ekle
