@@ -1,13 +1,20 @@
 export const dynamic = "force-dynamic";
-import { auth } from "@/auth"; // auth() ile sunucu taraflı kullanıcı bilgisini alıyoruz
+import { auth } from "@/auth";
+import { redirect } from "next/navigation";
 
 export default async function Hesabim() {
   const session = await auth();
 
+  // Eğer kullanıcı giriş yapmamışsa, login sayfasına yönlendir
+  if (!session) {
+    redirect("/login");
+  }
+
   return (
     <div className="space-y-4">
-      <h1 className="text-2xl font-bold">Merhaba, {session?.user?.email ?? "kullanıcı"} 👋</h1>
-      
+      <h1 className="text-2xl font-bold">
+        Merhaba, {session.user.email} 👋
+      </h1>
 
       <p className="text-gray-600">
         Hesabına hoş geldin! Buradan siparişlerini takip edebilir, adreslerini yönetebilir,
