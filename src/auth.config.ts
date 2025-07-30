@@ -7,14 +7,16 @@ import bcrypt from "bcryptjs";
 
 export const authConfig: NextAuthConfig = {
   adapter: PrismaAdapter(prisma),
+
   session: {
-    strategy: "database",
+    strategy: "database", // ✅ Sessionlar veritabanında tutulur
     maxAge: 30 * 24 * 60 * 60, // 30 gün
-    updateAge: 24 * 60 * 60,   // 24 saatte bir
+    updateAge: 24 * 60 * 60,   // 24 saatte bir güncelle
   },
-  secret: process.env.AUTH_SECRET,
-  trustHost: true,
-  debug: process.env.NODE_ENV === "development",
+
+  secret: process.env.AUTH_SECRET, // ✅ .env'den gelir
+  trustHost: true,                 // ✅ App Router kullanıyorsan gerekli
+  debug: process.env.NODE_ENV === "development", // development'ta log verir
 
   providers: [
     GoogleProvider({
@@ -53,8 +55,25 @@ export const authConfig: NextAuthConfig = {
   ],
 
   pages: {
-    signIn: "/auth/signin",
+    signIn: "/login",
     error: "/auth/error",
+  },
+
+  callbacks: {
+    async session({ session, user }) {
+      if (session.user) {
+        session.user.id = user.id;
+        session.user.role = user.role;
+      }
+      return session;
+    },
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id;
+        token.role = user.role;
+      }
+      return token;
+    },
   },
 
   events: {
@@ -64,7 +83,6 @@ export const authConfig: NextAuthConfig = {
         provider: account?.provider,
       });
     },
-
     async createUser({ user }) {
       console.log("👤 New user created:", user.email);
     },
