@@ -9,15 +9,27 @@ export const authConfig: NextAuthConfig = {
   adapter: PrismaAdapter(prisma),
 
   session: {
-    strategy: "database", // ✅ Sessionlar veritabanında tutulur
-    maxAge: 30 * 24 * 60 * 60, // 30 gün
-    updateAge: 24 * 60 * 60,   // 24 saatte bir güncelle
+    strategy: "database",
+    maxAge: 30 * 24 * 60 * 60,
+    updateAge: 24 * 60 * 60,
   },
 
-  secret: process.env.AUTH_SECRET, // ✅ .env'den gelir
-  useSecureCookies: true, // 🟢 BU SATIR KRİTİK
-  trustHost: true,                 // ✅ App Router kullanıyorsan gerekli
-  debug: process.env.NODE_ENV === "development", // development'ta log verir
+  useSecureCookies: true,
+  trustHost: true,
+  debug: false,
+  secret: process.env.AUTH_SECRET,
+
+  cookies: {
+    sessionToken: {
+      name: "__Secure-next-auth.session-token",
+      options: {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        secure: true,
+      },
+    },
+  },
 
   providers: [
     GoogleProvider({
@@ -74,17 +86,6 @@ export const authConfig: NextAuthConfig = {
         token.role = user.role;
       }
       return token;
-    },
-  },
-  cookies: {
-    sessionToken: {
-      name: "__Secure-next-auth.session-token",
-      options: {
-        httpOnly: true,
-        sameSite: "lax",
-        path: "/",
-        secure: true, // zorunlu!
-      },
     },
   },
 
