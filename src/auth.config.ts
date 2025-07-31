@@ -15,6 +15,7 @@ export const authConfig: NextAuthConfig = {
   },
 
   secret: process.env.AUTH_SECRET, // ✅ .env'den gelir
+  useSecureCookies: true, // 🟢 BU SATIR KRİTİK
   trustHost: true,                 // ✅ App Router kullanıyorsan gerekli
   debug: process.env.NODE_ENV === "development", // development'ta log verir
 
