@@ -10,9 +10,9 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useForm } from "react-hook-form";
 
-import { authClient } from "@/lib/auth-client";
 import { toast } from "sonner";
 import { signInFormSchema } from "@/lib/auth.schema";
+import { authClient } from "@/lib/auth-client";
 
 export default function SignIn() {
   const form = useForm<z.infer<typeof signInFormSchema>>({
