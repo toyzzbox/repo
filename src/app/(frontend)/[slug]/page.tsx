@@ -1,4 +1,3 @@
-import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { getRelatedProducts } from "@/actions/getRelatedProducts";
 import ProductDetailsWrapper from "@/components/(frontend)/product/ProductDetailsWrapper";
@@ -11,7 +10,6 @@ type PageProps = {
 };
 
 export default async function ProductPage({ params }: PageProps) {
-  const session = await auth(); // 🔐 Kullanıcı oturumu
 
   const product = await prisma.product.update({
     where: { slug: params.slug },
@@ -62,6 +60,7 @@ export default async function ProductPage({ params }: PageProps) {
                 price: true,
                 description: true,
                 stock: true,
+                barcode: true,
                 medias: {
                   orderBy: { order: "asc" },
                   include: {
@@ -76,12 +75,12 @@ export default async function ProductPage({ params }: PageProps) {
             },
           },
         },
-        favorites: session?.user?.id
-          ? {
-              where: { userId: session.user.id },
-              select: { id: true },
-            }
-          : undefined,
+        // favorites: session?.user?.id
+        //   ? {
+        //       where: { userId: session.user.id },
+        //       select: { id: true },
+        //     }
+        //   : undefined,
         comments: {
           include: {
             user: { select: { name: true, image: true } },
