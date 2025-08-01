@@ -1,18 +1,15 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
-import { auth } from "@/auth";
+
 
 export async function createComment(
   productId: string,
   content: string,
   rating: number
 ) {
-  const session = await auth();
 
-  if (!session?.user?.id) {
-    return { status: "error", message: "Giriş yapmalısınız" };
-  }
+
 
   try {
     await prisma.comment.create({
@@ -20,7 +17,7 @@ export async function createComment(
         productId,
         content,
         rating,
-        userId: session.user.id,
+
       },
     });
 
