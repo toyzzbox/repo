@@ -26,30 +26,26 @@ export default function SignIn() {
   async function onSubmit(values: z.infer<typeof signInFormSchema>) {
     const { email, password } = values;
     const { data, error } = await authClient.signIn.email({
-        email,
-        password,
-        callbackURL: "/dashboard",
-      
+      email,
+      password,
+      callbackURL: "/dashboard",
+    }, {
         onRequest: () => {
-          toast.success("Giriş yapılıyor...", {
-            description: "Lütfen bekleyin.",
-          });
-        },
-      
-        onSuccess: () => {
-          toast.success("Welcome back!", {
-            description: "Redirecting to dashboard...",
-            duration: 2000,
-          });
-          form.reset();
-        },
-      
-        onError: (ctx) => {
-          toast.error("Giriş başarısız", {
-            description: ctx?.error?.message ?? "Bilinmeyen bir hata oluştu.",
-          });
-        },
-      });
+          
+                toast.success("Welcome back!", {
+                  description: "Redirecting...",
+                  duration: 2000,
+                });
+              
+          },
+      onSuccess: () => {
+        form.reset()
+      },
+      onError: (ctx) => {
+        alert(ctx.error.message);
+      },
+    });
+  }
 
   return (
     <Card className="w-full max-w-md mx-auto">
