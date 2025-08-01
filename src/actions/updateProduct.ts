@@ -26,7 +26,17 @@ export async function updateProduct(prevState: any, formData: FormData) {
     if (stock < 0) return "Stok negatif olamaz.";
     if (price <= 0) return "Fiyat pozitif olmalıdır.";
 
-    // 1. Ürün temel bilgilerini güncelle
+    // ✅ 1. Güncellenmeden önce var mı kontrol et
+    const existing = await prisma.product.findUnique({
+      where: { id },
+    });
+
+    if (!existing) {
+      console.error("Ürün bulunamadı, id:", id);
+      return "Ürün bulunamadı.";
+    }
+
+    // 2. Ürün temel bilgilerini güncelle
     await prisma.product.update({
       where: { id },
       data: {
@@ -49,12 +59,12 @@ export async function updateProduct(prevState: any, formData: FormData) {
       },
     });
 
-    // 2. Eski medya ilişkilerini temizle
+    // 3. Eski medya ilişkilerini temizle
     await prisma.productMedia.deleteMany({
       where: { productId: id },
     });
 
-    // 3. Yeni medya ilişkilerini sıraya göre oluştur
+    // 4. Yeni medya ilişkilerini sıraya göre oluştur
     const mediaConnections = mediaIds.map((mediaId, index) => ({
       productId: id,
       mediaId,
@@ -65,7 +75,7 @@ export async function updateProduct(prevState: any, formData: FormData) {
       data: mediaConnections,
     });
 
-    // 4. Cache ve yönlendirme
+    // 5. Cache ve yönlendirme
     revalidatePath("/admin/products");
     redirect("/admin/products");
 
