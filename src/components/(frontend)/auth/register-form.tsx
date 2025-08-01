@@ -1,137 +1,119 @@
-"use client";
+'use client'
 
-import React, { useState } from 'react'
-import CardWrapper from './card-wrapper';
-import {   useForm } from 'react-hook-form';
-import { RegisterSchema } from '../../../schema';
-import {z} from "zod";
-import {FormError} from "./form-error";
-import {FormSuccess} from "./form-success";
-import {zodResolver} from "@hookform/resolvers/zod"
-import { register } from '@/actions/register';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import Link from "next/link";
+import { zodResolver } from "@hookform/resolvers/zod"
 
+import { z } from "zod"
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { useForm } from "react-hook-form";
+import { authClient } from "@/lib/auth-client";
 
+import { formSchema } from "@/lib/auth.schema";
+import { toast } from "sonner";
 
-const RegisterForm = () => {
- const [loading, setLoading] = useState(false);
- const [error, setError] = useState("");
- const [success, setSuccess] = useState("");
+export default function SignUp() {
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+      password: "",
+    },
+  })
 
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    const { name, email, password } = values;
+    const { data, error } = await authClient.signUp.email({
+      email,
+      password,
+      name,
+      callbackURL: "/sign-in",
+    }, {
+      onRequest: () => {
+        toast.success("Welcome back!", {
+            description: "Redirecting...",
+            duration: 2000,
+          });
+      },
+      onSuccess: () => {
+        form.reset()
+      },
+      onError: (ctx) => {
+        toast({ title: ctx.error.message, variant: 'destructive' });
+        form.setError('email', {
+          type: 'manual',
+          message: ctx.error.message
+        })
+      },
+    });
+  }
 
- const form = useForm<z.infer<typeof RegisterSchema>>({
-    resolver: zodResolver(RegisterSchema),
-    defaultValues:{
-        email: "",
-        name: "",
-        password: "",
-        passwordConfirmation:"",
-    }
- });
+  return (
+    <Card className="w-full max-w-md mx-auto">
+      <CardHeader>
+        <CardTitle>Sign Up</CardTitle>
+        <CardDescription>Create your account to get started.</CardDescription>
+      </CardHeader>
 
- const onSubmit = async (data: z.infer<typeof RegisterSchema>) => {
-    setLoading(true);
-    register(data).then((res) => {
-        if (res.error) {
-            setLoading(false);
-            setError(res.error);
-            setSuccess("");
-          
-        } if (res.success) {
-            setLoading(false);
-            setError("");
-            setSuccess(res.success);
-        }
-        setLoading(false);
-    })
-    };
-    
-    return (
-   <CardWrapper 
-   headerLabel='Kayıt Ol ve Fırsatlardan Yararlanmaya Şimdi Başla !'
-   title=""
-   backButtonHref='/login'
-   backButtonLabel='Hesabınız var ise giriş yapmak için'
-   showSocial
-  >
-    <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-6'>
-            <div className='space-y-4'>
-            <FormField 
-            control={form.control}
-            name='email'
-            render={({field}) => (
+      <CardContent>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
                 <FormItem>
-                    <FormLabel>Email</FormLabel>
-                    <FormControl>
-                        <Input
-                         {...field} 
-                         placeholder=""
-                        type='email'
-                        />
-                    </FormControl>
-                    <FormMessage/>
+                  <FormLabel>Name</FormLabel>
+                  <FormControl>
+                    <Input placeholder="john doe" {...field} />
+                  </FormControl>
+                  <FormMessage />
                 </FormItem>
-            )}
-                />
-                 <FormField 
-            control={form.control}
-            name='name'
-            render={({field}) => (
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
                 <FormItem>
-                    <FormLabel>İsim</FormLabel>
-                    <FormControl>
-                        <Input
-                         {...field} 
-                         placeholder=""
-                        type="text"
-                        />
-                    </FormControl>
-                    <FormMessage/>
+                  <FormLabel>Email</FormLabel>
+                  <FormControl>
+                    <Input placeholder="john@mail.com" {...field} />
+                  </FormControl>
+                  <FormMessage />
                 </FormItem>
-            )}
-                />
-                
-                 <FormField control={form.control}
-            name='password'
-            render={({field}) => (
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
                 <FormItem>
-                    <FormLabel>Şifre</FormLabel>
-                    <FormControl>
-                        <Input {...field} placeholder="******"
-                        type='password'/>
-                    </FormControl>
-                    <FormMessage/>
+                  <FormLabel>Password</FormLabel>
+                  <FormControl>
+                    <Input type="password" placeholder="Enter your password" {...field} />
+                  </FormControl>
+                  <FormMessage />
                 </FormItem>
-            )}
-                />
-               <FormField control={form.control}
-            name='passwordConfirmation'
-            render={({field}) => (
-                <FormItem>
-                    <FormLabel>Şifreyi Doğrula</FormLabel>
-                    <FormControl>
-                        <Input {...field} placeholder="******"
-                        type='password'/>
-                    </FormControl>
-                    <FormMessage/>
-                </FormItem>
-            )}
-                />
-                
-            </div>
-            <FormSuccess message={success}/>
-            <FormError message={error}/>
-            <Button type="submit" className='w-full' disabled={loading} variant="secondary">
-                {loading ? "Loading..." : "Kayıt Ol"}
-            </Button>
-            
-        </form>
-    </Form>
-  </CardWrapper>
-  );
+              )}
+            />
+            <Button className="w-full" type="submit">Submit</Button>
+          </form>
+        </Form>
+      </CardContent>
+
+      <CardFooter className='flex justify-center'>
+        <p className='text-sm text-muted-foreground'>
+          Already have an account?{' '}
+          <Link href='/sign-in' className='text-primary hover:underline'>
+            Sign in
+          </Link>
+        </p>
+      </CardFooter>
+    </Card>
+
+  )
 }
-
-export default RegisterForm
