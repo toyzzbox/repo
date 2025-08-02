@@ -1,6 +1,5 @@
-import { createAuthClient } from 'better-auth/react';
+import { createAuthClient } from "better-auth/client";
 
-
-export const {signIn, signOut, useSession}  = createAuthClient({
-    baseURL: "https://toyzzbox.com"
+export const { signIn, signOut, useSession } = createAuthClient({
+  baseURL: "https://toyzzbox.com/api/auth",
 });

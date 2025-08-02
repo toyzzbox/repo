@@ -12,7 +12,7 @@ import { useForm } from "react-hook-form";
 
 import { toast } from "sonner";
 import { signInFormSchema } from "@/lib/auth.schema";
-import { authClient } from "@/lib/auth-client";
+import { signIn } from "@/lib/auth-client"; // ✅ DOĞRU
 
 export default function SignIn() {
   const form = useForm<z.infer<typeof signInFormSchema>>({
@@ -25,28 +25,32 @@ export default function SignIn() {
 
   async function onSubmit(values: z.infer<typeof signInFormSchema>) {
     const { email, password } = values;
-    const { data, error } = await authClient.signIn.email({
-      email,
-      password,
-      callbackURL: "/dashboard",
-    }, {
+  
+    const { data, error } = await signIn.email(
+      {
+        email,
+        password,
+        callbackURL: "/dashboard",
+      },
+      {
         onRequest: () => {
-          
-                toast.success("Welcome back!", {
-                  description: "Redirecting...",
-                  duration: 2000,
-                });
-              
-          },
-      onSuccess: () => {
-        form.reset()
-      },
-      onError: (ctx) => {
-        alert(ctx.error.message);
-      },
-    });
+          toast.success("Giriş yapılıyor...", {
+            description: "Yönlendiriliyorsunuz...",
+            duration: 2000,
+          });
+        },
+        onSuccess: () => {
+          form.reset();
+        },
+        onError: (ctx) => {
+          toast.error("Giriş başarısız", {
+            description: ctx.error.message,
+          });
+        },
+      }
+    );
   }
-
+  
   return (
     <Card className="w-full max-w-md mx-auto">
       <CardHeader>
