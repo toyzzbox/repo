@@ -31,15 +31,13 @@ export default function RegisterForm() {
       callbackURL: "/sign-in",
     }, {
       onRequest: () => {
-        toast({
-          title: "Please wait...",
-        })
+     console.log("deneme")
       },
       onSuccess: () => {
         form.reset()
       },
       onError: (ctx) => {
-        toast({ title: ctx.error.message, variant: 'destructive' });
+        console.log("deneme")
         form.setError('email', {
           type: 'manual',
           message: ctx.error.message
