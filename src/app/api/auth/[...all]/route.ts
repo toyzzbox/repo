@@ -30,7 +30,7 @@ const betterAuthHandlers = toNextJsHandler(auth.handler);
 const ajProtectedPOST = async (req: NextRequest) => {
   // Only apply Arcjet protection for sign-up operations
   const url = new URL(req.url);
-  const isSignUp = url.pathname.includes('/sign-up') || url.pathname.includes('/signup');
+  const isSignUp = url.pathname.includes('/register') || url.pathname.includes('/signup');
   
   if (isSignUp) {
     try {
