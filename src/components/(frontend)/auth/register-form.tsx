@@ -2,16 +2,14 @@
 
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
-import { zodResolver } from "@hookform/resolvers/zod"
+import { zodResolver } from "@hookform/resolvers/zod";
 
-import { z } from "zod"
+import { z } from "zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useForm } from "react-hook-form";
-
 import { formSchema } from "@/lib/auth.schema";
-import { toast } from "sonner";
 import { createAuthClient } from "better-auth/client";
 
 export default function SignUp() {
@@ -22,33 +20,38 @@ export default function SignUp() {
       email: "",
       password: "",
     },
-  })
+  });
+
+  const auth = createAuthClient(); // ← Örnek oluşturuluyor
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     const { name, email, password } = values;
-    const { data, error } = await createAuthClient.signUp.email({
-      email,
-      password,
-      name,
-      callbackURL: "/sign-in",
-    }, {
-      onRequest: () => {
-        toast.success("Welcome back!", {
-            description: "Redirecting...",
-            duration: 2000,
+
+    await auth.signUp.email(
+      {
+        email,
+        password,
+        name,
+        callbackURL: "/sign-in",
+      },
+      {
+        onRequest: () => {
+        console.log("deneme")
+        
+        },
+        onSuccess: () => {
+          form.reset();
+          console.log("deneme")
+        },
+        onError: (ctx) => {
+            console.log("deneme")
+          form.setError("email", {
+            type: "manual",
+            message: ctx.error.message,
           });
-      },
-      onSuccess: () => {
-        form.reset()
-      },
-      onError: (ctx) => {
-        toast({ title: ctx.error.message, variant: 'destructive' });
-        form.setError('email', {
-          type: 'manual',
-          message: ctx.error.message
-        })
-      },
-    });
+        },
+      }
+    );
   }
 
   return (
@@ -105,15 +108,14 @@ export default function SignUp() {
         </Form>
       </CardContent>
 
-      <CardFooter className='flex justify-center'>
-        <p className='text-sm text-muted-foreground'>
-          Already have an account?{' '}
-          <Link href='/sign-in' className='text-primary hover:underline'>
+      <CardFooter className="flex justify-center">
+        <p className="text-sm text-muted-foreground">
+          Already have an account?{" "}
+          <Link href="/sign-in" className="text-primary hover:underline">
             Sign in
           </Link>
         </p>
       </CardFooter>
     </Card>
-
-  )
+  );
 }
