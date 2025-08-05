@@ -9,10 +9,10 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useForm } from "react-hook-form";
-import { authClient } from "@/lib/auth-client";
 
 import { formSchema } from "@/lib/auth.schema";
 import { toast } from "sonner";
+import { createAuthClient } from "better-auth/client";
 
 export default function SignUp() {
   const form = useForm<z.infer<typeof formSchema>>({
@@ -26,7 +26,7 @@ export default function SignUp() {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     const { name, email, password } = values;
-    const { data, error } = await authClient.signUp.email({
+    const { data, error } = await createAuthClient.signUp.email({
       email,
       password,
       name,
