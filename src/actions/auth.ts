@@ -2,13 +2,10 @@
 "use server"
 
 import { auth } from "@/lib/auth"
-import { prisma } from "@/lib/prisma"
 import { z } from "zod"
-import bcrypt from "bcryptjs"
-import { redirect } from "next/navigation"
 import { revalidatePath } from "next/cache"
+import { redirect } from "next/navigation"
 
-// Validation schema
 const registerSchema = z.object({
   email: z.string().email("Geçerli bir email adresi giriniz"),
   password: z.string().min(6, "Şifre en az 6 karakter olmalıdır"),
@@ -19,40 +16,15 @@ type RegisterFormData = z.infer<typeof registerSchema>
 
 export async function registerUser(formData: FormData) {
   try {
-    // Form data'yı parse et
     const rawData = {
       email: formData.get("email") as string,
       password: formData.get("password") as string,
       name: formData.get("name") as string,
     }
 
-    // Validation
     const validatedData = registerSchema.parse(rawData)
 
-    // Kullanıcının zaten var olup olmadığını kontrol et
-    const existingUser = await prisma.user.findUnique({
-      where: { email: validatedData.email }
-    })
-
-    if (existingUser) {
-      return {
-        error: "Bu email adresi ile zaten bir hesap mevcut"
-      }
-    }
-
-    // Şifreyi hashle
-    const hashedPassword = await bcrypt.hash(validatedData.password, 12)
-
-    // Kullanıcıyı oluştur
-    const user = await prisma.user.create({
-      data: {
-        email: validatedData.email,
-        name: validatedData.name,
-        // Better-auth için gerekli alanlar
-      }
-    })
-
-    // Better-auth ile session oluştur
+    // 🧠 Sadece BetterAuth üzerinden kayıt
     await auth.api.signUpEmail({
       body: {
         email: validatedData.email,
@@ -62,32 +34,33 @@ export async function registerUser(formData: FormData) {
     })
 
     revalidatePath("/")
-    
+
     return {
       success: "Hesap başarıyla oluşturuldu!",
-      user: {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-      }
     }
 
-  } catch (error) {
+  } catch (error: any) {
     console.error("Register error:", error)
-    
+
     if (error instanceof z.ZodError) {
       return {
         error: error.errors[0].message
       }
     }
 
+    if (error?.statusCode === 422) {
+      return {
+        error: "Bu e-posta ile zaten bir kullanıcı var."
+      }
+    }
+
     return {
-      error: "Bir hata oluştu. Lütfen tekrar deneyin."
+      error: "Kayıt sırasında bir hata oluştu."
     }
   }
 }
 
-// Login action (bonus)
+
 export async function loginUser(formData: FormData) {
   try {
     const email = formData.get("email") as string
@@ -104,15 +77,20 @@ export async function loginUser(formData: FormData) {
       }
     })
 
-    if (result.user) {
+    if (result?.user) {
       revalidatePath("/")
-      redirect("/dashboard") // Başarılı login sonrası yönlendirme
+      redirect("/dashboard") // ya da "/hesabim"
     }
 
     return { error: "Geçersiz email veya şifre" }
 
-  } catch (error) {
+  } catch (error: any) {
     console.error("Login error:", error)
-    return { error: "Giriş yapılırken bir hata oluştu" }
+
+    if (error?.statusCode === 401) {
+      return { error: "Email veya şifre hatalı." }
+    }
+
+    return { error: "Giriş sırasında bir hata oluştu." }
   }
 }
