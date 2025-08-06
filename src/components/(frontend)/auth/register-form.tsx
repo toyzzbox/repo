@@ -1,114 +1,39 @@
-// components/register-form.tsx
-"use client"
+'use client';
 
-import { useState, useTransition } from "react"
-import { useRouter } from "next/navigation"
-import { registerUser } from "@/actions/auth"
+import { useActionState } from "react";
+import { register } from "@/actions/register";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
-export default function RegisterForm() {
-  const [error, setError] = useState<string>("")
-  const [success, setSuccess] = useState<string>("")
-  const [isPending, startTransition] = useTransition()
-  const router = useRouter()
+type ActionState = { error: string; success?: undefined } | { success: string; error?: undefined };
+const initialState: ActionState = { error: "" };
 
-  async function handleSubmit(formData: FormData) {
-    startTransition(async () => {
-      setError("")
-      setSuccess("")
-      
-      const result = await registerUser(formData)
-      
-      if (result.error) {
-        setError(result.error)
-      } else if (result.success) {
-        setSuccess(result.success)
-        // Başarılı kayıt sonrası login sayfasına yönlendir
-        setTimeout(() => {
-          router.push("/login")
-        }, 2000)
-      }
-    })
-  }
+export const RegisterForm = () => {
+  const [state, formAction, isPending] = useActionState(register, initialState);
 
   return (
-    <div className="max-w-md mx-auto bg-white p-8 rounded-lg shadow-md">
-      <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">
-        Hesap Oluştur
-      </h2>
-      
-      <form action={handleSubmit} className="space-y-4">
-        <div>
-          <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-            Ad Soyad
-          </label>
-          <input
-            type="text"
-            id="name"
-            name="name"
-            required
-            disabled={isPending}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
-            placeholder="Adınızı giriniz"
-          />
-        </div>
+    <form action={formAction} className="space-y-4">
+      <div>
+        <label htmlFor="name" className="block text-sm font-medium">İsim</label>
+        <Input id="name" name="name" disabled={isPending} />
+      </div>
 
-        <div>
-          <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-            Email
-          </label>
-          <input
-            type="email"
-            id="email"
-            name="email"
-            required
-            disabled={isPending}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
-            placeholder="email@example.com"
-          />
-        </div>
+      <div>
+        <label htmlFor="email" className="block text-sm font-medium">E-posta</label>
+        <Input id="email" name="email" type="email" disabled={isPending} />
+      </div>
 
-        <div>
-          <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-            Şifre
-          </label>
-          <input
-            type="password"
-            id="password"
-            name="password"
-            required
-            disabled={isPending}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
-            placeholder="En az 6 karakter"
-          />
-        </div>
+      <div>
+        <label htmlFor="password" className="block text-sm font-medium">Şifre</label>
+        <Input id="password" name="password" type="password" disabled={isPending} />
+      </div>
 
-        {error && (
-          <div className="text-red-600 text-sm bg-red-50 p-3 rounded-md">
-            {error}
-          </div>
-        )}
+      <Button type="submit" className="w-full" disabled={isPending}>
+        Kayıt Ol
+      </Button>
 
-        {success && (
-          <div className="text-green-600 text-sm bg-green-50 p-3 rounded-md">
-            {success}
-          </div>
-        )}
-
-        <button
-          type="submit"
-          disabled={isPending}
-          className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-        >
-          {isPending ? "Hesap Oluşturuluyor..." : "Hesap Oluştur"}
-        </button>
-      </form>
-
-      <p className="mt-4 text-center text-sm text-gray-600">
-        Zaten hesabınız var mı?{" "}
-        <a href="/login" className="text-blue-600 hover:underline">
-          Giriş yapın
-        </a>
-      </p>
-    </div>
-  )
-}
+      {state.error && <p className="text-red-600 text-sm">{state.error}</p>}
+      {state.success && <p className="text-green-600 text-sm">{state.success}</p>}
+    </form>
+  );
+};
