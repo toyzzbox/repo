@@ -1,5 +1,5 @@
+import { RegisterForm } from "@/components/(frontend)/auth/register-form";
 
-import RegisterForm from "@/components/(frontend)/auth/register-form";
 
 const RegisterPage = async () => {
 

@@ -1,114 +1,72 @@
-'use client'
+'use client';
 
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import Link from "next/link";
-import { zodResolver } from "@hookform/resolvers/zod"
-
-import { z } from "zod"
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { useActionState } from "react";
+import { register } from "@/actions/register";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import {
+  Form,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+} from "@/components/ui/form";
+import { RegisterSchema } from "@/schema";
 import { useForm } from "react-hook-form";
-import { formSchema } from "@/lib/auth.schema";
-import { signUp } from "@/lib/auth-client";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 
-export default function RegisterForm() {
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+// Aynı tipi burada da tanımla
+type ActionState = { error: string; success?: undefined } | { success: string; error?: undefined };
+
+const initialState: ActionState = { error: "" };
+
+export const RegisterForm = () => {
+  const [state, formAction, isPending] = useActionState(register, initialState);
+
+  const form = useForm<z.infer<typeof RegisterSchema>>({
+    resolver: zodResolver(RegisterSchema),
     defaultValues: {
       name: "",
       email: "",
       password: "",
     },
-  })
-
-  async function onSubmit(values: z.infer<typeof formSchema>) {
-    const { name, email, password } = values;
-    const { data, error } = await signUp.email({
-      email,
-      password,
-      name,
-      callbackURL: "/sign-in",
-    }, {
-      onRequest: () => {
-     console.log("deneme")
-      },
-      onSuccess: () => {
-        form.reset()
-      },
-      onError: (ctx) => {
-        console.log("deneme")
-        form.setError('email', {
-          type: 'manual',
-          message: ctx.error.message
-        })
-      },
-    });
-  }
+  });
 
   return (
-    <Card className="w-full max-w-md mx-auto">
-      <CardHeader>
-        <CardTitle>Sign Up</CardTitle>
-        <CardDescription>Create your account to get started.</CardDescription>
-      </CardHeader>
+    <Form {...form}>
+      <form action={formAction} className="space-y-4">
+        <FormItem>
+          <FormLabel>İsim</FormLabel>
+          <FormControl>
+            <Input name="name" disabled={isPending} />
+          </FormControl>
+          <FormMessage />
+        </FormItem>
 
-      <CardContent>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Name</FormLabel>
-                  <FormControl>
-                    <Input placeholder="john doe" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email</FormLabel>
-                  <FormControl>
-                    <Input placeholder="john@mail.com" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="password"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Password</FormLabel>
-                  <FormControl>
-                    <Input type="password" placeholder="Enter your password" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <Button className="w-full" type="submit">Submit</Button>
-          </form>
-        </Form>
-      </CardContent>
+        <FormItem>
+          <FormLabel>E-posta</FormLabel>
+          <FormControl>
+            <Input type="email" name="email" disabled={isPending} />
+          </FormControl>
+          <FormMessage />
+        </FormItem>
 
-      <CardFooter className='flex justify-center'>
-        <p className='text-sm text-muted-foreground'>
-          Already have an account?{' '}
-          <Link href='/sign-in' className='text-primary hover:underline'>
-            Sign in
-          </Link>
-        </p>
-      </CardFooter>
-    </Card>
+        <FormItem>
+          <FormLabel>Şifre</FormLabel>
+          <FormControl>
+            <Input type="password" name="password" disabled={isPending} />
+          </FormControl>
+          <FormMessage />
+        </FormItem>
 
-  )
-}
+        <Button type="submit" className="w-full" disabled={isPending}>
+          Kayıt Ol
+        </Button>
+
+        {state.error && <p className="text-red-600 text-sm">{state.error}</p>}
+        {state.success && <p className="text-green-600 text-sm">{state.success}</p>}
+      </form>
+    </Form>
+  );
+};

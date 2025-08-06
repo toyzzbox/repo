@@ -1,46 +1,46 @@
-"use server";
+'use server';
 
-import * as z from "zod";
-import bcrypt from "bcryptjs";
+import { z } from "zod";
 import { RegisterSchema } from "@/schema";
 import { prisma } from "@/lib/prisma";
+import bcrypt from "bcryptjs";
 
-export const register = async (data: z.infer<typeof RegisterSchema>) => {
-  try {
-    const result = RegisterSchema.safeParse(data);
-    if (!result.success) {
-      return { error: "Validation failed", details: result.error.flatten() };
-    }
+// Tipi burada net tanımlıyoruz
+type ActionState = { error: string; success?: undefined } | { success: string; error?: undefined };
 
-    const { email, name, password, passwordConfirmation } = result.data;
+export const register = async (
+  _prevState: ActionState,
+  formData: FormData
+): Promise<ActionState> => {
+  const parsed = RegisterSchema.safeParse({
+    name: formData.get("name"),
+    email: formData.get("email"),
+    password: formData.get("password"),
+  });
 
-    if (password !== passwordConfirmation) {
-      return { error: "Şifreler uyuşmuyor" };
-    }
-
-    const lowerCaseEmail = email.trim().toLowerCase();
-
-    const userExist = await prisma.user.findUnique({
-      where: { email: lowerCaseEmail },
-    });
-
-    if (userExist) {
-      return { error: "Bu e-posta zaten kayıtlı." };
-    }
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    await prisma.user.create({
-      data: {
-        email: lowerCaseEmail,
-        password: hashedPassword,
-        name,
-      },
-    });
-
-    return { success: "Kayıt başarılı, şimdi giriş yapabilirsiniz." };
-  } catch (error) {
-    console.error(error);
-    return { error: "Beklenmeyen bir hata oluştu. Lütfen tekrar deneyin." };
+  if (!parsed.success) {
+    return { error: "Geçersiz form verisi." };
   }
+
+  const { name, email, password } = parsed.data;
+
+  const userExists = await prisma.user.findUnique({
+    where: { email },
+  });
+
+  if (userExists) {
+    return { error: "Bu e-posta zaten kayıtlı." };
+  }
+
+  const hashedPassword = await bcrypt.hash(password, 10);
+
+  await prisma.user.create({
+    data: {
+      name,
+      email,
+      password: hashedPassword,
+    },
+  });
+
+  return { success: "Kayıt başarılı. Giriş yapabilirsiniz." };
 };
