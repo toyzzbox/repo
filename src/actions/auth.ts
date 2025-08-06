@@ -49,7 +49,6 @@ export async function registerUser(formData: FormData) {
         email: validatedData.email,
         name: validatedData.name,
         // Better-auth için gerekli alanlar
-        emailVerified: false,
       }
     })
 
