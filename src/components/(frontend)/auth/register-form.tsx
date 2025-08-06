@@ -4,69 +4,36 @@ import { useActionState } from "react";
 import { register } from "@/actions/register";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormItem,
-  FormLabel,
-  FormControl,
-  FormMessage,
-} from "@/components/ui/form";
-import { RegisterSchema } from "@/schema";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 
-// Aynı tipi burada da tanımla
 type ActionState = { error: string; success?: undefined } | { success: string; error?: undefined };
-
 const initialState: ActionState = { error: "" };
 
 export const RegisterForm = () => {
   const [state, formAction, isPending] = useActionState(register, initialState);
 
-  const form = useForm<z.infer<typeof RegisterSchema>>({
-    resolver: zodResolver(RegisterSchema),
-    defaultValues: {
-      name: "",
-      email: "",
-      password: "",
-    },
-  });
-
   return (
-    <Form {...form}>
-      <form action={formAction} className="space-y-4">
-        <FormItem>
-          <FormLabel>İsim</FormLabel>
-          <FormControl>
-            <Input name="name" disabled={isPending} />
-          </FormControl>
-          <FormMessage />
-        </FormItem>
+    <form action={formAction} className="space-y-4">
+      <div>
+        <label htmlFor="name" className="block text-sm font-medium">İsim</label>
+        <Input id="name" name="name" disabled={isPending} />
+      </div>
 
-        <FormItem>
-          <FormLabel>E-posta</FormLabel>
-          <FormControl>
-            <Input type="email" name="email" disabled={isPending} />
-          </FormControl>
-          <FormMessage />
-        </FormItem>
+      <div>
+        <label htmlFor="email" className="block text-sm font-medium">E-posta</label>
+        <Input id="email" name="email" type="email" disabled={isPending} />
+      </div>
 
-        <FormItem>
-          <FormLabel>Şifre</FormLabel>
-          <FormControl>
-            <Input type="password" name="password" disabled={isPending} />
-          </FormControl>
-          <FormMessage />
-        </FormItem>
+      <div>
+        <label htmlFor="password" className="block text-sm font-medium">Şifre</label>
+        <Input id="password" name="password" type="password" disabled={isPending} />
+      </div>
 
-        <Button type="submit" className="w-full" disabled={isPending}>
-          Kayıt Ol
-        </Button>
+      <Button type="submit" className="w-full" disabled={isPending}>
+        Kayıt Ol
+      </Button>
 
-        {state.error && <p className="text-red-600 text-sm">{state.error}</p>}
-        {state.success && <p className="text-green-600 text-sm">{state.success}</p>}
-      </form>
-    </Form>
+      {state.error && <p className="text-red-600 text-sm">{state.error}</p>}
+      {state.success && <p className="text-green-600 text-sm">{state.success}</p>}
+    </form>
   );
 };
