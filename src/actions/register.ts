@@ -1,12 +1,13 @@
 'use server';
 
-import { z } from "zod";
+
 import { RegisterSchema } from "@/schema";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 
-// Tipi burada net tanımlıyoruz
-type ActionState = { error: string; success?: undefined } | { success: string; error?: undefined };
+type ActionState =
+  | { error: string; success?: undefined }
+  | { success: string; error?: undefined };
 
 export const register = async (
   _prevState: ActionState,
@@ -39,6 +40,7 @@ export const register = async (
       name,
       email,
       password: hashedPassword,
+      // `role` yazmadık, Prisma otomatik olarak `USER` atayacak.
     },
   });
 
