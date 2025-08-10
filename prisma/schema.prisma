@@ -1,3 +1,4 @@
+// prisma/schema.prisma
 generator client {
   provider = "prisma-client-js"
 }
@@ -7,6 +8,12 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+
+enum Role {
+  ADMIN
+  USER
+}
+
 model User {
   id            String    @id @default(cuid())
   name          String?
@@ -14,24 +21,70 @@ model User {
   emailVerified DateTime?
   password      String?
   image         String?
-  role      Role     @default(USER) // 🆕 sadece senin için ADMIN olacak  accounts      Account[]
-  sessions      Session[]
-  addresses Address[]
-  favorites Favorite[] // 👈 bir kullanıcının favorileri
-  comments Comment[]  
-  accounts  Account[]
+  role          Role      @default(USER)
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  // Relations
+  accounts      Account[]
+  sessions      Session[]
+  addresses     Address[]
+  favorites     Favorite[]
+  comments      Comment[]
+
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 
   @@map("users")
 }
 
+model Account {
+  id                String   @id @default(cuid())  // PK eklendi
+  userId            String
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  provider          String
+  providerAccountId String
+
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // BetterAuth alan adı:
+  expiresAt   DateTime
+
+  // Opsiyonel (log için faydalı)
+  ipAddress   String?
+  userAgent   String?
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("sessions")
+}
+
+/* ===========================
+   E-TİCARET / DİĞER MODELLER
+   =========================== */
 
 model Comment {
   id        String   @id @default(cuid())
   content   String
-  rating    Int      // 1–5 arası puan
+  rating    Int
   user      User     @relation(fields: [userId], references: [id])
   userId    String
   product   Product  @relation(fields: [productId], references: [id])
@@ -48,69 +101,24 @@ model Address {
   fullName    String
   city        String
   district    String
-  postalCode  String   // ✅ Yeni eklenen alan
+  postalCode  String
   addressLine String
   phone       String
   isDefault   Boolean  @default(false)
   createdAt   DateTime @default(now())
 }
 
-
-model Account {
-  userId            String
-  type              String
-  provider          String
-  providerAccountId String
-  refresh_token     String?
-  access_token      String?
-  expires_at        Int?
-  token_type        String?
-  scope             String?
-  id_token          String?
-  session_state     String?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@id([provider, providerAccountId])
-  @@map("accounts")
-}
-
-model Session {
-  id           String   @id @default(cuid()) // ✅ required + default
-  sessionToken String   @unique
-  userId       String
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  expires      DateTime
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-
-  @@map("sessions") // ✅ tablo adı lowercase olacaksa bu kalabilir
-}
-
-model VerificationToken {
-  identifier String
-  token      String
-  expires    DateTime
-
-  @@id([identifier, token])
-  @@map("verification_tokens")
-}
-
 model Media {
-  id        String    @id @default(cuid())
-  type      MediaType
-  urls      String[]
-  brands      Brand[]    @relation("BrandToMedia")
-  categories  Category[]    @relation("CategoryToMedia")
-  attributes  Attribute[]   @relation("AttributeToMedia")
-  createdAt DateTime  @default(now())
-  updatedAt   DateTime @updatedAt @default(now())  // 🔧 bu satır önemli
-  products  ProductMedia[] // ✅ Ekledik
+  id         String       @id @default(cuid())
+  type       MediaType
+  urls       String[]
+  brands     Brand[]      @relation("BrandToMedia")
+  categories Category[]   @relation("CategoryToMedia")
+  attributes Attribute[]  @relation("AttributeToMedia")
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+  products   ProductMedia[]
 }
-
 
 enum MediaType {
   image
@@ -118,32 +126,32 @@ enum MediaType {
 }
 
 model Product {
-  id          String     @id @default(cuid())
-  slug        String     @unique
+  id          String       @id @default(cuid())
+  slug        String       @unique
   name        String
-  serial      String?    @unique // ✅ Opsiyonel
-  stock       Int?                 // ✅ Opsiyonel
-  barcode     String?    @unique // ✅ Barkod alanı (EAN-13 gibi)
+  serial      String?      @unique
+  stock       Int?
+  barcode     String?      @unique
   price       Float
-  description String? @db.Text
-  favorites Favorite[] // 👈 bu ürünü favorileyen kullanıcılar
-  comments  Comment[] // ✅ EKLENDİ
-  views Int    @default(0)
+  description String?      @db.Text
+  favorites   Favorite[]
+  comments    Comment[]
+  views       Int          @default(0)
 
-  groupId     String? // ✅ Opsiyonel
+  groupId     String?
   group       ProductGroup? @relation(fields: [groupId], references: [id])
 
-  brands      Brand[]    @relation("ProductToBrand")
-  categories  Category[] @relation("ProductToCategory")
-medias      ProductMedia[] // ✅ DEĞİŞTİ
-  attributes  Attribute[] @relation("ProductAttribute")
+  brands      Brand[]       @relation("ProductToBrand")
+  categories  Category[]    @relation("ProductToCategory")
+  medias      ProductMedia[]
+  attributes  Attribute[]   @relation("ProductAttribute")
 
   createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt @default(now())
+  updatedAt   DateTime   @updatedAt
 
-  sku         String?       // alternatif stok kodu
-  discount    Float?        // indirimli fiyat
-  isActive    Boolean       @default(true)
+  sku         String?
+  discount    Float?
+  isActive    Boolean    @default(true)
 }
 
 model ProductMedia {
@@ -159,13 +167,12 @@ model ProductMedia {
 }
 
 model ProductGroup {
-  id       String    @id @default(cuid())
-  name     String
-  slug     String    @unique
-  description String? @db.Text
-  products Product[]
-
-} 
+  id          String    @id @default(cuid())
+  name        String
+  slug        String    @unique
+  description String?   @db.Text
+  products    Product[]
+}
 
 model Favorite {
   id        String   @id @default(cuid())
@@ -175,37 +182,34 @@ model Favorite {
   product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
 
-  @@unique([userId, productId]) // Aynı ürün bir kullanıcı tarafından bir kez eklenebilir
+  @@unique([userId, productId])
 }
 
-
 model AttributeGroup {
-  id        String      @id @default(cuid())
-  name      String      // Attribute grubunun adı (örn. "Renk", "Beden")
-  attributes Attribute[] @relation("GroupAttributes") // Bu gruba ait attribute'lar
+  id         String      @id @default(cuid())
+  name       String
+  attributes Attribute[] @relation("GroupAttributes")
 }
 
 model Attribute {
-  id              String         @id @default(cuid())
-  name            String         // Attribute adı (örn. "Kırmızı", "Mavi")
-  groupId         String         // İlişkili olduğu attribute grubunun ID'si
-  group           AttributeGroup  @relation("GroupAttributes", fields: [groupId], references: [id]) // İlişki tanımı
-  products    Product[] @relation("ProductAttribute")
-  medias      Media[]    @relation("AttributeToMedia")
-
+  id        String        @id @default(cuid())
+  name      String
+  groupId   String
+  group     AttributeGroup @relation("GroupAttributes", fields: [groupId], references: [id])
+  products  Product[]     @relation("ProductAttribute")
+  medias    Media[]       @relation("AttributeToMedia")
 }
-
 
 model Brand {
   id          String    @id @default(cuid())
   name        String
   slug        String    @unique
-  description String? @db.Text
+  description String?   @db.Text
   products    Product[] @relation("ProductToBrand")
-  medias      Media[]    @relation("BrandToMedia")
+  medias      Media[]   @relation("BrandToMedia")
 
   createdAt   DateTime  @default(now())
-  updatedAt   DateTime @updatedAt @default(now())  // 🔧 bu satır önemli
+  updatedAt   DateTime  @updatedAt
 }
 
 model Category {
@@ -219,14 +223,9 @@ model Category {
   products    Product[]  @relation("ProductToCategory")
   medias      Media[]    @relation("CategoryToMedia")
   createdAt   DateTime   @default(now())
-  updatedAt   DateTime @updatedAt @default(now())  
-  // 🔧 bu satır önemli
+  updatedAt   DateTime   @updatedAt
 }
 
 
-enum Role {
-  ADMIN
-  USER
-}
 
 
