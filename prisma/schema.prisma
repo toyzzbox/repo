@@ -36,35 +36,33 @@ model User {
 }
 
 model Account {
-  id                String   @id @default(cuid())
-  userId            String
-  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  // Better Auth alan adları → mevcut kolonlara map
-  providerId        String   @map("provider")
-  accountId         String   @map("providerAccountId")
+  // BetterAuth isimleri → mevcut DB kolonlarına map
+  providerId  String   @map("provider")
+  accountId   String   @map("providerAccountId")
 
-  // (Sende zaten var; DB’de default’u da verdik)
-  type              String   @default("oauth")
+  type        String   @default("oauth")         // DB'de default var
+  password    String?                           // email+password için BetterAuth kullanabiliyor
 
-  // Token alanlarını camelCase’e map’leyelim (opsiyonel ama iyi olur)
-  accessToken       String?  @map("access_token")
-  refreshToken      String?  @map("refresh_token")
-  idToken           String?  @map("id_token")
-  scope             String?  @map("scope")
-  token_type        String?  @map("token_type")
-  session_state     String?  @map("session_state")
-  expires_at        Int?     @map("expires_at")
+  // Token alanlarını camelCase + map (opsiyonel ama düzenli)
+  accessToken String?  @map("access_token")
+  refreshToken String? @map("refresh_token")
+  idToken     String?  @map("id_token")
+  scope       String?
+  tokenType   String?  @map("token_type")
+  sessionState String? @map("session_state")
+  expires_at  Int?     @map("expires_at")       // DB kolonunu bozmayalım
 
-  // Better Auth e-posta/şifre için account üstünde parolayı yazabiliyor
-  password          String?  // 👈 yeni eklenecek kolon
-
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   @@unique([providerId, accountId])
   @@map("accounts")
 }
+
 
 
 model Session {
