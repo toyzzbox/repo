@@ -8,7 +8,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
 enum Role {
   ADMIN
   USER
@@ -18,7 +17,7 @@ model User {
   id            String    @id @default(cuid())
   name          String?
   email         String    @unique
-  emailVerified DateTime?
+  emailVerified Boolean   @default(false)  // ← BetterAuth boolean bekliyor
   password      String?
   image         String?
   role          Role      @default(USER)
@@ -37,7 +36,7 @@ model User {
 }
 
 model Account {
-  id                String   @id @default(cuid())  // PK eklendi
+  id                String   @id @default(cuid())  // PK
   userId            String
   user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -64,10 +63,10 @@ model Session {
   userId      String
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  // BetterAuth alan adı:
-  expiresAt   DateTime
+  token       String   @unique          // ← BetterAuth session token
+  expiresAt   DateTime                  // ← BetterAuth alan adı
 
-  // Opsiyonel (log için faydalı)
+  // Opsiyonel (log)
   ipAddress   String?
   userAgent   String?
 
@@ -225,7 +224,3 @@ model Category {
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
 }
-
-
-
-
