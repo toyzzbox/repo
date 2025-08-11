@@ -35,7 +35,8 @@ model User {
 }
 
 model Account {
-  id                String   @id @default(cuid())   // Artık PK
+  // Şimdilik opsiyonel ve PK DEĞİL
+  id                String?  @unique
 
   userId            String
   user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -54,10 +55,10 @@ model Account {
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 
-  @@unique([provider, providerAccountId])          // composite PK → unique
+  // Eski hali korunuyor: composite PK
+  @@id([provider, providerAccountId])
   @@map("accounts")
 }
-
 
 model Session {
   id          String   @id @default(cuid())
