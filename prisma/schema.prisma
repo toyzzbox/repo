@@ -1,3 +1,4 @@
+// prisma/schema.prisma
 generator client {
   provider = "prisma-client-js"
 }
@@ -16,7 +17,7 @@ model User {
   id            String    @id @default(cuid())
   name          String?
   email         String    @unique
-  emailVerified Boolean   @default(false)  // ← BetterAuth boolean bekliyor
+  emailVerified Boolean   @default(false)
   password      String?
   image         String?
   role          Role      @default(USER)
@@ -35,14 +36,13 @@ model User {
 }
 
 model Account {
-  // Şimdilik opsiyonel ve PK DEĞİL
-  id                String?  @unique
-
+  id                String   @id @default(cuid())   // PK
   userId            String
   user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   provider          String
   providerAccountId String
+  type              String   @default("oauth")      // DB’de de default verdik
 
   refresh_token     String?
   access_token      String?
@@ -55,8 +55,7 @@ model Account {
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 
-  // Eski hali korunuyor: composite PK
-  @@id([provider, providerAccountId])
+  @@unique([provider, providerAccountId])
   @@map("accounts")
 }
 
@@ -65,10 +64,10 @@ model Session {
   userId      String
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  token       String   @unique          // ← BetterAuth session token
-  expiresAt   DateTime                  // ← BetterAuth alan adı
+  token       String   @unique        // BetterAuth session token
+  expiresAt   DateTime                // BetterAuth alan adı
 
-  // Opsiyonel (log)
+  // Opsiyonel log alanları
   ipAddress   String?
   userAgent   String?
 
