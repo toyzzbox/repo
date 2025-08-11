@@ -1,61 +1,37 @@
 // app/actions/auth.ts
-"use server"
+"use server";
 
-import { auth } from "@/lib/auth"
-import { z } from "zod"
-import { revalidatePath } from "next/cache"
+import { z } from "zod";
+import { auth } from "@/lib/auth";
 
-const registerSchema = z.object({
-  email: z.string().email("Geçerli bir email adresi giriniz"),
-  password: z.string().min(6, "Şifre en az 6 karakter olmalıdır"),
-  name: z.string().min(2, "İsim en az 2 karakter olmalıdır"),
-})
+const RegisterSchema = z.object({
+  name: z.string().min(2, "İsim en az 2 karakter olmalı"),
+  email: z.string().email("Geçerli bir e-posta gir"),
+  password: z.string().min(6, "Şifre en az 6 karakter"),
+});
 
-type RegisterFormData = z.infer<typeof registerSchema>
+export type RegisterResult = { success?: string; error?: string };
 
-export async function registerUser(formData: FormData) {
+export async function registerUser(
+  _prevState: RegisterResult,            // ← 1. parametre prevState
+  formData: FormData                     // ← 2. parametre formData
+): Promise<RegisterResult> {
+  const data = {
+    name: String(formData.get("name") ?? "").trim(),
+    email: String(formData.get("email") ?? "").trim().toLowerCase(),
+    password: String(formData.get("password") ?? ""),
+  };
+
+  const parsed = RegisterSchema.safeParse(data);
+  if (!parsed.success) return { error: parsed.error.issues[0].message };
+
   try {
-    const rawData = {
-      email: formData.get("email") as string,
-      password: formData.get("password") as string,
-      name: formData.get("name") as string,
+    await auth.api.signUpEmail({ body: parsed.data });
+    return { success: "Kayıt başarılı. Giriş yapabilirsiniz." };
+  } catch (e: any) {
+    if (e?.code === "P2002" || /unique|exists|already/i.test(e?.message ?? "")) {
+      return { error: "Bu e-posta zaten kayıtlı." };
     }
-
-    const validatedData = registerSchema.parse(rawData)
-
-    // 🧠 Sadece BetterAuth üzerinden kayıt
-    await auth.api.signUpEmail({
-      body: {
-        email: validatedData.email,
-        password: validatedData.password,
-        name: validatedData.name,
-      }
-    })
-
-    revalidatePath("/")
-
-    return {
-      success: "Hesap başarıyla oluşturuldu!",
-    }
-
-  } catch (error: any) {
-    console.error("Register error:", error)
-
-    if (error instanceof z.ZodError) {
-      return {
-        error: error.errors[0].message
-      }
-    }
-
-    if (error?.statusCode === 422) {
-      return {
-        error: "Bu e-posta ile zaten bir kullanıcı var."
-      }
-    }
-
-    return {
-      error: "Kayıt sırasında bir hata oluştu."
-    }
+    return { error: e?.message ?? "Kayıt sırasında bir hata oluştu." };
   }
 }
-

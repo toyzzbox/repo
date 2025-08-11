@@ -1,42 +1,45 @@
-// components/register-form.tsx
-"use client"
+"use client";
 
-import { useState, useTransition } from "react"
-import { useRouter } from "next/navigation"
-import { registerUser } from "@/actions/auth"
+import { useActionState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useFormStatus } from "react-dom";
+import { registerUser } from "@/actions/auth";
+import { RegisterResult } from "@/actions/register";
+
+function SubmitButton() {
+  const { pending } = useFormStatus();
+  return (
+    <button
+      type="submit"
+      disabled={pending}
+      className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700
+                 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
+                 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+    >
+      {pending ? "Hesap Oluşturuluyor..." : "Hesap Oluştur"}
+    </button>
+  );
+}
 
 export default function RegisterForm() {
-  const [error, setError] = useState<string>("")
-  const [success, setSuccess] = useState<string>("")
-  const [isPending, startTransition] = useTransition()
-  const router = useRouter()
+  const router = useRouter();
+  const [state, formAction] = useActionState<RegisterResult, FormData>(
+    registerUser,
+    { }
+  );
 
-  async function handleSubmit(formData: FormData) {
-    startTransition(async () => {
-      setError("")
-      setSuccess("")
-      
-      const result = await registerUser(formData)
-      
-      if (result.error) {
-        setError(result.error)
-      } else if (result.success) {
-        setSuccess(result.success)
-        // Başarılı kayıt sonrası login sayfasına yönlendir
-        setTimeout(() => {
-          router.push("/login")
-        }, 2000)
-      }
-    })
-  }
+  useEffect(() => {
+    if (state?.success) {
+      const t = setTimeout(() => router.push("/login"), 1500);
+      return () => clearTimeout(t);
+    }
+  }, [state?.success, router]);
 
   return (
     <div className="max-w-md mx-auto bg-white p-8 rounded-lg shadow-md">
-      <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">
-        Hesap Oluştur
-      </h2>
-      
-      <form action={handleSubmit} className="space-y-4">
+      <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">Hesap Oluştur</h2>
+
+      <form action={formAction} className="space-y-4">
         <div>
           <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
             Ad Soyad
@@ -46,8 +49,8 @@ export default function RegisterForm() {
             id="name"
             name="name"
             required
-            disabled={isPending}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md
+                       focus:outline-none focus:ring-2 focus:ring-blue-500"
             placeholder="Adınızı giriniz"
           />
         </div>
@@ -61,8 +64,8 @@ export default function RegisterForm() {
             id="email"
             name="email"
             required
-            disabled={isPending}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md
+                       focus:outline-none focus:ring-2 focus:ring-blue-500"
             placeholder="email@example.com"
           />
         </div>
@@ -76,39 +79,26 @@ export default function RegisterForm() {
             id="password"
             name="password"
             required
-            disabled={isPending}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md
+                       focus:outline-none focus:ring-2 focus:ring-blue-500"
             placeholder="En az 6 karakter"
           />
         </div>
 
-        {error && (
-          <div className="text-red-600 text-sm bg-red-50 p-3 rounded-md">
-            {error}
-          </div>
+        {state?.error && (
+          <div className="text-red-600 text-sm bg-red-50 p-3 rounded-md">{state.error}</div>
+        )}
+        {state?.success && (
+          <div className="text-green-600 text-sm bg-green-50 p-3 rounded-md">{state.success}</div>
         )}
 
-        {success && (
-          <div className="text-green-600 text-sm bg-green-50 p-3 rounded-md">
-            {success}
-          </div>
-        )}
-
-        <button
-          type="submit"
-          disabled={isPending}
-          className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-        >
-          {isPending ? "Hesap Oluşturuluyor..." : "Hesap Oluştur"}
-        </button>
+        <SubmitButton />
       </form>
 
       <p className="mt-4 text-center text-sm text-gray-600">
         Zaten hesabınız var mı?{" "}
-        <a href="/login" className="text-blue-600 hover:underline">
-          Giriş yapın
-        </a>
+        <a href="/login" className="text-blue-600 hover:underline">Giriş yapın</a>
       </p>
     </div>
-  )
+  );
 }

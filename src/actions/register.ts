@@ -1,48 +1,40 @@
-'use server';
+// app/actions/auth.ts
+"use server";
 
+import { z } from "zod";
+import { auth } from "@/lib/auth";
 
-import { RegisterSchema } from "@/schema";
-import { prisma } from "@/lib/prisma";
-import bcrypt from "bcryptjs";
+const RegisterSchema = z.object({
+  name: z.string().min(2, "İsim en az 2 karakter olmalı"),
+  email: z.string().email("Geçerli bir e-posta gir"),
+  password: z.string().min(6, "Şifre en az 6 karakter"),
+});
 
-type ActionState =
-  | { error: string; success?: undefined }
-  | { success: string; error?: undefined };
+export type RegisterResult = { error?: string; success?: string };
 
-export const register = async (
-  _prevState: ActionState,
+export async function registerUser(
+  _prevState: RegisterResult,
   formData: FormData
-): Promise<ActionState> => {
-  const parsed = RegisterSchema.safeParse({
-    name: formData.get("name"),
-    email: formData.get("email"),
-    password: formData.get("password"),
-  });
+): Promise<RegisterResult> {
+  const data = {
+    name: String(formData.get("name") ?? "").trim(),
+    email: String(formData.get("email") ?? "").trim().toLowerCase(),
+    password: String(formData.get("password") ?? ""),
+  };
 
+  const parsed = RegisterSchema.safeParse(data);
   if (!parsed.success) {
-    return { error: "Geçersiz form verisi." };
+    return { error: parsed.error.issues[0].message };
   }
 
-  const { name, email, password } = parsed.data;
-
-  const userExists = await prisma.user.findUnique({
-    where: { email },
-  });
-
-  if (userExists) {
-    return { error: "Bu e-posta zaten kayıtlı." };
+  try {
+    // BetterAuth ile kayıt
+    await auth.api.signUpEmail({ body: parsed.data });
+    return { success: "Kayıt başarılı. Giriş yapabilirsiniz." };
+  } catch (e: any) {
+    if (e?.code === "P2002" || /unique|exists|already/i.test(e?.message ?? "")) {
+      return { error: "Bu e-posta zaten kayıtlı." };
+    }
+    return { error: e?.message ?? "Kayıt sırasında bir hata oluştu." };
   }
-
-  const hashedPassword = await bcrypt.hash(password, 10);
-
-  await prisma.user.create({
-    data: {
-      name,
-      email,
-      password: hashedPassword,
-      // `role` yazmadık, Prisma otomatik olarak `USER` atayacak.
-    },
-  });
-
-  return { success: "Kayıt başarılı. Giriş yapabilirsiniz." };
-};
+}
