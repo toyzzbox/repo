@@ -36,28 +36,36 @@ model User {
 }
 
 model Account {
-  id                String   @id @default(cuid())   // PK
+  id                String   @id @default(cuid())
   userId            String
   user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  provider          String
-  providerAccountId String
-  type              String   @default("oauth")      // DB’de de default verdik
+  // Better Auth alan adları → mevcut kolonlara map
+  providerId        String   @map("provider")
+  accountId         String   @map("providerAccountId")
 
-  refresh_token     String?
-  access_token      String?
-  expires_at        Int?
-  token_type        String?
-  scope             String?
-  id_token          String?
-  session_state     String?
+  // (Sende zaten var; DB’de default’u da verdik)
+  type              String   @default("oauth")
+
+  // Token alanlarını camelCase’e map’leyelim (opsiyonel ama iyi olur)
+  accessToken       String?  @map("access_token")
+  refreshToken      String?  @map("refresh_token")
+  idToken           String?  @map("id_token")
+  scope             String?  @map("scope")
+  token_type        String?  @map("token_type")
+  session_state     String?  @map("session_state")
+  expires_at        Int?     @map("expires_at")
+
+  // Better Auth e-posta/şifre için account üstünde parolayı yazabiliyor
+  password          String?  // 👈 yeni eklenecek kolon
 
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 
-  @@unique([provider, providerAccountId])
+  @@unique([providerId, accountId])
   @@map("accounts")
 }
+
 
 model Session {
   id          String   @id @default(cuid())
