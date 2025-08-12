@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useFormStatus } from "react-dom";
 import { registerUser } from "@/actions/auth";
 import { RegisterResult } from "@/actions/register";
+import { toast } from "sonner"; // shadcn sonner importu
 
 function SubmitButton() {
   const { pending } = useFormStatus();
@@ -25,11 +26,17 @@ export default function RegisterForm() {
   const router = useRouter();
   const [state, formAction] = useActionState<RegisterResult, FormData>(
     registerUser,
-    { }
+    {}
   );
 
   useEffect(() => {
     if (state?.success) {
+      // Toast göster
+      toast.success("Üyelik işleminiz başarılı! 🎉", {
+        description: "Artık giriş yapabilirsiniz.",
+        duration: 3000,
+      });
+
       const t = setTimeout(() => router.push("/login"), 1500);
       return () => clearTimeout(t);
     }
