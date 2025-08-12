@@ -3,7 +3,6 @@ import { prismaAdapter } from "better-auth/adapters/prisma";
 import { prisma } from "./prisma";
 import bcrypt from "bcryptjs";
 
-// Signup için giriş parametrelerinin tipi
 interface SignUpInput {
   name: string;
   email: string;
@@ -19,6 +18,7 @@ export const auth = betterAuth({
     async signUp({ name, email, password }: SignUpInput) {
       const hashedPassword = await bcrypt.hash(password, 10);
 
+      // Kullanıcıyı kaydet
       const user = await prisma.user.create({
         data: {
           name,
@@ -27,6 +27,7 @@ export const auth = betterAuth({
         },
       });
 
+      // Account'a parola ekleme!
       await prisma.account.create({
         data: {
           userId: user.id,
