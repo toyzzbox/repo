@@ -44,8 +44,7 @@ model Account {
   providerId  String   @map("provider")
   accountId   String   @map("providerAccountId")
 
-  type        String   @default("oauth")         // DB'de default var
-  password    String?                           // email+password için BetterAuth kullanabiliyor
+  type        String   @default("oauth")         // DB'de default var                         // email+password için BetterAuth kullanabiliyor
 
   // Token alanlarını camelCase + map (opsiyonel ama düzenli)
   accessToken String?  @map("access_token")
