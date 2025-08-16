@@ -1,5 +1,8 @@
-// src/app/api/auth/[...all]/route.ts
 import { auth } from "@/lib/auth";
 
-// Next.js App Router uyumlu handler
-export const { GET, POST, PUT, PATCH, DELETE, OPTIONS } = auth.handleRequest;
+export const GET = auth.handleRequest;
+export const POST = auth.handleRequest;
+export const PUT = auth.handleRequest;
+export const PATCH = auth.handleRequest;
+export const DELETE = auth.handleRequest;
+export const OPTIONS = auth.handleRequest;
