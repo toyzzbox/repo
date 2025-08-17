@@ -1,7 +1,8 @@
+import { LoginForm } from "@/components/(frontend)/auth/login-form";
+
 // ✅ Bu satır en üste
 export const dynamic = "force-dynamic";
 
-import LoginForm from "@/components/(frontend)/auth/login-form";
 
 const LoginPage = async () => {
 
