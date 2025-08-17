@@ -10,4 +10,7 @@ export const auth = betterAuth({
     enabled: true,
     minPasswordLength: 6,
   },
+  baseURL: process.env.BETTER_AUTH_URL || "https://toyzzbox.com",
+  secret: process.env.BETTER_AUTH_SECRET!,
+  trustProxy: true,
 });
