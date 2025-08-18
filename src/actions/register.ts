@@ -1,11 +1,8 @@
 "use server";
 
-import { bcrypt } from 'bcryptjs';
 
-
+import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
-
-
 
 export async function registerUser(
   prevState: { success: boolean; message: string },
