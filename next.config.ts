@@ -15,21 +15,7 @@ const nextConfig: NextConfig = {
   },
 
   experimental: {
-    serverActions: {}, // ✅ düzeltildi
-  },
-
-  async headers() {
-    return [
-      {
-        source: "/(.*)",
-        headers: [
-          {
-            key: "X-Forwarded-Proto",
-            value: "https",
-          },
-        ],
-      },
-    ];
+    serverActions: {},
   },
 };
 
