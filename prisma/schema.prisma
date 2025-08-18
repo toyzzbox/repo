@@ -1,4 +1,4 @@
-// prisma/schema.prisma
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -8,80 +8,79 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum Role {
-  ADMIN
-  USER
-}
 
 model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String    @unique
-  emailVerified Boolean   @default(false)
-  password      String?
-  image         String?
-  role          Role      @default(USER)
+  id        String   @id
+  createdAt DateTime
+  updatedAt DateTime
 
-  // Relations
-  accounts      Account[]
-  sessions      Session[]
+  name          String
+  email         String  @unique
+  emailVerified Boolean
+  image         String?
+
+  sessions Session[]
+  accounts Account[]
   addresses     Address[]
   favorites     Favorite[]
   comments      Comment[]
 
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-
   @@map("users")
 }
 
+
+
 model Account {
-  id          String   @id @default(cuid())
-  userId      String
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id        String   @id
+  createdAt DateTime
+  updatedAt DateTime
 
-  // BetterAuth isimleri → mevcut DB kolonlarına map
-  providerId  String   @map("provider")
-  accountId   String   @map("providerAccountId")
+  accountId             String
+  providerId            String
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
 
-  type        String   @default("oauth")         // DB'de default var                         // email+password için BetterAuth kullanabiliyor
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  // Token alanlarını camelCase + map (opsiyonel ama düzenli)
-  accessToken String?  @map("access_token")
-  refreshToken String? @map("refresh_token")
-  idToken     String?  @map("id_token")
-  scope       String?
-  tokenType   String?  @map("token_type")
-  sessionState String? @map("session_state")
-  expires_at  Int?     @map("expires_at")       // DB kolonunu bozmayalım
-
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  @@unique([providerId, accountId])
   @@map("accounts")
 }
 
 
 
 model Session {
-  id          String   @id @default(cuid())
-  userId      String
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id        String   @id
+  createdAt DateTime
+  updatedAt DateTime
 
-  token       String   @unique        // BetterAuth session token
-  expiresAt   DateTime                // BetterAuth alan adı
+  expiresAt DateTime
+  token     String   @unique
+  ipAddress String?
+  userAgent String?
 
-  // Opsiyonel log alanları
-  ipAddress   String?
-  userAgent   String?
-
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("sessions")
 }
 
+
+model Verification {
+  id        String    @id
+  createdAt DateTime?
+  updatedAt DateTime?
+
+  identifier String
+  value      String
+  expiresAt  DateTime
+
+  @@map("verifications")
+}
 /* ===========================
    E-TİCARET / DİĞER MODELLER
    =========================== */
