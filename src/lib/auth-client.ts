@@ -1,7 +1,7 @@
 import { createAuthClient } from "better-auth/react";
 
 const authClient = createAuthClient({
-  baseURL: "https://toyzzbox.com/api",
+  baseURL: "https://toyzzbox.com",
 });
 
 
