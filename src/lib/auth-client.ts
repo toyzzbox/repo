@@ -1,7 +1,8 @@
 import { createAuthClient } from "better-auth/react";
 
 const authClient = createAuthClient({
-  baseURL: process.env.NEXT_PUBLIC_API_URL,
+  baseURL: "https://toyzzbox.com/api",
 });
+
 
 export const { signIn, signUp, signOut } = authClient;
