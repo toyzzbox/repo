@@ -35,7 +35,7 @@ model Account {
   createdAt DateTime
   updatedAt DateTime
 
-  accountId             String
+  accountId  String? // ? ile nullable yaptık
   providerId            String
   accessToken           String?
   refreshToken          String?
