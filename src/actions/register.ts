@@ -1,5 +1,7 @@
-import { bcrypt } from 'bcryptjs';
 "use server";
+
+import { bcrypt } from 'bcryptjs';
+
 
 import { prisma } from "@/lib/prisma";
 
