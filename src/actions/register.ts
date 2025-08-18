@@ -1,40 +1,36 @@
-// app/actions/auth.ts
+import { bcrypt } from 'bcryptjs';
 "use server";
 
-import { z } from "zod";
-import { auth } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
 
-const RegisterSchema = z.object({
-  name: z.string().min(2, "İsim en az 2 karakter olmalı"),
-  email: z.string().email("Geçerli bir e-posta gir"),
-  password: z.string().min(6, "Şifre en az 6 karakter"),
-});
 
-export type RegisterResult = { error?: string; success?: string };
 
 export async function registerUser(
-  _prevState: RegisterResult,
+  prevState: { success: boolean; message: string },
   formData: FormData
-): Promise<RegisterResult> {
-  const data = {
-    name: String(formData.get("name") ?? "").trim(),
-    email: String(formData.get("email") ?? "").trim().toLowerCase(),
-    password: String(formData.get("password") ?? ""),
-  };
-
-  const parsed = RegisterSchema.safeParse(data);
-  if (!parsed.success) {
-    return { error: parsed.error.issues[0].message };
-  }
-
+): Promise<{ success: boolean; message: string }> {
   try {
-    // BetterAuth ile kayıt
-    await auth.api.signUpEmail({ body: parsed.data });
-    return { success: "Kayıt başarılı. Giriş yapabilirsiniz." };
-  } catch (e: any) {
-    if (e?.code === "P2002" || /unique|exists|already/i.test(e?.message ?? "")) {
-      return { error: "Bu e-posta zaten kayıtlı." };
+    const name = formData.get("name") as string;
+    const email = formData.get("email") as string;
+    const password = formData.get("password") as string;
+
+    if (!email || !password) {
+      return { success: false, message: "Email ve şifre zorunludur" };
     }
-    return { error: e?.message ?? "Kayıt sırasında bir hata oluştu." };
+
+    const existing = await prisma.user.findUnique({ where: { email } });
+    if (existing) {
+      return { success: false, message: "Bu email zaten kayıtlı" };
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    await prisma.user.create({
+      data: { name, email, password: hashedPassword },
+    });
+
+    return { success: true, message: "Kayıt başarılı!" };
+  } catch (err) {
+    return { success: false, message: "Bir hata oluştu" };
   }
 }

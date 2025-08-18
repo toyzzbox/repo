@@ -1,63 +1,57 @@
 "use client";
 
-import { signUp } from "@/lib/auth-client";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
+import { registerUser } from "@/actions/register";
+import { useActionState } from "react";
 
-export const RegisterForm = () => {
-  async function handleSubmit(evt: React.FormEvent<HTMLFormElement>) {
-    evt.preventDefault();
-
-    const formData = new FormData(evt.currentTarget);
-
-    const name = String(formData.get("name"));
-    if (!name) return toast.error("Please enter your name");
-
-    const email = String(formData.get("email"));
-    if (!email) return toast.error("Please enter your email");
-
-    const password = String(formData.get("password"));
-    if (!password) return toast.error("Please enter your password");
-
-    await signUp.email(
-      {
-        name,
-        email,
-        password,
-      },
-      {
-        onRequest: () => {},
-        onResponse: () => {},
-        onError: (ctx) => {
-          toast.error(ctx.error.message);
-        },
-        onSuccess: () => {},
-      }
-    );
-  }
+export default function RegisterForm() {
+  const [state, formAction, isPending] = useActionState(registerUser, {
+    success: false,
+    message: "",
+  });
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-sm w-full space-y-4">
-      <div className="space-y-2">
-        <Label htmlFor="name">Name</Label>
-        <Input id="name" name="name" />
-      </div>
+    <div className="max-w-md mx-auto mt-20">
+      <h1 className="text-xl font-bold mb-4">Kayıt Ol</h1>
 
-      <div className="space-y-2">
-        <Label htmlFor="email">Email</Label>
-        <Input type="email" id="email" name="email" />
-      </div>
+      <form action={formAction} className="space-y-3">
+        <input
+          type="text"
+          name="name"
+          placeholder="Adınız"
+          className="border rounded w-full p-2"
+        />
+        <input
+          type="email"
+          name="email"
+          placeholder="Email"
+          required
+          className="border rounded w-full p-2"
+        />
+        <input
+          type="password"
+          name="password"
+          placeholder="Şifre"
+          required
+          className="border rounded w-full p-2"
+        />
+        <button
+          type="submit"
+          disabled={isPending}
+          className="bg-blue-600 text-white px-4 py-2 rounded disabled:opacity-50"
+        >
+          {isPending ? "Kaydediliyor..." : "Kayıt Ol"}
+        </button>
+      </form>
 
-      <div className="space-y-2">
-        <Label htmlFor="password">Password</Label>
-        <Input type="password" id="password" name="password" />
-      </div>
-
-      <Button type="submit" className="w-full">
-        Register
-      </Button>
-    </form>
+      {state.message && (
+        <p
+          className={`mt-4 ${
+            state.success ? "text-green-600" : "text-red-500"
+          }`}
+        >
+          {state.message}
+        </p>
+      )}
+    </div>
   );
-};
+}
