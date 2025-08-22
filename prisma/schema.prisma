@@ -60,7 +60,7 @@ model Session {
   updatedAt DateTime @updatedAt      
 
   expiresAt DateTime
-  token     String?   @unique
+  sessionToken     String?   @unique
   ipAddress String?
   userAgent String?
 
