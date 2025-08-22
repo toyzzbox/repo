@@ -15,6 +15,7 @@ model User {
   updatedAt DateTime @updatedAt       // Otomatik olarak güncelleme tarihi
 
   name          String
+  password      String   // Bu satırı ekle
   email         String  @unique
   emailVerified Boolean
   image         String?

@@ -11,8 +11,8 @@ export async function registerUser(
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
 
-    if (!email || !password) {
-      return { success: false, message: "Email ve şifre zorunludur" };
+    if (!name || !email || !password) {
+      return { success: false, message: "Tüm alanlar zorunludur" };
     }
 
     const existing = await prisma.user.findUnique({ where: { email } });
@@ -27,9 +27,8 @@ export async function registerUser(
         name, 
         email, 
         password: hashedPassword,
-        createdAt: new Date(),
-        updatedAt: new Date(),
         emailVerified: false // Yeni kullanıcı için email doğrulanmamış
+        // createdAt ve updatedAt otomatik olarak atanacak
       },
     });
 
