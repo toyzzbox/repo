@@ -63,7 +63,7 @@ export async function loginUser(
     const cookieStore = await cookies();
     cookieStore.set("session", sessionToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: true,
       sameSite: "lax",
       maxAge: 60 * 60 * 24 * 30, // 30 gün
       path: "/",
