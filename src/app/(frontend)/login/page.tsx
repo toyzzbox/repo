@@ -1,4 +1,4 @@
-import { LoginForm } from "@/components/(frontend)/auth/login-form";
+import LoginForm from "@/components/(frontend)/auth/login-form";
 
 // ✅ Bu satır en üste
 export const dynamic = "force-dynamic";

@@ -8,7 +8,7 @@ const initialState = {
   message: "",
 };
 
-export default function LoginPage() {
+export default function LoginForm() {
   const [state, formAction, isPending] = useActionState(loginUser, initialState);
 
   return (
