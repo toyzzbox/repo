@@ -11,8 +11,8 @@ datasource db {
 
 model User {
   id          String       @id @default(cuid())
-  createdAt DateTime
-  updatedAt DateTime
+  createdAt DateTime @default(now())  // Otomatik olarak şu anki tarih
+  updatedAt DateTime @updatedAt       // Otomatik olarak güncelleme tarihi
 
   name          String
   email         String  @unique
@@ -32,8 +32,8 @@ model User {
 
 model Account {
   id        String   @id
-  createdAt DateTime
-  updatedAt DateTime
+  createdAt DateTime @default(now())  // Otomatik olarak şu anki tarih
+  updatedAt DateTime @updatedAt       // Otomatik olarak güncelleme tarihi
 
   accountId  String? // ? ile nullable yaptık
   providerId String? // ? ile nullable
@@ -72,8 +72,8 @@ model Session {
 
 model Verification {
   id        String    @id
-  createdAt DateTime?
-  updatedAt DateTime?
+  createdAt DateTime? @default(now())  // Otomatik olarak şu anki tarih
+  updatedAt DateTime? @updatedAt       // Otomatik olarak güncelleme tarihi
 
   identifier String
   value      String
