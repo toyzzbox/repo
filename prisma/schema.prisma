@@ -56,8 +56,8 @@ model Account {
 
 model Session {
   id          String       @id @default(cuid())
-  createdAt DateTime
-  updatedAt DateTime
+  createdAt DateTime @default(now())  // Otomatik olarak şu anki tarih
+  updatedAt DateTime @updatedAt      
 
   expiresAt DateTime
   token     String   @unique
