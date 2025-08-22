@@ -55,7 +55,7 @@ export async function loginUser(
       data: {
         sessionToken,
         userId: user.id,
-        expires: expiresAt,
+        expiresAt: expiresAt, // ✅ doğru alan adı
       },
     });
 
