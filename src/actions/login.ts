@@ -14,14 +14,14 @@ export async function loginUser(
   prevState: { success: boolean; message: string },
   formData: FormData
 ): Promise<{ success: boolean; message: string }> {
+  const email = formData.get("email") as string;
+  const password = formData.get("password") as string;
+
+  if (!email || !password) {
+    return { success: false, message: "Email ve şifre zorunludur" };
+  }
+
   try {
-    const email = formData.get("email") as string;
-    const password = formData.get("password") as string;
-
-    if (!email || !password) {
-      return { success: false, message: "Email ve şifre zorunludur" };
-    }
-
     // Kullanıcıyı veritabanından bul
     const user = await prisma.user.findUnique({
       where: { email },
@@ -31,7 +31,7 @@ export async function loginUser(
       return { success: false, message: "Kullanıcı bulunamadı" };
     }
 
-    // Şifre kontrolü (eğer schema'da password alanı varsa)
+    // Şifre kontrolü
     if (user.password) {
       const isValidPassword = await bcrypt.compare(password, user.password);
       if (!isValidPassword) {
@@ -49,31 +49,31 @@ export async function loginUser(
     // Yeni session oluştur
     const sessionToken = generateSessionToken();
     const expiresAt = new Date();
-    expiresAt.setDate(expiresAt.getDate() + 30); // 30 gün
+    expiresAt.setDate(expiresAt.getDate() + 30);
 
     await prisma.session.create({
       data: {
         sessionToken,
         userId: user.id,
-        expiresAt: expiresAt, // ✅ doğru alan adı
+        expiresAt,
       },
     });
 
-    // Session cookie'yi ayarla
-    const cookieStore = await cookies();
+    // Session cookie'yi ayarla - await EKLENDİ
+    const cookieStore = await cookies(); // ✅ await eklendi
     cookieStore.set("session", sessionToken, {
       httpOnly: true,
-      secure: true,
+      secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
-      maxAge: 60 * 60 * 24 * 30, // 30 gün
+      maxAge: 60 * 60 * 24 * 30,
       path: "/",
     });
 
-    // Ana sayfaya yönlendir
-    redirect("/dashboard"); // veya istediğiniz sayfa
-    
   } catch (err) {
     console.error("Login error:", err);
     return { success: false, message: "Giriş yapılırken bir hata oluştu" };
   }
+
+  // Başarı durumunda yönlendirme
+  redirect("/dashboard");
 }
