@@ -27,7 +27,9 @@ export async function registerUser(
         name, 
         email, 
         password: hashedPassword,
-        createdAt: new Date() // Bu satırı ekleyin
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        emailVerified: false // Yeni kullanıcı için email doğrulanmamış
       },
     });
 
