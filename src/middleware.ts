@@ -1,57 +1,46 @@
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
 
-// Korunmasını istediğiniz route'lar
-const protectedRoutes = ["/dashboard", "/profile", "/settings"];
-const authRoutes = ["/login", "/register"];
-
-export async function middleware(request: NextRequest) {
+export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const sessionToken = request.cookies.get("session")?.value;
-
-  // Session token kontrolü
-  let isAuthenticated = false;
-  if (sessionToken) {
-    try {
-      const session = await prisma.session.findUnique({
-        where: { sessionToken },
-        include: { user: true },
-      });
-
-      if (session && session.expires > new Date()) {
-        isAuthenticated = true;
-      } else if (session) {
-        // Süresi dolmuş session'ı temizle
-        await prisma.session.delete({
-          where: { sessionToken },
-        });
-      }
-    } catch (error) {
-      console.error("Session kontrolü hatası:", error);
-      isAuthenticated = false;
-    }
+  
+  // Session token'ını cookie'den al
+  const sessionToken = request.cookies.get('sessionToken')?.value;
+  
+  // Korunması gereken sayfalar
+  const protectedPaths = [' /administor'];
+  const authPaths = ['/login', '/register'];
+  
+  const isProtectedPath = protectedPaths.some(path => 
+    pathname.startsWith(path)
+  );
+  const isAuthPath = authPaths.some(path => 
+    pathname.startsWith(path)
+  );
+  
+  // Korumalı sayfalarda session kontrolü
+  if (isProtectedPath && !sessionToken) {
+    const loginUrl = new URL('/login', request.url);
+    loginUrl.searchParams.set('redirectTo', pathname);
+    return NextResponse.redirect(loginUrl);
   }
-
-  // Korunmuş route'lara erişim kontrolü
-  if (protectedRoutes.some(route => pathname.startsWith(route))) {
-    if (!isAuthenticated) {
-      return NextResponse.redirect(new URL("/login", request.url));
-    }
+  
+  // Auth sayfalarında session varsa ana sayfaya yönlendir
+  if (isAuthPath && sessionToken) {
+    return NextResponse.redirect(new URL('/', request.url));
   }
-
-  // Giriş yapmış kullanıcıların auth sayfalarına erişimini engelle
-  if (authRoutes.some(route => pathname.startsWith(route))) {
-    if (isAuthenticated) {
-      return NextResponse.redirect(new URL("/dashboard", request.url));
-    }
-  }
-
+  
   return NextResponse.next();
 }
 
 export const config = {
   matcher: [
-    "/((?!api|_next/static|_next/image|favicon.ico).*)",
-  ],
+    // Korumalı sayfalar
+    '/administor/:path*',
+    '/profile/:path*', 
+    '/admin/:path*',
+    // Auth sayfaları
+    '/login',
+    '/register'
+  ]
 };
