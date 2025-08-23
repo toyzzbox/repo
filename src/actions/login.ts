@@ -75,5 +75,5 @@ export async function loginUser(
   }
 
   // Başarı durumunda yönlendirme
-  redirect("/dashboard");
+  redirect("/adminstor/users");
 }
