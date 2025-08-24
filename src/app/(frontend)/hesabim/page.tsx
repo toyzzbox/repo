@@ -1,11 +1,10 @@
 export const dynamic = "force-dynamic";
-import { auth } from "@/auth";
 import { redirect } from "next/navigation";
+import { getSession } from "@/lib/session";
 
 export default async function Hesabim() {
-  const session = await auth();
+  const session = await getSession();
 
-  // Eğer kullanıcı giriş yapmamışsa, login sayfasına yönlendir
   if (!session) {
     redirect("/login");
   }
@@ -13,7 +12,7 @@ export default async function Hesabim() {
   return (
     <div className="space-y-4">
       <h1 className="text-2xl font-bold">
-        Merhaba, {session.user.email} 👋
+        Merhaba, {session.user.name || session.user.email} 👋
       </h1>
 
       <p className="text-gray-600">
