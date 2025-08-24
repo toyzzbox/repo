@@ -10,19 +10,19 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { getSession } from "@/lib/session"; // Daha önce oluşturduğumuz utility
+import { getSession } from "@/lib/session";
+import { logout } from "@/lib/logout"; // import et
 
 export default async function UserMenu() {
   const session = await getSession();
 
-  // Giriş yapmamış kullanıcı için
   if (!session) {
     return (
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button size="logo" variant={"user"} className="flex items-center gap-2 py-2 px-4 rounded">
             <User />
-            "Giriş Yap"
+            Giriş Yap
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-56 bg-white text-black">
@@ -45,7 +45,6 @@ export default async function UserMenu() {
     );
   }
 
-  // Giriş yapmış kullanıcı için
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -62,7 +61,7 @@ export default async function UserMenu() {
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        
+
         <DropdownMenuGroup>
           <DropdownMenuItem asChild>
             <Link href="/dashboard" className="flex items-center gap-2">
@@ -70,7 +69,7 @@ export default async function UserMenu() {
               Hesabım
             </Link>
           </DropdownMenuItem>
-          
+
           <DropdownMenuItem asChild>
             <Link href="/profile" className="flex items-center gap-2">
               <Settings className="w-4 h-4" />
@@ -78,13 +77,17 @@ export default async function UserMenu() {
             </Link>
           </DropdownMenuItem>
         </DropdownMenuGroup>
-        
+
         <DropdownMenuSeparator />
-        
+
+        {/* Çıkış Yap */}
         <DropdownMenuItem asChild>
-        
-            Çıkış Yap
-   
+          <form action={logout} className="w-full">
+            <button type="submit" className="flex items-center gap-2 w-full">
+              <LogOut className="w-4 h-4" />
+              Çıkış Yap
+            </button>
+          </form>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
