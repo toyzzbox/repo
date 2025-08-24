@@ -5,7 +5,7 @@ export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   
   // Session token'ını cookie'den al
-  const sessionToken = request.cookies.get('sessionToken')?.value;
+  const sessionToken = request.cookies.get('session')?.value;
   
   // Korunması gereken sayfalar
   const protectedPaths = [' /administor'];

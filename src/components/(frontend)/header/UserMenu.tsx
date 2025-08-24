@@ -10,7 +10,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import SignOutButton from "../auth/SignOut";
 import { getSession } from "@/lib/session"; // Daha önce oluşturduğumuz utility
 
 export default async function UserMenu() {
