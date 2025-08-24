@@ -6,7 +6,7 @@ import { redirect } from "next/navigation";
 export async function getSession() {
   try {
     const cookieStore = await cookies();
-    const sessionToken = cookieStore.get("sessionToken")?.value;
+    const sessionToken = cookieStore.get("session")?.value;
     
     if (!sessionToken) {
       return null;
