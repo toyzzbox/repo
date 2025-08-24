@@ -12,8 +12,8 @@ export default function LoginForm() {
   const [state, formAction, isPending] = useActionState(loginUser, initialState);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-yellow-50 to-yellow-100 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-xl w-full space-y-8">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-white to-yellow-50 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-2xl w-full space-y-8">
         <div className="text-center">
           <div className="mx-auto h-12 w-12 bg-indigo-600 rounded-full flex items-center justify-center">
             <svg className="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
