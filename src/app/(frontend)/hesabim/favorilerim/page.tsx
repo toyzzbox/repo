@@ -1,13 +1,14 @@
-import { auth } from "@/auth";
+
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import { ProductCard } from "@/components/(frontend)/product/ProductCard";
+import { getSession } from "@/lib/session";
 
 export default async function FavoritesPage() {
-  const session = await auth();
+  const session = await getSession();
 
-  if (!session?.user?.id) {
-    return redirect("/login");
+  if (!session) {
+    redirect("/login");
   }
 
   const favorites = await prisma.favorite.findMany({

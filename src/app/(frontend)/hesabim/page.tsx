@@ -43,7 +43,7 @@ export default async function Hesabim() {
   </Link>
   </div>
 </div>
-      </div>
-    </div>
+
+
   );
 }
