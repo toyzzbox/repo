@@ -22,20 +22,20 @@ export default async function Hesabim() {
       </p>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-6">
-      <Link href="/siparislerim">
+      <Link href="/hesabim/siparislerim">
   <div className="bg-white p-4 rounded shadow border cursor-pointer hover:bg-gray-50 transition">
     <p className="font-medium">📦 Siparişlerim</p>
     <p className="text-sm text-gray-500">Geçmiş siparişlerini görüntüle.</p>
   </div>
 </Link>
-  <Link href="/favorilerim">
+  <Link href="/hesabim/favorilerim">
     <div className="bg-white p-4 rounded shadow border cursor-pointer hover:bg-gray-50 transition">
       <p className="font-medium">❤️ Favorilerim</p>
       <p className="text-sm text-gray-500">Beğendiğin ürünleri incele.</p>
     </div>
   </Link>
 
-  <Link href="/adreslerim">
+  <Link href="/hesabim/adreslerim">
     <div className="bg-white p-4 rounded shadow border cursor-pointer hover:bg-gray-50 transition">
       <p className="font-medium">🏠 Adreslerim</p>
       <p className="text-sm text-gray-500">Adreslerini güncelle ve yönet.</p>
