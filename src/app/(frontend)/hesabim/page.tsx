@@ -1,6 +1,7 @@
 export const dynamic = "force-dynamic";
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/session";
+import Link from "next/link";
 
 export default async function Hesabim() {
   const session = await getSession();
@@ -21,18 +22,27 @@ export default async function Hesabim() {
       </p>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-6">
-        <div className="bg-white p-4 rounded shadow border">
-          <p className="font-medium">📦 Siparişlerim</p>
-          <p className="text-sm text-gray-500">Geçmiş siparişlerini görüntüle.</p>
-        </div>
-        <div className="bg-white p-4 rounded shadow border">
-          <p className="font-medium">❤️ Favorilerim</p>
-          <p className="text-sm text-gray-500">Beğendiğin ürünleri incele.</p>
-        </div>
-        <div className="bg-white p-4 rounded shadow border">
-          <p className="font-medium">🏠 Adreslerim</p>
-          <p className="text-sm text-gray-500">Adreslerini güncelle ve yönet.</p>
-        </div>
+      <Link href="/orders">
+  <div className="bg-white p-4 rounded shadow border cursor-pointer hover:bg-gray-50 transition">
+    <p className="font-medium">📦 Siparişlerim</p>
+    <p className="text-sm text-gray-500">Geçmiş siparişlerini görüntüle.</p>
+  </div>
+</Link>
+<div className="space-y-4">
+  <Link href="/favorites">
+    <div className="bg-white p-4 rounded shadow border cursor-pointer hover:bg-gray-50 transition">
+      <p className="font-medium">❤️ Favorilerim</p>
+      <p className="text-sm text-gray-500">Beğendiğin ürünleri incele.</p>
+    </div>
+  </Link>
+
+  <Link href="/addresses">
+    <div className="bg-white p-4 rounded shadow border cursor-pointer hover:bg-gray-50 transition">
+      <p className="font-medium">🏠 Adreslerim</p>
+      <p className="text-sm text-gray-500">Adreslerini güncelle ve yönet.</p>
+    </div>
+  </Link>
+</div>
       </div>
     </div>
   );
