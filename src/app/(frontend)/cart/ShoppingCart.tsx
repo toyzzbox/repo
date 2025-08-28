@@ -20,7 +20,7 @@ const CartItem = React.memo(({ product, dispatch }: { product: any; dispatch: an
       {/* Ürün ve Bilgiler */}
       <div className="flex flex-col sm:flex-row sm:items-center gap-4">
         {/* Görsel */}
-        {product?.url ? (
+        {product.medias?.[0]?.media?.urls?.[0] ? (
       
           <Image
             src={product.medias?.[0]?.media?.urls?.[0] ?? null}
