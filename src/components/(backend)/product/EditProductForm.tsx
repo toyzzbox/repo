@@ -85,7 +85,7 @@ export default function EditProductForm({
     type="text"
     id="barcode"
     name="barcode"
-    defaultValue={product.barcode}
+    defaultValue={product.barcode || ""}
     className="input"
     minLength={8}
     maxLength={20}
