@@ -159,6 +159,7 @@ export default function EditProductForm({
           medias={medias}
           onSelectedMediasChange={setSelectedMedias}
           selectedMedias={selectedMedias}
+          
         />
         {selectedMedias.map((media, index) => (
           <div key={media.id}>

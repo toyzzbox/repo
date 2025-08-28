@@ -31,7 +31,7 @@ interface MediaModalButtonProps {
   medias: Media[];
   selectedMedias: Media[];
   onSelectedMediasChange: (selectedMedias: Media[]) => void;
-  onMediasChange: (updated: Media[]) => void; // ✅ Yeni prop
+  onMediasChange?: (updated: Media[]) => void; // ✅ ? ile opsiyonel yapıldı
 }
 
 interface SortableMediaItemProps {
@@ -148,7 +148,7 @@ export default function MediaModalButton({
 
   const handleNewMediaUploaded = (newItems: Media[]) => {
     const updated = [...newItems, ...medias];
-    onMediasChange(updated);
+    onMediasChange?.(updated); 
   };
 
   return (
