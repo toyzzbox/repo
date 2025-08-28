@@ -1,11 +1,11 @@
 "use server";
 
-import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { getSession } from "@/lib/session";
 import { revalidatePath } from "next/cache";
 
 export async function addAddress(_: any, formData: FormData) {
-  const session = await auth();
+  const session = await getSession();
   if (!session?.user?.id) return;
 
   const data = {
