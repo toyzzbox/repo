@@ -1,12 +1,13 @@
 // /src/actions/setDefaultAddress.ts
 "use server";
 
-import { auth } from "@/auth";
+
 import { prisma } from "@/lib/prisma";
+import { getSession } from "@/lib/session";
 import { revalidatePath } from "next/cache";
 
 export async function setDefaultAddress(id: string) {
-  const session = await auth();
+  const session = await getSession();
   const userId = session?.user?.id;
 
   if (!userId) return false;
