@@ -19,22 +19,20 @@ const CartItem = React.memo(({ product, dispatch }: { product: any; dispatch: an
     <div className="mt-4 flex flex-col sm:flex-row sm:justify-between sm:items-center border-b border-gray-200 py-4 gap-4">
       {/* Ürün ve Bilgiler */}
       <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-        {/* Görsel */}
-        {product.medias?.[0]?.media?.urls?.[0] ? (
-      
-          <Image
-            src={product.medias?.[0]?.media?.urls?.[0] ?? null}
-            width={80}
-            height={80}
-            alt={product.name || "Ürün görseli"}
-            className="rounded-md object-cover"
-            loading="lazy" // Lazy load
-          />
-        ) : (
-          <div className="w-20 h-20 bg-gray-300 flex items-center justify-center rounded-md">
-            <span className="text-sm text-gray-600">No Image</span>
-          </div>
-        )}
+      {product.medias?.[0]?.media?.urls?.[0] ? (
+  <Image
+    src={product.medias[0].media.urls[0]}
+    width={80}
+    height={80}
+    alt={product.name || "Ürün görseli"}
+    className="rounded-md object-cover"
+    loading="lazy"
+  />
+) : (
+  <div className="w-[80px] h-[80px] bg-gray-300 flex items-center justify-center text-white rounded-md">
+    No Image
+  </div>
+)}
 
         {/* Ürün Bilgileri */}
         <div>
