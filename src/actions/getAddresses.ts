@@ -1,8 +1,9 @@
-import { auth } from "@/auth"; // Genelde root'a koyuluyor (app/auth.ts)
+nelde root'a koyuluyor (app/auth.ts)
 import { prisma } from "@/lib/prisma";
+import { getSession } from "@/lib/session";
 
 export async function getAddresses() {
-  const session = await auth();
+  const session = await getSession();
 
   if (!session?.user?.id) return [];
 
