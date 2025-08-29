@@ -14,7 +14,7 @@ import React, { useMemo } from "react";
 const CartItem = React.memo(({ product, dispatch }: { product: any; dispatch: any }) => {
   const price = product.discountedPrice ?? product.price;
   const isDiscounted = product.discountedPrice != null;
-  const imageUrl = product.medias?.[0]?.media?.urls?.[0] ?? null;
+  const imageUrl = product.medias?.[0]?.urls?.[0] ?? null;
   const displayName = product.group?.name
     ? `${product.group.name} – ${product.name}`
     : product.name;
@@ -23,21 +23,21 @@ const CartItem = React.memo(({ product, dispatch }: { product: any; dispatch: an
     <div className="mt-4 flex flex-col sm:flex-row sm:justify-between sm:items-center border-b border-gray-200 py-4 gap-4">
       {/* Ürün ve Bilgiler */}
       <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-          {imageUrl ? (
-        <div className="overflow-hidden rounded-t-lg">
-          <Image
-            src={imageUrl}
-            width={400}
-            height={300}
-            alt={displayName}
-            className="w-full h-48 object-contain transition-opacity duration-300 group-hover:opacity-90"
-          />
-        </div>
-      ) : (
-        <div className="w-full h-48 bg-gray-300 rounded-t-lg flex items-center justify-center text-white">
-          No Image Available
-        </div>
-      )}
+      {imageUrl ? (
+  <div className="overflow-hidden rounded-t-lg">
+    <Image
+      src={imageUrl}
+      width={400}
+      height={300}
+      alt={displayName}
+      className="w-full h-48 object-contain transition-opacity duration-300 group-hover:opacity-90"
+    />
+  </div>
+) : (
+  <div className="w-full h-48 bg-gray-300 rounded-t-lg flex items-center justify-center text-white">
+    No Image Available
+  </div>
+)}
         {/* Ürün Bilgileri */}
         <div>
           <h1 className="font-medium text-md sm:text-lg">{product?.name}</h1>
