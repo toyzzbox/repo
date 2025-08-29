@@ -14,7 +14,7 @@ interface CartItem {
   quantity: number; // Ürün miktarı
   mediaIds?: string[];       // Form submit için seçili media ID dizisi
   medias?: Media[];          // Populate edilmiş medya nesneleri
-
+  image: string;
   
 }
 
