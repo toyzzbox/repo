@@ -5,6 +5,7 @@ import { ReduxProvider } from "@/components/providers/ReduxProvider";
 import PageContainer from "@/components/(frontend)/container/PageContainer";
 import { Toaster } from "sonner";
 import GtagClient from "@/components/(frontend)/analytics/GtagClient";
+import MobileFooter from "@/components/(frontend)/footer/MobileFooter";
 export default function FrontendLayout({ children }: { children: React.ReactNode }) {
   return (
     <>
@@ -18,6 +19,7 @@ export default function FrontendLayout({ children }: { children: React.ReactNode
             </main>
             <footer>
               <Footer />
+              <MobileFooter/>
             </footer>
           </div>
       </ReduxProvider>
