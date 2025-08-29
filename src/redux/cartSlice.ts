@@ -10,9 +10,7 @@ interface CartItem {
   name: string; // Ürün adı
   price: number; // Ürün fiyatı
   discountedPrice?: number; 
-  url?: string; // Ürün görsel URL'si (isteğe bağlı)
   quantity: number; // Ürün miktarı
-
   mediaIds?: string[];       // Form submit için seçili media ID dizisi
   medias?: Media[];          // Populate edilmiş medya nesneleri
 
