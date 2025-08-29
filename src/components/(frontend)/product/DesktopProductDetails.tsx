@@ -100,7 +100,9 @@ const DesktopProductDetails: React.FC<ProductDetailsProps> = ({
         price: activeVariant.price,
         quantity,
         url: activeVariant.medias?.[0]?.urls?.[0] ?? "",
-      })
+      medias: activeVariant.medias?.map(m => ({ media: { urls: m.urls } })), // Yapıyı dönüştür
+
+      })  
     );
     toast.custom(() => <CartSuccessToast productName={activeVariant.name} />);
   };

@@ -3,6 +3,7 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { RootState } from './store';
 import { Media } from '@/types/product';
 
+
 // Sepet öğesi için bir arayüz tanımlayın
 interface CartItem {
   id: string; // Ürün ID'si
