@@ -14,30 +14,43 @@ import React, { useMemo } from "react";
 const CartItem = React.memo(({ product, dispatch }: { product: any; dispatch: any }) => {
   const price = product.discountedPrice ?? product.price;
   const isDiscounted = product.discountedPrice != null;
-  const imageUrl = product.medias?.[0]?.urls?.[0] ?? null;
-  const displayName = product.group?.name
-    ? `${product.group.name} – ${product.name}`
-    : product.name;
+
+  // ✅ Çoklu fallback - ProductDetails'deki yapıya uygun
+  const imageUrl = 
+    product.image || // ✅ Ana field - addToCart'da kullandığınız
+    product.medias?.[0]?.media?.urls?.[0] || // ProductCard yapısı
+    product.medias?.[0]?.urls?.[0] || // ProductDetails yapısı
+    product.url || // Fallback
+    null;
+  
+  // 🔍 Debug için konsola yazdır (geliştirme aşamasında)
+  console.log("Cart product:", product);
+  console.log("Image URL:", imageUrl);
 
   return (
     <div className="mt-4 flex flex-col sm:flex-row sm:justify-between sm:items-center border-b border-gray-200 py-4 gap-4">
       {/* Ürün ve Bilgiler */}
       <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-          {imageUrl ? (
-        <div className="overflow-hidden rounded-t-lg">
+        {imageUrl ? (
           <Image
             src={imageUrl}
-            width={400}
-            height={300}
-            alt={displayName}
-            className="w-full h-48 object-contain transition-opacity duration-300 group-hover:opacity-90"
+            width={80}
+            height={80}
+            alt={product.name || "Ürün görseli"}
+            className="rounded-md object-cover"
+            loading="lazy"
+            onError={(e) => {
+              console.error("Image load error:", e);
+              // Hata durumunda placeholder göster
+              e.currentTarget.style.display = 'none';
+            }}
           />
-        </div>
-      ) : (
-        <div className="w-full h-48 bg-gray-300 rounded-t-lg flex items-center justify-center text-white">
-          No Image Available
-        </div>
-      )}
+        ) : (
+          <div className="w-[80px] h-[80px] bg-gray-300 flex items-center justify-center text-white rounded-md">
+            No Image
+          </div>
+        )}
+
         {/* Ürün Bilgileri */}
         <div>
           <h1 className="font-medium text-md sm:text-lg">{product?.name}</h1>
@@ -85,6 +98,9 @@ const CartItem = React.memo(({ product, dispatch }: { product: any; dispatch: an
     </div>
   );
 });
+
+// CartItem'a displayName ekleme
+CartItem.displayName = 'CartItem';
 
 export const ShoppingCart = () => {
   const cart = useAppSelector(getCart);

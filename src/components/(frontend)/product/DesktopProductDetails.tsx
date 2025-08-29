@@ -86,6 +86,7 @@ const DesktopProductDetails: React.FC<ProductDetailsProps> = ({
   }, [product]);
 
   const activeVariant = selectedVariant ?? product;
+  const imageUrl = activeVariant.medias?.[0]?.urls?.[0] ?? "";
 
   const [quantity, setQuantity] = useState(1);
   const incrementQuantity = () => setQuantity((q) => q + 1);
@@ -99,9 +100,9 @@ const DesktopProductDetails: React.FC<ProductDetailsProps> = ({
         name: activeVariant.name,
         price: activeVariant.price,
         quantity,
-        url: activeVariant.medias?.[0]?.urls?.[0] ?? "",
-      medias: activeVariant.medias?.map(m => ({ media: { urls: m.urls } })), // Yapıyı dönüştür
-
+        image: imageUrl, // Resim URL'sini doğru field'a ekle
+        medias: activeVariant.medias, // Tam medias array'ini de ekle
+        url: imageUrl, // // Fallback için de ekle
       })  
     );
     toast.custom(() => <CartSuccessToast productName={activeVariant.name} />);

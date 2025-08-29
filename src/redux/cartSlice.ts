@@ -1,8 +1,13 @@
 // src/redux/cartSlice.ts
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { RootState } from './store';
-import { Media } from '@/types/product';
 
+// Medya yapısı için interface
+interface Media {
+  media: {
+    urls: string[];
+  };
+}
 
 // Sepet öğesi için bir arayüz tanımlayın
 interface CartItem {
@@ -10,12 +15,11 @@ interface CartItem {
   slug: string; // Ürün slug'ı
   name: string; // Ürün adı
   price: number; // Ürün fiyatı
-  discountedPrice?: number; 
+  discountedPrice?: number;
+  medias?: Media[]; // Medias array'i
+  url?: string; // Fallback URL
+  image?: string; // ✅ Ana resim URL'si - addToCart'da kullanıyorsunuz
   quantity: number; // Ürün miktarı
-  mediaIds?: string[];       // Form submit için seçili media ID dizisi
-  medias?: Media[];          // Populate edilmiş medya nesneleri
-  image: string;
-  
 }
 
 // Sepet durumu için bir arayüz tanımlayın
@@ -32,12 +36,16 @@ const cartSlice = createSlice({
   name: 'cart',
   initialState,
   reducers: {
-    addToCart: (state, action: PayloadAction<CartItem>) => {
+    addToCart: (state, action: PayloadAction<any>) => { // ✅ Product objesinin tamamını kabul et
       const existingProduct = state.cart.find(item => item.slug === action.payload.slug);
       if (existingProduct) {
-        existingProduct.quantity += action.payload.quantity; // Mevcut ürün varsa miktarı artır
+        existingProduct.quantity += action.payload.quantity || 1; // Mevcut ürün varsa miktarı artır
       } else {
-        state.cart.push({ ...action.payload, quantity: action.payload.quantity }); // Yeni ürün ekle
+        // ✅ Tam product objesini kopyalayarak ekle
+        state.cart.push({ 
+          ...action.payload, 
+          quantity: action.payload.quantity || 1 
+        });
       }
     },
     removeFromTheCart: (state, action: PayloadAction<string>) => {
