@@ -1,6 +1,7 @@
 // src/redux/cartSlice.ts
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { RootState } from './store';
+import { Media } from '@/types/product';
 
 // Sepet öğesi için bir arayüz tanımlayın
 interface CartItem {
@@ -11,6 +12,10 @@ interface CartItem {
   discountedPrice?: number; 
   url?: string; // Ürün görsel URL'si (isteğe bağlı)
   quantity: number; // Ürün miktarı
+
+  mediaIds?: string[];       // Form submit için seçili media ID dizisi
+  medias?: Media[];          // Populate edilmiş medya nesneleri
+
   
 }
 
