@@ -1,24 +1,13 @@
-"use client";
-
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { UserRound } from "lucide-react";
 
-const UserMobileMenu = () => {
-  const router = useRouter();
-
-  const handleClick = () => {
-    router.push("/login"); // Giriş sayfasının yolu burada
-  };
+const UserMobileMenu = ({ session }: { session: any }) => {
+  const href = session?.user ? "/account" : "/login";
 
   return (
-    <div
-      onClick={handleClick}
-      className="relative cursor-pointer flex items-center"
-    >
-      <div className="text-3xl">
-        <UserRound />
-      </div>
-    </div>
+    <Link href={href} className="relative flex items-center text-3xl">
+      <UserRound />
+    </Link>
   );
 };
 
