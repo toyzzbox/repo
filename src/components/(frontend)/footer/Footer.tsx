@@ -6,12 +6,11 @@ import FeaturesBar from './Option';
 const Footer = () => {
   return (
 <footer className="hidden lg:block bg-white">
-  <div>
-    <FeaturesBar/>
-  </div>
       <div className="mx-auto max-w-screen-xl px-4 pb-6 pt-16 sm:px-6 lg:px-8">
         <div className="mt-16 grid grid-cols-1 gap-8 border-t border-gray-100 pt-16 md:grid-cols-4 lg:grid-cols-6">
-          {/* Tüm Kategoriler */}
+          {/* Tüm Kategoriler */}  <div>
+    <FeaturesBar/>
+  </div>
           <div className="text-center sm:text-left">
             <p className="text-lg font-medium text-gray-900">Tüm Kategoriler</p>
             <span className="h-px w-10 bg-red-500 block m-1 rounded" />
