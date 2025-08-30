@@ -4,7 +4,7 @@ import { getSession } from "@/lib/session";
 
 const UserMobileMenu = async () => {
   const session = await getSession();
-  const href = session?.user ? "/account" : "/login";
+  const href = session?.user ? "/hesabim" : "/login";
 
   return (
     <Link href={href} className="relative flex items-center text-3xl">
