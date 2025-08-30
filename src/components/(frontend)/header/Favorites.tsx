@@ -6,7 +6,7 @@ import { Heart } from "lucide-react";
 const Favorites = () => {
   return (
     <Link
-      href="/favorites"
+      href="/hesabim/favorilerim"
       className="relative cursor-pointer flex items-center"
     >
       <div className="text-3xl">
