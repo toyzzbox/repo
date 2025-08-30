@@ -27,7 +27,7 @@ const Footer = () => {
               ))}
             </ul>
           </div>
-</div>
+
           {/* Popüler Markalar */}
           <div className="text-center sm:text-left">
             <p className="text-lg font-medium text-gray-900">Popüler Markalar</p>
@@ -113,7 +113,7 @@ const Footer = () => {
             </div>
           </div>
         </div>
-
+</div>
         {/* Alt Bilgi */}
         <div className="mt-16 border-t border-gray-100 pt-6 sm:flex sm:items-center sm:justify-between">
           <p className="text-center text-sm text-gray-500 sm:text-left">
