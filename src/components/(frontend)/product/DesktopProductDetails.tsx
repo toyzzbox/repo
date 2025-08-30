@@ -18,6 +18,7 @@ import { BsHeartFill } from "react-icons/bs";
 import CommentForm from "../comment/CommentForm";
 import { ProductCard } from "./ProductCard";
 import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
+import { FavoriteButton } from "./FavoriteButton";
 
 interface Comment {
   id: string;
@@ -261,18 +262,8 @@ product.group?.products
             >
               Sepete Ekle
             </button>
-            <button
-              onClick={handleToggleFavorite}
-              disabled={isPending}
-              className="p-2 rounded-full hover:bg-red-100 transition"
-              aria-label="Favorilere ekle/kaldır"
-            >
-              {favorited ? (
-                <BsHeartFill className="w-6 h-6 text-red-500" />
-              ) : (
-                <Heart className="w-6 h-6 text-gray-500" />
-              )}
-            </button>
+            <FavoriteButton productId={activeVariant.id} initialIsFavorite={isFavorited} />
+
           </div>
 
           <h2 className="p-2">En geç <b className="text-orange-400">yarın</b> kargoda.</h2>
