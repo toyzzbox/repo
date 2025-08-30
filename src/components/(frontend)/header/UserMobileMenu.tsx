@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { UserRound } from "lucide-react";
+import { getSession } from "@/lib/session";
 
-const UserMobileMenu = ({ session }: { session: any }) => {
+const UserMobileMenu = async () => {
+  const session = await getSession();
   const href = session?.user ? "/account" : "/login";
 
   return (
