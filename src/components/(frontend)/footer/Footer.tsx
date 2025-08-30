@@ -11,7 +11,9 @@ const Footer = () => {
     <FeaturesBar/>
         <div className="mt-2 grid grid-cols-1 gap-8 border-t border-gray-100 pt-2 md:grid-cols-4 lg:grid-cols-6">
 
-  </div>
+  </div>     
+     <div className="mt-2 grid grid-cols-1 gap-8 border-t border-gray-100 pt-2 md:grid-cols-4 lg:grid-cols-6">
+
           <div className="text-center sm:text-left">
             <p className="text-lg font-medium text-gray-900">Tüm Kategoriler</p>
             <span className="h-px w-10 bg-red-500 block m-1 rounded" />
@@ -25,7 +27,7 @@ const Footer = () => {
               ))}
             </ul>
           </div>
-
+</div>
           {/* Popüler Markalar */}
           <div className="text-center sm:text-left">
             <p className="text-lg font-medium text-gray-900">Popüler Markalar</p>
