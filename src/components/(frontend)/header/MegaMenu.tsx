@@ -60,40 +60,7 @@ const MegaMenu: React.FC = () => {
           title: 'Kutu Oyunları',
           items: ['Çocuk Kutu Oyunları', 'Yetişkin Kutu Oyunları', 'Eğitici Oyunlar', 'Strateji Oyunları']
         }
-      ],
-      featured: {
-        title: 'Popüler Oyuncaklar',
-        subtitle: 'Çocukların favorileri',
-        items: [
-          {
-            name: 'RC Araba Seti',
-            originalPrice: '899 ₺',
-            discountPrice: '699 ₺',
-            discount: '%22 İndirim',
-            image: '🚗',
-            rating: 4.7,
-            reviews: 342
-          },
-          {
-            name: 'Peluş Ayı',
-            originalPrice: '299 ₺',
-            discountPrice: '199 ₺',
-            discount: '%33 İndirim',
-            image: '🧸',
-            rating: 4.9,
-            reviews: 567
-          },
-          {
-            name: 'Lego Set',
-            originalPrice: '1.299 ₺',
-            discountPrice: '999 ₺',
-            discount: '%23 İndirim',
-            image: '🔧',
-            rating: 4.8,
-            reviews: 234
-          }
-        ]
-      }
+      ]
     },
     {
       id: 'anne-bebek',
@@ -381,8 +348,8 @@ const MegaMenu: React.FC = () => {
               .filter(cat => cat.id === activeMenu)
               .map((category) => (
                 <div key={category.id} className="grid grid-cols-12 gap-12">
-                  {/* Categories Grid - 8 columns */}
-                  <div className="col-span-8 grid grid-cols-4 gap-8">
+                  {/* Categories Grid - Full Width for Oyuncak, 8 columns for others */}
+                  <div className={`${category.id === 'oyuncak' ? 'col-span-12 grid-cols-5' : 'col-span-8 grid-cols-4'} grid gap-8`}>
                     {category.subcategories.map((subcat, index) => (
                       <div key={index} className="space-y-4">
                         <h3 className="font-bold text-gray-900 border-b-2 border-blue-200 pb-3 mb-4">
@@ -401,46 +368,48 @@ const MegaMenu: React.FC = () => {
                     ))}
                   </div>
 
-                  {/* Featured Section - 4 columns */}
-                  <div className="col-span-4 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 rounded-2xl p-8">
-                    <h3 className="font-bold text-gray-900 text-2xl mb-2">
-                      {category.featured.title}
-                    </h3>
-                    <p className="text-gray-600 mb-6">{category.featured.subtitle}</p>
-                    
-                    <div className="space-y-4">
-                      {category.featured.items.map((item, index) => (
-                        <div key={index} className="flex items-center space-x-4 p-4 bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-200 cursor-pointer group">
-                          <div className="text-3xl group-hover:scale-110 transition-transform duration-200">
-                            {item.image}
-                          </div>
-                          <div className="flex-1">
-                            <div className="font-semibold text-gray-900 mb-1">{item.name}</div>
-                            <div className="flex items-center space-x-2 mb-2">
-                              <div className="flex items-center space-x-1">
-                                <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                                <span className="text-sm font-medium">{item.rating}</span>
+                  {/* Featured Section - 4 columns (only for non-oyuncak categories) */}
+                  {category.id !== 'oyuncak' && (
+                    <div className="col-span-4 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 rounded-2xl p-8">
+                      <h3 className="font-bold text-gray-900 text-2xl mb-2">
+                        {category.featured.title}
+                      </h3>
+                      <p className="text-gray-600 mb-6">{category.featured.subtitle}</p>
+                      
+                      <div className="space-y-4">
+                        {category.featured.items.map((item, index) => (
+                          <div key={index} className="flex items-center space-x-4 p-4 bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-200 cursor-pointer group">
+                            <div className="text-3xl group-hover:scale-110 transition-transform duration-200">
+                              {item.image}
+                            </div>
+                            <div className="flex-1">
+                              <div className="font-semibold text-gray-900 mb-1">{item.name}</div>
+                              <div className="flex items-center space-x-2 mb-2">
+                                <div className="flex items-center space-x-1">
+                                  <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                                  <span className="text-sm font-medium">{item.rating}</span>
+                                </div>
+                                <span className="text-xs text-gray-500">({item.reviews} değerlendirme)</span>
                               </div>
-                              <span className="text-xs text-gray-500">({item.reviews} değerlendirme)</span>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                              {item.originalPrice && (
-                                <span className="text-sm text-gray-400 line-through">{item.originalPrice}</span>
-                              )}
-                              <span className="font-bold text-blue-600">{item.discountPrice}</span>
-                              <span className="text-xs bg-red-100 text-red-600 px-2 py-1 rounded-full font-medium">
-                                {item.discount}
-                              </span>
+                              <div className="flex items-center space-x-2">
+                                {item.originalPrice && (
+                                  <span className="text-sm text-gray-400 line-through">{item.originalPrice}</span>
+                                )}
+                                <span className="font-bold text-blue-600">{item.discountPrice}</span>
+                                <span className="text-xs bg-red-100 text-red-600 px-2 py-1 rounded-full font-medium">
+                                  {item.discount}
+                                </span>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      ))}
+                        ))}
+                      </div>
+                      
+                      <button className="w-full mt-6 bg-gradient-to-r from-blue-600 to-purple-600 text-white py-4 rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200 font-semibold text-lg shadow-lg">
+                        Tüm Ürünleri Keşfet
+                      </button>
                     </div>
-                    
-                    <button className="w-full mt-6 bg-gradient-to-r from-blue-600 to-purple-600 text-white py-4 rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200 font-semibold text-lg shadow-lg">
-                      Tüm Ürünleri Keşfet
-                    </button>
-                  </div>
+                  )}
                 </div>
               ))}
           </div>
