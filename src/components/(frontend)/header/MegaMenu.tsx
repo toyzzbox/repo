@@ -28,7 +28,6 @@ interface Subcategory {
 interface Category {
   id: string;
   name: string;
-  icon: string;
   subcategories: Subcategory[];
   featured: Featured;
 }
@@ -38,111 +37,58 @@ const MegaMenu: React.FC = () => {
 
   const categories: Category[] = [
     {
-      id: 'elektronik',
-      name: 'Elektronik & Teknoloji',
-      icon: '💻',
+      id: 'oyuncak',
+      name: 'Oyuncaklar',
       subcategories: [
         {
-          title: 'Telefon & Tablet',
-          items: ['iPhone 15 Series', 'Samsung Galaxy', 'iPad Pro', 'Android Tablet', 'Telefon Kılıfları', 'Şarj Aletleri', 'Kablosuz Kulaklık']
+          title: 'Oyuncak Bebek ve Aksesuarları',
+          items: ['Bez Bebekler', 'Manken Bebekler', 'Fonksiyonlu Et Bebekler', 'Bebek Aksesuarları', 'Bebek Arabası']
         },
         {
-          title: 'Bilgisayar & Gaming',
-          items: ['Gaming Laptop', 'Masaüstü PC', 'Gaming PC', '4K Monitör', 'Mekanik Klavye', 'Gaming Mouse', 'Grafik Kartı']
+          title: 'Oyuncak Arabalar',
+          items: ['Uzaktan Kumandalı Arabalar', 'Model Koleksiyon Arabalar', 'Yarış Pistleri', 'Mini Arabalar', 'Kamyon Setleri']
         },
         {
-          title: 'TV & Ses Sistemleri',
-          items: ['OLED Smart TV', '8K TV', 'Soundbar', 'Home Theater', 'Bluetooth Hoparlör', 'Studio Kulaklık']
+          title: 'Peluş Oyuncaklar',
+          items: ['Lisanslı Peluşlar', 'Hareketli Peluş Oyuncaklar', 'Peluş Ayı ve Pandalar', 'Peluş Kedi ve Köpekler', 'Diğer Peluşlar']
         },
         {
-          title: 'Akıllı Ev',
-          items: ['Akıllı Aydınlatma', 'Güvenlik Kameraları', 'Akıllı Termostat', 'Ses Asistanları', 'Akıllı Kilit']
+          title: 'Oyuncak Silahlar',
+          items: ['Silah Setleri', 'Yumuşak Nerf Mermili Silahlar', 'Su Tabancaları', 'Lazer Tabancaları']
+        },
+        {
+          title: 'Kutu Oyunları',
+          items: ['Çocuk Kutu Oyunları', 'Yetişkin Kutu Oyunları', 'Eğitici Oyunlar', 'Strateji Oyunları']
         }
       ],
       featured: {
-        title: 'Teknoloji Trendleri',
-        subtitle: 'Bu hafta en çok satanlar',
+        title: 'Popüler Oyuncaklar',
+        subtitle: 'Çocukların favorileri',
         items: [
-          { 
-            name: 'iPhone 15 Pro Max', 
-            originalPrice: '54.999 ₺',
-            discountPrice: '49.999 ₺', 
-            discount: '%9 İndirim', 
-            image: '📱',
-            rating: 4.8,
-            reviews: 1247
-          },
-          { 
-            name: 'MacBook Air M3', 
-            originalPrice: '42.999 ₺',
-            discountPrice: '39.999 ₺', 
-            discount: 'Ücretsiz Kargo', 
-            image: '💻',
-            rating: 4.9,
-            reviews: 856
-          },
-          { 
-            name: 'AirPods Pro 2', 
-            originalPrice: '8.999 ₺',
-            discountPrice: '6.999 ₺', 
-            discount: '%22 İndirim', 
-            image: '🎧',
-            rating: 4.7,
-            reviews: 2341
-          }
-        ]
-      }
-    },
-    {
-      id: 'moda',
-      name: 'Moda & Giyim',
-      icon: '👕',
-      subcategories: [
-        {
-          title: 'Kadın Giyim',
-          items: ['Sonbahar Elbiseleri', 'Blazer & Ceket', 'Premium Bluz', 'Skinny Jean', 'Kışlık Mont', 'İş Kıyafetleri', 'Gece Kıyafetleri']
-        },
-        {
-          title: 'Erkek Giyim',
-          items: ['Takım Elbise', 'Casual Gömlek', 'Chino Pantolon', 'Deri Ayakkabı', 'Kışlık Kaban', 'Spor Ceket', 'Polo Tişört']
-        },
-        {
-          title: 'Ayakkabı & Çanta',
-          items: ['Kadın Ayakkabı', 'Erkek Ayakkabı', 'Spor Ayakkabı', 'Deri Çanta', 'Sırt Çantası', 'Cüzdan', 'Kemer']
-        },
-        {
-          title: 'Aksesuarlar',
-          items: ['Saat', 'Takı', 'Güneş Gözlüğü', 'Şapka', 'Eldiven', 'Atkı', 'Parfüm']
-        }
-      ],
-      featured: {
-        title: 'Sonbahar Koleksiyonu',
-        subtitle: '2024 moda trendleri',
-        items: [
-          { 
-            name: 'Sonbahar Trençkot', 
-            originalPrice: '1.299 ₺',
-            discountPrice: '899 ₺', 
-            discount: '%31 İndirim', 
-            image: '🧥',
-            rating: 4.6,
-            reviews: 423
-          },
-          { 
-            name: 'Deri Bot', 
+          {
+            name: 'RC Araba Seti',
             originalPrice: '899 ₺',
-            discountPrice: '699 ₺', 
-            discount: '%22 İndirim', 
-            image: '👢',
-            rating: 4.5,
-            reviews: 687
+            discountPrice: '699 ₺',
+            discount: '%22 İndirim',
+            image: '🚗',
+            rating: 4.7,
+            reviews: 342
           },
-          { 
-            name: 'Crossbody Çanta', 
-            originalPrice: '649 ₺',
-            discountPrice: '449 ₺', 
-            discount: '%31 İndirim', 
-            image: '👜',
+          {
+            name: 'Peluş Ayı',
+            originalPrice: '299 ₺',
+            discountPrice: '199 ₺',
+            discount: '%33 İndirim',
+            image: '🧸',
+            rating: 4.9,
+            reviews: 567
+          },
+          {
+            name: 'Lego Set',
+            originalPrice: '1.299 ₺',
+            discountPrice: '999 ₺',
+            discount: '%23 İndirim',
+            image: '🔧',
             rating: 4.8,
             reviews: 234
           }
@@ -150,57 +96,111 @@ const MegaMenu: React.FC = () => {
       }
     },
     {
-      id: 'ev',
-      name: 'Ev & Dekorasyon',
-      icon: '🏠',
+      id: 'anne-bebek',
+      name: 'Anne & Bebek',
       subcategories: [
         {
-          title: 'Mobilya',
-          items: ['Modern Koltuk Takımı', 'Yatak Odası Takımı', 'Mutfak Dolabı', 'Çalışma Masası', 'Gardırop', 'TV Ünitesi', 'Yemek Masası']
+          title: 'Bebek Bakım',
+          items: ['Bebek Bezi', 'Bebek Maması', 'Biberon ve Emzik', 'Bebek Şampuanı', 'Bebek Kremi', 'Islak Mendil']
         },
         {
-          title: 'Dekorasyon',
-          items: ['LED Aydınlatma', 'Duvar Saati', 'Tablo & Poster', 'Vazo & Heykel', 'Ayna', 'Mumluk', 'Bitki & Saksı']
+          title: 'Bebek Giyim',
+          items: ['Bebek Tulum', 'Bebek Body', 'Bebek Ayakkabı', 'Bebek Şapka', 'Bebek Eldiven', 'Bebek Çorap']
         },
         {
-          title: 'Ev Tekstili',
-          items: ['Nevresim Takımı', 'Kaliteli Havlu', 'Yastık & Kılıf', 'Perde', 'Halı', 'Örtü', 'Battaniye']
+          title: 'Anne Bakım',
+          items: ['Hamile Giyim', 'Emzirme Sütyeni', 'Anne Vitamin', 'Cilt Bakım', 'Saç Bakım']
         },
         {
-          title: 'Mutfak & Banyo',
-          items: ['Ankastre Set', 'Kahve Makinesi', 'Blender Set', 'Tencere Takımı', 'Banyo Aksesuarları', 'Havluluk']
+          title: 'Bebek Mobilyası',
+          items: ['Bebek Beşiği', 'Bebek Odası Takımı', 'Mama Sandalyesi', 'Oyun Parkı', 'Bebek Dolabı']
         }
       ],
       featured: {
-        title: 'Ev Yenileme',
-        subtitle: 'Kış hazırlığı ürünleri',
+        title: 'Anne-Bebek Essentials',
+        subtitle: 'İhtiyacınız olan her şey',
         items: [
-          { 
-            name: 'Modern Koltuk Takımı', 
-            originalPrice: '12.999 ₺',
-            discountPrice: '9.999 ₺', 
-            discount: '12 Taksit', 
-            image: '🛋️',
-            rating: 4.7,
-            reviews: 156
+          {
+            name: 'Bebek Bakım Seti',
+            originalPrice: '599 ₺',
+            discountPrice: '399 ₺',
+            discount: '%33 İndirim',
+            image: '🍼',
+            rating: 4.8,
+            reviews: 456
           },
-          { 
-            name: 'Akıllı Aydınlatma', 
-            originalPrice: '2.299 ₺',
-            discountPrice: '1.599 ₺', 
-            discount: '%30 İndirim', 
-            image: '💡',
+          {
+            name: 'Bebek Arabası',
+            originalPrice: '2.999 ₺',
+            discountPrice: '1.999 ₺',
+            discount: '%33 İndirim',
+            image: '🚼',
             rating: 4.6,
             reviews: 234
           },
-          { 
-            name: 'Kışlık Battaniye', 
-            originalPrice: '599 ₺',
-            discountPrice: '399 ₺', 
-            discount: '%33 İndirim', 
-            image: '🛏️',
-            rating: 4.9,
-            reviews: 445
+          {
+            name: 'Anne Bakım Paketi',
+            originalPrice: '899 ₺',
+            discountPrice: '649 ₺',
+            discount: '%28 İndirim',
+            image: '💆‍♀️',
+            rating: 4.7,
+            reviews: 189
+          }
+        ]
+      }
+    },
+    {
+      id: 'okul-kirtasiye',
+      name: 'Okul & Kırtasiye',
+      subcategories: [
+        {
+          title: 'Okul Malzemeleri',
+          items: ['Okul Çantası', 'Kalem Kutusu', 'Defterler', 'Kalemler', 'Silgiler', 'Cetvel Seti']
+        },
+        {
+          title: 'Kırtasiye Ürünleri',
+          items: ['Dosyalama', 'Zımba ve Delgeç', 'Yapıştırıcılar', 'Büro Malzemeleri', 'Hesap Makinesi']
+        },
+        {
+          title: 'Sanat Malzemeleri',
+          items: ['Boyama Setleri', 'Resim Kağıdı', 'Fırça Setleri', 'Pastel Boyalar', 'Keçeli Kalemler']
+        },
+        {
+          title: 'Eğitim Kitapları',
+          items: ['Test Kitapları', 'Ders Kitapları', 'Hikaye Kitapları', 'Aktivite Kitapları', 'Sözlükler']
+        }
+      ],
+      featured: {
+        title: 'Okula Dönüş',
+        subtitle: 'Yeni dönem hazırlıkları',
+        items: [
+          {
+            name: 'Okul Çantası Seti',
+            originalPrice: '499 ₺',
+            discountPrice: '299 ₺',
+            discount: '%40 İndirim',
+            image: '🎒',
+            rating: 4.5,
+            reviews: 678
+          },
+          {
+            name: 'Kırtasiye Paketi',
+            originalPrice: '199 ₺',
+            discountPrice: '129 ₺',
+            discount: '%35 İndirim',
+            image: '✏️',
+            rating: 4.7,
+            reviews: 345
+          },
+          {
+            name: 'Boyama Seti',
+            originalPrice: '299 ₺',
+            discountPrice: '199 ₺',
+            discount: '%33 İndirim',
+            image: '🎨',
+            rating: 4.8,
+            reviews: 234
           }
         ]
       }
@@ -208,7 +208,6 @@ const MegaMenu: React.FC = () => {
     {
       id: 'spor',
       name: 'Spor & Outdoor',
-      icon: '⚽',
       subcategories: [
         {
           title: 'Fitness & Gym',
@@ -231,20 +230,20 @@ const MegaMenu: React.FC = () => {
         title: 'Kış Sporları',
         subtitle: 'Sezon açılışı',
         items: [
-          { 
-            name: 'Snowboard Set', 
+          {
+            name: 'Snowboard Set',
             originalPrice: '4.999 ₺',
-            discountPrice: '3.999 ₺', 
-            discount: '%20 İndirim', 
+            discountPrice: '3.999 ₺',
+            discount: '%20 İndirim',
             image: '🏂',
             rating: 4.8,
             reviews: 89
           },
-          { 
-            name: 'Kış Montu', 
+          {
+            name: 'Kış Montu',
             originalPrice: '1.899 ₺',
-            discountPrice: '1.399 ₺', 
-            discount: '%26 İndirim', 
+            discountPrice: '1.399 ₺',
+            discount: '%26 İndirim',
             image: '🧥',
             rating: 4.7,
             reviews: 167
@@ -266,7 +265,6 @@ const MegaMenu: React.FC = () => {
               onMouseLeave={() => setActiveMenu(null)}
             >
               <button className="flex items-center space-x-2 px-6 py-4 hover:bg-blue-50 hover:text-blue-600 transition-all duration-200 rounded-lg group">
-                <span className="text-xl">{category.icon}</span>
                 <span className="font-medium">{category.name}</span>
                 <ChevronDown className="w-4 h-4 group-hover:rotate-180 transition-transform duration-200" />
               </button>
