@@ -2,6 +2,7 @@
 import { useActionState } from "react";
 import Link from "next/link";
 import { loginUser } from "@/actions/login";
+import { useSearchParams } from "next/navigation";
 
 const initialState = {
   success: false,
@@ -10,10 +11,30 @@ const initialState = {
 
 export default function LoginForm() {
   const [state, formAction, isPending] = useActionState(loginUser, initialState);
+  const searchParams = useSearchParams();
+  const message = searchParams.get('message');
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-white to-yellow-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-2xl w-full space-y-8">
+        {/* Password Reset Success Message */}
+        {message === 'password-reset-success' && (
+          <div className="bg-green-50 border-l-4 border-green-400 p-4 rounded-md shadow-md">
+            <div className="flex">
+              <div className="flex-shrink-0">
+                <svg className="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <div className="ml-3">
+                <p className="text-sm font-medium text-green-700">
+                  🎉 Şifreniz başarıyla güncellendi! Artık yeni şifrenizle giriş yapabilirsiniz.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
         <div className="text-center">
           <div className="mx-auto h-12 w-12 bg-indigo-600 rounded-full flex items-center justify-center">
             <svg className="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -107,7 +128,13 @@ export default function LoginForm() {
               </div>
 
               <div className="text-sm">
-                <Link href="/forgot-password" className="font-medium text-indigo-600 hover:text-indigo-500 transition-colors">
+                <Link 
+                  href="/forgot-password" 
+                  className="font-medium text-indigo-600 hover:text-indigo-500 transition-colors inline-flex items-center gap-1"
+                >
+                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 7a2 2 0 012 2m0 0a2 2 0 012 2m-2-2h-6m6 0v6a2 2 0 01-2 2H9a2 2 0 01-2-2V9a2 2 0 012-2h2M7 7a2 2 0 012-2h6a2 2 0 012 2v2a2 2 0 01-2 2H9a2 2 0 01-2-2V7z" />
+                  </svg>
                   Şifremi unuttum
                 </Link>
               </div>
@@ -170,6 +197,23 @@ export default function LoginForm() {
           </form>
         </div>
 
+        {/* Güvenlik bilgi kutusu - Şifre sıfırlama ile ilgili */}
+        <div className="bg-blue-50 border-l-4 border-blue-400 p-4 rounded-md shadow-sm">
+          <div className="flex">
+            <div className="flex-shrink-0">
+              <svg className="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+              </svg>
+            </div>
+            <div className="ml-3">
+              <p className="text-sm text-blue-700">
+                <strong>Güvenlik İpucu:</strong> Şifrenizi unuttuysanız, güvenli şifre sıfırlama sistemimizi kullanabilirsiniz. 
+                E-posta adresinize gönderilen bağlantı 15 dakika geçerlidir.
+              </p>
+            </div>
+          </div>
+        </div>
+
         {/* Alternatif giriş yöntemleri */}
         <div className="bg-white py-6 px-6 shadow-xl rounded-lg">
           <div className="relative">
@@ -200,7 +244,7 @@ export default function LoginForm() {
               className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors"
             >
               <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 5.079 3.158 9.417 7.618 11.174-.105-.949-.199-2.403.041-3.439.219-.937 1.406-5.957 1.406-5.957s-.359-.72-.359-1.781c0-1.663.967-2.911 2.168-2.911 1.024 0 1.518.769 1.518 1.688 0 1.029-.653 2.567-.992 3.992-.285 1.193.6 2.165 1.775 2.165 2.128 0 3.768-2.245 3.768-5.487 0-2.861-2.063-4.869-5.008-4.869-3.41 0-5.409 2.562-5.409 5.199 0 1.033.394 2.143.889 2.741.099.12.112.225.085.347-.09.375-.293 1.199-.334 1.363-.053.225-.172.271-.402.165-1.495-.69-2.433-2.878-2.433-4.646 0-3.776 2.748-7.252 7.92-7.252 4.158 0 7.392 2.967 7.392 6.923 0 4.135-2.607 7.462-6.233 7.462-1.214 0-2.357-.629-2.749-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24.009 12.017 24.009c6.624 0 11.99-5.367 11.99-12.014C24.007 5.36 18.641.001 12.017.001z"/>
+                <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
               </svg>
               <span className="ml-2">GitHub</span>
             </button>
@@ -210,4 +254,3 @@ export default function LoginForm() {
     </div>
   );
 }
-
