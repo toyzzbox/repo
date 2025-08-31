@@ -296,6 +296,52 @@ const MegaMenu: React.FC = () => {
           }
         ]
       }
+    },
+    {
+      id: 'hediyelik',
+      name: 'Hediyelik Eşya',
+      subcategories: [
+        {
+          title: 'Kişisel Hediyeler',
+          items: ['Kişiselleştirilebilir Ürünler', 'İsme Özel Hediyeler', 'Fotoğraflı Hediyeler', 'El Yapımı Ürünler']
+        },
+        {
+          title: 'Özel Gün Hediyeleri',
+          items: ['Doğum Günü Hediyeleri', 'Yıldönümü Hediyeleri', 'Mezuniyet Hediyeleri', 'Sevgililer Günü']
+        },
+        {
+          title: 'Ev Dekorasyonu',
+          items: ['Dekoratif Objeler', 'Mum & Mumluk', 'Çerçeve & Tablo', 'Süs Bitkileri']
+        },
+        {
+          title: 'Lüks Hediyeler',
+          items: ['Mücevher & Takı', 'Parfüm & Kozmetik', 'İthal Çikolata', 'Özel Koleksiyonlar']
+        }
+      ],
+      featured: {
+        title: 'Özel Hediye Koleksiyonu',
+        subtitle: 'Sevdikleriniz için özel seçimler',
+        items: [
+          {
+            name: 'Kişiye Özel Fotoğraf Albümü',
+            originalPrice: '299 ₺',
+            discountPrice: '199 ₺',
+            discount: '%33 İndirim',
+            image: '📸',
+            rating: 4.9,
+            reviews: 456
+          },
+          {
+            name: 'Premium Çikolata Seti',
+            originalPrice: '199 ₺',
+            discountPrice: '149 ₺',
+            discount: '%25 İndirim',
+            image: '🍫',
+            rating: 4.8,
+            reviews: 234
+          }
+        ]
+      }
     }
   ];
 
