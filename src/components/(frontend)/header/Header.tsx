@@ -8,6 +8,7 @@ import UserMenu from './UserMenu'
 import MobileHeader from './MobileHeader'
 import LiveSearch from '../search/LiveSearch'
 import MenuBar from './Menu'
+import MegaMenu from './MegaMenu'
 const Header = () => {
   return (
    <> 
@@ -28,8 +29,7 @@ const Header = () => {
   
    </div>
    <div className='flex items-center justify-center border-b-1 border-gray-150'>
-    <MenuBar />
-    </div>
+<MegaMenu/>    </div>
 </div>
 <MobileHeader/>
    
