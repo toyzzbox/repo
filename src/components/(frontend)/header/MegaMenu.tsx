@@ -250,6 +250,52 @@ const MegaMenu: React.FC = () => {
           }
         ]
       }
+    },
+    {
+      id: 'elektronik',
+      name: 'Elektronik',
+      subcategories: [
+        {
+          title: 'Telefon & Tablet',
+          items: ['Akıllı Telefon', 'Tablet', 'Telefon Kılıfı', 'Şarj Aleti', 'Kulaklık', 'Power Bank']
+        },
+        {
+          title: 'Bilgisayar',
+          items: ['Laptop', 'Masaüstü PC', 'Monitör', 'Klavye', 'Mouse', 'Yazıcı']
+        },
+        {
+          title: 'TV & Ses',
+          items: ['Smart TV', 'Soundbar', 'Hoparlör', 'Kulaklık', 'Mikrofon', 'Ses Sistemi']
+        },
+        {
+          title: 'Fotoğraf',
+          items: ['Dijital Fotoğraf Makinesi', 'Objektif', 'Tripod', 'Flaş', 'Hafıza Kartı', 'Kamera Çantası']
+        }
+      ],
+      featured: {
+        title: 'Teknoloji Trendleri',
+        subtitle: 'En yeni teknolojiler',
+        items: [
+          {
+            name: 'Akıllı Telefon',
+            originalPrice: '15.999 ₺',
+            discountPrice: '12.999 ₺',
+            discount: '%19 İndirim',
+            image: '📱',
+            rating: 4.6,
+            reviews: 1234
+          },
+          {
+            name: 'Laptop',
+            originalPrice: '25.999 ₺',
+            discountPrice: '22.999 ₺',
+            discount: '%12 İndirim',
+            image: '💻',
+            rating: 4.8,
+            reviews: 567
+          }
+        ]
+      }
     }
   ];
 
@@ -272,7 +318,7 @@ const MegaMenu: React.FC = () => {
           ))}
           <div className="flex-1" />
           <button className="px-6 py-4 bg-gradient-to-r from-red-500 to-pink-500 text-white font-bold rounded-lg hover:from-red-600 hover:to-pink-600 transition-all duration-200 shadow-lg">
-            🔥 SÜPER KAMPANYA
+            Fırsatlar
           </button>
         </div>
       </div>
