@@ -357,7 +357,7 @@ const MegaMenu: React.FC = () => {
               onMouseLeave={() => setActiveMenu(null)}
             >
               <button className="flex items-center space-x-2 px-6 py-4 hover:bg-blue-50 hover:text-orange-600 transition-all duration-200 rounded-lg group">
-                <span className="font-medium">{category.name}</span>
+                <span className="font-medium whitespace-nowrap">{category.name}</span>
                 <ChevronDown className="w-4 h-4 group-hover:rotate-180 transition-transform duration-200" />
               </button>
             </div>
