@@ -29,7 +29,7 @@ interface Category {
   id: string;
   name: string;
   subcategories: Subcategory[];
-  featured: Featured;
+  featured?: Featured; // Optional yapıldı
 }
 
 const MegaMenu: React.FC = () => {
@@ -61,6 +61,7 @@ const MegaMenu: React.FC = () => {
           items: ['Çocuk Kutu Oyunları', 'Yetişkin Kutu Oyunları', 'Eğitici Oyunlar', 'Strateji Oyunları']
         }
       ]
+      // featured property'si yok - sadece kategoriler görünür
     },
     {
       id: 'anne-bebek',
@@ -324,7 +325,7 @@ const MegaMenu: React.FC = () => {
               onMouseLeave={() => setActiveMenu(null)}
             >
               <button className="flex items-center space-x-2 px-6 py-4 hover:bg-blue-50 hover:text-orange-600 transition-all duration-200 rounded-lg group">
-                <span className="font-medium whitespace-nowrap">{category.name}</span>
+                <span className="text-sm font-medium whitespace-nowrap">{category.name}</span>
                 <ChevronDown className="w-4 h-4 group-hover:rotate-180 transition-transform duration-200" />
               </button>
             </div>
@@ -369,7 +370,7 @@ const MegaMenu: React.FC = () => {
                   </div>
 
                   {/* Featured Section - 4 columns (only for non-oyuncak categories) */}
-                  {category.id !== 'oyuncak' && (
+                  {category.id !== 'oyuncak' && category.featured && (
                     <div className="col-span-4 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 rounded-2xl p-8">
                       <h3 className="font-bold text-gray-900 text-2xl mb-2">
                         {category.featured.title}
