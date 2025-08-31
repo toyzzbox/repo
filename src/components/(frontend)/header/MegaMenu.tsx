@@ -346,7 +346,7 @@ const MegaMenu: React.FC = () => {
   ];
 
   return (
-    <nav className="bg-white border-t border-gray-200 sticky top-0 z-50 shadow-sm">
+    <nav className="bg-white sticky top-0 z-50 shadow-sm">
       <div className="max-w-7xl mx-auto px-6">
         <div className="flex items-center space-x-2">
           {categories.map((category) => (
@@ -356,7 +356,7 @@ const MegaMenu: React.FC = () => {
               onMouseEnter={() => setActiveMenu(category.id)}
               onMouseLeave={() => setActiveMenu(null)}
             >
-              <button className="flex items-center space-x-2 px-6 py-4 hover:bg-blue-50 hover:text-blue-600 transition-all duration-200 rounded-lg group">
+              <button className="flex items-center space-x-2 px-6 py-4 hover:bg-blue-50 hover:text-orange-600 transition-all duration-200 rounded-lg group">
                 <span className="font-medium">{category.name}</span>
                 <ChevronDown className="w-4 h-4 group-hover:rotate-180 transition-transform duration-200" />
               </button>
@@ -385,7 +385,7 @@ const MegaMenu: React.FC = () => {
                   <div className="col-span-8 grid grid-cols-4 gap-8">
                     {category.subcategories.map((subcat, index) => (
                       <div key={index} className="space-y-4">
-                        <h3 className="font-bold text-gray-900 text-lg border-b-2 border-blue-200 pb-3 mb-4">
+                        <h3 className="font-bold text-gray-900 border-b-2 border-blue-200 pb-3 mb-4">
                           {subcat.title}
                         </h3>
                         <ul className="space-y-3">
