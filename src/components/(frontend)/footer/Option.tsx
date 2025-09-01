@@ -7,7 +7,7 @@ const FeaturesBar = () => {
     { icon: <ShieldCheck className="w-6 h-6 text-orange-300" />, title: "SSL Sertifikası", description: "Güvenli Alışveriş" },
     { icon: <Truck className="w-6 h-6 text-orange-300" />, title: "Hızlı Gönderim", description: "Aynı Gün Kargo İmkanı" },
     { icon: <RefreshCw className="w-6 h-6 text-orange-300" />, title: "Kolay İade", description: "Koşulsuz 14 Gün İade Hakkı" },
-    { icon: <Phone className="w-6 h-6 text-orange-300" />, title: "Müşteri Destek Hattı", description: "0216 499 1 999" },
+    { icon: <Phone className="w-6 h-6 text-orange-300" />, title: "Müşteri Destek Hattı", description: "0212 510 05 65" },
   ];
 
   return (
@@ -16,8 +16,10 @@ const FeaturesBar = () => {
         {features.map((feature, index) => (
           <div key={index} className="flex flex-col items-center gap-2">
            <div className="flex"> {feature.icon}
-            <p className="font-semibold text-gray-700">{feature.title}</p>
-            <p className="text-sm text-gray-500">{feature.description}</p></div>
+           <div>   <p className="font-semibold text-gray-700">{feature.title}</p>
+            <p className="text-sm text-gray-500">{feature.description}</p>
+            </div>
+         </div>
            
           </div>
         ))}
