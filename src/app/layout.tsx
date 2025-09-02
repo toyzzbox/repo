@@ -5,7 +5,7 @@ import Script from "next/script";
 
 export const metadata: Metadata = {
   title: "Toyzz Box",
-  description: "E-ticaret sitesi",
+  description: "Oyuncak Adına Herşey",
   icons: {
     icon: "/favicon.ico?v=3",
   },
