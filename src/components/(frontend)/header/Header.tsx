@@ -103,10 +103,7 @@ const Header: React.FC<HeaderProps> = ({
                 role="navigation"
                 aria-label="Kullanıcı işlemleri"
               >
-                <Suspense fallback={<div className="w-20 h-8 bg-gray-200 rounded animate-pulse" />}>
-                {isValidSession(session) && <UserMenu session={session} />}
-                </Suspense>
-                
+        
                 <Suspense fallback={<div className="w-8 h-8 bg-gray-200 rounded animate-pulse" />}>
                   <Favorites />
                 </Suspense>
