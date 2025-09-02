@@ -5,18 +5,18 @@ import { redirect } from "next/navigation";
 
 export async function getSession() {
   try {
-    const cookieStore = await cookies();
+    const cookieStore = await cookies(); // ✅ await kullanın
     const sessionToken = cookieStore.get("session")?.value;
     
     if (!sessionToken) {
       return null;
     }
-    
+
     const session = await prisma.session.findUnique({
       where: { sessionToken },
       include: { user: true }
     });
-    
+
     if (!session || session.expiresAt <= new Date()) {
       // Süresi dolmuş session'ı temizle
       if (session) {
@@ -26,7 +26,7 @@ export async function getSession() {
       }
       return null;
     }
-    
+
     return session;
   } catch (error) {
     console.error("Session kontrolü hatası:", error);
