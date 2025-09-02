@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { User, Settings, ShoppingBag, Heart, LogOut, ChevronDown } from 'lucide-react';
 import Link from 'next/link';
+import { logout } from '@/lib/logout';
 
 // TypeScript interface'leri
 interface UserSession {
@@ -17,7 +18,6 @@ interface UserMenuProps {
   session?: UserSession | null;
 }
 
-// Bu component'i server component yerine client component olarak kullanacaksınız
 export default function UserMenu({ session }: UserMenuProps) {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -38,17 +38,6 @@ export default function UserMenu({ session }: UserMenuProps) {
 
   const handleMenuClick = (): void => {
     setIsOpen(false);
-  };
-
-  const handleLogout = async (): Promise<void> => {
-    setIsOpen(false);
-    try {
-      // Logout işlemi - server action çağırabilirsiniz
-      const { logout } = await import('@/lib/logout');
-      await logout();
-    } catch (error) {
-      console.error('Logout error:', error);
-    }
   };
 
   // Giriş yapmamış kullanıcı için
@@ -241,17 +230,19 @@ export default function UserMenu({ session }: UserMenuProps) {
           {/* Separator */}
           <div className="border-t border-gray-100 my-2"></div>
 
-          {/* Logout Button */}
-          <button
-            onClick={handleLogout}
-            className="w-full px-4 py-3 text-left hover:bg-red-50 transition-colors duration-150 flex items-center space-x-3 group"
-            type="button"
-          >
-            <LogOut className="w-5 h-5 text-gray-400 group-hover:text-red-500" />
-            <span className="text-sm font-medium text-gray-900 group-hover:text-red-600">
-              Çıkış Yap
-            </span>
-          </button>
+          {/* Logout Form - Server Action ile */}
+          <form action={logout} className="w-full">
+            <button
+              type="submit"
+              onClick={handleMenuClick}
+              className="w-full px-4 py-3 text-left hover:bg-red-50 transition-colors duration-150 flex items-center space-x-3 group"
+            >
+              <LogOut className="w-5 h-5 text-gray-400 group-hover:text-red-500" />
+              <span className="text-sm font-medium text-gray-900 group-hover:text-red-600">
+                Çıkış Yap
+              </span>
+            </button>
+          </form>
         </div>
       )}
     </div>
