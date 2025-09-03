@@ -33,7 +33,7 @@ const schema = z.object({
   groupId: z.string().optional(),
   name: z.string().min(1),
   serial: z.string().optional(),
-  barcode: z.string().min(8).max(20).optional(), // ✅ Eklendi (EAN-13 veya benzeri için)
+  barcode: z.string().min(1).max(20).optional(), // ✅ Eklendi (EAN-13 veya benzeri için)
   stock: z.coerce.number().optional(),
   price: z.coerce.number().min(0),
   discount: z.coerce.number().min(0).optional(),
