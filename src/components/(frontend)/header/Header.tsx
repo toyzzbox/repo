@@ -88,7 +88,7 @@ const Header: React.FC<HeaderProps> = ({
               >
                 {/* UserMenu eklendi - EN ÖNEMLİ DEĞİŞİKLİK */}
                 <Suspense fallback={<div className="w-20 h-8 bg-gray-200 rounded animate-pulse" />}>
-                  <UserMenu session={session} />
+                  <UserMenu />
                 </Suspense>
                 
                 <Suspense fallback={<div className="w-8 h-8 bg-gray-200 rounded animate-pulse" />}>
