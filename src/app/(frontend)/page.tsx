@@ -37,7 +37,7 @@ export default async function Home() {
   ]);
 
   return (
-    <main className="m-2 space-y-8">
+    <main className="m-2 categoryspace-y-8">
       {/* En Popüler Ürünler */}
       <Section title="En Popüler Ürünler">
         <ProductCarousel products={products} />
@@ -70,7 +70,7 @@ export default async function Home() {
       {/* Popüler Kategoriler */}
       <Section title="En Popüler Kategoriler">
         <CarouselLayout>
-          {categories.map((category) => (
+          {categories.map(() => (
             <CarouselItem
               key={category.id}
               className="basis-1/2 sm:basis-1/3 md:basis-1/4 lg:basis-1/5 xl:basis-1/6"
@@ -94,6 +94,7 @@ export default async function Home() {
           ))}
         </CarouselLayout>
       </Section>
+      <ProductCarousel  products={products}/>
     </main>
   );
 }
