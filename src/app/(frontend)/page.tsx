@@ -6,17 +6,11 @@ import { getPopularProducts } from "@/actions/getPopularProducts";
 import { getProducts } from "@/actions/getProduct";
 
 import { AttributeCard } from "@/components/(frontend)/attribute/AttributeCard";
+import { CustomCarousel, ProductCarousel } from "@/components/(frontend)/home/CustomCarousel";
 import { BrandCard } from "@/components/(frontend)/product/BrandCard";
 import { CategoryCard } from "@/components/(frontend)/product/CategoryCard";
-import { ProductCard } from "@/components/(frontend)/product/ProductCard";
+import { ProductCard } from "@/components/(frontend)/product/ProductCard"; // Sizin mevcut ProductCard
 
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel";
 
 export default async function Home() {
   // ✅ Tüm veri çekimleri paralel hale getirildi
@@ -37,65 +31,137 @@ export default async function Home() {
   ]);
 
   return (
-    <main className="m-2 space-y-8">
+    <main className="container mx-auto px-4 py-8 space-y-12">
       {/* En Popüler Ürünler */}
       <Section title="En Popüler Ürünler">
-        <ProductCarousel products={products} />
+        <CustomCarousel
+          title="Popüler Ürünler"
+          itemsPerView={{
+            mobile: 1,
+            sm: 2,
+            md: 3,
+            lg: 4,
+            xl: 5
+          }}
+          showDots={true}
+          showArrows={true}
+          autoPlay={false}
+        >
+          {products.map((product) => (
+            <ProductCard key={product.id} product={product} />
+          ))}
+        </CustomCarousel>
       </Section>
 
       {/* En İndirimli Ürünler */}
       <Section title="En İndirimli Ürünler">
-        <ProductCarousel products={discountProducts} />
+        <CustomCarousel 
+          title="İndirimli Ürünler"
+          itemsPerView={{
+            mobile: 1,
+            sm: 2,
+            md: 3,
+            lg: 4,
+            xl: 5
+          }}
+          showDots={true}
+          showArrows={true}
+          autoPlay={true}
+          autoPlayInterval={4000}
+        >
+          {discountProducts.map((product) => (
+            <ProductCard key={product.id} product={product} />
+          ))}
+        </CustomCarousel>
       </Section>
 
       {/* En Yeni Ürünler */}
       <Section title="En Yeni Ürünler">
-        <ProductCarousel products={productNew} />
+        <CustomCarousel 
+          itemsPerView={{
+            mobile: 1,
+            sm: 2,
+            md: 3,
+            lg: 4,
+            xl: 5
+          }}
+          showDots={false}
+          showArrows={true}
+        >
+          {productNew.map((product) => (
+            <ProductCard key={product.id} product={product} />
+          ))}
+        </CustomCarousel>
       </Section>
 
       {/* Popüler Markalar */}
       <Section title="En Popüler Markalar">
-        <CarouselLayout>
+        <CustomCarousel 
+          title="Markalar"
+          itemsPerView={{
+            mobile: 2,
+            sm: 3,
+            md: 4,
+            lg: 6,
+            xl: 8
+          }}
+          showDots={true}
+          showArrows={true}
+        >
           {brands.map((brand) => (
-            <CarouselItem
-              key={brand.id}
-              className="basis-1/2 sm:basis-1/3 md:basis-1/4 lg:basis-1/5 xl:basis-1/6"
-            >
-              <BrandCard brand={brand} />
-            </CarouselItem>
+            <BrandCard key={brand.id} brand={brand} />
           ))}
-        </CarouselLayout>
+        </CustomCarousel>
       </Section>
 
       {/* Popüler Kategoriler */}
       <Section title="En Popüler Kategoriler">
-        <CarouselLayout>
+        <CustomCarousel 
+          title="Kategoriler"
+          itemsPerView={{
+            mobile: 2,
+            sm: 3,
+            md: 4,
+            lg: 6,
+            xl: 8
+          }}
+          showDots={true}
+          showArrows={true}
+        >
           {categories.map((category) => (
-            <CarouselItem
-              key={category.id}
-              className="basis-1/2 sm:basis-1/3 md:basis-1/4 lg:basis-1/5 xl:basis-1/6"
-            >
-              <CategoryCard category={category} />
-            </CarouselItem>
+            <CategoryCard key={category.id} category={category} />
           ))}
-        </CarouselLayout>
+        </CustomCarousel>
       </Section>
 
       {/* Yaş Aralığına Göre Oyuncaklar */}
       <Section title="Yaş Aralığına Göre Oyuncaklar">
-        <CarouselLayout>
+        <CustomCarousel 
+          title="Yaş Grupları"
+          itemsPerView={{
+            mobile: 2,
+            sm: 3,
+            md: 4,
+            lg: 6,
+            xl: 8
+          }}
+          showDots={true}
+          showArrows={true}
+        >
           {attributes.map((attribute) => (
-            <CarouselItem
-              key={attribute.id}
-              className="basis-1/2 sm:basis-1/3 md:basis-1/4 lg:basis-1/5 xl:basis-1/6"
-            >
-              <AttributeCard attribute={attribute} />
-            </CarouselItem>
+            <AttributeCard key={attribute.id} attribute={attribute} />
           ))}
-        </CarouselLayout>
+        </CustomCarousel>
       </Section>
-      
-      <ProductCarousel products={products} />
+
+      {/* Alternatif kullanım - ProductCarousel wrapper */}
+      <Section title="Önerilen Ürünler">
+        <ProductCarousel
+          products={products} 
+          title="Size Özel Öneriler"
+          productCardComponent={ProductCard}
+        />
+      </Section>
     </main>
   );
 }
@@ -105,43 +171,12 @@ export default async function Home() {
 // Her bölüm başlığı ve içeriği
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="space-y-2">
-      <h2 className="text-2xl font-bold text-center">{title}</h2>
+    <section className="space-y-6">
+      <div className="text-center">
+        <h2 className="text-3xl font-bold text-gray-900 mb-2">{title}</h2>
+        <div className="w-20 h-1 bg-blue-600 mx-auto rounded-full"></div>
+      </div>
       {children}
     </section>
-  );
-}
-
-// Ürünleri dönen carousel
-function ProductCarousel({ products }: { products: any[] }) {
-  if (!products || products.length === 0)
-    return <p className="text-center text-gray-500">Ürün bulunamadı.</p>;
-
-  return (
-    <Carousel opts={{ align: "start", loop: true }} className="w-full">
-      <CarouselContent>
-        {products.map((product) => (
-          <CarouselItem
-            key={product.id}
-            className="basis-1/2 sm:basis-1/2 md:basis-1/3 lg:basis-1/5 xl:basis-1/6"
-          >
-            <ProductCard product={product} />
-          </CarouselItem>
-        ))}
-      </CarouselContent>
-      <CarouselPrevious />
-      <CarouselNext />
-    </Carousel>
-  );
-}
-
-// Ortak carousel layout
-function CarouselLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <Carousel opts={{ align: "start", loop: true }} className="w-full">
-      <CarouselContent>{children}</CarouselContent>
-      <CarouselPrevious />
-      <CarouselNext />
-    </Carousel>
   );
 }
