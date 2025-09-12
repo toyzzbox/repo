@@ -58,8 +58,7 @@ export default function HamburgerMenu({ categories }: HamburgerMenuProps) {
   return (
     <div className="relative">
       {/* Header */}
-      <header className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-4 flex justify-between items-center shadow-lg">
-        <h1 className="text-xl font-bold">E-Ticaret</h1>
+      <header className="p-4 flex justify-between items-center shadow-lg">
         <button
           onClick={toggleMenu}
           className="p-2 hover:bg-white hover:bg-opacity-10 rounded-lg transition-colors duration-200"
@@ -85,7 +84,7 @@ export default function HamburgerMenu({ categories }: HamburgerMenuProps) {
         ${isMenuOpen ? 'translate-x-0' : '-translate-x-full'}
       `}>
         {/* Menu Header */}
-        <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-4 flex items-center justify-between">
+        <div className="bg-gradient-to-r from-yellow-50-600 to-orange-600 text-white p-4 flex items-center justify-between">
           {!isMainMenu && (
             <button
               onClick={handleBack}
