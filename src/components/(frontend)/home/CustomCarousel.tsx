@@ -139,7 +139,7 @@ export function CustomCarousel({
       {/* Header */}
       {title && (
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold text-gray-900">{title}</h2>
+          <h2 className="text-2xl font-bold text-orange-600">{title}</h2>
           {showArrows && totalItems > currentItemsPerView && (
             <div className="flex items-center space-x-2">
               <button
@@ -223,7 +223,7 @@ export function CustomCarousel({
               onClick={() => goToSlide(index)}
               className={`h-2 rounded-full transition-all duration-200 hover:scale-110 ${
                 index === currentIndex 
-                  ? 'w-6 bg-blue-600' 
+                  ? 'w-6 bg-orange-600' 
                   : 'w-2 bg-gray-300 hover:bg-gray-400'
               }`}
               aria-label={`Sayfa ${index + 1}`}
