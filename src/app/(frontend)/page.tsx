@@ -97,7 +97,6 @@ export default async function Home() {
       {/* Popüler Markalar */}
       <Section title="En Popüler Markalar">
         <CustomCarousel 
-          title="Markalar"
           itemsPerView={{
             mobile: 2,
             sm: 3,
@@ -121,8 +120,8 @@ export default async function Home() {
             mobile: 2,
             sm: 3,
             md: 4,
-            lg: 6,
-            xl: 8
+            lg: 5,
+            xl: 6,
           }}
           showDots={true}
           showArrows={true}
@@ -142,7 +141,7 @@ export default async function Home() {
             sm: 3,
             md: 4,
             lg: 6,
-            xl: 8
+            xl: 6
           }}
           showDots={true}
           showArrows={true}
