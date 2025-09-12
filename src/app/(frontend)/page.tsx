@@ -13,7 +13,6 @@ import { ProductCard } from "@/components/(frontend)/product/ProductCard"; // Si
 
 
 export default async function Home() {
-  // ✅ Tüm veri çekimleri paralel hale getirildi
   const [
     productNew,
     products,
@@ -32,10 +31,10 @@ export default async function Home() {
 
   return (
     <main className="container mx-auto px-4 py-8 space-y-12">
-      {/* En Popüler Ürünler */}
 
-        <CustomCarousel
-          title="Popüler Ürünler"
+
+        <Section title="En Popüler Ürünler">
+        <CustomCarousel 
           itemsPerView={{
             mobile: 1,
             sm: 2,
@@ -45,12 +44,14 @@ export default async function Home() {
           }}
           showDots={true}
           showArrows={true}
-          autoPlay={false}
+          autoPlay={true}
+          autoPlayInterval={4000}
         >
           {products.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}
         </CustomCarousel>
+      </Section>
 
 
       {/* En İndirimli Ürünler */}
@@ -172,7 +173,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
     <section className="space-y-6">
       <div className="text-center">
         <h2 className="text-3xl font-bold text-gray-900 mb-2">{title}</h2>
-        <div className="w-20 h-1 bg-blue-600 mx-auto rounded-full"></div>
+        <div className="w-20 h-1 bg-orange-600 mx-auto rounded-full"></div>
       </div>
       {children}
     </section>
