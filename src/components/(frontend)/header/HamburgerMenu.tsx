@@ -1,19 +1,9 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import {
-  Sheet,
-  SheetContent,
-  SheetTrigger,
-} from "@/components/ui/sheet";
-import {
-  ChevronLeft,
-  ChevronRight,
-  Menu,
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
+import React, { useState } from 'react';
+import { ChevronRight, ChevronLeft, Menu, X } from 'lucide-react';
 
+// Type definitions
 type Category = {
   id: string;
   name: string;
@@ -26,17 +16,24 @@ interface HamburgerMenuProps {
 }
 
 export default function HamburgerMenu({ categories }: HamburgerMenuProps) {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [menuStack, setMenuStack] = useState<Category[]>([]);
-  const router = useRouter();
-
+  
   const currentMenu = menuStack[menuStack.length - 1];
   const currentCategories = currentMenu ? currentMenu.children : categories;
+  const isMainMenu = menuStack.length === 0;
 
   const handleCategoryClick = (category: Category) => {
     if (category.children.length > 0) {
       setMenuStack((prev) => [...prev, category]);
     } else {
-      router.push(`/categories/${category.slug}`);
+      // Router navigation burada yapılacak
+      console.log(`Navigating to: /categories/${category.slug}`);
+      // router.push(`/categories/${category.slug}`);
+      
+      // Menüyü kapat ve reset yap
+      setIsMenuOpen(false);
+      setMenuStack([]);
     }
   };
 
@@ -44,43 +41,243 @@ export default function HamburgerMenu({ categories }: HamburgerMenuProps) {
     setMenuStack((prev) => prev.slice(0, -1));
   };
 
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
+    if (!isMenuOpen) {
+      setMenuStack([]);
+    }
+  };
+
+  const getMenuTitle = () => {
+    if (currentMenu) {
+      return currentMenu.name;
+    }
+    return "Kategoriler";
+  };
+
   return (
-    <Sheet>
-      <SheetTrigger asChild>
-        <Button variant="ghost" size="lg" className="md:hidden">
-          <Menu className="text-2xl" />
-          <span className="sr-only">Menüyü Aç</span>
-        </Button>
-      </SheetTrigger>
+    <div className="relative">
+      {/* Header */}
+      <header className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-4 flex justify-between items-center shadow-lg">
+        <h1 className="text-xl font-bold">E-Ticaret</h1>
+        <button
+          onClick={toggleMenu}
+          className="p-2 hover:bg-white hover:bg-opacity-10 rounded-lg transition-colors duration-200"
+          aria-label="Menüyü aç/kapat"
+        >
+          {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+        </button>
+      </header>
 
-      <SheetContent side="left" className="w-[80%] max-w-xs h-screen overflow-y-auto">
-        
-        <div>
-          <div className="p-4 font-bold text-lg border-b flex items-center">
-            {menuStack.length > 0 && (
-              <button onClick={handleBack} className="mr-2">
-                <ChevronLeft size={20} />
-              </button>
-            )}
-            <span>{currentMenu ? currentMenu.name : "TOYZZ BOX"}</span>
-          </div>
+      {/* Overlay */}
+      {isMenuOpen && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 z-40 transition-opacity duration-300"
+          onClick={toggleMenu}
+          aria-hidden="true"
+        />
+      )}
 
-          {currentCategories.map((category) => (
-            <div
-              key={category.id}
-              className="border-b p-4 flex justify-between items-center cursor-pointer"
-              onClick={() => handleCategoryClick(category)}
+      {/* Sliding Menu */}
+      <div className={`
+        fixed top-0 left-0 h-full w-80 max-w-[85vw] bg-white shadow-2xl z-50 
+        transform transition-transform duration-300 ease-in-out
+        ${isMenuOpen ? 'translate-x-0' : '-translate-x-full'}
+      `}>
+        {/* Menu Header */}
+        <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-4 flex items-center justify-between">
+          {!isMainMenu && (
+            <button
+              onClick={handleBack}
+              className="p-2 hover:bg-white hover:bg-opacity-10 rounded-lg transition-colors duration-200 mr-2"
+              aria-label="Geri git"
             >
-              <span>{category.name}</span>
-              {category.children.length > 0 && <ChevronRight size={20} />}
-            </div>
-          ))}
+              <ChevronLeft size={20} />
+            </button>
+          )}
+          <h2 className="text-lg font-semibold flex-1 truncate">
+            {getMenuTitle()}
+          </h2>
+          <button
+            onClick={toggleMenu}
+            className="p-2 hover:bg-white hover:bg-opacity-10 rounded-lg transition-colors duration-200"
+            aria-label="Menüyü kapat"
+          >
+            <X size={20} />
+          </button>
+        </div>
 
-          {menuStack.length === 0 && (
-            <div className="border-b p-4 text-pink-600 font-medium">Fırsatlar</div>
+        {/* Menu Content */}
+        <div className="flex-1 overflow-y-auto">
+          <nav className="py-2" role="navigation" aria-label="Kategori menüsü">
+            {currentCategories.length > 0 ? (
+              currentCategories.map((category) => (
+                <button
+                  key={category.id}
+                  onClick={() => handleCategoryClick(category)}
+                  className="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-50 transition-colors duration-200 border-b border-gray-100 last:border-b-0 text-left"
+                >
+                  <span className="text-gray-800 font-medium">
+                    {category.name}
+                  </span>
+                  
+                  {category.children.length > 0 && (
+                    <ChevronRight size={18} className="text-gray-400" />
+                  )}
+                </button>
+              ))
+            ) : (
+              <div className="px-6 py-8 text-center text-gray-500">
+                <p>Bu kategoride alt kategori bulunmuyor.</p>
+              </div>
+            )}
+          </nav>
+        </div>
+
+        {/* Menu Footer */}
+        <div className="border-t border-gray-200 p-4 bg-gray-50">
+          <div className="text-sm text-gray-600 text-center">
+            {currentCategories.length} kategori
+          </div>
+          {!isMainMenu && (
+            <div className="text-xs text-gray-500 text-center mt-1">
+              {currentMenu.name}
+            </div>
           )}
         </div>
-      </SheetContent>
-    </Sheet>
+      </div>
+    </div>
   );
 }
+
+// Demo için örnek kategori verisi
+const sampleCategories: Category[] = [
+  {
+    id: '1',
+    name: 'Elektronik',
+    slug: 'elektronik',
+    children: [
+      {
+        id: '1-1',
+        name: 'Telefonlar',
+        slug: 'telefonlar',
+        children: [
+          {
+            id: '1-1-1',
+            name: 'iPhone',
+            slug: 'iphone',
+            children: []
+          },
+          {
+            id: '1-1-2',
+            name: 'Samsung',
+            slug: 'samsung',
+            children: []
+          },
+          {
+            id: '1-1-3',
+            name: 'Xiaomi',
+            slug: 'xiaomi',
+            children: []
+          }
+        ]
+      },
+      {
+        id: '1-2',
+        name: 'Bilgisayarlar',
+        slug: 'bilgisayarlar',
+        children: [
+          {
+            id: '1-2-1',
+            name: 'Laptoplar',
+            slug: 'laptoplar',
+            children: []
+          },
+          {
+            id: '1-2-2',
+            name: 'Masaüstü',
+            slug: 'masaustu',
+            children: []
+          }
+        ]
+      },
+      {
+        id: '1-3',
+        name: 'Kulaklıklar',
+        slug: 'kulakliklar',
+        children: []
+      }
+    ]
+  },
+  {
+    id: '2',
+    name: 'Giyim',
+    slug: 'giyim',
+    children: [
+      {
+        id: '2-1',
+        name: 'Erkek',
+        slug: 'erkek',
+        children: [
+          {
+            id: '2-1-1',
+            name: 'Gömlekler',
+            slug: 'gomlekler',
+            children: []
+          },
+          {
+            id: '2-1-2',
+            name: 'Pantolonlar',
+            slug: 'pantolonlar',
+            children: []
+          }
+        ]
+      },
+      {
+        id: '2-2',
+        name: 'Kadın',
+        slug: 'kadin',
+        children: [
+          {
+            id: '2-2-1',
+            name: 'Elbiseler',
+            slug: 'elbiseler',
+            children: []
+          },
+          {
+            id: '2-2-2',
+            name: 'Bluzlar',
+            slug: 'bluzlar',
+            children: []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id: '3',
+    name: 'Ev & Yaşam',
+    slug: 'ev-yasam',
+    children: [
+      {
+        id: '3-1',
+        name: 'Mobilya',
+        slug: 'mobilya',
+        children: []
+      },
+      {
+        id: '3-2',
+        name: 'Dekorasyon',
+        slug: 'dekorasyon',
+        children: []
+      }
+    ]
+  },
+  {
+    id: '4',
+    name: 'Spor',
+    slug: 'spor',
+    children: []
+  }
+];
+
