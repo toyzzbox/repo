@@ -36,7 +36,7 @@ export default async function Home() {
         <Section title="En Popüler Ürünler">
         <CustomCarousel 
           itemsPerView={{
-            mobile: 1,
+            mobile: 2,
             sm: 2,
             md: 3,
             lg: 4,
@@ -58,7 +58,7 @@ export default async function Home() {
       <Section title="En İndirimli Ürünler">
         <CustomCarousel 
           itemsPerView={{
-            mobile: 1,
+            mobile: 2,
             sm: 2,
             md: 3,
             lg: 4,
@@ -79,7 +79,7 @@ export default async function Home() {
       <Section title="En Yeni Ürünler">
         <CustomCarousel 
           itemsPerView={{
-            mobile: 1,
+            mobile: 2,
             sm: 2,
             md: 3,
             lg: 4,
