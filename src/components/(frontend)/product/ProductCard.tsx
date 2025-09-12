@@ -32,7 +32,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const discountedPrice = hasDiscount ? product.discount : null;
   
   // İndirim yüzdesi hesaplama
-  const discountPercentage = hasDiscount 
+  const discountPercentage = hasDiscount
     ? Math.round(((product.price - product.discount) / product.price) * 100)
     : 0;
 
@@ -81,23 +81,33 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         </div>
 
         {/* Fiyat Kısmı - Sabit yükseklik */}
-        <div className="h-12 flex flex-col justify-end">
+        <div className="h-16 flex flex-col justify-end space-y-1">
           {hasDiscount && discountedPrice !== null ? (
-            <div className="flex flex-col items-start gap-1">
-              <span className="text-lg font-bold text-red-600">
-                {formatPrice(discountedPrice)}
-              </span>
-              <span className="text-xs line-through text-gray-400">
-                {formatPrice(product.price)}
-              </span>
-            </div>
+            <>
+              {/* Eski fiyat ve indirim oranı - YUKARDA */}
+              <div className="flex items-center justify-between">
+                <span className="text-xs line-through text-gray-400">
+                  {formatPrice(product.price)}
+                </span>
+                <span className="text-xs font-medium text-red-500 bg-red-50 px-2 py-0.5 rounded">
+                  %{discountPercentage} İndirim
+                </span>
+              </div>
+              
+              {/* İndirimli fiyat - AŞAĞIDA */}
+              <div>
+                <span className="text-lg font-bold text-red-600">
+                  {formatPrice(discountedPrice)}
+                </span>
+              </div>
+            </>
           ) : (
             <div className="flex flex-col justify-end h-full">
+              {/* Boş alan - yükseklik tutarlılığı için */}
+              <div className="h-6"></div>
               <span className="text-lg font-bold text-gray-800">
                 {formatPrice(product.price)}
               </span>
-              {/* Boş alan - yükseklik tutarlılığı için */}
-              <div className="h-4"></div>
             </div>
           )}
         </div>
