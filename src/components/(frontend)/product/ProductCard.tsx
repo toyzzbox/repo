@@ -1,5 +1,4 @@
 "use client";
-
 import { useRouter } from "next/navigation";
 import { formatPrice } from "@/utils/formatPrice";
 import type { Product } from "@/types/product";
@@ -11,7 +10,7 @@ type ProductCardProps = {
 
 export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const router = useRouter();
-
+  
   const handleClick = () => {
     if (product.slug) {
       router.push(`/${product.slug}`);
@@ -20,7 +19,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 
   // ✅ Doğru erişim: ProductMedia → Media → urls
   const imageUrl = product.medias?.[0]?.media?.urls?.[0] ?? null;
-
+  
   const displayName = product.group?.name
     ? `${product.group.name} – ${product.name}`
     : product.name;
@@ -31,51 +30,81 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     product.discount < product.price;
 
   const discountedPrice = hasDiscount ? product.discount : null;
+  
+  // İndirim yüzdesi hesaplama
+  const discountPercentage = hasDiscount 
+    ? Math.round(((product.price - product.discount) / product.price) * 100)
+    : 0;
 
   return (
     <div
-      className="border border-gray-200 rounded-lg shadow-md p-4 cursor-pointer transition-colors duration-300 hover:border-orange-500 group"
+      className="bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-lg cursor-pointer transition-all duration-300 hover:border-orange-400 hover:-translate-y-1 group overflow-hidden h-full flex flex-col"
       onClick={handleClick}
     >
-      {imageUrl ? (
-        <div className="overflow-hidden rounded-t-lg">
-          <Image
-            src={imageUrl}
-            width={400}
-            height={300}
-            alt={displayName}
-            className="w-full h-48 object-contain transition-opacity duration-300 group-hover:opacity-90"
-          />
-        </div>
-      ) : (
-        <div className="w-full h-48 bg-gray-300 rounded-t-lg flex items-center justify-center text-white">
-          No Image Available
-        </div>
-      )}
-
-      <div className="text-center mt-4">
-        <h3
-          className="truncate max-w-[250px] mx-auto text-lg font-semibold transition group-hover:text-primary"
-          title={displayName}
-        >
-          {displayName}
-        </h3>
-
-        {hasDiscount && discountedPrice !== null ? (
-          <div className="flex justify-center gap-2 items-center mt-1">
-            <span className="text-lg font-bold text-red-600">
-              {formatPrice(discountedPrice)}
-            </span>
-            <span className="text-sm line-through text-gray-500">
-              {formatPrice(product.price)}
+      {/* Resim Kısmı */}
+      <div className="relative overflow-hidden rounded-t-xl bg-gray-50">
+        {/* İndirim Badge */}
+        {hasDiscount && (
+          <div className="absolute top-3 left-3 z-10">
+            <span className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-md">
+              %{discountPercentage} İNDİRİM
             </span>
           </div>
+        )}
+        
+        {imageUrl ? (
+          <div className="aspect-square overflow-hidden">
+            <Image
+              src={imageUrl}
+              width={400}
+              height={400}
+              alt={displayName}
+              className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+            />
+          </div>
         ) : (
-          <p className="text-md text-gray-600 mt-1">
-            {formatPrice(product.price)}
-          </p>
+          <div className="aspect-square bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center text-gray-500 font-medium">
+            Resim Yok
+          </div>
         )}
       </div>
+
+      {/* İçerik Kısmı */}
+      <div className="flex-1 p-4 flex flex-col justify-between">
+        <div>
+          <h3
+            className="text-sm font-semibold text-gray-800 leading-tight mb-3 line-clamp-2 group-hover:text-orange-600 transition-colors duration-200"
+            title={displayName}
+          >
+            {displayName}
+          </h3>
+        </div>
+
+        {/* Fiyat Kısmı - Sabit yükseklik */}
+        <div className="h-12 flex flex-col justify-end">
+          {hasDiscount && discountedPrice !== null ? (
+            <div className="flex flex-col items-start gap-1">
+              <span className="text-lg font-bold text-red-600">
+                {formatPrice(discountedPrice)}
+              </span>
+              <span className="text-xs line-through text-gray-400">
+                {formatPrice(product.price)}
+              </span>
+            </div>
+          ) : (
+            <div className="flex flex-col justify-end h-full">
+              <span className="text-lg font-bold text-gray-800">
+                {formatPrice(product.price)}
+              </span>
+              {/* Boş alan - yükseklik tutarlılığı için */}
+              <div className="h-4"></div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Hover Efekti için Alt Border */}
+      <div className="h-1 bg-gradient-to-r from-orange-400 to-red-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></div>
     </div>
   );
 };
