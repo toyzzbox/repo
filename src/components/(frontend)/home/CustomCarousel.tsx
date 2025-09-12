@@ -40,6 +40,7 @@ export function CustomCarousel({
 }: CustomCarouselProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [currentItemsPerView, setCurrentItemsPerView] = useState(itemsPerView.mobile || 1);
+  const [isHovered, setIsHovered] = useState(false);
   const carouselRef = useRef<HTMLDivElement>(null);
   const autoPlayRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -164,7 +165,11 @@ export function CustomCarousel({
       )}
 
       {/* Carousel Container */}
-      <div className="relative group">
+      <div 
+        className="relative"
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+      >
         <div 
           className="overflow-hidden" 
           ref={carouselRef}
@@ -196,7 +201,9 @@ export function CustomCarousel({
             <button
               onClick={goToPrev}
               disabled={currentIndex === 0}
-              className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 bg-white rounded-full p-3 shadow-lg opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-gray-50 z-10 disabled:opacity-50"
+              className={`absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 bg-white rounded-full p-3 shadow-lg z-10 disabled:opacity-50 transition-all duration-200 hover:bg-gray-50 ${
+                isHovered ? 'opacity-100' : 'opacity-0'
+              }`}
               aria-label="Önceki"
             >
               <ChevronLeft className="w-5 h-5" />
@@ -205,7 +212,9 @@ export function CustomCarousel({
             <button
               onClick={goToNext}
               disabled={currentIndex === maxIndex}
-              className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 bg-white rounded-full p-3 shadow-lg opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-gray-50 z-10 disabled:opacity-50"
+              className={`absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 bg-white rounded-full p-3 shadow-lg z-10 disabled:opacity-50 transition-all duration-200 hover:bg-gray-50 ${
+                isHovered ? 'opacity-100' : 'opacity-0'
+              }`}
               aria-label="Sonraki"
             >
               <ChevronRight className="w-5 h-5" />
