@@ -30,9 +30,7 @@ export default async function Home() {
   ]);
 
   return (
-    <main className="container mx-auto px-4 py-8 space-y-12">
-
-
+    <main className="container mx-auto px-4 pt-1 space-y-4">
         <Section title="En Popüler Ürünler">
         <CustomCarousel 
           itemsPerView={{
