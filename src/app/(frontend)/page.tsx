@@ -33,7 +33,7 @@ export default async function Home() {
   return (
     <main className="container mx-auto px-4 py-8 space-y-12">
       {/* En Popüler Ürünler */}
-      <Section title="En Popüler Ürünler">
+
         <CustomCarousel
           title="Popüler Ürünler"
           itemsPerView={{
@@ -41,7 +41,7 @@ export default async function Home() {
             sm: 2,
             md: 3,
             lg: 4,
-            xl: 5
+            xl: 6
           }}
           showDots={true}
           showArrows={true}
@@ -51,12 +51,11 @@ export default async function Home() {
             <ProductCard key={product.id} product={product} />
           ))}
         </CustomCarousel>
-      </Section>
+
 
       {/* En İndirimli Ürünler */}
       <Section title="En İndirimli Ürünler">
         <CustomCarousel 
-          title="İndirimli Ürünler"
           itemsPerView={{
             mobile: 1,
             sm: 2,
@@ -117,7 +116,6 @@ export default async function Home() {
       {/* Popüler Kategoriler */}
       <Section title="En Popüler Kategoriler">
         <CustomCarousel 
-          title="Kategoriler"
           itemsPerView={{
             mobile: 2,
             sm: 3,
@@ -137,7 +135,7 @@ export default async function Home() {
       {/* Yaş Aralığına Göre Oyuncaklar */}
       <Section title="Yaş Aralığına Göre Oyuncaklar">
         <CustomCarousel 
-          title="Yaş Grupları"
+  
           itemsPerView={{
             mobile: 2,
             sm: 3,

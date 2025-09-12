@@ -7,5 +7,3 @@ export interface UserSession {
     };
   }
   
-  // Header.tsx ve UserMenu.tsx'de
-  import { UserSession } from '@/types/session';
