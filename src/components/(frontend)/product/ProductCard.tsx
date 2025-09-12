@@ -44,13 +44,13 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       {/* Resim Kısmı */}
       <div className="relative overflow-hidden rounded-t-xl bg-gray-50">
         {/* İndirim Badge */}
-        {hasDiscount && (
+        {/* {hasDiscount && (
           <div className="absolute top-3 left-3 z-10">
             <span className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-md">
               %{discountPercentage} İNDİRİM
             </span>
           </div>
-        )}
+        )} */}
         
         {imageUrl ? (
           <div className="aspect-square overflow-hidden">
@@ -90,7 +90,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                   {formatPrice(product.price)}
                 </span>
                 <span className="text-xs font-medium text-red-500 bg-red-50 px-2 py-0.5 rounded">
-                  %{discountPercentage} İndirim
+                  %{discountPercentage}
                 </span>
               </div>
               
