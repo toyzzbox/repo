@@ -30,7 +30,7 @@ export default async function Home() {
   ]);
 
   return (
-    <main className="container mx-auto px-4 pt-1 space-y-4">
+    <main className="container mx-auto p-4 space-y-6">
         <Section title="En Popüler Ürünler">
         <CustomCarousel 
           itemsPerView={{
@@ -60,7 +60,7 @@ export default async function Home() {
             sm: 2,
             md: 3,
             lg: 4,
-            xl: 5
+            xl: 6
           }}
           showDots={true}
           showArrows={true}
@@ -81,7 +81,7 @@ export default async function Home() {
             sm: 2,
             md: 3,
             lg: 4,
-            xl: 5
+            xl: 6
           }}
           showDots={false}
           showArrows={true}
