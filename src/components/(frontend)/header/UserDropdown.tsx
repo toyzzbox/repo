@@ -1,3 +1,4 @@
+"use client"
 import { useState } from 'react';
 import { ChevronDown, User, Package, Heart, MapPin, CreditCard, Gift, Headphones, LogOut, Star, ShoppingBag, LogIn, UserPlus } from 'lucide-react';
 
