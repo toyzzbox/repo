@@ -169,7 +169,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   return (
     <section className="space-y-6">
       <div className="text-center">
-        <h2 className="text-3xl font-bold text-gray-900 mb-2">{title}</h2>
+        <h2 className="text-xl font-bold text-gray-900 mb-2">{title}</h2>
         <div className="w-20 h-1 bg-orange-600 mx-auto rounded-full"></div>
       </div>
       {children}
