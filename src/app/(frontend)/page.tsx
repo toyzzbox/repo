@@ -150,14 +150,7 @@ export default async function Home() {
         </CustomCarousel>
       </Section>
 
-      {/* Alternatif kullanım - ProductCarousel wrapper */}
-      <Section title="Önerilen Ürünler">
-        <ProductCarousel
-          products={products} 
-          title="Size Özel Öneriler"
-          productCardComponent={ProductCard}
-        />
-      </Section>
+      
     </main>
   );
 }
