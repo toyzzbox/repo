@@ -1,39 +1,10 @@
-import { prisma } from "@/lib/prisma";
-import { Product } from "@/types/product";
+import { apiClient } from '@/lib/api-client';
 
-export async function getProducts(): Promise<Product[]> {
+export async function getProducts() {
   try {
-    const products = await prisma.product.findMany({
-      take: 20,
-      orderBy: { createdAt: "desc" },
-      select: {
-        id: true,
-        name: true,
-        slug: true,
-        price: true,
-        discount: true,
-        medias: {
-          orderBy: { order: "asc" },
-          include: {
-            media: {
-              select: {
-                id: true,
-                urls: true,
-              },
-            },
-          },
-        },
-        group: {
-          select: {
-            name: true,
-          },
-        },
-      },
-    });
-
-    return products as Product[];
+    return await apiClient.getProducts();
   } catch (error) {
-    console.error("Ürünler alınamadı:", error);
+    console.error('Ürünler alınamadı:', error);
     return [];
   }
 }
