@@ -1,7 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import type { Prisma } from "@prisma/client";
-import Link from "next/link";
 import SortSelect from "@/components/(frontend)/category/SortSelect";
 import CategoryFilters from "@/components/(frontend)/category/CategoryFilters";
 import { ProductCard } from "@/components/(frontend)/product/ProductCard";
@@ -160,7 +159,7 @@ export default async function CategoryPage({
 </div>
         {/* SAĞ: Ürün listesi */}
         {products.length ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 items-start">
             {products.map((p) => (
               <ProductCard key={p.id} product={p} />
             ))}
