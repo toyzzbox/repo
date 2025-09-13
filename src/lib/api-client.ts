@@ -27,6 +27,10 @@ class ApiClient {
       return this.request(`/products/search?q=${encodeURIComponent(query)}`);
     }
   
+    async getDiscountedProducts() {
+      return this.request('/products/discounted');
+    }
+  
     // Categories API  
     async getCategories() {
       return this.request('/categories');
