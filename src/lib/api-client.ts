@@ -57,6 +57,13 @@ class ApiClient {
     async getAttributes() {
         return this.request('/attributes');
       }
+
+      async createProduct(productData: any) {
+        return this.request('/products', {
+          method: 'POST',
+          body: JSON.stringify(productData),
+        });
+      }  
   }
   
   export const apiClient = new ApiClient();
