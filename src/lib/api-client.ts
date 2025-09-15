@@ -44,6 +44,9 @@ class ApiClient {
     async getBrands() {
       return this.request('/brands');
     }
+    async getPopularProducts() {
+        return this.request('/products/popular');
+      }
   }
   
   export const apiClient = new ApiClient();
