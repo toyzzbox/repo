@@ -53,6 +53,10 @@ class ApiClient {
     async getPopularProducts() {
       return this.request('/products/popular');
     }
+
+    async getAttributes() {
+        return this.request('/attributes');
+      }
   }
   
   export const apiClient = new ApiClient();
