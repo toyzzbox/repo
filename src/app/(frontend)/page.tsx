@@ -1,4 +1,3 @@
-import { getAttributes } from "@/actions/getAttributes";
 import { apiClient } from "@/lib/api-client";
 import { AttributeCard } from "@/components/(frontend)/attribute/AttributeCard";
 import { CustomCarousel } from "@/components/(frontend)/home/CustomCarousel";
@@ -20,7 +19,7 @@ export default async function Home() {
       apiClient.getPopularProducts().catch(() => []),
       apiClient.getBrands().catch(() => []),
       apiClient.getCategories().catch(() => []),
-      getAttributes(),
+      apiClient.getAttributes().catch(() => []),
       apiClient.getDiscountedProducts().catch(() => []),
     ]);
 
