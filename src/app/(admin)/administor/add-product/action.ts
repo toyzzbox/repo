@@ -1,4 +1,3 @@
-// src/app/(admin)/administor/add-product/action.ts
 "use server";
 
 import { apiClient } from '@/lib/api-client';
@@ -22,13 +21,27 @@ export async function createProduct(prevState: any, formData: FormData) {
       mediaIds: formData.getAll("mediaIds[]") as string[],
     };
 
+    console.log("Frontend'den gönderilen veri:", JSON.stringify(productData, null, 2));
+    
     await apiClient.createProduct(productData);
     
     revalidatePath("/administor/add-product");
     redirect("/administor/products");
     
-  } catch (error) {
-    console.error("Ürün eklenemedi:", error);
-    return "Ürün eklenirken bir hata oluştu";
+  } catch (error: unknown) {
+    console.error("Frontend hatası:", error);
+    
+    if (error instanceof Error) {
+      console.error("Hata mesajı:", error.message);
+      return "Ürün eklenirken bir hata oluştu: " + error.message;
+    }
+    
+    if (typeof error === 'object' && error !== null) {
+      console.error("Object hatası:", JSON.stringify(error, null, 2));
+      return "Ürün eklenirken bir hata oluştu: " + JSON.stringify(error);
+    }
+    
+    console.error("Bilinmeyen hata:", error);
+    return "Ürün eklenirken bilinmeyen bir hata oluştu";
   }
 }
