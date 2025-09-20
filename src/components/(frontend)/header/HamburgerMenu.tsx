@@ -58,7 +58,7 @@ export default function HamburgerMenu({ categories }: HamburgerMenuProps) {
   return (
     <div className="relative">
       {/* Header */}
-      <header className="p-4 flex justify-between items-center shadow-lg">
+      <header className="p-4 flex justify-between items-center">
         <button
           onClick={toggleMenu}
           className="p-2 hover:bg-white hover:bg-opacity-10 rounded-lg transition-colors duration-200"
