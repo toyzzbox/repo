@@ -10,7 +10,7 @@ import Link from "next/link";
 
 export default function MobileFooter() {
   return (
-    <div className="block lg:hidden px-4 py-6 bg-gray-100 border-t">
+    <div className="block lg:hidden px-4 py-6 border-t">
       <Accordion type="single" collapsible className="w-full space-y-2">
         {/* Tüm Kategoriler */}
         <AccordionItem value="categories">
