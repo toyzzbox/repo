@@ -42,9 +42,9 @@ const cartSlice = createSlice({
         existingProduct.quantity += action.payload.quantity || 1; // Mevcut ürün varsa miktarı artır
       } else {
         // ✅ Tam product objesini kopyalayarak ekle
-        state.cart.push({ 
-          ...action.payload, 
-          quantity: action.payload.quantity || 1 
+        state.cart.push({
+          ...action.payload,
+          quantity: action.payload.quantity || 1
         });
       }
     },
@@ -63,14 +63,39 @@ const cartSlice = createSlice({
         existingProduct.quantity -= 1; // Miktarı azalt (1'den az olmamalı)
       }
     },
+    // ✅ Guest cart için eklenen yeni action
+    setCart: (state, action: PayloadAction<CartItem[]>) => {
+      state.cart = action.payload; // Tüm sepeti değiştir
+    },
+    // ✅ Sepeti temizleme action'ı (isteğe bağlı)
+    clearCart: (state) => {
+      state.cart = [];
+    },
   },
 });
 
 // Eylemleri dışa aktar
-export const { addToCart, removeFromTheCart, incrementQuantity, decrementQuantity } = cartSlice.actions;
+export const { 
+  addToCart, 
+  removeFromTheCart, 
+  incrementQuantity, 
+  decrementQuantity,
+  setCart, // ✅ Yeni action
+  clearCart // ✅ Yeni action
+} = cartSlice.actions;
 
 // Sepet durumunu seçen bir seçici (selector) oluşturun
 export const getCart = (state: RootState) => state.cart.cart;
+
+// Sepet toplam fiyatını hesaplayan selector (isteğe bağlı)
+export const getCartTotal = (state: RootState) => 
+  state.cart.cart.reduce((total, item) => 
+    total + (item.discountedPrice ?? item.price) * item.quantity, 0
+  );
+
+// Sepet item sayısını dönen selector (isteğe bağlı)
+export const getCartItemCount = (state: RootState) => 
+  state.cart.cart.reduce((total, item) => total + item.quantity, 0);
 
 // Reducer'ı dışa aktar
 export default cartSlice.reducer;
