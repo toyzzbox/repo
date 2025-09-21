@@ -78,6 +78,7 @@ const DesktopProductDetails: React.FC<ProductDetailsProps> = ({
   const activeVariant = selectedVariant ?? product;
   const imageUrl = activeVariant.medias?.[0]?.urls?.[0] ?? "";
 
+  
   useEffect(() => {
     setSelectedVariant(variants.find((v) => v.id === product.id) ?? null);
   }, [product]);
@@ -142,9 +143,18 @@ const DesktopProductDetails: React.FC<ProductDetailsProps> = ({
 
   // Tüm ürün resimleri
   const imageUrls =
-    activeVariant?.medias?.length > 0
-      ? activeVariant.medias.map((m) => m.urls[0])
-      : product.medias.map((m) => m.urls[0]);
+  activeVariant?.medias?.length > 0
+    ? activeVariant.medias
+        .map((m) => m.urls?.[0])
+        .filter(Boolean) // undefined/null değerleri filtrele
+    : product.medias
+        .map((m) => m.urls?.[0])
+        .filter(Boolean);
+
+// Eğer hiç resim yoksa placeholder ekle
+if (imageUrls.length === 0) {
+  imageUrls.push('/placeholder.png');
+}
 
   return (
     <div className="p-4">
