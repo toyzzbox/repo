@@ -178,7 +178,6 @@ const DesktopProductDetails: React.FC<ProductDetailsProps> = ({
         if (userId) {
           // Kullanıcı giriş yapmışsa veritabanına kaydet
           await addToCart(userId, activeVariant.id, quantity);
-          toast.custom(() => <CartSuccessToast productName={activeVariant.name} />);
         } else {
           // Guest kullanıcı için localStorage'a kaydet
           const guestCartItem: GuestCartItem = {
@@ -191,8 +190,10 @@ const DesktopProductDetails: React.FC<ProductDetailsProps> = ({
           };
           
           addToGuestCart(guestCartItem);
-          toast.custom(() => <CartSuccessToast productName={activeVariant.name} />);
         }
+        
+        // Her iki durumda da success toast göster
+        toast.custom(() => <CartSuccessToast productName={activeVariant.name} />);
       } catch (err) {
         toast.error("Sepete eklerken bir hata oluştu.");
       }
@@ -204,11 +205,10 @@ const DesktopProductDetails: React.FC<ProductDetailsProps> = ({
     startTransition(async () => {
       try {
         if (userId) {
-          // Kullanıcı giriş yapmışsa
+          // Kullanıcı giriş yapmışsa veritabanına kaydet
           await addToCart(userId, activeVariant.id, quantity);
-          router.push("/cart");
         } else {
-          // Guest kullanıcı için
+          // Guest kullanıcı için localStorage'a kaydet
           const guestCartItem: GuestCartItem = {
             productId: activeVariant.id,
             productName: activeVariant.name,
@@ -219,8 +219,10 @@ const DesktopProductDetails: React.FC<ProductDetailsProps> = ({
           };
           
           addToGuestCart(guestCartItem);
-          router.push("/cart"); // Guest cart sayfası olmalı
         }
+        
+        // Her iki durumda da sepet sayfasına yönlendir
+        router.push("/cart");
       } catch {
         toast.error("Sepete eklerken bir hata oluştu.");
       }
@@ -373,7 +375,7 @@ const DesktopProductDetails: React.FC<ProductDetailsProps> = ({
           {!userId && (
             <div className="bg-blue-50 border border-blue-200 rounded p-3 text-sm">
               <p className="text-blue-700">
-                💡 Giriş yaparak sepetinizi kaydedin ve her cihazdan erişin!
+                💡 Sepetiniz geçici olarak kaydedildi. Giriş yaparak kalıcı olarak kaydedin!
                 <Link href="/login" className="ml-2 text-blue-600 hover:underline font-medium">
                   Giriş Yap
                 </Link>
