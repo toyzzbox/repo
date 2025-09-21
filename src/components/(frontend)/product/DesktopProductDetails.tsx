@@ -58,6 +58,72 @@ interface ProductDetailsProps {
   comments: Comment[];
 }
 
+// Guest Cart Interface
+interface GuestCartItem {
+  productId: string;
+  productName: string;
+  quantity: number;
+  price: number;
+  imageUrl?: string;
+  addedAt: string;
+}
+
+// Guest Cart Helper Functions
+const getGuestCart = (): GuestCartItem[] => {
+  if (typeof window === 'undefined') return [];
+  try {
+    const cart = localStorage.getItem('guestCart');
+    return cart ? JSON.parse(cart) : [];
+  } catch {
+    return [];
+  }
+};
+
+const setGuestCart = (cart: GuestCartItem[]): void => {
+  if (typeof window === 'undefined') return;
+  try {
+    localStorage.setItem('guestCart', JSON.stringify(cart));
+  } catch (error) {
+    console.error('Guest cart kaydetme hatası:', error);
+  }
+};
+
+const addToGuestCart = (item: GuestCartItem): void => {
+  const cart = getGuestCart();
+  const existingItemIndex = cart.findIndex(cartItem => cartItem.productId === item.productId);
+  
+  if (existingItemIndex > -1) {
+    // Varolan ürünün miktarını artır
+    cart[existingItemIndex].quantity += item.quantity;
+  } else {
+    // Yeni ürün ekle
+    cart.push(item);
+  }
+  
+  setGuestCart(cart);
+};
+
+// Guest cartı veritabanına aktarma fonksiyonu (server action olarak implement edilmeli)
+const migrateGuestCartToDatabase = async (userId: string): Promise<void> => {
+  const guestCart = getGuestCart();
+  if (guestCart.length === 0) return;
+
+  try {
+    // Her guest cart item'ını veritabanına ekle
+    for (const item of guestCart) {
+      await addToCart(userId, item.productId, item.quantity);
+    }
+    
+    // Guest cart'ı temizle
+    localStorage.removeItem('guestCart');
+    
+    toast.success(`${guestCart.length} ürün sepetinize aktarıldı!`);
+  } catch (error) {
+    console.error('Guest cart migration hatası:', error);
+    toast.error('Sepet aktarımında hata oluştu.');
+  }
+};
+
 const DesktopProductDetails: React.FC<ProductDetailsProps> = ({
   userId,
   product,
@@ -78,22 +144,55 @@ const DesktopProductDetails: React.FC<ProductDetailsProps> = ({
   const activeVariant = selectedVariant ?? product;
   const imageUrl = activeVariant.medias?.[0]?.urls?.[0] ?? "";
 
-  
   useEffect(() => {
     setSelectedVariant(variants.find((v) => v.id === product.id) ?? null);
   }, [product]);
+
+  // Kullanıcı giriş yaptığında guest cart'ı migrate et
+  useEffect(() => {
+    if (userId) {
+      const guestCart = getGuestCart();
+      if (guestCart.length > 0) {
+        // Kullanıcıya guest cart'ı aktarmak isteyip istemediğini sor
+        const shouldMigrate = window.confirm(
+          `Sepetinizde ${guestCart.length} ürün var. Bunları hesabınıza aktarmak ister misiniz?`
+        );
+        
+        if (shouldMigrate) {
+          migrateGuestCartToDatabase(userId);
+        } else {
+          localStorage.removeItem('guestCart');
+        }
+      }
+    }
+  }, [userId]);
 
   // Quantity
   const incrementQuantity = () => setQuantity((q) => q + 1);
   const decrementQuantity = () => setQuantity((q) => (q > 1 ? q - 1 : 1));
 
-  // 🛒 Server Action ile sepete ekleme
+  // 🛒 Server Action ile sepete ekleme (Guest + User)
   const handleAddToCart = () => {
-    if (!userId) return toast.error("Önce giriş yapmalısınız.");
     startTransition(async () => {
       try {
-        await addToCart(userId, activeVariant.id, quantity);
-        toast.custom(() => <CartSuccessToast productName={activeVariant.name} />);
+        if (userId) {
+          // Kullanıcı giriş yapmışsa veritabanına kaydet
+          await addToCart(userId, activeVariant.id, quantity);
+          toast.custom(() => <CartSuccessToast productName={activeVariant.name} />);
+        } else {
+          // Guest kullanıcı için localStorage'a kaydet
+          const guestCartItem: GuestCartItem = {
+            productId: activeVariant.id,
+            productName: activeVariant.name,
+            quantity: quantity,
+            price: product.discount || product.price,
+            imageUrl: activeVariant.medias?.[0]?.urls?.[0],
+            addedAt: new Date().toISOString(),
+          };
+          
+          addToGuestCart(guestCartItem);
+          toast.custom(() => <CartSuccessToast productName={activeVariant.name} />);
+        }
       } catch (err) {
         toast.error("Sepete eklerken bir hata oluştu.");
       }
@@ -102,19 +201,39 @@ const DesktopProductDetails: React.FC<ProductDetailsProps> = ({
 
   // Şimdi Al
   const handleBuyNow = () => {
-    if (!userId) return toast.error("Önce giriş yapmalısınız.");
     startTransition(async () => {
       try {
-        await addToCart(userId, activeVariant.id, quantity);
-        router.push("/cart");
+        if (userId) {
+          // Kullanıcı giriş yapmışsa
+          await addToCart(userId, activeVariant.id, quantity);
+          router.push("/cart");
+        } else {
+          // Guest kullanıcı için
+          const guestCartItem: GuestCartItem = {
+            productId: activeVariant.id,
+            productName: activeVariant.name,
+            quantity: quantity,
+            price: product.discount || product.price,
+            imageUrl: activeVariant.medias?.[0]?.urls?.[0],
+            addedAt: new Date().toISOString(),
+          };
+          
+          addToGuestCart(guestCartItem);
+          router.push("/cart"); // Guest cart sayfası olmalı
+        }
       } catch {
         toast.error("Sepete eklerken bir hata oluştu.");
       }
     });
   };
 
-  // Favori toggle (server action)
+  // Favori toggle (server action) - Sadece giriş yapmış kullanıcılar için
   const handleToggleFavorite = () => {
+    if (!userId) {
+      toast.error("Favorilere eklemek için giriş yapmalısınız.");
+      return;
+    }
+
     startTransition(async () => {
       try {
         // toggleFavorite kendi server action'un olabilir
@@ -143,18 +262,18 @@ const DesktopProductDetails: React.FC<ProductDetailsProps> = ({
 
   // Tüm ürün resimleri
   const imageUrls =
-  activeVariant?.medias?.length > 0
-    ? activeVariant.medias
-        .map((m) => m.urls?.[0])
-        .filter(Boolean) // undefined/null değerleri filtrele
-    : product.medias
-        .map((m) => m.urls?.[0])
-        .filter(Boolean);
+    activeVariant?.medias?.length > 0
+      ? activeVariant.medias
+          .map((m) => m.urls?.[0])
+          .filter(Boolean) // undefined/null değerleri filtrele
+      : product.medias
+          .map((m) => m.urls?.[0])
+          .filter(Boolean);
 
-// Eğer hiç resim yoksa placeholder ekle
-if (imageUrls.length === 0) {
-  imageUrls.push('/placeholder.png');
-}
+  // Eğer hiç resim yoksa placeholder ekle
+  if (imageUrls.length === 0) {
+    imageUrls.push('/placeholder.png');
+  }
 
   return (
     <div className="p-4">
@@ -171,7 +290,7 @@ if (imageUrls.length === 0) {
           productName={activeVariant.name}
           productGroupImages={product.group?.products
             ?.filter((p) => p.id !== activeVariant.id)
-            ?.flatMap((p) => p.medias.map((m) => m.urls[0]) || [])
+            ?.flatMap((p) => p.medias?.map((m) => m.urls?.[0]) || [])
             ?.filter(Boolean)}
           onGroupImageClick={handleGroupImageClick}
         />
@@ -250,6 +369,17 @@ if (imageUrls.length === 0) {
             </button>
             <FavoriteButton productId={activeVariant.id} initialIsFavorite={favorited} />
           </div>
+
+          {!userId && (
+            <div className="bg-blue-50 border border-blue-200 rounded p-3 text-sm">
+              <p className="text-blue-700">
+                💡 Giriş yaparak sepetinizi kaydedin ve her cihazdan erişin!
+                <Link href="/login" className="ml-2 text-blue-600 hover:underline font-medium">
+                  Giriş Yap
+                </Link>
+              </p>
+            </div>
+          )}
 
           <h2 className="p-2">En geç <b className="text-orange-400">yarın</b> kargoda.</h2>
         </div>
