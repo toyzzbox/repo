@@ -1,4 +1,3 @@
-// actions/register.ts
 "use server";
 
 import { z } from "zod";
@@ -59,16 +58,22 @@ async function recordLoginAttempt(
   userId?: string,
   reason?: string
 ) {
-  await prisma.loginAttempt.create({
-    data: {
-      email: email.toLowerCase(),
-      userId: userId || null,
-      ipAddress,
-      userAgent,
-      success,
-      reason: reason || null,
-    },
-  });
+  try {
+    await prisma.loginAttempt.create({
+      data: {
+        email: email.toLowerCase(),
+        userId: userId || null,
+        ipAddress,
+        userAgent,
+        success,
+        reason: reason || null,
+      },
+    });
+  } catch (error) {
+    // Audit log hatası ana işlemi engellemez
+    console.error('Failed to record login attempt:', error);
+    // Production'da error monitoring service'e gönderebilirsiniz
+  }
 }
 
 // Main register action
