@@ -1,3 +1,4 @@
+// actions/register.ts
 "use server";
 
 import { z } from "zod";
@@ -149,18 +150,18 @@ export async function registerUser(
         },
       });
 
-      // Record successful registration attempt
-      await recordLoginAttempt(
-        validatedData.email,
-        true,
-        ipAddress,
-        userAgent,
-        newUser.id,
-        "Registration successful"
-      );
-
       return newUser;
     });
+
+    // Transaction dışında login attempt kaydet
+    await recordLoginAttempt(
+      validatedData.email,
+      true,
+      ipAddress,
+      userAgent,
+      user.id,
+      "Registration successful"
+    );
 
     // Başarılı kayıt sonrası login sayfasına yönlendir
     redirect("/login?message=registration-success");
