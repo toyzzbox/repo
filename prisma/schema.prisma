@@ -8,80 +8,114 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
 model User {
-  id          String       @id @default(cuid())
-  createdAt DateTime @default(now())  // Otomatik olarak şu anki tarih
-  updatedAt DateTime @updatedAt       // Otomatik olarak güncelleme tarihi
-
-  name          String
-  password      String   // Bu satırı ekle
-  email         String  @unique
-  emailVerified Boolean
-  image         String?
-
-  sessions Session[]
-  accounts Account[]
-  addresses     Address[]
-  favorites     Favorite[]
-  comments      Comment[]
-  carts       Cart[] 
-
+  id               String    @id @default(cuid())
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  name             String
+  password         String
+  email            String    @unique
+  emailVerified    Boolean   @default(false)
+  image            String?
+  
+  // Auth & Security fields
+  role             Role      @default(USER)
+  failedLoginCount Int       @default(0)
+  lockedUntil      DateTime?
+  lastLoginAt      DateTime?
+  lastLoginIp      String?
+  
+  // Relations
+  sessions         Session[]
+  accounts         Account[]
+  addresses        Address[]
+  favorites        Favorite[]
+  comments         Comment[]
+  carts            Cart[]
+  loginAttempts    LoginAttempt[]
+  
   @@map("users")
 }
 
-
-
 model Account {
-  id          String       @id @default(cuid())
-  createdAt DateTime @default(now())  // Otomatik olarak şu anki tarih
-  updatedAt DateTime @updatedAt       // Otomatik olarak güncelleme tarihi
-
-  accountId  String? // ? ile nullable yaptık
-  providerId String? // ? ile nullable
-  accessToken           String?
-  refreshToken          String?
-  idToken               String?
-  accessTokenExpiresAt  DateTime?
-  refreshTokenExpiresAt DateTime?
-  scope                 String?
-  password              String?
-
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
+  id                        String    @id @default(cuid())
+  createdAt                 DateTime  @default(now())
+  updatedAt                 DateTime  @updatedAt
+  accountId                 String?
+  providerId                String?
+  accessToken               String?
+  refreshToken              String?
+  idToken                   String?
+  accessTokenExpiresAt      DateTime?
+  refreshTokenExpiresAt     DateTime?
+  scope                     String?
+  password                  String?
+  userId                    String
+  user                      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
   @@map("accounts")
 }
 
-
-
 model Session {
-  id          String       @id @default(cuid())
-  createdAt DateTime @default(now())  // Otomatik olarak şu anki tarih
-  updatedAt DateTime @updatedAt      
-
-  expiresAt DateTime
-  sessionToken     String?   @unique
-  ipAddress String?
-  userAgent String?
-
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
+  id            String   @id @default(cuid())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  expiresAt     DateTime
+  sessionToken  String   @unique
+  ipAddress     String?
+  userAgent     String?
+  isActive      Boolean  @default(true)
+  lastAccessAt  DateTime @default(now())
+  
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId])
+  @@index([sessionToken])
+  @@index([isActive])
   @@map("sessions")
 }
 
+model LoginAttempt {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  userId    String?
+  email     String
+  ipAddress String
+  userAgent String?
+  success   Boolean
+  reason    String?
+  
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+  
+  @@index([email, createdAt])
+  @@index([ipAddress, createdAt])
+  @@map("login_attempts")
+}
 
 model Verification {
-  id          String       @id @default(cuid())
-  createdAt DateTime? @default(now())  // Otomatik olarak şu anki tarih
-  updatedAt DateTime? @updatedAt       // Otomatik olarak güncelleme tarihi
-
-  identifier String
-  value      String
-  expiresAt  DateTime
-
+  id          String            @id @default(cuid())
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  identifier  String
+  value       String
+  type        VerificationType
+  expiresAt   DateTime
+  used        Boolean           @default(false)
+  
+  @@unique([identifier, type])
   @@map("verifications")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum VerificationType {
+  EMAIL_VERIFICATION
+  PASSWORD_RESET
+  TWO_FACTOR
 }
 /* ===========================
    E-TİCARET / DİĞER MODELLER
@@ -246,13 +280,21 @@ model Cart {
 
 model CartItem {
   id        String   @id @default(cuid())
+  
   cartId    String
   cart      Cart     @relation(fields: [cartId], references: [id])
+
   productId String
   product   Product  @relation(fields: [productId], references: [id])
-  quantity  Int      @default(1)
-}
 
+  quantity  Int      @default(1)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // 🔥 Aynı ürün aynı sepette sadece 1 kez bulunabilir
+  @@unique([cartId, productId])
+}
 enum CartStatus {
   ACTIVE     // Kullanıcının şu an kullandığı sepet
   ABANDONED  // Tamamlanmadan bırakılmış
