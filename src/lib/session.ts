@@ -1,3 +1,4 @@
+// lib/session.ts - Next.js 15 App Router uyumlu
 import { randomBytes } from 'crypto';
 import { cookies } from 'next/headers';
 import { prisma } from './prisma';
@@ -149,16 +150,20 @@ export class SessionAuth {
     userId?: string,
     reason?: string
   ): Promise<void> {
-    await prisma.loginAttempt.create({
-      data: {
-        email: email.toLowerCase(),
-        userId: userId || null,
-        ipAddress,
-        userAgent,
-        success,
-        reason: reason || null,
-      },
-    });
+    try {
+      await prisma.loginAttempt.create({
+        data: {
+          email: email.toLowerCase(),
+          userId: userId || null,
+          ipAddress,
+          userAgent,
+          success,
+          reason: reason || null,
+        },
+      });
+    } catch (error) {
+      console.error('Failed to record login attempt:', error);
+    }
   }
 
   // Rate limiting
@@ -192,9 +197,9 @@ export class SessionAuth {
     });
   }
 
-  // Cookie ayarla (Server Action için)
+  // Cookie ayarla (Server Action için) - ASYNC!
   static async setSessionCookie(sessionToken: string, rememberMe: boolean = false): Promise<void> {
-    const cookieStore = await cookies();
+    const cookieStore = await cookies(); // ASYNC await eklendi
     
     cookieStore.set('session-token', sessionToken, {
       httpOnly: true,
@@ -205,19 +210,35 @@ export class SessionAuth {
     });
   }
 
-  // Cookie temizle
+  // Cookie temizle - ASYNC!
   static async clearSessionCookie(): Promise<void> {
-    const cookieStore = await cookies();
+    const cookieStore = await cookies(); // ASYNC await eklendi
     cookieStore.delete('session-token');
   }
 
-  // Mevcut session'ı al (Server Component/Action için)
+  // Mevcut session'ı al (Server Component/Action için) - ASYNC!
   static async getCurrentSession(): Promise<SessionValidationResult | null> {
-    const cookieStore = await cookies();
+    const cookieStore = await cookies(); // ASYNC await eklendi
     const sessionToken = cookieStore.get('session-token')?.value;
     
     if (!sessionToken) return null;
     
     return await this.validateAndRefreshSession(sessionToken);
+  }
+
+  // Client Info Helper (Server Action için)
+  static async getClientInfo() {
+    // Next.js 15'te headers da async
+    const { headers } = await import('next/headers');
+    const headersList = await headers();
+    
+    const forwarded = headersList.get("x-forwarded-for");
+    const realIP = headersList.get("x-real-ip");
+    const cfIP = headersList.get("cf-connecting-ip");
+    
+    return {
+      ipAddress: (forwarded?.split(",")[0] || realIP || cfIP || "unknown").trim(),
+      userAgent: headersList.get("user-agent") || "unknown",
+    };
   }
 }
