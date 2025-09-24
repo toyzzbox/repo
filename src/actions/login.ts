@@ -1,79 +1,315 @@
 "use server";
-import bcrypt from "bcryptjs";
-import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
-import { prisma } from "@/lib/prisma";
-import { randomBytes } from "crypto";
 
-// Session token oluştur
-function generateSessionToken(): string {
-  return randomBytes(32).toString("hex");
+import { z } from "zod";
+import bcrypt from "bcryptjs";
+import { redirect } from "next/navigation";
+import { headers } from "next/headers";
+import { cookies } from "next/headers";
+import { randomBytes } from "crypto";
+import { prisma } from "@/lib/prisma";
+
+// Validation schema
+const LoginSchema = z.object({
+  email: z.string().email("Geçerli bir email adresi girin").toLowerCase(),
+  password: z.string().min(1, "Şifre gerekli"),
+  rememberMe: z.boolean().optional(),
+});
+
+// Helper functions
+async function getClientInfo() {
+  const headersList = await headers();
+  const forwarded = headersList.get("x-forwarded-for");
+  const realIP = headersList.get("x-real-ip");
+  const cfIP = headersList.get("cf-connecting-ip");
+  
+  return {
+    ipAddress: (forwarded?.split(",")[0] || realIP || cfIP || "unknown").trim(),
+    userAgent: headersList.get("user-agent") || "unknown",
+  };
 }
 
+async function checkRateLimit(email: string, ipAddress: string): Promise<boolean> {
+  const last15Minutes = new Date(Date.now() - 15 * 60 * 1000);
+  
+  const recentFailedAttempts = await prisma.loginAttempt.count({
+    where: {
+      OR: [
+        { email: email.toLowerCase() },
+        { ipAddress }
+      ],
+      success: false,
+      createdAt: { gte: last15Minutes },
+    },
+  });
+
+  return recentFailedAttempts < 5; // Max 5 failed attempts per 15 minutes
+}
+
+async function isAccountLocked(email: string): Promise<boolean> {
+  const last24Hours = new Date(Date.now() - 24 * 60 * 60 * 1000);
+  
+  const recentFailedAttempts = await prisma.loginAttempt.count({
+    where: {
+      email: email.toLowerCase(),
+      success: false,
+      createdAt: { gte: last24Hours },
+    },
+  });
+
+  return recentFailedAttempts >= 10; // Lock account after 10 failed attempts in 24 hours
+}
+
+async function recordLoginAttempt(
+  email: string,
+  success: boolean,
+  ipAddress: string,
+  userAgent: string,
+  userId?: string,
+  reason?: string
+) {
+  try {
+    await prisma.loginAttempt.create({
+      data: {
+        email: email.toLowerCase(),
+        userId: userId || null,
+        ipAddress,
+        userAgent,
+        success,
+        reason: reason || null,
+      },
+    });
+  } catch (error) {
+    // Audit log hatası ana işlemi engellemez
+    console.error('Failed to record login attempt:', error);
+  }
+}
+
+async function createSession(userId: string, rememberMe: boolean = false) {
+  // Eski sessionları temizle
+  await prisma.session.deleteMany({
+    where: {
+      userId,
+      expiresAt: { lt: new Date() }
+    }
+  });
+
+  // Yeni session oluştur
+  const token = randomBytes(32).toString('hex');
+  const expiresAt = new Date();
+  
+  if (rememberMe) {
+    expiresAt.setDate(expiresAt.getDate() + 30); // 30 gün
+  } else {
+    expiresAt.setDate(expiresAt.getDate() + 7); // 7 gün
+  }
+
+  const session = await prisma.session.create({
+    data: {
+      id: token,
+      userId,
+      expiresAt,
+    },
+  });
+
+  return session;
+}
+
+async function setSessionCookie(sessionToken: string, rememberMe: boolean = false) {
+  const cookieStore = await cookies();
+  const maxAge = rememberMe ? 30 * 24 * 60 * 60 : 7 * 24 * 60 * 60; // seconds
+  
+  cookieStore.set("session-token", sessionToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    maxAge,
+    path: "/",
+  });
+}
+
+// Main login action
 export async function loginUser(
   prevState: { success: boolean; message: string },
   formData: FormData
 ): Promise<{ success: boolean; message: string }> {
-  const email = formData.get("email") as string;
-  const password = formData.get("password") as string;
-
-  if (!email || !password) {
-    return { success: false, message: "Email ve şifre zorunludur" };
-  }
+  
+  const { ipAddress, userAgent } = await getClientInfo();
 
   try {
-    // Kullanıcıyı veritabanından bul
+    // Extract and validate form data
+    const rawData = {
+      email: formData.get("email") as string,
+      password: formData.get("password") as string,
+      rememberMe: formData.get("rememberMe") === "on",
+    };
+
+    const validatedData = LoginSchema.parse(rawData);
+
+    // Check if account is locked
+    const accountLocked = await isAccountLocked(validatedData.email);
+    if (accountLocked) {
+      await recordLoginAttempt(
+        validatedData.email,
+        false,
+        ipAddress,
+        userAgent,
+        undefined,
+        "Account locked - too many failed attempts"
+      );
+      return {
+        success: false,
+        message: "Hesabınız geçici olarak kilitlendi. 24 saat sonra tekrar deneyin.",
+      };
+    }
+
+    // Rate limiting check
+    const isAllowed = await checkRateLimit(validatedData.email, ipAddress);
+    if (!isAllowed) {
+      await recordLoginAttempt(
+        validatedData.email,
+        false,
+        ipAddress,
+        userAgent,
+        undefined,
+        "Rate limit exceeded"
+      );
+      return {
+        success: false,
+        message: "Çok fazla deneme. 15 dakika sonra tekrar deneyin.",
+      };
+    }
+
+    // Find user
     const user = await prisma.user.findUnique({
-      where: { email },
+      where: { email: validatedData.email },
     });
 
     if (!user) {
-      return { success: false, message: "Kullanıcı bulunamadı" };
+      await recordLoginAttempt(
+        validatedData.email,
+        false,
+        ipAddress,
+        userAgent,
+        undefined,
+        "User not found"
+      );
+      return {
+        success: false,
+        message: "Email veya şifre hatalı",
+      };
     }
 
-    // Şifre kontrolü
-    if (user.password) {
-      const isValidPassword = await bcrypt.compare(password, user.password);
-      if (!isValidPassword) {
-        return { success: false, message: "Geçersiz şifre" };
-      }
-    } else {
-      return { success: false, message: "Bu hesap için şifre ile giriş yapılamaz" };
+    // Verify password
+    const passwordMatch = await bcrypt.compare(validatedData.password, user.password);
+
+    if (!passwordMatch) {
+      await recordLoginAttempt(
+        validatedData.email,
+        false,
+        ipAddress,
+        userAgent,
+        user.id,
+        "Invalid password"
+      );
+      return {
+        success: false,
+        message: "Email veya şifre hatalı",
+      };
     }
 
-    // Eski session'ları temizle
-    await prisma.session.deleteMany({
-      where: { userId: user.id },
-    });
+    // Successful login - create session
+    const session = await createSession(user.id, validatedData.rememberMe);
+    await setSessionCookie(session.id, validatedData.rememberMe);
 
-    // Yeni session oluştur
-    const sessionToken = generateSessionToken();
-    const expiresAt = new Date();
-    expiresAt.setDate(expiresAt.getDate() + 30);
+    // Record successful login attempt
+    await recordLoginAttempt(
+      validatedData.email,
+      true,
+      ipAddress,
+      userAgent,
+      user.id,
+      "Login successful"
+    );
 
-    await prisma.session.create({
-      data: {
-        sessionToken,
-        userId: user.id,
-        expiresAt,
+    // Update last login time
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { 
+        lastLogin: new Date(),
       },
     });
 
-    // Session cookie'yi ayarla - await EKLENDİ
-    const cookieStore = await cookies(); // ✅ await eklendi
-    cookieStore.set("session", sessionToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      maxAge: 60 * 60 * 24 * 30,
-      path: "/",
-    });
+    // Redirect based on user role or default dashboard
+    const redirectPath = user.role === "ADMIN" ? "/admin/dashboard" : "/dashboard";
+    redirect(redirectPath);
 
-  } catch (err) {
-    console.error("Login error:", err);
-    return { success: false, message: "Giriş yapılırken bir hata oluştu" };
+  } catch (error) {
+    console.error("Login error:", error);
+
+    // Handle validation errors
+    if (error instanceof z.ZodError) {
+      const firstError = error.errors[0];
+      return {
+        success: false,
+        message: firstError.message,
+      };
+    }
+
+    // Generic error
+    return {
+      success: false,
+      message: "Bir hata oluştu. Lütfen tekrar deneyin.",
+    };
+  }
+}
+
+// Logout action
+export async function logoutUser() {
+  try {
+    const cookieStore = await cookies();
+    const sessionToken = cookieStore.get("session-token");
+
+    if (sessionToken) {
+      // Database'den session'ı sil
+      await prisma.session.delete({
+        where: { id: sessionToken.value },
+      }).catch(() => {
+        // Session zaten silinmiş olabilir, hata vermesin
+      });
+    }
+
+    // Cookie'yi sil
+    cookieStore.delete("session-token");
+  } catch (error) {
+    console.error("Logout error:", error);
   }
 
-  // Başarı durumunda yönlendirme
-  redirect("/administor/users");
+  redirect("/login");
+}
+
+// Session doğrulama helper'ı (middleware için)
+export async function validateSession(sessionToken: string) {
+  try {
+    const session = await prisma.session.findUnique({
+      where: {
+        id: sessionToken,
+        expiresAt: { gt: new Date() }, // Expire olmamış
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            email: true,
+            name: true,
+            role: true,
+          }
+        }
+      }
+    });
+
+    return session;
+  } catch (error) {
+    console.error("Session validation error:", error);
+    return null;
+  }
 }
