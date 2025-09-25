@@ -47,7 +47,3 @@ export async function redirectIfAuthenticated() {
     redirect('/dashboard');
   }
 }
-
-// Her session kontrolünde cache'i bypass et
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;

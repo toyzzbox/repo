@@ -1,7 +1,10 @@
 import { requireAuth } from "@/lib/session";
 
+// Cache'i bypass et - her istekte yeni session kontrolü yap
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export default async function DashboardPage() {
-  // Giriş yapmış kullanıcı gerekli
   const session = await requireAuth();
   
   return (
