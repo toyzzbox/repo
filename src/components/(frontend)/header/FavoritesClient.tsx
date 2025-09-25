@@ -1,11 +1,15 @@
-// app/components/Favorites.tsx
+// components/(frontend)/header/FavoritesClient.tsx
+"use client";
+
 import Link from "next/link";
 import { Heart } from "lucide-react";
-import { getSession } from "@/lib/session";
 
-const Favorites = async () => {
-  const session = await getSession(); // server-side session al
-  const href = session?.user ? "/hesabim/favorilerim" : "/login"; // link belirle
+interface FavoritesClientProps {
+  session: any; // Session tipinizi buraya koyun
+}
+
+const FavoritesClient = ({ session }: FavoritesClientProps) => {
+  const href = session?.user ? "/hesabim/favorilerim" : "/login";
 
   return (
     <Link
@@ -21,4 +25,4 @@ const Favorites = async () => {
   );
 };
 
-export default Favorites;
+export default FavoritesClient;

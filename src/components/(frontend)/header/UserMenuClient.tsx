@@ -1,3 +1,6 @@
+// components/(frontend)/header/UserMenuClient.tsx
+"use client";
+
 import { LogOut, Settings, User } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -10,12 +13,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { getSession } from "@/lib/session";
-import { logout } from "@/lib/logout"; // import et
+import { logout } from "@/lib/logout";
 
-export default async function UserMenu() {
-  const session = await getSession();
+interface UserMenuClientProps {
+  session: any; // Session tipinizi buraya koyun (örn: Session | null)
+}
 
+export default function UserMenuClient({ session }: UserMenuClientProps) {
   if (!session) {
     return (
       <DropdownMenu>
@@ -61,7 +65,6 @@ export default async function UserMenu() {
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-
         <DropdownMenuGroup>
           <DropdownMenuItem asChild>
             <Link href="/dashboard" className="flex items-center gap-2">
@@ -69,7 +72,6 @@ export default async function UserMenu() {
               Hesabım
             </Link>
           </DropdownMenuItem>
-
           <DropdownMenuItem asChild>
             <Link href="/profile" className="flex items-center gap-2">
               <Settings className="w-4 h-4" />
@@ -77,10 +79,7 @@ export default async function UserMenu() {
             </Link>
           </DropdownMenuItem>
         </DropdownMenuGroup>
-
         <DropdownMenuSeparator />
-
-        {/* Çıkış Yap */}
         <DropdownMenuItem asChild>
           <form action={logout} className="w-full">
             <button type="submit" className="flex items-center gap-2 w-full">
