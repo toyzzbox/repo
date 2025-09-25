@@ -3,19 +3,19 @@
 import React from 'react'
 import Logo from './Logo'
 import TopBar from './TopBar'
-import Favorites from './FavoritesClient'
+import FavoritesClient from './FavoritesClient'
 import CartCount from './CartCount'
-import UserMenuClient from './UserMenuClient' // İsim değişti
+import UserMenuClient from './UserMenuClient'
 import MobileHeader from './MobileHeader'
 import LiveSearch from '../search/LiveSearch'
 import MegaMenu from './MegaMenu'
-import FavoritesClient from './FavoritesClient';
 
 interface HeaderProps {
-  session: any; // Session tipinizi kullanın
+  session: any;
+  categories: any; // BURAYI EKLEYİN
 }
 
-const Header = ({ session }: HeaderProps) => {
+const Header = ({ session, categories }: HeaderProps) => { // categories eklendi
   return (
     <>
       <div className="w-[1200px] mx-auto px-[50px]">
@@ -25,7 +25,7 @@ const Header = ({ session }: HeaderProps) => {
             <Logo />
             <LiveSearch />
             <div className='hidden sm:flex items-center gap-2 p-2'>
-              <UserMenuClient session={session} /> {/* session prop geçiliyor */}
+              <UserMenuClient session={session} />
               <FavoritesClient session={session} />
               <CartCount />
             </div>
@@ -35,7 +35,7 @@ const Header = ({ session }: HeaderProps) => {
           <MegaMenu/>
         </div>
       </div>
-      <MobileHeader session={session} />
+      <MobileHeader session={session} categories={categories} />
     </>
   )
 }
