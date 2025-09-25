@@ -249,7 +249,8 @@ export async function loginUser(
     await prisma.user.update({
       where: { id: user.id },
       data: { 
-        lastLogin: new Date(),
+        lastLoginAt: new Date(), // lastLogin yerine lastLoginAt
+        lastLoginIp: ipAddress,  // İsterseniz bunu da ekleyebilirsiniz
       },
     });
 
