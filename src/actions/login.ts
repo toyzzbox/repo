@@ -315,4 +315,9 @@ export async function validateSession(sessionToken: string) {
       }
     });
 
-    return
+    return session;
+  } catch (error) {
+    console.error("Session validation error:", error);
+    return null;
+  }
+}
