@@ -1,9 +1,7 @@
 import "./globals.css";
 import GtagClient from "@/components/(frontend)/analytics/GtagClient";
-
 import { Metadata } from "next";
 import Script from "next/script";
-import { SessionProvider } from "./contexts/SessionContext";
 
 export const metadata: Metadata = {
   title: "Toyzz Box",
@@ -32,10 +30,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </Script>
       </head>
       <body>
-        <GtagClient />
-        <SessionProvider>
+
+          <GtagClient />
           {children}
-        </SessionProvider>
+  
       </body>
     </html>
   );
