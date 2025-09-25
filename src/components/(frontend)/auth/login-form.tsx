@@ -1,5 +1,6 @@
 "use client";
-import { useActionState } from "react";
+import { useActionState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { loginUser } from "@/actions/login";
 import { useSearchParams } from "next/navigation";
@@ -7,12 +8,23 @@ import { useSearchParams } from "next/navigation";
 const initialState = {
   success: false,
   message: "",
+  redirectTo: undefined as string | undefined,
 };
 
 export default function LoginForm() {
+  const router = useRouter();
   const [state, formAction, isPending] = useActionState(loginUser, initialState);
   const searchParams = useSearchParams();
   const message = searchParams.get('message');
+
+  // Başarılı login sonrası yönlendirme
+  useEffect(() => {
+    if (state?.success && state?.redirectTo) {
+      setTimeout(() => {
+        router.push(state.redirectTo!);
+      }, 1000);
+    }
+  }, [state?.success, state?.redirectTo, router]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-white to-yellow-50 py-12 px-4 sm:px-6 lg:px-8">
@@ -28,7 +40,7 @@ export default function LoginForm() {
               </div>
               <div className="ml-3">
                 <p className="text-sm font-medium text-green-700">
-                  🎉 Şifreniz başarıyla güncellendi! Artık yeni şifrenizle giriş yapabilirsiniz.
+                  Şifreniz başarıyla güncellendi! Artık yeni şifrenizle giriş yapabilirsiniz.
                 </p>
               </div>
             </div>
@@ -81,7 +93,7 @@ export default function LoginForm() {
             </div>
 
             {/* Durum mesajları */}
-            {state.message && (
+            {state?.message && (
               <div
                 className={`rounded-lg p-4 ${
                   state.success
@@ -117,12 +129,12 @@ export default function LoginForm() {
             <div className="flex items-center justify-between">
               <div className="flex items-center">
                 <input
-                  id="remember-me"
-                  name="remember-me"
+                  id="rememberMe"
+                  name="rememberMe"
                   type="checkbox"
                   className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
                 />
-                <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">
+                <label htmlFor="rememberMe" className="ml-2 block text-sm text-gray-900">
                   Beni hatırla
                 </label>
               </div>
@@ -197,7 +209,7 @@ export default function LoginForm() {
           </form>
         </div>
 
-        {/* Güvenlik bilgi kutusu - Şifre sıfırlama ile ilgili */}
+        {/* Güvenlik bilgi kutusu */}
         <div className="bg-blue-50 border-l-4 border-blue-400 p-4 rounded-md shadow-sm">
           <div className="flex">
             <div className="flex-shrink-0">
