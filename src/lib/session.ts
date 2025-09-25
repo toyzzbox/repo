@@ -1,4 +1,4 @@
-// lib/session.ts
+"use server"
 import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
