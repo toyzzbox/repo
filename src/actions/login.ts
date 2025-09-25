@@ -42,7 +42,7 @@ async function checkRateLimit(email: string, ipAddress: string): Promise<boolean
     },
   });
 
-  return recentFailedAttempts < 5; // Max 5 failed attempts per 15 minutes
+  return recentFailedAttempts < 5;
 }
 
 async function isAccountLocked(email: string): Promise<boolean> {
@@ -56,7 +56,7 @@ async function isAccountLocked(email: string): Promise<boolean> {
     },
   });
 
-  return recentFailedAttempts >= 10; // Lock account after 10 failed attempts in 24 hours
+  return recentFailedAttempts >= 10;
 }
 
 async function recordLoginAttempt(
@@ -79,12 +79,16 @@ async function recordLoginAttempt(
       },
     });
   } catch (error) {
-    // Audit log hatası ana işlemi engellemez
     console.error('Failed to record login attempt:', error);
   }
 }
 
-async function createSession(userId: string, rememberMe: boolean = false) {
+async function createSession(
+  userId: string, 
+  rememberMe: boolean = false,
+  ipAddress: string,
+  userAgent: string
+) {
   // Eski sessionları temizle
   await prisma.session.deleteMany({
     where: {
@@ -107,16 +111,21 @@ async function createSession(userId: string, rememberMe: boolean = false) {
     data: {
       id: token,
       userId,
+      sessionToken: token,
       expiresAt,
-    },
+      ipAddress,
+      userAgent,
+      isActive: true,
+      lastAccessAt: new Date(),
+    }
   });
-
+  
   return session;
 }
 
 async function setSessionCookie(sessionToken: string, rememberMe: boolean = false) {
   const cookieStore = await cookies();
-  const maxAge = rememberMe ? 30 * 24 * 60 * 60 : 7 * 24 * 60 * 60; // seconds
+  const maxAge = rememberMe ? 30 * 24 * 60 * 60 : 7 * 24 * 60 * 60;
   
   cookieStore.set("session-token", sessionToken, {
     httpOnly: true,
@@ -218,7 +227,12 @@ export async function loginUser(
     }
 
     // Successful login - create session
-    const session = await createSession(user.id, validatedData.rememberMe);
+    const session = await createSession(
+      user.id, 
+      validatedData.rememberMe,
+      ipAddress,
+      userAgent
+    );
     await setSessionCookie(session.id, validatedData.rememberMe);
 
     // Record successful login attempt
@@ -246,7 +260,6 @@ export async function loginUser(
   } catch (error) {
     console.error("Login error:", error);
 
-    // Handle validation errors
     if (error instanceof z.ZodError) {
       const firstError = error.errors[0];
       return {
@@ -255,7 +268,6 @@ export async function loginUser(
       };
     }
 
-    // Generic error
     return {
       success: false,
       message: "Bir hata oluştu. Lütfen tekrar deneyin.",
@@ -270,15 +282,11 @@ export async function logoutUser() {
     const sessionToken = cookieStore.get("session-token");
 
     if (sessionToken) {
-      // Database'den session'ı sil
       await prisma.session.delete({
         where: { id: sessionToken.value },
-      }).catch(() => {
-        // Session zaten silinmiş olabilir, hata vermesin
-      });
+      }).catch(() => {});
     }
 
-    // Cookie'yi sil
     cookieStore.delete("session-token");
   } catch (error) {
     console.error("Logout error:", error);
@@ -287,13 +295,13 @@ export async function logoutUser() {
   redirect("/login");
 }
 
-// Session doğrulama helper'ı (middleware için)
+// Session doğrulama helper'ı
 export async function validateSession(sessionToken: string) {
   try {
     const session = await prisma.session.findUnique({
       where: {
         id: sessionToken,
-        expiresAt: { gt: new Date() }, // Expire olmamış
+        expiresAt: { gt: new Date() },
       },
       include: {
         user: {
@@ -307,9 +315,4 @@ export async function validateSession(sessionToken: string) {
       }
     });
 
-    return session;
-  } catch (error) {
-    console.error("Session validation error:", error);
-    return null;
-  }
-}
+    return
