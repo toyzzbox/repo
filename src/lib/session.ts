@@ -6,7 +6,7 @@ import { redirect } from "next/navigation";
 export async function getSession() {
   try {
     const cookieStore = await cookies();
-    const sessionToken = cookieStore.get("session-token")?.value; // "session" yerine "session-token"
+    const sessionToken = cookieStore.get("session-token")?.value;
     
     if (!sessionToken) {
       return null;
@@ -47,3 +47,7 @@ export async function redirectIfAuthenticated() {
     redirect('/dashboard');
   }
 }
+
+// Her session kontrolünde cache'i bypass et
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
