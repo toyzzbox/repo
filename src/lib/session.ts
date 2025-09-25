@@ -1,4 +1,4 @@
-// lib/session.ts - Next.js 15 App Router uyumlu
+"use server"
 import { randomBytes } from 'crypto';
 import { cookies } from 'next/headers';
 import { prisma } from './prisma';
