@@ -5,8 +5,8 @@ import { redirect } from "next/navigation";
 
 export async function getSession() {
   try {
-    const cookieStore = await cookies(); // ✅ await kullanın
-    const sessionToken = cookieStore.get("session")?.value;
+    const cookieStore = await cookies();
+    const sessionToken = cookieStore.get("session-token")?.value; // "session" yerine "session-token"
     
     if (!sessionToken) {
       return null;
@@ -18,7 +18,6 @@ export async function getSession() {
     });
 
     if (!session || session.expiresAt <= new Date()) {
-      // Süresi dolmuş session'ı temizle
       if (session) {
         await prisma.session.delete({
           where: { sessionToken }
