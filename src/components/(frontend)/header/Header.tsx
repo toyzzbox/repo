@@ -35,7 +35,7 @@ const Header = ({ session }: HeaderProps) => {
           <MegaMenu/>
         </div>
       </div>
-      <MobileHeader/>
+      <MobileHeader session={session} />
     </>
   )
 }
