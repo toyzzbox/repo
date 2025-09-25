@@ -138,9 +138,9 @@ async function setSessionCookie(sessionToken: string, rememberMe: boolean = fals
 
 // Main login action
 export async function loginUser(
-  prevState: { success: boolean; message: string },
+  prevState: { success: boolean; message: string ,redirectTo?: string },
   formData: FormData
-): Promise<{ success: boolean; message: string }> {
+): Promise<{ success: boolean; message: string ,redirectTo?: string }> {
   
   const { ipAddress, userAgent } = await getClientInfo();
 
@@ -255,8 +255,11 @@ export async function loginUser(
     });
 
     // Redirect based on user role or default dashboard
-    const redirectPath = user.role === "ADMIN" ? "/admin/dashboard" : "/dashboard";
-    redirect(redirectPath);
+    return {
+      success: true,
+      message: "Giriş başarılı! Yönlendiriliyorsunuz...",
+      redirectTo: user.role === "ADMIN" ? "/admin/dashboard" : "/dashboard"
+    };
 
   } catch (error) {
     console.error("Login error:", error);
