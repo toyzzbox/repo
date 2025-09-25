@@ -258,7 +258,7 @@ export async function loginUser(
     return {
       success: true,
       message: "Giriş başarılı! Yönlendiriliyorsunuz...",
-      redirectTo: user.role === "ADMIN" ? "/admin/dashboard" : "/dashboard"
+      redirectTo: user.role === "ADMIN" ? "/admin/dashboard" : "/administor"
     };
 
   } catch (error) {
