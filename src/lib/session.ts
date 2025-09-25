@@ -209,7 +209,7 @@ export async function clearSessionCookie() {
 }
 
 // Mevcut session
-export async function getCurrentSession(): Promise<SessionValidationResult | null> {
+export async function getSession(): Promise<SessionValidationResult | null> {
   const cookieStore = await cookies();
   const sessionToken = cookieStore.get("session-token")?.value;
   if (!sessionToken) return null;
