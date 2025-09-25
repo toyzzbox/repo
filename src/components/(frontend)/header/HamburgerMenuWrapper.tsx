@@ -1,8 +1,10 @@
-import { getAllCategories } from "@/actions/getHamburgerCategories";
+// components/(frontend)/header/HamburgerMenuWrapper.tsx
 import HamburgerMenu from "./HamburgerMenu";
 
-export default async function HamburgerMenuWrapper() {
-  const categories = await getAllCategories();
+interface HamburgerMenuWrapperProps {
+  categories: any; // Kategori tipinizi kullanın
+}
 
+export default function HamburgerMenuWrapper({ categories }: HamburgerMenuWrapperProps) {
   return <HamburgerMenu categories={categories} />;
 }

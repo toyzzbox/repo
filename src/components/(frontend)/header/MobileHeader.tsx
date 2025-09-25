@@ -1,21 +1,22 @@
 // components/(frontend)/header/MobileHeader.tsx
 import CartCountMobile from './CartCountMobile';
-import UserMobileMenuClient from './UserMobileMenuClient'; // İsim değişti
 import LiveSearch from '../search/LiveSearch';
 import MobileLogo from './MobileLogo';
 import HamburgerMenuWrapper from './HamburgerMenuWrapper';
+import UserMobileMenuClient from './UserMobileMenuClient';
 
 interface MobileHeaderProps {
   session: any;
+  categories: any; // Kategori tipinizi ekleyin
 }
 
-export default function MobileHeader({ session }: MobileHeaderProps) {
+export default function MobileHeader({ session, categories }: MobileHeaderProps) {
   return (
     <div className="md:hidden">
       {/* Header: her zaman görünür */}
       <div className="fixed top-0 left-0 right-0 z-50 bg-white h-16">
         <div className="flex justify-between items-center h-full px-4">
-          <HamburgerMenuWrapper />
+          <HamburgerMenuWrapper categories={categories} />
           <MobileLogo />
           <div className="flex items-center gap-4">
             <UserMobileMenuClient session={session} />
