@@ -15,16 +15,16 @@ interface HamburgerMenuProps {
   categories: Category[];
 }
 
-export default function HamburgerMenu({ categories }: HamburgerMenuProps) {
+export default function HamburgerMenu({ categories = [] }: HamburgerMenuProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [menuStack, setMenuStack] = useState<Category[]>([]);
   
   const currentMenu = menuStack[menuStack.length - 1];
-  const currentCategories = currentMenu ? currentMenu.children : categories;
+  const currentCategories = currentMenu?.children || categories || [];
   const isMainMenu = menuStack.length === 0;
 
   const handleCategoryClick = (category: Category) => {
-    if (category.children.length > 0) {
+    if (category.children?.length > 0) {
       setMenuStack((prev) => [...prev, category]);
     } else {
       // Router navigation burada yapılacak
@@ -120,7 +120,7 @@ export default function HamburgerMenu({ categories }: HamburgerMenuProps) {
                     {category.name}
                   </span>
                   
-                  {category.children.length > 0 && (
+                  {category.children?.length > 0 && (
                     <ChevronRight size={18} className="text-gray-400" />
                   )}
                 </button>
@@ -138,7 +138,7 @@ export default function HamburgerMenu({ categories }: HamburgerMenuProps) {
           <div className="text-sm text-gray-600 text-center">
             {currentCategories.length} kategori
           </div>
-          {!isMainMenu && (
+          {!isMainMenu && currentMenu && (
             <div className="text-xs text-gray-500 text-center mt-1">
               {currentMenu.name}
             </div>
@@ -148,135 +148,3 @@ export default function HamburgerMenu({ categories }: HamburgerMenuProps) {
     </div>
   );
 }
-
-// Demo için örnek kategori verisi
-const sampleCategories: Category[] = [
-  {
-    id: '1',
-    name: 'Elektronik',
-    slug: 'elektronik',
-    children: [
-      {
-        id: '1-1',
-        name: 'Telefonlar',
-        slug: 'telefonlar',
-        children: [
-          {
-            id: '1-1-1',
-            name: 'iPhone',
-            slug: 'iphone',
-            children: []
-          },
-          {
-            id: '1-1-2',
-            name: 'Samsung',
-            slug: 'samsung',
-            children: []
-          },
-          {
-            id: '1-1-3',
-            name: 'Xiaomi',
-            slug: 'xiaomi',
-            children: []
-          }
-        ]
-      },
-      {
-        id: '1-2',
-        name: 'Bilgisayarlar',
-        slug: 'bilgisayarlar',
-        children: [
-          {
-            id: '1-2-1',
-            name: 'Laptoplar',
-            slug: 'laptoplar',
-            children: []
-          },
-          {
-            id: '1-2-2',
-            name: 'Masaüstü',
-            slug: 'masaustu',
-            children: []
-          }
-        ]
-      },
-      {
-        id: '1-3',
-        name: 'Kulaklıklar',
-        slug: 'kulakliklar',
-        children: []
-      }
-    ]
-  },
-  {
-    id: '2',
-    name: 'Giyim',
-    slug: 'giyim',
-    children: [
-      {
-        id: '2-1',
-        name: 'Erkek',
-        slug: 'erkek',
-        children: [
-          {
-            id: '2-1-1',
-            name: 'Gömlekler',
-            slug: 'gomlekler',
-            children: []
-          },
-          {
-            id: '2-1-2',
-            name: 'Pantolonlar',
-            slug: 'pantolonlar',
-            children: []
-          }
-        ]
-      },
-      {
-        id: '2-2',
-        name: 'Kadın',
-        slug: 'kadin',
-        children: [
-          {
-            id: '2-2-1',
-            name: 'Elbiseler',
-            slug: 'elbiseler',
-            children: []
-          },
-          {
-            id: '2-2-2',
-            name: 'Bluzlar',
-            slug: 'bluzlar',
-            children: []
-          }
-        ]
-      }
-    ]
-  },
-  {
-    id: '3',
-    name: 'Ev & Yaşam',
-    slug: 'ev-yasam',
-    children: [
-      {
-        id: '3-1',
-        name: 'Mobilya',
-        slug: 'mobilya',
-        children: []
-      },
-      {
-        id: '3-2',
-        name: 'Dekorasyon',
-        slug: 'dekorasyon',
-        children: []
-      }
-    ]
-  },
-  {
-    id: '4',
-    name: 'Spor',
-    slug: 'spor',
-    children: []
-  }
-];
-
