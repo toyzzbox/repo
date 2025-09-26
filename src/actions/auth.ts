@@ -131,3 +131,138 @@ export async function resetPasswordAction(
     return { error: error.message || 'Şifre sıfırlama sırasında bir hata oluştu.' }
   }
 }
+
+
+
+
+// lib/auth.ts
+import { cookies } from 'next/headers';
+import { prisma } from '@/lib/prisma';
+import { User } from '@prisma/client';
+
+/**
+ * Server-side'da mevcut kullanıcıyı getir
+ */
+export async function getCurrentUser(): Promise<User | null> {
+  try {
+    const cookieStore = await cookies();
+    
+    // Session token'ı cookie'den al
+    // 🔥 KENDİ SESSION COOKIE İSMİNİZİ KULLANIN
+    const sessionToken = cookieStore.get('session_token')?.value; // veya 'auth_token', 'sessionToken' vs.
+    
+    if (!sessionToken) {
+      return null;
+    }
+
+    // Session'ı veritabanından kontrol et
+    const session = await prisma.session.findUnique({
+      where: {
+        sessionToken,
+        isActive: true,
+      },
+      include: {
+        user: true,
+      },
+    });
+
+    // Session expired mı kontrol et
+    if (!session || session.expiresAt < new Date()) {
+      return null;
+    }
+
+    // Last access time'ı güncelle (opsiyonel)
+    await prisma.session.update({
+      where: { id: session.id },
+      data: { lastAccessAt: new Date() },
+    });
+
+    return session.user;
+  } catch (error) {
+    console.error('Get current user error:', error);
+    return null;
+  }
+}
+
+/**
+ * Kullanıcının giriş yapıp yapmadığını kontrol et
+ */
+export async function isAuthenticated(): Promise<boolean> {
+  const user = await getCurrentUser();
+  return !!user;
+}
+
+/**
+ * Admin kontrolü
+ */
+export async function isAdmin(): Promise<boolean> {
+  const user = await getCurrentUser();
+  return user?.role === 'ADMIN';
+}
+
+/**
+ * Protected action wrapper
+ * Sadece giriş yapmış kullanıcılar için
+ */
+export async function requireAuth<T>(
+  callback: (user: User) => Promise<T>
+): Promise<{ success: boolean; data?: T; error?: string }> {
+  const user = await getCurrentUser();
+  
+  if (!user) {
+    return {
+      success: false,
+      error: 'Bu işlem için giriş yapmalısınız',
+    };
+  }
+
+  try {
+    const data = await callback(user);
+    return {
+      success: true,
+      data,
+    };
+  } catch (error: any) {
+    return {
+      success: false,
+      error: error.message || 'Bir hata oluştu',
+    };
+  }
+}
+
+/**
+ * Admin action wrapper
+ * Sadece admin kullanıcılar için
+ */
+export async function requireAdmin<T>(
+  callback: (user: User) => Promise<T>
+): Promise<{ success: boolean; data?: T; error?: string }> {
+  const user = await getCurrentUser();
+  
+  if (!user) {
+    return {
+      success: false,
+      error: 'Bu işlem için giriş yapmalısınız',
+    };
+  }
+
+  if (user.role !== 'ADMIN') {
+    return {
+      success: false,
+      error: 'Bu işlem için yetkiniz yok',
+    };
+  }
+
+  try {
+    const data = await callback(user);
+    return {
+      success: true,
+      data,
+    };
+  } catch (error: any) {
+    return {
+      success: false,
+      error: error.message || 'Bir hata oluştu',
+    };
+  }
+}

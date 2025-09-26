@@ -9,7 +9,7 @@ import ProductBreadcrumb from "./ProductBreadcrumb";
 import ProductDetailTabs from "./ProductDetailTab";
 import CartSuccessToast from "./CartSuccessToast";
 import { FavoriteButton } from "./FavoriteButton";
-import { addToCart } from "@/actions/cart"; // Server Action
+import { addToCartAction, mergeCartsAction } from "../../../actions/cart.actions"; // 🔥 YENİ SERVER ACTIONS
 import Link from "next/link";
 
 interface Comment {
@@ -21,7 +21,7 @@ interface Comment {
 }
 
 interface ProductDetailsProps {
-  userId?: string; // Kendi auth sisteminle userId
+  userId?: string;
   product: {
     id: string;
     slug: string;
@@ -58,72 +58,6 @@ interface ProductDetailsProps {
   comments: Comment[];
 }
 
-// Guest Cart Interface
-interface GuestCartItem {
-  productId: string;
-  productName: string;
-  quantity: number;
-  price: number;
-  imageUrl?: string;
-  addedAt: string;
-}
-
-// Guest Cart Helper Functions
-const getGuestCart = (): GuestCartItem[] => {
-  if (typeof window === 'undefined') return [];
-  try {
-    const cart = localStorage.getItem('guestCart');
-    return cart ? JSON.parse(cart) : [];
-  } catch {
-    return [];
-  }
-};
-
-const setGuestCart = (cart: GuestCartItem[]): void => {
-  if (typeof window === 'undefined') return;
-  try {
-    localStorage.setItem('guestCart', JSON.stringify(cart));
-  } catch (error) {
-    console.error('Guest cart kaydetme hatası:', error);
-  }
-};
-
-const addToGuestCart = (item: GuestCartItem): void => {
-  const cart = getGuestCart();
-  const existingItemIndex = cart.findIndex(cartItem => cartItem.productId === item.productId);
-  
-  if (existingItemIndex > -1) {
-    // Varolan ürünün miktarını artır
-    cart[existingItemIndex].quantity += item.quantity;
-  } else {
-    // Yeni ürün ekle
-    cart.push(item);
-  }
-  
-  setGuestCart(cart);
-};
-
-// Guest cartı veritabanına aktarma fonksiyonu (server action olarak implement edilmeli)
-const migrateGuestCartToDatabase = async (userId: string): Promise<void> => {
-  const guestCart = getGuestCart();
-  if (guestCart.length === 0) return;
-
-  try {
-    // Her guest cart item'ını veritabanına ekle
-    for (const item of guestCart) {
-      await addToCart(userId, item.productId, item.quantity);
-    }
-    
-    // Guest cart'ı temizle
-    localStorage.removeItem('guestCart');
-    
-    toast.success(`${guestCart.length} ürün sepetinize aktarıldı!`);
-  } catch (error) {
-    console.error('Guest cart migration hatası:', error);
-    toast.error('Sepet aktarımında hata oluştu.');
-  }
-};
-
 const DesktopProductDetails: React.FC<ProductDetailsProps> = ({
   userId,
   product,
@@ -135,6 +69,7 @@ const DesktopProductDetails: React.FC<ProductDetailsProps> = ({
   const [quantity, setQuantity] = useState(1);
   const [favorited, setFavorited] = useState(isFavorited);
   const [isPending, startTransition] = useTransition();
+  const [cartMerged, setCartMerged] = useState(false);
 
   // Varyantlar
   const variants = product.group?.products ?? [];
@@ -148,81 +83,58 @@ const DesktopProductDetails: React.FC<ProductDetailsProps> = ({
     setSelectedVariant(variants.find((v) => v.id === product.id) ?? null);
   }, [product]);
 
-  // Kullanıcı giriş yaptığında guest cart'ı migrate et
+  // 🔥 Kullanıcı giriş yaptığında sepetleri otomatik birleştir
   useEffect(() => {
-    if (userId) {
-      const guestCart = getGuestCart();
-      if (guestCart.length > 0) {
-        // Kullanıcıya guest cart'ı aktarmak isteyip istemediğini sor
-        const shouldMigrate = window.confirm(
-          `Sepetinizde ${guestCart.length} ürün var. Bunları hesabınıza aktarmak ister misiniz?`
-        );
+    if (userId && !cartMerged) {
+      startTransition(async () => {
+        const result = await mergeCartsAction();
         
-        if (shouldMigrate) {
-          migrateGuestCartToDatabase(userId);
-        } else {
-          localStorage.removeItem('guestCart');
+        if (result.success && result.data?.cart) {
+          // Sepet birleştirildi mesajını göster
+          const itemCount = result.data.cart.items?.length || 0;
+          if (itemCount > 0) {
+            toast.success(`Sepetiniz birleştirildi! ${itemCount} ürün mevcut.`);
+          }
         }
-      }
+        
+        setCartMerged(true);
+      });
     }
-  }, [userId]);
+  }, [userId, cartMerged]);
 
   // Quantity
   const incrementQuantity = () => setQuantity((q) => q + 1);
   const decrementQuantity = () => setQuantity((q) => (q > 1 ? q - 1 : 1));
 
-  // 🛒 Server Action ile sepete ekleme (Guest + User)
+  // 🛒 YENİ: Sepete ekleme (Hem üye hem misafir)
   const handleAddToCart = () => {
     startTransition(async () => {
       try {
-        if (userId) {
-          // Kullanıcı giriş yapmışsa veritabanına kaydet
-          await addToCart(userId, activeVariant.id, quantity);
-        } else {
-          // Guest kullanıcı için localStorage'a kaydet
-          const guestCartItem: GuestCartItem = {
-            productId: activeVariant.id,
-            productName: activeVariant.name,
-            quantity: quantity,
-            price: product.discount || product.price,
-            imageUrl: activeVariant.medias?.[0]?.urls?.[0],
-            addedAt: new Date().toISOString(),
-          };
-          
-          addToGuestCart(guestCartItem);
-        }
+        const result = await addToCartAction(activeVariant.id, quantity);
         
-        // Her iki durumda da success toast göster
-        toast.custom(() => <CartSuccessToast productName={activeVariant.name} />);
+        if (result.success) {
+          toast.custom(() => <CartSuccessToast productName={activeVariant.name} />);
+          router.refresh(); // Sepet badge'ini güncelle
+        } else {
+          toast.error(result.error || "Sepete eklerken bir hata oluştu.");
+        }
       } catch (err) {
         toast.error("Sepete eklerken bir hata oluştu.");
       }
     });
   };
 
-  // Şimdi Al
+  // 🛒 YENİ: Şimdi Al
   const handleBuyNow = () => {
     startTransition(async () => {
       try {
-        if (userId) {
-          // Kullanıcı giriş yapmışsa veritabanına kaydet
-          await addToCart(userId, activeVariant.id, quantity);
-        } else {
-          // Guest kullanıcı için localStorage'a kaydet
-          const guestCartItem: GuestCartItem = {
-            productId: activeVariant.id,
-            productName: activeVariant.name,
-            quantity: quantity,
-            price: product.discount || product.price,
-            imageUrl: activeVariant.medias?.[0]?.urls?.[0],
-            addedAt: new Date().toISOString(),
-          };
-          
-          addToGuestCart(guestCartItem);
-        }
+        const result = await addToCartAction(activeVariant.id, quantity);
         
-        // Her iki durumda da sepet sayfasına yönlendir
-        router.push("/cart");
+        if (result.success) {
+          router.push("/cart");
+        } else {
+          toast.error(result.error || "Sepete eklerken bir hata oluştu.");
+        }
       } catch {
         toast.error("Sepete eklerken bir hata oluştu.");
       }
@@ -267,12 +179,11 @@ const DesktopProductDetails: React.FC<ProductDetailsProps> = ({
     activeVariant?.medias?.length > 0
       ? activeVariant.medias
           .map((m) => m.urls?.[0])
-          .filter(Boolean) // undefined/null değerleri filtrele
+          .filter(Boolean)
       : product.medias
           .map((m) => m.urls?.[0])
           .filter(Boolean);
 
-  // Eğer hiç resim yoksa placeholder ekle
   if (imageUrls.length === 0) {
     imageUrls.push('/placeholder.png');
   }
@@ -362,20 +273,26 @@ const DesktopProductDetails: React.FC<ProductDetailsProps> = ({
           <div className="flex gap-4">
             <button
               onClick={handleBuyNow}
-              className="bg-white border border-orange-400 hover:bg-orange-600 text-orange-400 hover:text-white py-4 px-6 rounded transition"
+              disabled={isPending}
+              className="bg-white border border-orange-400 hover:bg-orange-600 text-orange-400 hover:text-white py-4 px-6 rounded transition disabled:opacity-50"
             >
-              Şimdi Al
+              {isPending ? "Ekleniyor..." : "Şimdi Al"}
             </button>
-            <button onClick={handleAddToCart} className="bg-orange-500 text-white py-2 px-4 rounded">
-              Sepete Ekle
+            <button 
+              onClick={handleAddToCart}
+              disabled={isPending}
+              className="bg-orange-500 text-white py-2 px-4 rounded hover:bg-orange-600 transition disabled:opacity-50"
+            >
+              {isPending ? "Ekleniyor..." : "Sepete Ekle"}
             </button>
             <FavoriteButton productId={activeVariant.id} initialIsFavorite={favorited} />
           </div>
 
+          {/* 🔥 YENİ: Misafir kullanıcı uyarısı */}
           {!userId && (
             <div className="bg-blue-50 border border-blue-200 rounded p-3 text-sm">
               <p className="text-blue-700">
-                💡 Sepetiniz geçici olarak kaydedildi. Giriş yaparak kalıcı olarak kaydedin!
+                💡 Sepetiniz geçici olarak kaydedildi. Giriş yaparak kalıcı hale getirin ve tüm özelliklerden yararlanın!
                 <Link href="/login" className="ml-2 text-blue-600 hover:underline font-medium">
                   Giriş Yap
                 </Link>
