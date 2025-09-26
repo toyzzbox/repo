@@ -257,7 +257,7 @@ model Attribute {
   products  Product[]     @relation("ProductAttribute")
   medias    Media[]       @relation("AttributeToMedia")
   
-  @@map("attributes")
+  @@map("Attribute")
 }
 
 model Brand {
@@ -271,7 +271,7 @@ model Brand {
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   
-  @@map("brands")
+  @@map("Brand")
 }
 
 model Category {
