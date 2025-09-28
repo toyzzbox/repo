@@ -8,71 +8,64 @@ datasource db {
 }
 
 model User {
-  id               String    @id @default(cuid())
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
+  id               String         @id @default(cuid())
   name             String
-  password         String
-  email            String    @unique
-  emailVerified    Boolean   @default(false)
+  email            String         @unique
+  emailVerified    Boolean
   image            String?
-  
-  // Auth & Security fields
-  role             Role      @default(USER)
-  failedLoginCount Int       @default(0)
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+  password         String
+  role             Role           @default(USER)
+  failedLoginCount Int            @default(0)
   lockedUntil      DateTime?
   lastLoginAt      DateTime?
   lastLoginIp      String?
-  
-  // Relations
-  sessions         Session[]
-  accounts         Account[]
   addresses        Address[]
-  favorites        Favorite[]
-  comments         Comment[]
   carts            Cart[]
-  orders           Order[]
+  favorites        Favorite[]
+  accounts         Account[]
+  comments         Comment[]
   loginAttempts    LoginAttempt[]
-  
+  sessions         Session[]
+
   @@map("users")
 }
 
 model Account {
-  id                        String    @id @default(cuid())
-  createdAt                 DateTime  @default(now())
-  updatedAt                 DateTime  @updatedAt
-  accountId                 String?
-  providerId                String?
-  accessToken               String?
-  refreshToken              String?
-  idToken                   String?
-  accessTokenExpiresAt      DateTime?
-  refreshTokenExpiresAt     DateTime?
-  scope                     String?
-  password                  String?
-  userId                    String
-  user                      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+  userId                String
+  scope                 String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  id                    String    @id @default(cuid())
+  accessToken           String?
+  accessTokenExpiresAt  DateTime?
+  accountId             String?
+  idToken               String?
+  password              String?
+  providerId            String?
+  refreshToken          String?
+  refreshTokenExpiresAt DateTime?
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@map("accounts")
 }
 
 model Session {
-  id            String   @id @default(cuid())
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  expiresAt     DateTime
-  sessionToken  String   @unique
-  ipAddress     String?
-  userAgent     String?
-  isActive      Boolean  @default(true)
-  lastAccessAt  DateTime @default(now())
-  
-  userId        String
-  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+  userId       String
+  expiresAt    DateTime
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  id           String   @id @default(cuid())
+  ipAddress    String?
+  userAgent    String?
+  sessionToken String?  @unique
+  isActive     Boolean  @default(true)
+  lastAccessAt DateTime @default(now())
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@index([userId])
   @@index([sessionToken])
-  @@index([isActive])
   @@map("sessions")
 }
 
@@ -85,9 +78,8 @@ model LoginAttempt {
   userAgent String?
   success   Boolean
   reason    String?
-  
-  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
-  
+  user      User?    @relation(fields: [userId], references: [id])
+
   @@index([email, createdAt])
   @@index([ipAddress, createdAt])
   @@index([userId])
@@ -95,17 +87,198 @@ model LoginAttempt {
 }
 
 model Verification {
-  id          String            @id @default(cuid())
-  createdAt   DateTime          @default(now())
-  updatedAt   DateTime          @updatedAt
-  identifier  String
-  value       String
-  type        VerificationType
-  expiresAt   DateTime
-  used        Boolean           @default(false)
-  
+  id         String    @id @default(cuid())
+  createdAt  DateTime? @default(now())
+  updatedAt  DateTime? @updatedAt
+  identifier String
+  value      String
+  expiresAt  DateTime
+  type       VerificationType?
+  used       Boolean?  @default(false)
+
   @@unique([identifier, type])
   @@map("verifications")
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  content   String
+  rating    Int
+  userId    String
+  productId String
+  createdAt DateTime @default(now())
+  product   Product  @relation(fields: [productId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@map("comments")
+}
+
+model Attribute {
+  id       String         @id @default(cuid())
+  name     String
+  groupId  String
+  group    AttributeGroup @relation("GroupAttributes", fields: [groupId], references: [id])
+  medias   Media[]        @relation("AttributeToMedia")
+  products Product[]      @relation("ProductAttribute")
+
+  @@map("Attribute")
+}
+
+model Brand {
+  id          String    @id @default(cuid())
+  name        String
+  slug        String    @unique
+  description String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  medias      Media[]   @relation("BrandToMedia")
+  products    Product[] @relation("ProductToBrand")
+
+  @@map("Brand")
+}
+
+model Category {
+  id          String     @id @default(cuid())
+  slug        String     @unique
+  name        String
+  description String
+  parentId    String?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  parent      Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  children    Category[] @relation("CategoryHierarchy")
+  medias      Media[]    @relation("CategoryToMedia")
+  products    Product[]  @relation("ProductToCategory")
+
+  @@map("Category")
+}
+
+model Address {
+  id          String   @id @default(cuid())
+  userId      String
+  fullName    String
+  city        String
+  district    String
+  postalCode  String
+  addressLine String
+  phone       String
+  isDefault   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id])
+
+  @@map("Address")
+}
+
+model AttributeGroup {
+  id         String      @id @default(cuid())
+  name       String
+  attributes Attribute[] @relation("GroupAttributes")
+
+  @@map("AttributeGroup")
+}
+
+model Cart {
+  id        String     @id @default(cuid())
+  userId    String?
+  status    CartStatus @default(ACTIVE)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  user      User?      @relation(fields: [userId], references: [id])
+  items     CartItem[]
+
+  @@index([userId])
+  @@map("Cart")
+}
+
+model CartItem {
+  id        String   @id @default(cuid())
+  cartId    String
+  productId String
+  quantity  Int      @default(1)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  cart      Cart     @relation(fields: [cartId], references: [id])
+  product   Product  @relation(fields: [productId], references: [id])
+
+  @@unique([cartId, productId])
+  @@map("CartItem")
+}
+
+model Favorite {
+  id        String   @id @default(cuid())
+  userId    String
+  productId String
+  createdAt DateTime @default(now())
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId])
+  @@map("Favorite")
+}
+
+model Media {
+  id           String         @id @default(cuid())
+  type         MediaType
+  urls         String[]
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  productMedia ProductMedia[]
+  attributes   Attribute[]    @relation("AttributeToMedia")
+  brands       Brand[]        @relation("BrandToMedia")
+  categories   Category[]     @relation("CategoryToMedia")
+
+  @@map("Media")
+}
+
+model Product {
+  id           String         @id @default(cuid())
+  slug         String         @unique
+  name         String
+  price        Float
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  discount     Float?
+  groupId      String?
+  isActive     Boolean        @default(true)
+  serial       String?        @unique
+  sku          String?
+  stock        Int?
+  description  String?        @db.Text
+  views        Int            @default(0)
+  barcode      String?        @unique
+  cartItems    CartItem[]
+  favorites    Favorite[]
+  group        ProductGroup?  @relation(fields: [groupId], references: [id])
+  medias       ProductMedia[]
+  comments     Comment[]
+  attributes   Attribute[]    @relation("ProductAttribute")
+  brands       Brand[]        @relation("ProductToBrand")
+  categories   Category[]     @relation("ProductToCategory")
+
+  @@index([slug])
+  @@index([isActive])
+  @@map("Product")
+}
+
+model ProductGroup {
+  id          String    @id @default(cuid())
+  name        String
+  slug        String    @unique
+  description String?   @db.Text
+  products    Product[]
+
+  @@map("ProductGroup")
+}
+
+model ProductMedia {
+  productId String
+  mediaId   String
+  order     Int
+  media     Media   @relation(fields: [mediaId], references: [id])
+  product   Product @relation(fields: [productId], references: [id])
+
+  @@id([productId, mediaId])
+  @@map("ProductMedia")
 }
 
 enum Role {
@@ -119,284 +292,14 @@ enum VerificationType {
   TWO_FACTOR
 }
 
-/* ===========================
-   E-TİCARET MODELLER
-   =========================== */
-
-model Comment {
-  id        String   @id @default(cuid())
-  content   String
-  rating    Int
-  user      User     @relation(fields: [userId], references: [id])
-  userId    String
-  product   Product  @relation(fields: [productId], references: [id])
-  productId String
-  createdAt DateTime @default(now())
- 
-  @@map("comments")
-}
-
-model Address {
-  id          String   @id @default(cuid())
-  user        User     @relation(fields: [userId], references: [id])
-  userId      String
-  fullName    String
-  city        String
-  district    String
-  postalCode  String
-  addressLine String
-  phone       String
-  isDefault   Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  
-  @@map("addresses")
-}
-
-model Media {
-  id         String       @id @default(cuid())
-  type       MediaType
-  urls       String[]
-  brands     Brand[]      @relation("BrandToMedia")
-  categories Category[]   @relation("CategoryToMedia")
-  attributes Attribute[]  @relation("AttributeToMedia")
-  createdAt  DateTime     @default(now())
-  updatedAt  DateTime     @updatedAt
-  products   ProductMedia[]
-  
-  @@map("media")
-}
-
 enum MediaType {
   image
   video
 }
 
-model Product {
-  id          String       @id @default(cuid())
-  slug        String       @unique
-  name        String
-  serial      String?      @unique
-  stock       Int?
-  barcode     String?      @unique
-  price       Float
-  description String?      @db.Text
-  favorites   Favorite[]
-  comments    Comment[]
-  views       Int          @default(0)
-
-  groupId     String?
-  group       ProductGroup? @relation(fields: [groupId], references: [id])
-
-  brands      Brand[]       @relation("ProductToBrand")
-  categories  Category[]    @relation("ProductToCategory")
-  medias      ProductMedia[]
-  attributes  Attribute[]   @relation("ProductAttribute")
-  cartItems   CartItem[]
-  orderItems  OrderItem[]
-
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-
-  sku         String?
-  discount    Float?
-  isActive    Boolean    @default(true)
-  
-  @@index([slug])
-  @@index([isActive])
-  @@map("Products")
-}
-
-model ProductMedia {
-  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-  productId String
-
-  media     Media   @relation(fields: [mediaId], references: [id], onDelete: Cascade)
-  mediaId   String
-
-  order     Int
-
-  @@id([productId, mediaId])
-  @@map("product_media")
-}
-
-model ProductGroup {
-  id          String    @id @default(cuid())
-  name        String
-  slug        String    @unique
-  description String?   @db.Text
-  products    Product[]
-  
-  @@map("product_groups")
-}
-
-model Favorite {
-  id        String   @id @default(cuid())
-  userId    String
-  productId String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now())
-
-  @@unique([userId, productId])
-  @@map("favorites")
-}
-
-model AttributeGroup {
-  id         String      @id @default(cuid())
-  name       String
-  attributes Attribute[] @relation("GroupAttributes")
-  
-  @@map("attribute_groups")
-}
-
-model Attribute {
-  id        String        @id @default(cuid())
-  name      String
-  groupId   String
-  group     AttributeGroup @relation("GroupAttributes", fields: [groupId], references: [id])
-  products  Product[]     @relation("ProductAttribute")
-  medias    Media[]       @relation("AttributeToMedia")
-  
-  @@map("Attribute")
-}
-
-model Brand {
-  id          String    @id @default(cuid())
-  name        String
-  slug        String    @unique
-  description String?   @db.Text
-  products    Product[] @relation("ProductToBrand")
-  medias      Media[]   @relation("BrandToMedia")
-
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  
-  @@map("Brand")
-}
-
-model Category {
-  id          String     @id @default(cuid())
-  slug        String     @unique
-  name        String
-  description String
-  parentId    String?
-  parent      Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  children    Category[] @relation("CategoryHierarchy")
-  products    Product[]  @relation("ProductToCategory")
-  medias      Media[]    @relation("CategoryToMedia")
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-  
-  @@map("Category")
-}
-
-/* ===========================
-   SEPET SİSTEMİ (HYBRID)
-   =========================== */
-
-model Cart {
-  id        String     @id @default(cuid())
-  userId    String?
-  user      User?      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  // 🔥 HYBRID SISTEM
-  sessionId String?    // Misafir kullanıcılar için session ID
-  expiresAt DateTime?  // Sepet sona erme tarihi
-  
-  items     CartItem[]
-  status    CartStatus @default(ACTIVE)
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-  
-  // 🔥 Performans İndexleri
-  @@index([userId])
-  @@index([sessionId])
-  @@index([status, expiresAt])
-  @@map("carts")
-}
-
-model CartItem {
-  id        String   @id @default(cuid())
-  
-  cartId    String
-  cart      Cart     @relation(fields: [cartId], references: [id], onDelete: Cascade)
-
-  productId String
-  product   Product  @relation(fields: [productId], references: [id])
-
-  quantity  Int      @default(1)
-  price     Float    // 🔥 Sepete eklendiği andaki fiyat snapshot
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // 🔥 Aynı ürün aynı sepette sadece 1 kez
-  @@unique([cartId, productId])
-  @@index([productId])
-  @@map("cart_items")
-}
-
 enum CartStatus {
-  ACTIVE     // Aktif sepet
-  ABANDONED  // Terk edilmiş
-  SAVED      // Daha sonra al
-  MERGED     // Başka sepete birleştirildi
-  CONVERTED  // Siparişe dönüştü
-  EXPIRED    // Süresi doldu
-}
-
-/* ===========================
-   SİPARİŞ SİSTEMİ
-   =========================== */
-
-model Order {
-  id            String      @id @default(cuid())
-  userId        String
-  user          User        @relation(fields: [userId], references: [id])
-  
-  orderNumber   String      @unique
-  status        OrderStatus @default(PENDING)
-  totalAmount   Float
-  shippingCost  Float       @default(0)
-  
-  // Teslimat bilgileri
-  shippingAddress Json?
-  
-  items         OrderItem[]
-  
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
-  
-  @@index([userId])
-  @@index([orderNumber])
-  @@index([status])
-  @@map("orders")
-}
-
-model OrderItem {
-  id        String   @id @default(cuid())
-  orderId   String
-  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  
-  productId String
-  product   Product  @relation(fields: [productId], references: [id])
-  
-  quantity  Int
-  price     Float    // Sipariş anındaki fiyat
-  
-  createdAt DateTime @default(now())
-  
-  @@index([orderId])
-  @@index([productId])
-  @@map("order_items")
-}
-
-enum OrderStatus {
-  PENDING
-  CONFIRMED
-  PROCESSING
-  SHIPPED
-  DELIVERED
-  CANCELLED
-  REFUNDED
+  ACTIVE
+  ABANDONED
+  SAVED
+  CHECKEDOUT
 }
