@@ -4,17 +4,18 @@ import type { NextRequest } from 'next/server';
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   
-  // Session token'ını cookie'den al
-  const sessionToken = request.cookies.get('session')?.value;
+  // Session token'ını cookie'den al (doğru cookie adı)
+  const sessionToken = request.cookies.get('session_token')?.value;
   
   // Korunması gereken sayfalar
   const protectedPaths = ['/administor'];
   const authPaths = ['/login', '/register'];
   
-  const isProtectedPath = protectedPaths.some(path => 
+  const isProtectedPath = protectedPaths.some(path =>
     pathname.startsWith(path)
   );
-  const isAuthPath = authPaths.some(path => 
+  
+  const isAuthPath = authPaths.some(path =>
     pathname.startsWith(path)
   );
   
@@ -37,7 +38,7 @@ export const config = {
   matcher: [
     // Korumalı sayfalar
     '/administor/:path*',
-    '/profile/:path*', 
+    '/profile/:path*',
     '/admin/:path*',
     // Auth sayfaları
     '/login',
