@@ -6,13 +6,14 @@ import { redirect } from 'next/navigation'
 import { 
   findUserByEmail,
   generateResetToken,
-  sendResetEmail,
   validateResetToken,
   updatePasswordSecure,
   checkResetRateLimit,
   logSecurityEvent 
 } from '@/lib/auth'
-import { headers } from 'next/headers'
+import { headers, cookies } from 'next/headers'
+import { prisma } from '@/lib/prisma'
+import { User } from '@prisma/client'
 
 // Validation schemas
 const ForgotPasswordSchema = z.object({
@@ -78,9 +79,11 @@ export async function forgotPasswordAction(
         return { error: 'Çok fazla talep. Lütfen 1 saat sonra tekrar deneyin.' }
       }
 
-      // Generate token and send email
+      // Generate token
       const token = await generateResetToken(user.id, user.email)
-      await sendResetEmail(user.email, token)
+      
+      // Email yerine console log (Nodemailer kaldırıldı)
+      console.log(`Password reset token for ${email}: ${token}`)
       
       await logSecurityEvent('PASSWORD_RESET_REQUESTED', user.id, { email }, ipAddress, userAgent, true)
     } else {
@@ -90,7 +93,7 @@ export async function forgotPasswordAction(
 
     // Her durumda aynı mesaj (güvenlik için)
     return { 
-      success: 'Eğer e-posta adresiniz kayıtlıysa, şifre sıfırlama bağlantısı gönderilmiştir.' 
+      success: 'Eğer e-posta adresiniz kayıtlıysa, şifre sıfırlama bağlantısı oluşturuldu.' 
     }
 
   } catch (error: any) {
@@ -132,14 +135,6 @@ export async function resetPasswordAction(
   }
 }
 
-
-
-
-// lib/auth.ts
-import { cookies } from 'next/headers';
-import { prisma } from '@/lib/prisma';
-import { User } from '@prisma/client';
-
 /**
  * Server-side'da mevcut kullanıcıyı getir
  */
@@ -148,30 +143,24 @@ export async function getCurrentUser(): Promise<User | null> {
     const cookieStore = await cookies();
     
     // Session token'ı cookie'den al
-    // 🔥 KENDİ SESSION COOKIE İSMİNİZİ KULLANIN
-    const sessionToken = cookieStore.get('session_token')?.value; // veya 'auth_token', 'sessionToken' vs.
+    const sessionToken = cookieStore.get('session_token')?.value;
     
     if (!sessionToken) {
       return null;
     }
 
-    // Session'ı veritabanından kontrol et
     const session = await prisma.session.findUnique({
       where: {
         sessionToken,
-        isActive: true,
       },
-      include: {
-        user: true,
-      },
+      include: { user: true },
     });
 
-    // Session expired mı kontrol et
-    if (!session || session.expiresAt < new Date()) {
+    if (!session || session.expiresAt < new Date() || !session.isActive) {
       return null;
     }
 
-    // Last access time'ı güncelle (opsiyonel)
+    // Last access time'ı güncelle
     await prisma.session.update({
       where: { id: session.id },
       data: { lastAccessAt: new Date() },
@@ -202,7 +191,6 @@ export async function isAdmin(): Promise<boolean> {
 
 /**
  * Protected action wrapper
- * Sadece giriş yapmış kullanıcılar için
  */
 export async function requireAuth<T>(
   callback: (user: User) => Promise<T>
@@ -210,29 +198,19 @@ export async function requireAuth<T>(
   const user = await getCurrentUser();
   
   if (!user) {
-    return {
-      success: false,
-      error: 'Bu işlem için giriş yapmalısınız',
-    };
+    return { success: false, error: 'Bu işlem için giriş yapmalısınız' };
   }
 
   try {
     const data = await callback(user);
-    return {
-      success: true,
-      data,
-    };
+    return { success: true, data };
   } catch (error: any) {
-    return {
-      success: false,
-      error: error.message || 'Bir hata oluştu',
-    };
+    return { success: false, error: error.message || 'Bir hata oluştu' };
   }
 }
 
 /**
  * Admin action wrapper
- * Sadece admin kullanıcılar için
  */
 export async function requireAdmin<T>(
   callback: (user: User) => Promise<T>
@@ -240,29 +218,17 @@ export async function requireAdmin<T>(
   const user = await getCurrentUser();
   
   if (!user) {
-    return {
-      success: false,
-      error: 'Bu işlem için giriş yapmalısınız',
-    };
+    return { success: false, error: 'Bu işlem için giriş yapmalısınız' };
   }
 
   if (user.role !== 'ADMIN') {
-    return {
-      success: false,
-      error: 'Bu işlem için yetkiniz yok',
-    };
+    return { success: false, error: 'Bu işlem için yetkiniz yok' };
   }
 
   try {
     const data = await callback(user);
-    return {
-      success: true,
-      data,
-    };
+    return { success: true, data };
   } catch (error: any) {
-    return {
-      success: false,
-      error: error.message || 'Bir hata oluştu',
-    };
+    return { success: false, error: error.message || 'Bir hata oluştu' };
   }
 }
