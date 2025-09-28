@@ -1,3 +1,4 @@
+// lib/auth.ts
 import bcrypt from 'bcryptjs'
 import { prisma } from '@/lib/prisma'
 import { User } from '@prisma/client'
@@ -226,5 +227,93 @@ export async function cleanupExpiredSessions(): Promise<void> {
     })
   } catch (error) {
     console.error('Cleanup sessions error:', error)
+  }
+}
+
+// User session management
+export async function getCurrentUser(): Promise<User | null> {
+  try {
+    const { cookies } = await import('next/headers');
+    const cookieStore = await cookies();
+    
+    // Session token'ı cookie'den al
+    const sessionToken = cookieStore.get('session_token')?.value;
+    
+    if (!sessionToken) {
+      return null;
+    }
+
+    const session = await prisma.session.findUnique({
+      where: {
+        sessionToken,
+      },
+      include: { user: true },
+    });
+
+    if (!session || session.expiresAt < new Date() || !session.isActive) {
+      return null;
+    }
+
+    // Last access time'ı güncelle
+    await prisma.session.update({
+      where: { id: session.id },
+      data: { lastAccessAt: new Date() },
+    });
+
+    return session.user;
+  } catch (error) {
+    console.error('Get current user error:', error);
+    return null;
+  }
+}
+
+// Authentication helpers
+export async function isAuthenticated(): Promise<boolean> {
+  const user = await getCurrentUser();
+  return !!user;
+}
+
+export async function isAdmin(): Promise<boolean> {
+  const user = await getCurrentUser();
+  return user?.role === 'ADMIN';
+}
+
+// Protected action wrapper
+export async function requireAuth<T>(
+  callback: (user: User) => Promise<T>
+): Promise<{ success: boolean; data?: T; error?: string }> {
+  const user = await getCurrentUser();
+  
+  if (!user) {
+    return { success: false, error: 'Bu işlem için giriş yapmalısınız' };
+  }
+
+  try {
+    const data = await callback(user);
+    return { success: true, data };
+  } catch (error: any) {
+    return { success: false, error: error.message || 'Bir hata oluştu' };
+  }
+}
+
+// Admin action wrapper
+export async function requireAdmin<T>(
+  callback: (user: User) => Promise<T>
+): Promise<{ success: boolean; data?: T; error?: string }> {
+  const user = await getCurrentUser();
+  
+  if (!user) {
+    return { success: false, error: 'Bu işlem için giriş yapmalısınız' };
+  }
+
+  if (user.role !== 'ADMIN') {
+    return { success: false, error: 'Bu işlem için yetkiniz yok' };
+  }
+
+  try {
+    const data = await callback(user);
+    return { success: true, data };
+  } catch (error: any) {
+    return { success: false, error: error.message || 'Bir hata oluştu' };
   }
 }
