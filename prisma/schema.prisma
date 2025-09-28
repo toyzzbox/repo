@@ -180,6 +180,8 @@ model AttributeGroup {
 model Cart {
   id        String     @id @default(cuid())
   userId    String?
+  sessionId String?    // Bu satırı ekleyin
+  expiresAt DateTime?  // Bu satırı ekleyin
   status    CartStatus @default(ACTIVE)
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
@@ -187,6 +189,8 @@ model Cart {
   items     CartItem[]
 
   @@index([userId])
+  @@index([sessionId])           // Bu satırı ekleyin
+  @@index([status, expiresAt])   // Bu satırı ekleyin
   @@map("Cart")
 }
 
@@ -195,6 +199,7 @@ model CartItem {
   cartId    String
   productId String
   quantity  Int      @default(1)
+  price     Float    // Bu satırı ekleyin
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   cart      Cart     @relation(fields: [cartId], references: [id])
