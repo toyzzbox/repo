@@ -1,21 +1,19 @@
 
-import { getCartAction } from '@/actions/cart.actions';
 import { ShoppingBag } from 'lucide-react';
 import Link from 'next/link';
 import { CartClient } from './cart-client';
+import { getCart } from '@/actions/cart';
 
 export default async function CartPage() {
-  const result = await getCartAction();
-
-  if (!result.success || !result.data) {
+  const cart = await getCart();
+  
+  if (!cart) {
     return (
       <div className="container mx-auto px-4 py-8">
         <p className="text-red-500">Sepet yüklenemedi</p>
       </div>
     );
   }
-
-  const { cart, summary } = result.data;
 
   // Boş sepet
   if (!cart.items.length) {
@@ -37,6 +35,14 @@ export default async function CartPage() {
       </div>
     );
   }
+
+  // Summary hesaplaması
+  const summary = {
+    subtotal: cart.items.reduce((sum, item) => sum + (item.price * item.quantity), 0),
+    itemCount: cart.items.reduce((sum, item) => sum + item.quantity, 0),
+    shipping: 0, // Ücretsiz kargo
+    total: cart.items.reduce((sum, item) => sum + (item.price * item.quantity), 0)
+  };
 
   return (
     <div className="container mx-auto px-4 py-8">
