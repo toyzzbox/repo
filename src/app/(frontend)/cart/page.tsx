@@ -1,4 +1,3 @@
-
 import { ShoppingBag } from 'lucide-react';
 import Link from 'next/link';
 import { CartClient } from './cart-client';
@@ -37,11 +36,18 @@ export default async function CartPage() {
   }
 
   // Summary hesaplaması
+  const FREE_SHIPPING_THRESHOLD = 500; // 500 TL ücretsiz kargo
+  const subtotal = cart.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  const shippingCost = subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : 50; // 50 TL kargo ücreti
+  const remainingForFreeShipping = Math.max(0, FREE_SHIPPING_THRESHOLD - subtotal);
+
   const summary = {
-    subtotal: cart.items.reduce((sum, item) => sum + (item.price * item.quantity), 0),
+    subtotal,
     itemCount: cart.items.reduce((sum, item) => sum + item.quantity, 0),
-    shipping: 0, // Ücretsiz kargo
-    total: cart.items.reduce((sum, item) => sum + (item.price * item.quantity), 0)
+    shippingCost,
+    total: subtotal + shippingCost,
+    freeShippingThreshold: FREE_SHIPPING_THRESHOLD,
+    remainingForFreeShipping
   };
 
   return (
