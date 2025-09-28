@@ -1,5 +1,4 @@
 'use client';
-
 import { Minus, Plus, Trash2 } from 'lucide-react';
 import Image from 'next/image';
 
@@ -26,18 +25,26 @@ type CartItemProps = {
 };
 
 export function CartItem({ item, onUpdateQuantity, onRemove, isPending }: CartItemProps) {
-  const imageUrl = item.product.medias[0]?.media.urls[0] || '/placeholder.png';
+  const imageUrl =
+    item.product.medias?.[0]?.media?.urls?.[0] || // Prisma yapısına göre
+    null;
 
   return (
     <div className="flex gap-4 p-4 border rounded-lg bg-white">
       {/* Resim */}
       <div className="relative w-24 h-24 flex-shrink-0">
-        <Image
-          src={imageUrl}
-          alt={item.product.name}
-          fill
-          className="object-cover rounded-md"
-        />
+        {imageUrl ? (
+          <Image
+            src={imageUrl}
+            alt={item.product.name}
+            fill
+            className="object-cover rounded-md"
+          />
+        ) : (
+          <div className="w-full h-full bg-gray-200 rounded-md flex items-center justify-center">
+            <span className="text-gray-400 text-xs">Görsel Yok</span>
+          </div>
+        )}
       </div>
 
       {/* Bilgiler */}
@@ -54,9 +61,7 @@ export function CartItem({ item, onUpdateQuantity, onRemove, isPending }: CartIt
           >
             <Minus className="w-4 h-4" />
           </button>
-
           <span className="w-8 text-center font-medium">{item.quantity}</span>
-
           <button
             onClick={() => onUpdateQuantity(item.id, item.quantity + 1)}
             disabled={
@@ -84,7 +89,6 @@ export function CartItem({ item, onUpdateQuantity, onRemove, isPending }: CartIt
         >
           <Trash2 className="w-5 h-5" />
         </button>
-
         <p className="font-bold text-lg">
           ₺{(item.price * item.quantity).toFixed(2)}
         </p>
