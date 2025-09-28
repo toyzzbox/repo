@@ -203,7 +203,7 @@ model Product {
   
   @@index([slug])
   @@index([isActive])
-  @@map("products")
+  @@map("Products")
 }
 
 model ProductMedia {
