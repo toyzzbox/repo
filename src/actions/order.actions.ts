@@ -1,10 +1,9 @@
-
 'use server';
 
 import { revalidatePath } from 'next/cache';
 import { prisma } from '@/lib/prisma';
 import { getCurrentUser } from './auth';
-
+import { getCart } from './cart';
 
 type OrderFormData = {
   address: {
@@ -24,7 +23,6 @@ type OrderFormData = {
 
 export async function createOrderAction(formData: OrderFormData) {
   try {
-    // Kullanıcıyı al
     const user = await getCurrentUser();
 
     if (!user) {
@@ -34,24 +32,17 @@ export async function createOrderAction(formData: OrderFormData) {
       };
     }
 
-    // Sepetteki ürünleri al
-    const cartItems = await prisma.cartItem.findMany({
-      where: { userId: user.id },
-      include: { product: true },
-    });
+    // Mevcut getCart fonksiyonunu kullan
+    const cart = await getCart();
 
-    if (cartItems.length === 0) {
+    if (!cart.items || cart.items.length === 0) {
       return {
         success: false,
         error: 'Sepetiniz boş',
       };
     }
 
-    // Fiyat hesaplamaları
-    const subtotal = cartItems.reduce((sum, item) => {
-      return sum + item.product.price * item.quantity;
-    }, 0);
-
+    // Kargo maliyetini hesapla
     const shippingCost =
       formData.delivery.method === 'express'
         ? 39.9
@@ -59,49 +50,54 @@ export async function createOrderAction(formData: OrderFormData) {
         ? 19.9
         : 0;
 
-    const total = subtotal + shippingCost;
+    const total = cart.summary.subtotal + shippingCost;
 
     // Siparişi oluştur
     const order = await prisma.order.create({
       data: {
         userId: user.id,
         total,
-        subtotal,
+        subtotal: cart.summary.subtotal,
         shippingCost,
         status: 'PENDING',
-
-        // Adres bilgileri
         shippingName: formData.address.name,
         shippingPhone: formData.address.phone,
         shippingAddress: formData.address.address,
         shippingCity: formData.address.city,
-
-        // Teslimat bilgileri
         deliveryMethod: formData.delivery.method,
         deliveryDate: formData.delivery.date || new Date().toISOString(),
-
-        // Ödeme bilgileri
         paymentMethod: formData.payment.method,
-
-        // Sipariş kalemleri
         orderItems: {
-          create: cartItems.map((item) => ({
+          create: cart.items.map((item) => ({
             productId: item.productId,
             quantity: item.quantity,
             price: item.product.price,
             productName: item.product.name,
-            productImage: item.product.image,
+            // Ürün resmini al - medias array'inden ilk resmi al
+            productImage: item.product.medias?.[0]?.media?.urls || null,
           })),
         },
       },
     });
 
-    // Sepeti temizle
-    await prisma.cartItem.deleteMany({
-      where: { userId: user.id },
+    // Sepeti temizle - Cart modelini kullanarak
+    const userCart = await prisma.cart.findFirst({
+      where: { userId: user.id, status: 'ACTIVE' },
     });
 
-    // Cache'leri yenile
+    if (userCart) {
+      // Önce cart items'ı sil
+      await prisma.cartItem.deleteMany({
+        where: { cartId: userCart.id },
+      });
+      
+      // Sonra cart'ı COMPLETED olarak işaretle (veya sil)
+      await prisma.cart.update({
+        where: { id: userCart.id },
+        data: { status: 'COMPLETED' },
+      });
+    }
+
     revalidatePath('/cart');
     revalidatePath('/orders');
 
@@ -121,7 +117,7 @@ export async function createOrderAction(formData: OrderFormData) {
   }
 }
 
-// Kullanıcının siparişlerini getir
+// getUserOrders ve getOrderById fonksiyonları aynı kalabilir
 export async function getUserOrders() {
   try {
     const user = await getCurrentUser();
@@ -160,7 +156,6 @@ export async function getUserOrders() {
   }
 }
 
-// Sipariş detayını getir
 export async function getOrderById(orderId: string) {
   try {
     const user = await getCurrentUser();
@@ -175,7 +170,7 @@ export async function getOrderById(orderId: string) {
     const order = await prisma.order.findFirst({
       where: {
         id: orderId,
-        userId: user.id, // Sadece kendi siparişlerini görebilsin
+        userId: user.id,
       },
       include: {
         orderItems: {
