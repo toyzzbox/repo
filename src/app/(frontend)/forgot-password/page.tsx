@@ -1,4 +1,3 @@
-import { forgotPasswordAction } from '@/actions/auth'
 import ForgotPasswordForm from './ForgotPasswordForm'
 import Link from 'next/link'
 
@@ -18,7 +17,7 @@ export default function ForgotPasswordPage() {
 
         {/* Form */}
         <div className="bg-white shadow-xl rounded-lg p-8">
-          <ForgotPasswordForm action={forgotPasswordAction} />
+          <ForgotPasswordForm action={} />
           
           {/* Back to login */}
           <div className="mt-6 text-center">
