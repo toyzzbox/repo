@@ -7,6 +7,39 @@ import { randomUUID } from "crypto";
 import { getCurrentUser } from "./auth";
 
 // Types
+type CartItem = {
+  id: string;
+  quantity: number;
+  price: number;
+  productId: string;
+  product: {
+    id: string;
+    name: string;
+    slug: string;
+    price: number;
+    stock: number | null;
+    medias: Array<{
+      media: {
+        urls: string[];
+      };
+    }>;
+  };
+};
+
+type CartSummary = {
+  subtotal: number;
+  shippingCost: number;
+  total: number;
+  itemCount: number;
+  freeShippingThreshold: number;
+  remainingForFreeShipping: number;
+};
+
+type CartState = {
+  items: CartItem[];
+  summary: CartSummary;
+};
+
 type CartWithItems = {
   id: string;
   userId: string | null;
@@ -14,23 +47,7 @@ type CartWithItems = {
   status: string;
   createdAt: Date;
   updatedAt: Date;
-  items: Array<{
-    id: string;
-    quantity: number;
-    price: number;
-    product: {
-      id: string;
-      name: string;
-      slug: string;
-      price: number;
-      stock: number | null;
-      medias: Array<{
-        media: {
-          urls: string[];
-        };
-      }>;
-    };
-  }>;
+  items: CartItem[];
 };
 
 // Helper: Session ID'yi al veya oluştur
@@ -91,6 +108,25 @@ async function getOrCreateCart(): Promise<{ id: string; userId: string | null; s
     
     return cart;
   }
+}
+
+// Helper: Sepet özetini hesapla
+function calculateSummary(items: CartItem[]): CartSummary {
+  const itemCount = items.reduce((total, item) => total + item.quantity, 0);
+  const subtotal = items.reduce((total, item) => total + (item.price * item.quantity), 0);
+  const freeShippingThreshold = 500;
+  const shippingCost = subtotal >= freeShippingThreshold ? 0 : 50;
+  const total = subtotal + shippingCost;
+  const remainingForFreeShipping = Math.max(0, freeShippingThreshold - subtotal);
+
+  return {
+    subtotal,
+    shippingCost,
+    total,
+    itemCount,
+    freeShippingThreshold,
+    remainingForFreeShipping,
+  };
 }
 
 // Sepete ürün ekleme
@@ -240,8 +276,8 @@ export async function clearCart() {
   }
 }
 
-// Sepeti getirme
-export async function getCart(): Promise<CartWithItems | null> {
+// Sepeti getirme - CartState formatında
+export async function getCart(): Promise<CartState> {
   try {
     const user = await getCurrentUser();
     
@@ -298,20 +334,48 @@ export async function getCart(): Promise<CartWithItems | null> {
       }
     }
 
-    return cart;
+    // Boş sepet durumu
+    if (!cart || !cart.items.length) {
+      return {
+        items: [],
+        summary: {
+          subtotal: 0,
+          shippingCost: 0,
+          total: 0,
+          itemCount: 0,
+          freeShippingThreshold: 500,
+          remainingForFreeShipping: 500,
+        },
+      };
+    }
+
+    // Sepet verisini formatla
+    return {
+      items: cart.items,
+      summary: calculateSummary(cart.items),
+    };
   } catch (error) {
     console.error("Get cart error:", error);
-    return null;
+    // Hata durumunda boş sepet döndür
+    return {
+      items: [],
+      summary: {
+        subtotal: 0,
+        shippingCost: 0,
+        total: 0,
+        itemCount: 0,
+        freeShippingThreshold: 500,
+        remainingForFreeShipping: 500,
+      },
+    };
   }
 }
 
 // Sepet sayısını getirme
 export async function getCartCount(): Promise<number> {
   try {
-    const cart = await getCart();
-    if (!cart) return 0;
-    
-    return cart.items.reduce((total, item) => total + item.quantity, 0);
+    const cartState = await getCart();
+    return cartState.summary.itemCount;
   } catch (error) {
     console.error("Get cart count error:", error);
     return 0;

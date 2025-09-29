@@ -16,25 +16,43 @@ interface HeaderProps {
 }
 
 const Header = async ({ session, categories }: HeaderProps) => {
-  const cartData = await getCart(); // Server action çağır
+  // Sepet verisini al
+  let cartData;
+  try {
+    cartData = await getCart();
+  } catch (error) {
+    console.error('Cart data fetch error:', error);
+    // Hata durumunda boş sepet döndür
+    cartData = {
+      items: [],
+      summary: {
+        subtotal: 0,
+        shippingCost: 0,
+        total: 0,
+        itemCount: 0,
+        freeShippingThreshold: 500,
+        remainingForFreeShipping: 500,
+      },
+    };
+  }
 
   return (
     <>
       <div className="w-[1200px] mx-auto px-[50px]">
-        <div className='hidden sm:block'>
-          <TopBar/>
-          <div className='flex justify-between items-center gap-3'>
+        <div className="hidden sm:block">
+          <TopBar />
+          <div className="flex justify-between items-center gap-3">
             <Logo />
             <LiveSearch />
-            <div className='hidden sm:flex items-center gap-2 p-2'>
+            <div className="hidden sm:flex items-center gap-2 p-2">
               <UserMenuClient session={session} />
               <FavoritesClient session={session} />
               <CartCount initialCart={cartData} />
             </div>
           </div>
         </div>
-        <div className='flex items-center justify-center border-b-1 border-gray-150'>
-          <MegaMenu/>
+        <div className="flex items-center justify-center border-b-1 border-gray-150">
+          <MegaMenu />
         </div>
       </div>
       <MobileHeader session={session} categories={categories} />
