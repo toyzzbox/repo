@@ -1,6 +1,5 @@
 // hooks/use-cart.ts
 'use client';
-
 import { useOptimistic, useTransition } from 'react';
 import {
   addToCartAction,
@@ -41,10 +40,19 @@ type CartState = {
   summary: CartSummary;
 };
 
-type OptimisticAction = 
+type OptimisticAction =
   | { type: 'UPDATE_ITEMS'; items: CartItem[] }
   | { type: 'UPDATE_SUMMARY'; summary: Partial<CartSummary> }
   | { type: 'CLEAR' };
+
+/**
+ * Helper function to trigger cart update event
+ */
+const triggerCartUpdate = () => {
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new Event('cart-updated'));
+  }
+};
 
 /**
  * Optimistic cart hook
@@ -52,8 +60,7 @@ type OptimisticAction =
  */
 export function useCart(initialCart: CartState) {
   const [isPending, startTransition] = useTransition();
-  
-  // Optimistic updates için - daha type-safe yaklaşım
+
   const [optimisticCart, setOptimisticCart] = useOptimistic(
     initialCart,
     (state: CartState, action: OptimisticAction): CartState => {
@@ -95,10 +102,12 @@ export function useCart(initialCart: CartState) {
 
       const result = await addToCartAction(productId, quantity);
       
+      // Event'i tetikle
+      triggerCartUpdate();
+      
       if (!result.success) {
         throw new Error(result.error);
       }
-
       return result.data;
     });
   };
@@ -112,13 +121,15 @@ export function useCart(initialCart: CartState) {
       const updatedItems = optimisticCart.items.map(item =>
         item.id === itemId ? { ...item, quantity } : item
       );
-      
       setOptimisticCart({
         type: 'UPDATE_ITEMS',
         items: updatedItems,
       });
 
       const result = await updateCartItemAction(itemId, quantity);
+      
+      // Event'i tetikle
+      triggerCartUpdate();
       
       if (!result.success) {
         throw new Error(result.error);
@@ -135,13 +146,15 @@ export function useCart(initialCart: CartState) {
       const updatedItems = optimisticCart.items.filter(
         item => item.id !== itemId
       );
-      
       setOptimisticCart({
         type: 'UPDATE_ITEMS',
         items: updatedItems,
       });
 
       const result = await removeCartItemAction(itemId);
+      
+      // Event'i tetikle
+      triggerCartUpdate();
       
       if (!result.success) {
         throw new Error(result.error);
@@ -158,6 +171,9 @@ export function useCart(initialCart: CartState) {
       setOptimisticCart({ type: 'CLEAR' });
 
       const result = await clearCartAction();
+      
+      // Event'i tetikle
+      triggerCartUpdate();
       
       if (!result.success) {
         throw new Error(result.error);
