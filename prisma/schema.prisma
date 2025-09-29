@@ -28,6 +28,8 @@ model User {
   comments         Comment[]
   loginAttempts    LoginAttempt[]
   sessions         Session[]
+  orders           Order[]        // Bu satırı ekleyin
+
 
   @@map("users")
 }
@@ -259,6 +261,7 @@ model Product {
   attributes   Attribute[]    @relation("ProductAttribute")
   brands       Brand[]        @relation("ProductToBrand")
   categories   Category[]     @relation("ProductToCategory")
+  orderItems   OrderItem[]
 
   @@index([slug])
   @@index([isActive])
@@ -286,6 +289,54 @@ model ProductMedia {
   @@map("ProductMedia")
 }
 
+
+
+model Order {
+  id              String      @id @default(cuid())
+  userId          String
+  user            User        @relation(fields: [userId], references: [id])
+  
+  total           Float
+  subtotal        Float
+  shippingCost    Float
+  
+  status          String      @default("PENDING")
+  
+  shippingName    String
+  shippingPhone   String
+  shippingAddress String
+  shippingCity    String
+  
+  deliveryMethod  String
+  deliveryDate    String?
+  
+  paymentMethod   String
+  
+  orderItems      OrderItem[]
+  
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  @@index([userId])
+  @@index([status])
+  @@map("Order")
+}
+
+model OrderItem {
+  id           String   @id @default(cuid())
+  orderId      String
+  order        Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId    String
+  product      Product  @relation(fields: [productId], references: [id])
+  quantity     Int
+  price        Float
+  productName  String
+  productImage String?
+  
+  createdAt    DateTime @default(now())
+
+  @@map("OrderItem")
+}
 enum Role {
   USER
   ADMIN
@@ -307,4 +358,5 @@ enum CartStatus {
   ABANDONED
   SAVED
   CHECKEDOUT
+  COMPLETED
 }
