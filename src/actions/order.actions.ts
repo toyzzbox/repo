@@ -3,7 +3,9 @@
 
 import { revalidatePath } from 'next/cache';
 import { prisma } from '@/lib/prisma';
-import { getCurrentUser } from '@/lib/auth';
+import { getCurrentUser } from './auth';
+
+
 type OrderFormData = {
   address: {
     name: string;

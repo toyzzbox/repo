@@ -1,3 +1,4 @@
+"use client"
 import ForgotPasswordForm from './ForgotPasswordForm'
 import Link from 'next/link'
 
