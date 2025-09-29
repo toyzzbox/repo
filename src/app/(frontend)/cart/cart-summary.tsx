@@ -27,7 +27,7 @@ export function CartSummary({ summary }: CartSummaryProps) {
       if (result.success) {
         toast.success('Siparişiniz alındı!');
         // router.push(`/orders/${result.data.order.id}`);
-        router.push(`/checkout}`);
+        router.push("/checkout}");
       } else {
         toast.error(result.error || 'Sipariş oluşturulamadı');
       }
