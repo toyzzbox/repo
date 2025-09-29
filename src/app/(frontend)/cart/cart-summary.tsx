@@ -26,7 +26,8 @@ export function CartSummary({ summary }: CartSummaryProps) {
 
       if (result.success) {
         toast.success('Siparişiniz alındı!');
-        router.push(`/orders/${result.data.order.id}`);
+        // router.push(`/orders/${result.data.order.id}`);
+        router.push(`/checkout}`);
       } else {
         toast.error(result.error || 'Sipariş oluşturulamadı');
       }
@@ -49,7 +50,7 @@ export function CartSummary({ summary }: CartSummaryProps) {
           </p>
           <div className="w-full bg-gray-200 rounded-full h-2">
             <div
-              className="bg-blue-600 h-2 rounded-full transition-all"
+              className="bg-orange-600 h-2 rounded-full transition-all"
               style={{
                 width: `${Math.min(
                   (summary.subtotal / summary.freeShippingThreshold) * 100,
