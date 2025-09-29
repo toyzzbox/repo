@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   title: "Toyzz Box",
   description: "Oyuncak Adına Herşey",
   icons: {
-    icon: "/favicon.ico?v=3",
+    icon: "/favicon.ico",
   },
 };
 
