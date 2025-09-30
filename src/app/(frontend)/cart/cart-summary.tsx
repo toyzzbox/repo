@@ -66,7 +66,7 @@ export function CartSummary({ summary }: CartSummaryProps) {
         </div>
         <div className="border-t pt-3 flex justify-between items-center">
           <span className="text-lg font-bold">Toplam</span>
-          <span className="text-2xl font-bold text-blue-600">
+          <span className="text-2xl font-bold text-orange-600">
             ₺{summary.total.toFixed(2)}
           </span>
         </div>
@@ -76,7 +76,7 @@ export function CartSummary({ summary }: CartSummaryProps) {
       <button
         onClick={handleCheckout}
         disabled={summary.itemCount === 0}
-        className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        className="w-full bg-orange-600 text-white py-3 rounded-lg font-semibold hover:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
       >
         Siparişi Tamamla
       </button>
