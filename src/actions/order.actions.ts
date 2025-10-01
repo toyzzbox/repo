@@ -89,8 +89,11 @@ export async function createOrderAction(input: CreateOrderInput): Promise<Action
           create: cart.items.map((item) => ({
             productId: item.productId,
             productName: item.product.name,
-            productImage: item.product.medias[0]?.urls[0] || null,
-            quantity: item.quantity,
+            productImage:
+            Array.isArray(item.product.medias) && item.product.medias.length > 0 && Array.isArray(item.product.medias[0].urls) && item.product.medias[0].urls.length > 0
+              ? item.product.medias[0].urls[0]
+              : null,
+           quantity: item.quantity,
             price: item.price,
           })),
         },
