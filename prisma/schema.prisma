@@ -158,15 +158,20 @@ model Category {
 model Address {
   id          String   @id @default(cuid())
   userId      String
+  user        User     @relation(fields: [userId], references: [id])
+
   fullName    String
+  phone       String
+  addressLine String
   city        String
   district    String
   postalCode  String
-  addressLine String
-  phone       String
   isDefault   Boolean  @default(false)
+
   createdAt   DateTime @default(now())
-  user        User     @relation(fields: [userId], references: [id])
+  updatedAt   DateTime @updatedAt
+
+  orders      Order[]  // Opsiyonel: referans için
 
   @@map("Address")
 }
@@ -295,31 +300,50 @@ model Order {
   id              String      @id @default(cuid())
   userId          String
   user            User        @relation(fields: [userId], references: [id])
-  
-  total           Float
+
   subtotal        Float
   shippingCost    Float
-  
-  status          String      @default("PENDING")
-  
-  shippingName    String
-  shippingPhone   String
-  shippingAddress String
-  shippingCity    String
-  
+  total           Float
+
+  status          OrderStatus @default(PENDING)
+
+  // Adres bilgisi snapshot ve referans
+  addressId       String?     // isteğe bağlı referans
+  address         Address?    @relation(fields: [addressId], references: [id])
+
+  shippingName       String      // snapshot: fullName
+  shippingPhone      String      // snapshot: phone
+  shippingAddress    String      // snapshot: addressLine
+  shippingCity       String      // snapshot: city
+  shippingDistrict   String      // snapshot: district
+  shippingPostalCode String      // snapshot: postalCode
+
   deliveryMethod  String
-  deliveryDate    String?
-  
+  deliveryDate    DateTime?
+
   paymentMethod   String
-  
+
   orderItems      OrderItem[]
-  
+
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
 
   @@index([userId])
   @@index([status])
   @@map("Order")
+}
+
+
+
+
+enum OrderStatus {
+  PENDING      // sipariş oluşturuldu, ödeme bekleniyor
+  PAID         // ödeme alındı
+  SHIPPED      // kargoya verildi
+  COMPLETED    // teslim edildi
+  CANCELED     // iptal edildi
+  RETURNED     // iade edildi (ürün geri geldi, iade süreci tamamlandı)
+  REFUNDED     // ücret iade edildi (ödeme iadesi tamamlandı)
 }
 
 model OrderItem {
