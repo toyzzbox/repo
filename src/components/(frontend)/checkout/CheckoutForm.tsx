@@ -18,8 +18,6 @@ import { createOrderAction } from "@/actions/order.actions";
 type CheckoutFormProps = {
   cartData?: {
     subtotal: number;
-    shippingCost: number;
-    total: number;
     itemCount: number;
   };
 };
@@ -30,25 +28,12 @@ export default function CheckoutForm({ cartData }: CheckoutFormProps) {
   const [stepIndex, setStepIndex] = useState(0);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [formData, setFormData] = useState<FormData>({
-    address: {
-      name: '',
-      phone: '',
-      address: '',
-      city: ''
-    },
-    delivery: {
-      method: '',
-      date: ''
-    },
-    payment: {
-      method: '',
-      cardNumber: '',
-      expiryDate: '',
-      cvv: ''
-    }
+    address: { name: '', phone: '', address: '', city: '', district: '', postalCode: '' },
+    delivery: { method: '', date: '' },
+    payment: { method: '', cardNumber: '', expiryDate: '', cvv: '' },
   });
 
-  // Eğer sepet boşsa cart sayfasına yönlendir
+  // Sepet boşsa yönlendir
   useEffect(() => {
     if (!cartData || cartData.itemCount === 0) {
       toast.error('Sepetiniz boş');
@@ -58,17 +43,14 @@ export default function CheckoutForm({ cartData }: CheckoutFormProps) {
 
   const step = steps[stepIndex];
 
-  const validateStep = (currentStep: Step): boolean => {
+  const validateStep = (currentStep: Step) => {
     const newErrors: Record<string, string> = {};
-
     switch (currentStep) {
       case 'address':
         if (!formData.address.name.trim()) newErrors.name = 'Ad soyad gerekli';
         if (!formData.address.phone.trim()) newErrors.phone = 'Telefon gerekli';
         if (!formData.address.address.trim()) newErrors.address = 'Adres gerekli';
-        if (!formData.address.city.trim()) newErrors.city = 'Şehir seçimi gerekli';
-        
-        // Telefon format kontrolü
+        if (!formData.address.city.trim()) newErrors.city = 'Şehir gerekli';
         if (formData.address.phone && !/^[0-9]{10,11}$/.test(formData.address.phone.replace(/\s/g, ''))) {
           newErrors.phone = 'Geçerli bir telefon numarası giriniz';
         }
@@ -86,21 +68,6 @@ export default function CheckoutForm({ cartData }: CheckoutFormProps) {
           toast.error('Lütfen bir ödeme yöntemi seçiniz');
           return false;
         }
-        if (formData.payment.method === 'card') {
-          if (!formData.payment.cardNumber) newErrors.cardNumber = 'Kart numarası gerekli';
-          if (!formData.payment.expiryDate) newErrors.expiryDate = 'Son kullanma tarihi gerekli';
-          if (!formData.payment.cvv) newErrors.cvv = 'CVV gerekli';
-          
-          // Kart numarası kontrolü
-          if (formData.payment.cardNumber && !/^[0-9]{16}$/.test(formData.payment.cardNumber.replace(/\s/g, ''))) {
-            newErrors.cardNumber = 'Geçerli bir kart numarası giriniz (16 haneli)';
-          }
-          
-          // CVV kontrolü
-          if (formData.payment.cvv && !/^[0-9]{3,4}$/.test(formData.payment.cvv)) {
-            newErrors.cvv = 'Geçerli bir CVV giriniz (3-4 haneli)';
-          }
-        }
         break;
     }
 
@@ -111,7 +78,7 @@ export default function CheckoutForm({ cartData }: CheckoutFormProps) {
   const next = () => {
     if (validateStep(step)) {
       if (stepIndex < steps.length - 1) {
-        setStepIndex((i) => i + 1);
+        setStepIndex(i => i + 1);
         setErrors({});
       }
     }
@@ -119,7 +86,7 @@ export default function CheckoutForm({ cartData }: CheckoutFormProps) {
 
   const back = () => {
     if (stepIndex > 0) {
-      setStepIndex((i) => i - 1);
+      setStepIndex(i => i - 1);
       setErrors({});
     }
   };
@@ -129,9 +96,7 @@ export default function CheckoutForm({ cartData }: CheckoutFormProps) {
       const result = await createOrderAction({
         address: formData.address,
         delivery: formData.delivery,
-        payment: {
-          method: formData.payment.method,
-        },
+        payment: { method: formData.payment.method },
       });
 
       if (result.success) {
@@ -143,49 +108,42 @@ export default function CheckoutForm({ cartData }: CheckoutFormProps) {
     });
   };
 
-  // Sepet verisi yoksa loading göster
-  if (!cartData) {
-    return (
-      <div className="max-w-4xl mx-auto p-6">
-        <div className="text-center">Yükleniyor...</div>
-      </div>
-    );
-  }
+  // Sepet yoksa loading
+  if (!cartData) return <div className="max-w-4xl mx-auto p-6 text-center">Yükleniyor...</div>;
 
-  // Kargo maliyetini hesapla
-  const shippingCost = formData.delivery.method === "express" ? 39.9 : 
-                       formData.delivery.method === "standard" ? 19.9 : 0;
+  const shippingCost = formData.delivery.method === 'express' ? 39.9 : formData.delivery.method === 'standard' ? 19.9 : 0;
+  const total = (cartData.subtotal || 0) + shippingCost;
 
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-6">
       <ProgressBar step={step} />
 
       <div className="bg-white rounded-lg shadow-sm border p-6">
-        {step === "address" && (
+        {step === 'address' && (
           <AddressSection
             data={formData.address}
-            onChange={(data) => setFormData((prev) => ({ ...prev, address: data }))}
+            onChange={data => setFormData(prev => ({ ...prev, address: data }))}
             errors={errors}
           />
         )}
-        {step === "delivery" && (
+        {step === 'delivery' && (
           <DeliverySection
             data={formData.delivery}
-            onChange={(data) => setFormData((prev) => ({ ...prev, delivery: data }))}
+            onChange={data => setFormData(prev => ({ ...prev, delivery: data }))}
           />
         )}
-        {step === "payment" && (
+        {step === 'payment' && (
           <PaymentSection
             data={formData.payment}
-            onChange={(data) => setFormData((prev) => ({ ...prev, payment: data }))}
+            onChange={data => setFormData(prev => ({ ...prev, payment: data }))}
             errors={errors}
           />
         )}
-        {step === "summary" && (
+        {step === 'summary' && (
           <CheckoutSummary
             subtotal={cartData.subtotal}
             shipping={shippingCost}
-            discount={0}
+            total={total}
             formData={formData}
           />
         )}
@@ -193,31 +151,17 @@ export default function CheckoutForm({ cartData }: CheckoutFormProps) {
 
       <div className="flex justify-between">
         {stepIndex > 0 && (
-          <Button 
-            variant="outline" 
-            onClick={back} 
-            className="px-6"
-            disabled={isPending}
-          >
+          <Button variant="outline" onClick={back} disabled={isPending}>
             ← Geri
           </Button>
         )}
-
         <div className="ml-auto">
           {stepIndex < steps.length - 1 ? (
-            <Button 
-              onClick={next} 
-              className="px-6"
-              disabled={isPending}
-            >
+            <Button onClick={next} disabled={isPending}>
               Devam Et →
             </Button>
           ) : (
-            <Button 
-              onClick={handleComplete} 
-              className="px-6 bg-green-600 hover:bg-green-700"
-              disabled={isPending}
-            >
+            <Button onClick={handleComplete} disabled={isPending} className="bg-green-600 hover:bg-green-700">
               {isPending ? 'İşleniyor...' : 'Siparişi Onayla ✓'}
             </Button>
           )}
