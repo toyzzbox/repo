@@ -2,7 +2,13 @@
 
 import { CheckoutSummaryProps } from "../types";
 
-export default function CheckoutSummary({ subtotal, shipping, discount, formData }: CheckoutSummaryProps) {
+export default function CheckoutSummary({ 
+  subtotal, 
+  shipping, 
+  discount = 0,  // Default değer
+  formData 
+}: CheckoutSummaryProps) {
+  
   const getDeliveryMethodText = () => {
     switch (formData.delivery.method) {
       case "standard":
@@ -22,27 +28,15 @@ export default function CheckoutSummary({ subtotal, shipping, discount, formData
         return "Kredi/Banka Kartı";
       case "transfer":
         return "Havale/EFT";
-      case "installment":
-        return "Taksitli Ödeme";
+      case "cash":
+        return "Kapıda Ödeme";
       default:
         return "Ödeme yöntemi seçilmedi";
     }
   };
 
-  const getShippingCost = () => {
-    switch (formData.delivery.method) {
-      case "standard":
-        return 19.9;
-      case "express":
-        return 39.9;
-      case "same-day":
-        return 59.9;
-      default:
-        return shipping;
-    }
-  };
-
-  const actualShipping = getShippingCost();
+  // Kargo maliyetini al
+  const actualShipping = shipping || 0;
   const finalTotal = subtotal + actualShipping - discount;
 
   return (
@@ -76,11 +70,15 @@ export default function CheckoutSummary({ subtotal, shipping, discount, formData
               <p className="font-medium">{getDeliveryMethodText()}</p>
               {formData.delivery.date && (
                 <p className="text-gray-600">
-                  Tercih edilen tarih: {formData.delivery.date}
+                  Tercih edilen tarih: {new Date(formData.delivery.date).toLocaleDateString('tr-TR')}
                 </p>
               )}
               <p className="text-gray-600">
-                Kargo ücreti: ₺{actualShipping.toFixed(2)}
+                Kargo ücreti: {actualShipping === 0 ? (
+                  <span className="text-green-600 font-medium">Ücretsiz</span>
+                ) : (
+                  `₺${actualShipping.toFixed(2)}`
+                )}
               </p>
             </div>
           </div>
@@ -93,14 +91,16 @@ export default function CheckoutSummary({ subtotal, shipping, discount, formData
             </h3>
             <div className="text-sm space-y-1">
               <p className="font-medium">{getPaymentMethodText()}</p>
-              {formData.payment.method === "card" && (
+              {formData.payment.method === "card" && formData.payment.cardNumber && (
                 <>
                   <p className="text-gray-600">
                     Kart Numarası: **** **** **** {formData.payment.cardNumber.slice(-4)}
                   </p>
-                  <p className="text-gray-600">
-                    Son Kullanma: {formData.payment.expiryDate}
-                  </p>
+                  {formData.payment.expiryDate && (
+                    <p className="text-gray-600">
+                      Son Kullanma: {formData.payment.expiryDate}
+                    </p>
+                  )}
                 </>
               )}
             </div>
@@ -112,22 +112,40 @@ export default function CheckoutSummary({ subtotal, shipping, discount, formData
           <h3 className="font-medium mb-4">Fiyat Detayları</h3>
           <div className="space-y-2 text-sm">
             <div className="flex justify-between">
-              <span>Ürün Toplamı:</span>
-              <span>₺{subtotal.toFixed(2)}</span>
+              <span className="text-gray-600">Ara Toplam</span>
+              <span className="font-medium">₺{subtotal.toFixed(2)}</span>
             </div>
+            
             <div className="flex justify-between">
-              <span>Kargo:</span>
-              <span>₺{actualShipping.toFixed(2)}</span>
+              <span className="text-gray-600">Kargo</span>
+              <span className="font-medium">
+                {actualShipping === 0 ? (
+                  <span className="text-green-600">Ücretsiz</span>
+                ) : (
+                  `₺${actualShipping.toFixed(2)}`
+                )}
+              </span>
             </div>
-            <div className="flex justify-between text-green-600">
-              <span>İndirim:</span>
-              <span>-₺{discount.toFixed(2)}</span>
+            
+            {discount > 0 && (
+              <div className="flex justify-between text-green-600">
+                <span>İndirim</span>
+                <span>-₺{discount.toFixed(2)}</span>
+              </div>
+            )}
+            
+            <hr className="my-2 border-gray-300" />
+            
+            <div className="flex justify-between font-bold text-lg pt-2">
+              <span>Toplam</span>
+              <span className="text-blue-600">₺{finalTotal.toFixed(2)}</span>
             </div>
-            <hr className="my-2" />
-            <div className="flex justify-between font-bold text-lg">
-              <span>Toplam:</span>
-              <span>₺{finalTotal.toFixed(2)}</span>
-            </div>
+          </div>
+
+          <div className="mt-4 p-3 bg-blue-50 rounded-lg">
+            <p className="text-xs text-blue-800">
+              Siparişiniz onaylandıktan sonra kargo takip bilgisi e-posta adresinize gönderilecektir.
+            </p>
           </div>
         </div>
       </div>
