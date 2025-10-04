@@ -1,11 +1,13 @@
-import nodemailer from "nodemailer";
+import sgMail from "@sendgrid/mail";
 
-export const transporter = nodemailer.createTransport({
-  host: "email-smtp.eu-central-1.amazonaws.com", // Bölgeye göre değişir
-  port: 587,
-  secure: false,
-  auth: {
-    user: process.env.SES_SMTP_USER,
-    pass: process.env.SES_SMTP_PASS,
-  },
-});
+sgMail.setApiKey(process.env.SENDGRID_API_KEY!);
+
+export async function sendEmail(to: string, subject: string, html: string) {
+  await sgMail.send({
+    to,
+    from: process.env.EMAIL_FROM!,
+    subject,
+    html,
+  });
+  console.log("Mail gönderildi!");
+}

@@ -1,6 +1,8 @@
-"use server"
+"use server";
+
 import { prisma } from '@/lib/prisma';
 import { getCurrentUser } from './auth';
+import { sendEmail } from '@/lib/mailer';
 
 interface FormAddress {
   name: string;
@@ -34,6 +36,7 @@ interface ActionResponse {
 
 export async function createOrderAction(input: CreateOrderInput): Promise<ActionResponse> {
   try {
+    // Kullanıcıyı al
     const user = await getCurrentUser();
     if (!user?.id) {
       return { success: false, error: 'Sipariş vermek için giriş yapmalısınız' };
@@ -49,7 +52,7 @@ export async function createOrderAction(input: CreateOrderInput): Promise<Action
       return { success: false, error: 'Sepetiniz boş' };
     }
 
-    // Shipping snapshot ve referans (varsa)
+    // Var olan adresi kontrol et
     let addressRefId: string | null = null;
     const existingAddress = await prisma.address.findFirst({
       where: {
@@ -90,15 +93,32 @@ export async function createOrderAction(input: CreateOrderInput): Promise<Action
             productId: item.productId,
             productName: item.product.name,
             productImage:
-            Array.isArray(item.product.medias) && item.product.medias.length > 0 && Array.isArray(item.product.medias[0].urls) && item.product.medias[0].urls.length > 0
-              ? item.product.medias[0].urls[0]
-              : null,
-           quantity: item.quantity,
+              Array.isArray(item.product.medias) &&
+              item.product.medias.length > 0 &&
+              Array.isArray(item.product.medias[0].urls) &&
+              item.product.medias[0].urls.length > 0
+                ? item.product.medias[0].urls[0]
+                : null,
+            quantity: item.quantity,
             price: item.price,
           })),
         },
       },
     });
+
+    // Müşteriye mail gönder
+    try {
+      await sendEmail(
+        user.email,
+        'Siparişiniz Alındı',
+        `<h1>Merhaba ${input.address.name}</h1>
+         <p>Siparişiniz başarıyla alındı.</p>
+         <p>Sipariş numaranız: <b>${order.id}</b></p>
+         <p>Toplam: ${order.total.toFixed(2)} TL</p>`
+      );
+    } catch (mailError) {
+      console.error('Mail gönderilemedi:', mailError);
+    }
 
     // Sepeti CHECKEDOUT yap
     await prisma.cart.update({
