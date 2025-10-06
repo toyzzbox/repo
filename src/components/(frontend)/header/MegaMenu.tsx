@@ -1,6 +1,6 @@
 // src/components/MegaMenuServer.tsx
 import { prisma } from '@/lib/prisma';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, Package } from 'lucide-react';
 
 export default async function MegaMenuServer() {
   const categories = await prisma.category.findMany({
@@ -14,56 +14,64 @@ export default async function MegaMenuServer() {
   });
 
   return (
-    <nav className="bg-white sticky top-0 z-50 border-b border-gray-200">
+    <nav className="bg-white sticky top-0 z-50 shadow-md">
       <div className="max-w-7xl mx-auto px-6">
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-1">
           {categories.map((cat) => (
-            <div key={cat.id} className="group relative">
+            <div key={cat.id} className="group">
               {/* Ana kategori butonu */}
-              <button className="flex items-center space-x-2 px-6 py-4 hover:bg-blue-50 hover:text-orange-600 transition-all duration-200 rounded-lg">
+              <button className="flex items-center space-x-2 px-5 py-6 text-gray-700 hover:text-blue-600 hover:bg-gray-50 transition-all rounded-lg">
                 <span className="text-sm font-medium whitespace-nowrap">{cat.name}</span>
                 <ChevronDown className="w-4 h-4 group-hover:rotate-180 transition-transform duration-200" />
               </button>
 
-              {/* Tam genişlikte açılan mega menü */}
+              {/* Mega Menü */}
               {cat.children.length > 0 && (
-                <div className="absolute left-1/2 -translate-x-1/2 top-full w-screen z-50 hidden group-hover:block animate-fade-in">
-                  <div className="max-w-7xl mx-auto px-6 py-12 grid grid-cols-12 gap-12">
-                    {/* Alt kategoriler */}
-                    <div className={`col-span-${cat.featured ? '8' : '12'} grid gap-8 ${
-                      cat.children.length <= 6 ? 'grid-cols-6' : 'grid-cols-4'
-                    }`}>
-                      {cat.children.map((sub) => (
-                        <div key={sub.id} className="space-y-4">
-                          <h3 className="font-bold text-gray-900 border-b-2 border-blue-200 pb-3 mb-4">
-                            {sub.name}
-                          </h3>
-                          <ul className="space-y-3">
-                            {sub.children.map((item) => (
-                              <li key={item.id}>
-                                <a
-                                  href={`/category/${item.slug}`}
-                                  className="text-gray-600 hover:text-blue-600 block hover:font-medium transition-colors"
-                                >
-                                  {item.name}
-                                </a>
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      ))}
-                    </div>
-
-                    {/* Öne çıkan (featured) alan */}
-                    {cat.featured && (
-                      <div className="col-span-4 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 rounded-2xl p-8">
-                        <h3 className="font-bold text-gray-900 text-2xl mb-2">
-                          {cat.featured.title}
-                        </h3>
-                        <p className="text-gray-600 mb-6">{cat.featured.subtitle}</p>
-                        {/* Featured öğeler buraya */}
+                <div className="fixed left-0 right-0 top-full bg-white border-t border-gray-100 shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+                  <div className="max-w-7xl mx-auto px-6 py-8">
+                    <div className="grid grid-cols-12 gap-8">
+                      {/* Alt kategoriler */}
+                      <div className={`${cat.featured ? 'col-span-8' : 'col-span-12'} grid gap-6 ${
+                        cat.children.length <= 3 ? 'grid-cols-3' : 
+                        cat.children.length <= 4 ? 'grid-cols-4' : 
+                        cat.children.length <= 6 ? 'grid-cols-6' : 'grid-cols-4'
+                      }`}>
+                        {cat.children.map((sub) => (
+                          <div key={sub.id} className="space-y-3">
+                            <div className="flex items-center space-x-2 pb-2 border-b-2 border-blue-200">
+                              <Package className="w-4 h-4 text-blue-600" />
+                              <h3 className="font-bold text-gray-900 text-sm">
+                                {sub.name}
+                              </h3>
+                            </div>
+                            <ul className="space-y-2">
+                              {sub.children.map((item) => (
+                                <li key={item.id}>
+                                  
+                                    href={`/category/${item.slug}`}
+                                    className="text-sm text-gray-600 hover:text-blue-600 hover:translate-x-1 transition-all inline-block flex items-center space-x-1"
+                                  >
+                                    <span>→</span>
+                                    <span>{item.name}</span>
+                                  </a>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        ))}
                       </div>
-                    )}
+
+                      {/* Öne çıkan (featured) alan */}
+                      {cat.featured && (
+                        <div className="col-span-4 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 rounded-xl p-6">
+                          <h3 className="font-bold text-gray-900 text-lg mb-2">
+                            {cat.featured.title}
+                          </h3>
+                          <p className="text-sm text-gray-600 mb-4">{cat.featured.subtitle}</p>
+                          {/* Featured öğeler buraya */}
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
               )}
