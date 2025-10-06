@@ -4,6 +4,17 @@ import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
+// Basit slug oluşturucu
+function slugify(text: string) {
+  return text
+    .toString()
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, "-")
+    .replace(/[^\w\-]+/g, "")
+    .replace(/\-\-+/g, "-");
+}
+
 interface UpdateProductResult {
   ok: boolean;
   message: string;
@@ -11,41 +22,48 @@ interface UpdateProductResult {
 
 export async function updateProduct(prevState: unknown, formData: FormData): Promise<UpdateProductResult> {
   try {
+    // 1️⃣ Form verilerini al
     const id = formData.get("id") as string;
     const name = formData.get("name") as string;
-    const serial = formData.get("serial") as string;
+    const serial = formData.get("serial") as string | null;
     const stock = parseInt(formData.get("stock") as string);
     const price = parseFloat(formData.get("price") as string);
     const discount = formData.get("discount") ? parseFloat(formData.get("discount") as string) : null;
     const groupId = (formData.get("groupId") as string) || null;
     const description = formData.get("description") as string;
-    const barcode = formData.get("barcode") as string;
-    const slug = formData.get("slug") as string;
+    const barcode = (formData.get("barcode") as string) || null;
+    let slug = (formData.get("slug") as string) || "";
+
     const brandIds = formData.getAll("brandIds[]") as string[];
     const categoryIds = formData.getAll("categoryIds[]") as string[];
     const mediaIds = formData.getAll("mediaIds[]") as string[];
 
-    // Validation
+    // 2️⃣ Validasyon
     if (!id || !name) return { ok: false, message: "Ürün ID'si ve adı gereklidir." };
     if (stock < 0) return { ok: false, message: "Stok negatif olamaz." };
     if (price <= 0) return { ok: false, message: "Fiyat pozitif olmalıdır." };
 
-    // 1️⃣ Ürünün varlığını kontrol et
+    // 3️⃣ Ürün var mı kontrol et
     const existing = await prisma.product.findUnique({ where: { id } });
     if (!existing) return { ok: false, message: "Ürün bulunamadı." };
 
-    // 2️⃣ Slug ve barcode benzersizliği
+    // 4️⃣ Slug boşsa name'den oluştur
+    if (!slug) slug = slugify(name);
+
+    // 5️⃣ Slug ve barcode benzersizliği
     const slugConflict = await prisma.product.findFirst({
       where: { slug, NOT: { id } },
     });
     if (slugConflict) return { ok: false, message: "Bu slug başka bir üründe kullanılıyor." };
 
-    const barcodeConflict = await prisma.product.findFirst({
-      where: { barcode, NOT: { id } },
-    });
-    if (barcodeConflict) return { ok: false, message: "Bu barkod başka bir üründe kullanılıyor." };
+    if (barcode) {
+      const barcodeConflict = await prisma.product.findFirst({
+        where: { barcode, NOT: { id } },
+      });
+      if (barcodeConflict) return { ok: false, message: "Bu barkod başka bir üründe kullanılıyor." };
+    }
 
-    // 3️⃣ Geçerli medya ID'lerini filtrele
+    // 6️⃣ Geçerli medya ID'lerini filtrele
     const validMedia = await prisma.media.findMany({
       where: { id: { in: mediaIds } },
       select: { id: true },
@@ -56,7 +74,7 @@ export async function updateProduct(prevState: unknown, formData: FormData): Pro
       order: index,
     }));
 
-    // 4️⃣ Transaction: ürün güncelle + medya
+    // 7️⃣ Transaction: ürün güncelle + medya + brand/category
     await prisma.$transaction(async (tx) => {
       await tx.product.update({
         where: { id },
@@ -68,20 +86,21 @@ export async function updateProduct(prevState: unknown, formData: FormData): Pro
           discount,
           groupId: groupId || null,
           description,
-          barcode,
+          barcode: barcode || null,
           slug,
           brands: { set: [], connect: brandIds.map((bid) => ({ id: bid })) },
           categories: { set: [], connect: categoryIds.map((cid) => ({ id: cid })) },
         },
       });
 
+      // Medya bağlantılarını sıfırla ve ekle
       await tx.productMedia.deleteMany({ where: { productId: id } });
       if (mediaConnections.length > 0) {
         await tx.productMedia.createMany({ data: mediaConnections });
       }
     });
 
-    // 5️⃣ Cache ve yönlendirme
+    // 8️⃣ Cache ve yönlendirme
     revalidatePath("/admin/products");
     redirect("/admin/products");
 
