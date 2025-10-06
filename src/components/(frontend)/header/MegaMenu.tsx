@@ -28,9 +28,9 @@ export default async function MegaMenuServer() {
               {/* Tam genişlikte açılan mega menü */}
               {cat.children.length > 0 && (
                 <div className="absolute left-0 right-0 top-full bg-white shadow-2xl border-t z-50 hidden group-hover:block animate-fade-in">
-                  <div className="max-w-7xl mx-auto px-6 py-12">
+                  <div className="max-w-7xl mx-auto px-6 py-12 grid grid-cols-12 gap-12">
                     {/* Alt kategoriler */}
-                    <div className={`grid gap-8 ${
+                    <div className={`col-span-${cat.featured ? '8' : '12'} grid gap-8 ${
                       cat.children.length <= 6 ? 'grid-cols-6' : 'grid-cols-4'
                     }`}>
                       {cat.children.map((sub) => (
@@ -53,6 +53,17 @@ export default async function MegaMenuServer() {
                         </div>
                       ))}
                     </div>
+
+                    {/* Öne çıkan (featured) alan */}
+                    {cat.featured && (
+                      <div className="col-span-4 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 rounded-2xl p-8">
+                        <h3 className="font-bold text-gray-900 text-2xl mb-2">
+                          {cat.featured.title}
+                        </h3>
+                        <p className="text-gray-600 mb-6">{cat.featured.subtitle}</p>
+                        {/* Featured öğeler buraya */}
+                      </div>
+                    )}
                   </div>
                 </div>
               )}
