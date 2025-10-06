@@ -61,7 +61,6 @@ const MegaMenu: React.FC = () => {
           items: ['Çocuk Kutu Oyunları', 'Yetişkin Kutu Oyunları', 'Eğitici Oyunlar', 'Strateji Oyunları']
         }
       ]
-      featured property'si yok - sadece kategoriler görünür
     },
     {
       id: 'anne-bebek',
