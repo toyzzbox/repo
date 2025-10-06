@@ -1,317 +1,108 @@
 "use client"
 
-import React, { useState } from 'react';
-import { ChevronDown, Search, ShoppingCart, User, Heart, Star, Truck, Shield, Headphones } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { ChevronDown, Star, Loader2 } from 'lucide-react';
 
-// TypeScript interface'leri
-interface FeaturedItem {
-  name: string;
-  originalPrice?: string;
-  discountPrice: string;
-  discount: string;
-  image: string;
-  rating: number;
-  reviews: number;
-}
-
-interface Featured {
-  title: string;
-  subtitle: string;
-  items: FeaturedItem[];
-}
-
-interface Subcategory {
-  title: string;
-  items: string[];
-}
-
+// Prisma tiplerini yansıtan interface'ler
 interface Category {
   id: string;
   name: string;
-  subcategories: Subcategory[];
-  featured?: Featured; // Optional yapıldı
+  slug: string;
+  parentId: string | null;
+  order: number;
+  createdAt: Date;
+  updatedAt: Date;
+  children?: Category[];
 }
 
-const MegaMenu: React.FC = () => {
-  const [activeMenu, setActiveMenu] = useState<string | null>(null);
+// Mega menu için dönüştürülmüş tip
+interface MegaMenuCategory {
+  id: string;
+  name: string;
+  subcategories: {
+    title: string;
+    items: string[];
+  }[];
+  featured?: {
+    title: string;
+    subtitle: string;
+    items: any[];
+  };
+}
 
-  const categories: Category[] = [
-    {
-      id: 'oyuncak',
-      name: 'Oyuncaklar',
-      subcategories: [
-        {
-          title: 'Oyuncak Bebek ve Aksesuarları',
-          items: ['Bez Bebekler', 'Manken Bebekler', 'Fonksiyonlu Et Bebekler', 'Bebek Aksesuarları', 'Bebek Arabası']
-        },
-        {
-          title: 'Oyuncak Arabalar',
-          items: ['Uzaktan Kumandalı Arabalar', 'Model Koleksiyon Arabalar', 'Yarış Pistleri', 'Mini Arabalar', 'Kamyon Setleri']
-        },
-        {
-          title: 'Peluş Oyuncaklar',
-          items: ['Lisanslı Peluşlar', 'Hareketli Peluş Oyuncaklar', 'Peluş Ayı ve Pandalar', 'Peluş Kedi ve Köpekler', 'Diğer Peluşlar']
-        },
-        {
-          title: 'Oyuncak Silahlar',
-          items: ['Silah Setleri', 'Yumuşak Nerf Mermili Silahlar', 'Su Tabancaları', 'Lazer Tabancaları']
-        },
-        {
-          title: 'Kutu Oyunları',
-          items: ['Çocuk Kutu Oyunları', 'Yetişkin Kutu Oyunları', 'Eğitici Oyunlar', 'Strateji Oyunları']
-        }
-      ]
-      // featured property'si yok - sadece kategoriler görünür
-    },
-    {
-      id: 'anne-bebek',
-      name: 'Anne & Bebek',
-      subcategories: [
-        {
-          title: 'Bebek Bakım',
-          items: ['Bebek Bezi', 'Bebek Maması', 'Biberon ve Emzik', 'Bebek Şampuanı', 'Bebek Kremi', 'Islak Mendil']
-        },
-        {
-          title: 'Bebek Giyim',
-          items: ['Bebek Tulum', 'Bebek Body', 'Bebek Ayakkabı', 'Bebek Şapka', 'Bebek Eldiven', 'Bebek Çorap']
-        },
-        {
-          title: 'Anne Bakım',
-          items: ['Hamile Giyim', 'Emzirme Sütyeni', 'Anne Vitamin', 'Cilt Bakım', 'Saç Bakım']
-        },
-        {
-          title: 'Bebek Mobilyası',
-          items: ['Bebek Beşiği', 'Bebek Odası Takımı', 'Mama Sandalyesi', 'Oyun Parkı', 'Bebek Dolabı']
-        }
-      ],
-      featured: {
-        title: 'Anne-Bebek Essentials',
-        subtitle: 'İhtiyacınız olan her şey',
-        items: [
-          {
-            name: 'Bebek Bakım Seti',
-            originalPrice: '599 ₺',
-            discountPrice: '399 ₺',
-            discount: '%33 İndirim',
-            image: '🍼',
-            rating: 4.8,
-            reviews: 456
-          },
-          {
-            name: 'Bebek Arabası',
-            originalPrice: '2.999 ₺',
-            discountPrice: '1.999 ₺',
-            discount: '%33 İndirim',
-            image: '🚼',
-            rating: 4.6,
-            reviews: 234
-          },
-          {
-            name: 'Anne Bakım Paketi',
-            originalPrice: '899 ₺',
-            discountPrice: '649 ₺',
-            discount: '%28 İndirim',
-            image: '💆‍♀️',
-            rating: 4.7,
-            reviews: 189
-          }
-        ]
+interface MegaMenuProps {
+  getCategories: () => Promise<Category[]>;
+}
+
+const MegaMenu: React.FC<MegaMenuProps> = ({ getCategories }) => {
+  const [activeMenu, setActiveMenu] = useState<string | null>(null);
+  const [categories, setCategories] = useState<MegaMenuCategory[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Prisma kategorilerini mega menu formatına dönüştür
+  const transformCategories = (prismaCategories: Category[]): MegaMenuCategory[] => {
+    return prismaCategories.map(parent => {
+      // Alt kategorileri grupla
+      const subcategories = parent.children?.map(child => ({
+        title: child.name,
+        items: child.children?.map(grandchild => grandchild.name) || []
+      })) || [];
+
+      return {
+        id: parent.id,
+        name: parent.name,
+        subcategories,
+        // İsterseniz featured kısmını da veritabanından çekebilirsiniz
+        featured: undefined
+      };
+    });
+  };
+
+  // Kategorileri yükle
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        setLoading(true);
+        const data = await getCategories();
+        const transformed = transformCategories(data);
+        setCategories(transformed);
+        setError(null);
+      } catch (err) {
+        console.error('Kategoriler yüklenirken hata:', err);
+        setError('Kategoriler yüklenirken bir hata oluştu');
+      } finally {
+        setLoading(false);
       }
-    },
-    {
-      id: 'okul-kirtasiye',
-      name: 'Okul & Kırtasiye',
-      subcategories: [
-        {
-          title: 'Okul Malzemeleri',
-          items: ['Okul Çantası', 'Kalem Kutusu', 'Defterler', 'Kalemler', 'Silgiler', 'Cetvel Seti']
-        },
-        {
-          title: 'Kırtasiye Ürünleri',
-          items: ['Dosyalama', 'Zımba ve Delgeç', 'Yapıştırıcılar', 'Büro Malzemeleri', 'Hesap Makinesi']
-        },
-        {
-          title: 'Sanat Malzemeleri',
-          items: ['Boyama Setleri', 'Resim Kağıdı', 'Fırça Setleri', 'Pastel Boyalar', 'Keçeli Kalemler']
-        },
-        {
-          title: 'Eğitim Kitapları',
-          items: ['Test Kitapları', 'Ders Kitapları', 'Hikaye Kitapları', 'Aktivite Kitapları', 'Sözlükler']
-        }
-      ],
-      featured: {
-        title: 'Okula Dönüş',
-        subtitle: 'Yeni dönem hazırlıkları',
-        items: [
-          {
-            name: 'Okul Çantası Seti',
-            originalPrice: '499 ₺',
-            discountPrice: '299 ₺',
-            discount: '%40 İndirim',
-            image: '🎒',
-            rating: 4.5,
-            reviews: 678
-          },
-          {
-            name: 'Kırtasiye Paketi',
-            originalPrice: '199 ₺',
-            discountPrice: '129 ₺',
-            discount: '%35 İndirim',
-            image: '✏️',
-            rating: 4.7,
-            reviews: 345
-          },
-          {
-            name: 'Boyama Seti',
-            originalPrice: '299 ₺',
-            discountPrice: '199 ₺',
-            discount: '%33 İndirim',
-            image: '🎨',
-            rating: 4.8,
-            reviews: 234
-          }
-        ]
-      }
-    },
-    {
-      id: 'spor',
-      name: 'Spor & Outdoor',
-      subcategories: [
-        {
-          title: 'Fitness & Gym',
-          items: ['Koşu Bandı', 'Dumbell Set', 'Yoga Matı', 'Protein Tozu', 'Fitness Saati', 'Spor Kıyafetleri']
-        },
-        {
-          title: 'Outdoor',
-          items: ['Kamp Çadırı', 'Trekking Ayakkabı', 'Sırt Çantası', 'Sleeping Bag', 'Outdoor Kıyafet', 'GPS Cihaz']
-        },
-        {
-          title: 'Su Sporları',
-          items: ['Yüzme Gözlüğü', 'Mayo & Bikini', 'Sörf Tahtası', 'Şnorkel Set', 'Su Geçirmez Çanta']
-        },
-        {
-          title: 'Takım Sporları',
-          items: ['Futbol Topu', 'Basketbol', 'Tenis Raketi', 'Voleybol', 'Badminton Set', 'Masa Tenisi']
-        }
-      ],
-      featured: {
-        title: 'Kış Sporları',
-        subtitle: 'Sezon açılışı',
-        items: [
-          {
-            name: 'Snowboard Set',
-            originalPrice: '4.999 ₺',
-            discountPrice: '3.999 ₺',
-            discount: '%20 İndirim',
-            image: '🏂',
-            rating: 4.8,
-            reviews: 89
-          },
-          {
-            name: 'Kış Montu',
-            originalPrice: '1.899 ₺',
-            discountPrice: '1.399 ₺',
-            discount: '%26 İndirim',
-            image: '🧥',
-            rating: 4.7,
-            reviews: 167
-          }
-        ]
-      }
-    },
-    {
-      id: 'elektronik',
-      name: 'Elektronik',
-      subcategories: [
-        {
-          title: 'Telefon & Tablet',
-          items: ['Akıllı Telefon', 'Tablet', 'Telefon Kılıfı', 'Şarj Aleti', 'Kulaklık', 'Power Bank']
-        },
-        {
-          title: 'Bilgisayar',
-          items: ['Laptop', 'Masaüstü PC', 'Monitör', 'Klavye', 'Mouse', 'Yazıcı']
-        },
-        {
-          title: 'TV & Ses',
-          items: ['Smart TV', 'Soundbar', 'Hoparlör', 'Kulaklık', 'Mikrofon', 'Ses Sistemi']
-        },
-        {
-          title: 'Fotoğraf',
-          items: ['Dijital Fotoğraf Makinesi', 'Objektif', 'Tripod', 'Flaş', 'Hafıza Kartı', 'Kamera Çantası']
-        }
-      ],
-      featured: {
-        title: 'Teknoloji Trendleri',
-        subtitle: 'En yeni teknolojiler',
-        items: [
-          {
-            name: 'Akıllı Telefon',
-            originalPrice: '15.999 ₺',
-            discountPrice: '12.999 ₺',
-            discount: '%19 İndirim',
-            image: '📱',
-            rating: 4.6,
-            reviews: 1234
-          },
-          {
-            name: 'Laptop',
-            originalPrice: '25.999 ₺',
-            discountPrice: '22.999 ₺',
-            discount: '%12 İndirim',
-            image: '💻',
-            rating: 4.8,
-            reviews: 567
-          }
-        ]
-      }
-    },
-    {
-      id: 'hediyelik',
-      name: 'Hediyelik Eşya',
-      subcategories: [
-        {
-          title: 'Kişisel Hediyeler',
-          items: ['Kişiselleştirilebilir Ürünler', 'İsme Özel Hediyeler', 'Fotoğraflı Hediyeler', 'El Yapımı Ürünler']
-        },
-        {
-          title: 'Özel Gün Hediyeleri',
-          items: ['Doğum Günü Hediyeleri', 'Yıldönümü Hediyeleri', 'Mezuniyet Hediyeleri', 'Sevgililer Günü']
-        },
-        {
-          title: 'Ev Dekorasyonu',
-          items: ['Dekoratif Objeler', 'Mum & Mumluk', 'Çerçeve & Tablo', 'Süs Bitkileri']
-        },
-        {
-          title: 'Lüks Hediyeler',
-          items: ['Mücevher & Takı', 'Parfüm & Kozmetik', 'İthal Çikolata', 'Özel Koleksiyonlar']
-        }
-      ],
-      featured: {
-        title: 'Özel Hediye Koleksiyonu',
-        subtitle: 'Sevdikleriniz için özel seçimler',
-        items: [
-          {
-            name: 'Kişiye Özel Fotoğraf Albümü',
-            originalPrice: '299 ₺',
-            discountPrice: '199 ₺',
-            discount: '%33 İndirim',
-            image: '📸',
-            rating: 4.9,
-            reviews: 456
-          },
-          {
-            name: 'Premium Çikolata Seti',
-            originalPrice: '199 ₺',
-            discountPrice: '149 ₺',
-            discount: '%25 İndirim',
-            image: '🍫',
-            rating: 4.8,
-            reviews: 234
-          }
-        ]
-      }
-    }
-  ];
+    };
+
+    fetchCategories();
+  }, [getCategories]);
+
+  if (loading) {
+    return (
+      <nav className="bg-white sticky top-0 z-50 border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="flex items-center justify-center py-4">
+            <Loader2 className="w-6 h-6 animate-spin text-blue-600" />
+            <span className="ml-2 text-gray-600">Yükleniyor...</span>
+          </div>
+        </div>
+      </nav>
+    );
+  }
+
+  if (error) {
+    return (
+      <nav className="bg-white sticky top-0 z-50 border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="flex items-center justify-center py-4">
+            <span className="text-red-600">{error}</span>
+          </div>
+        </div>
+      </nav>
+    );
+  }
 
   return (
     <nav className="bg-white sticky top-0 z-50 border-b border-gray-200">
@@ -349,8 +140,9 @@ const MegaMenu: React.FC = () => {
               .filter(cat => cat.id === activeMenu)
               .map((category) => (
                 <div key={category.id} className="grid grid-cols-12 gap-12">
-                  {/* Categories Grid - Full Width for Oyuncak, 8 columns for others */}
-                  <div className={`${category.id === 'oyuncak' ? 'col-span-12 grid-cols-5' : 'col-span-8 grid-cols-4'} grid gap-8`}>
+                  {/* Categories Grid */}
+                  <div className={`${category.subcategories.length === 0 ? 'col-span-12' : category.featured ? 'col-span-8' : 'col-span-12'} grid gap-8`}
+                       style={{ gridTemplateColumns: `repeat(${Math.min(category.subcategories.length, 5)}, minmax(0, 1fr))` }}>
                     {category.subcategories.map((subcat, index) => (
                       <div key={index} className="space-y-4">
                         <h3 className="font-bold text-gray-900 border-b-2 border-blue-200 pb-3 mb-4">
@@ -369,8 +161,8 @@ const MegaMenu: React.FC = () => {
                     ))}
                   </div>
 
-                  {/* Featured Section - 4 columns (only for non-oyuncak categories) */}
-                  {category.id !== 'oyuncak' && category.featured && (
+                  {/* Featured Section */}
+                  {category.featured && (
                     <div className="col-span-4 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 rounded-2xl p-8">
                       <h3 className="font-bold text-gray-900 text-2xl mb-2">
                         {category.featured.title}
