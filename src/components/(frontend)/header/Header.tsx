@@ -9,6 +9,7 @@ import MobileHeader from './MobileHeader'
 import LiveSearch from '../search/LiveSearch'
 import MegaMenu from './MegaMenu'
 import { getCart } from '@/actions/cart'
+import { getCategories } from '@/actions/categoryMenu'
 
 interface HeaderProps {
   session: any;
@@ -36,6 +37,15 @@ const Header = async ({ session, categories }: HeaderProps) => {
     };
   }
 
+  let menuCategories = categories;
+  if (!menuCategories) {
+    try {
+      menuCategories = await getCategories();
+    } catch (error) {
+      console.error('Categories fetch error:', error);
+      menuCategories = [];
+    }
+  }
   return (
     <>
       <div className="w-[1200px] mx-auto px-[50px]">
@@ -52,7 +62,7 @@ const Header = async ({ session, categories }: HeaderProps) => {
           </div>
         </div>
         <div className="flex items-center justify-center border-b-1 border-gray-150">
-          <MegaMenu />
+        <MegaMenu initialCategories={menuCategories} />
         </div>
       </div>
       <MobileHeader session={session} categories={categories} />

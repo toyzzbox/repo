@@ -1,7 +1,7 @@
 "use client"
 
-import React, { useState, useEffect } from 'react';
-import { ChevronDown, Star, Loader2 } from 'lucide-react';
+import React, { useState } from 'react';
+import { ChevronDown, Star } from 'lucide-react';
 
 // Prisma tiplerini yansıtan interface'ler
 interface Category {
@@ -31,14 +31,11 @@ interface MegaMenuCategory {
 }
 
 interface MegaMenuProps {
-  getCategories: () => Promise<Category[]>;
+  initialCategories: Category[];
 }
 
-const MegaMenu: React.FC<MegaMenuProps> = ({ getCategories }) => {
+const MegaMenu: React.FC<MegaMenuProps> = ({ initialCategories }) => {
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
-  const [categories, setCategories] = useState<MegaMenuCategory[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
   // Prisma kategorilerini mega menu formatına dönüştür
   const transformCategories = (prismaCategories: Category[]): MegaMenuCategory[] => {
@@ -59,50 +56,7 @@ const MegaMenu: React.FC<MegaMenuProps> = ({ getCategories }) => {
     });
   };
 
-  // Kategorileri yükle
-  useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        setLoading(true);
-        const data = await getCategories();
-        const transformed = transformCategories(data);
-        setCategories(transformed);
-        setError(null);
-      } catch (err) {
-        console.error('Kategoriler yüklenirken hata:', err);
-        setError('Kategoriler yüklenirken bir hata oluştu');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchCategories();
-  }, [getCategories]);
-
-  if (loading) {
-    return (
-      <nav className="bg-white sticky top-0 z-50 border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="flex items-center justify-center py-4">
-            <Loader2 className="w-6 h-6 animate-spin text-blue-600" />
-            <span className="ml-2 text-gray-600">Yükleniyor...</span>
-          </div>
-        </div>
-      </nav>
-    );
-  }
-
-  if (error) {
-    return (
-      <nav className="bg-white sticky top-0 z-50 border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="flex items-center justify-center py-4">
-            <span className="text-red-600">{error}</span>
-          </div>
-        </div>
-      </nav>
-    );
-  }
+  const categories = transformCategories(initialCategories);
 
   return (
     <nav className="bg-white sticky top-0 z-50 border-b border-gray-200">
