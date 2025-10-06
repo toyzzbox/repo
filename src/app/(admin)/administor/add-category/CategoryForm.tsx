@@ -65,10 +65,12 @@ interface Category {
   name: string;
   parentId?: string | null;
 }
+
 interface Media {
   id: string;
   urls: string[];
 }
+
 interface CategoryFormProps {
   categories: Category[];
   medias: Media[];
@@ -88,6 +90,7 @@ export default function CategoryForm({ categories, medias }: CategoryFormProps) 
 
   const [name, setName] = useState("");
   const [slug, setSlug] = useState("");
+  const [order, setOrder] = useState<number>(0); // 👈 order state
 
   useEffect(() => {
     setSlug(slugify(name));
@@ -146,6 +149,17 @@ export default function CategoryForm({ categories, medias }: CategoryFormProps) 
             </option>
           ))}
         </select>
+
+        {/* 👈 Order alanı */}
+        <input
+          type="number"
+          name="order"
+          placeholder="Sıralama (Order)"
+          className="border rounded px-3 py-2"
+          value={order}
+          onChange={(e) => setOrder(Number(e.target.value))}
+          min={0}
+        />
 
         <label className="font-medium">Medya Dosyaları</label>
         <select
