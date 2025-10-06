@@ -62,7 +62,7 @@ export default async function MegaMenuServer() {
                   <div className="absolute top-full left-0 w-screen bg-white shadow-2xl border-t z-50 hidden group-hover:block animate-fade-in">
                     <div className="max-w-7xl mx-auto px-6 py-12 grid grid-cols-12 gap-12">
                       {/* Alt kategoriler */}
-                      <div className="col-span-8 grid grid-cols-4 gap-8">
+                      <div className="col-span-8 grid grid-cols-6 gap-8">
                         {cat.children.map((sub) => (
                           <div key={sub.id} className="space-y-4">
                             <h3 className="font-bold text-gray-900 border-b-2 border-blue-200 pb-3 mb-4">
