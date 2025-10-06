@@ -27,7 +27,7 @@ export default async function MegaMenuServer() {
 
               {/* Tam genişlikte açılan mega menü */}
               {cat.children.length > 0 && (
-                <div className="absolute left-0 right-0 top-full bg-white shadow-2xl border-t z-50 hidden group-hover:block animate-fade-in">
+                <div className="absolute left-1/2 -translate-x-1/2 top-full w-screen z-50 hidden group-hover:block animate-fade-in">
                   <div className="max-w-7xl mx-auto px-6 py-12 grid grid-cols-12 gap-12">
                     {/* Alt kategoriler */}
                     <div className={`col-span-${cat.featured ? '8' : '12'} grid gap-8 ${
