@@ -4,7 +4,6 @@
 import React, { useState } from 'react';
 import { ChevronDown, Search, ShoppingCart, User, Heart, Star, Truck, Shield, Headphones } from 'lucide-react';
 
-TypeScript interface'leri
 interface FeaturedItem {
   name: string;
   originalPrice?: string;
