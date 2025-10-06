@@ -14,11 +14,11 @@ export default async function MegaMenuServer() {
   });
 
   return (
-    <nav className="bg-white sticky top-0 z-50 border-b border-gray-200 relative">
+    <nav className="bg-white sticky top-0 z-50 border-b border-gray-200">
       <div className="max-w-7xl mx-auto px-6">
         <div className="flex items-center space-x-2">
           {categories.map((cat) => (
-            <div key={cat.id} className="group relative">
+            <div key={cat.id} className="group">
               {/* Ana kategori butonu */}
               <button className="flex items-center space-x-2 px-6 py-4 hover:bg-blue-50 hover:text-orange-600 transition-all duration-200 rounded-lg">
                 <span className="text-sm font-medium whitespace-nowrap">{cat.name}</span>
@@ -27,11 +27,11 @@ export default async function MegaMenuServer() {
 
               {/* Tam genişlikte açılan mega menü */}
               {cat.children.length > 0 && (
-                <div className="absolute top-full left-0 w-screen bg-white shadow-2xl border-t z-50 hidden group-hover:block animate-fade-in">
-                  <div className="max-w-7xl mx-auto px-6 py-12 grid grid-cols-12 gap-12">
+                <div className="absolute left-0 right-0 top-full bg-white shadow-2xl border-t z-50 hidden group-hover:block animate-fade-in">
+                  <div className="max-w-7xl mx-auto px-6 py-12">
                     {/* Alt kategoriler */}
                     <div className={`${
-                      cat.children.length <= 6 ? 'col-span-12 grid grid-cols-6 gap-8' : 'col-span-12 grid grid-cols-4 gap-8'
+                      cat.children.length <= 6 ? 'grid grid-cols-6 gap-8' : 'grid grid-cols-4 gap-8'
                     }`}>
                       {cat.children.map((sub) => (
                         <div key={sub.id} className="space-y-4">
@@ -41,7 +41,7 @@ export default async function MegaMenuServer() {
                           <ul className="space-y-3">
                             {sub.children.map((item) => (
                               <li key={item.id}>
-                                <a
+                                
                                   href={`/category/${item.slug}`}
                                   className="text-gray-600 hover:text-blue-600 block hover:font-medium transition-colors"
                                 >
@@ -53,9 +53,6 @@ export default async function MegaMenuServer() {
                         </div>
                       ))}
                     </div>
-
-                    {/* Eğer featured alan varsa buraya eklenebilir */}
-                    {/* Örneğin: col-span-4 gibi */}
                   </div>
                 </div>
               )}
