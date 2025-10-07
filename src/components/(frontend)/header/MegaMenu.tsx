@@ -107,9 +107,15 @@ const MegaMenu: React.FC<MegaMenuProps> = ({ initialCategories }) => {
                        style={{ gridTemplateColumns: `repeat(${Math.min(category.subcategories.length, 5)}, minmax(0, 1fr))` }}>
                     {category.subcategories.map((subcat, index) => (
                       <div key={index} className="space-y-4">
-                        <h3 className="font-bold text-gray-900 border-b-2 border-blue-200 pb-3 mb-4">
-                          {subcat.title}
-                        </h3>
+              
+                        <h3 className="font-bold text-gray-900 pb-3 mb-4">
+  <Link
+    href={`/categories/${subcat.title}`}
+    className="hover:text-blue-600 transition-colors"
+  >
+    {subcat.title}
+  </Link>
+</h3>
                         <ul className="space-y-3">
                           {subcat.items.map((item, itemIndex) => (
                             <li key={itemIndex}>
