@@ -5,11 +5,12 @@ import { MediaType } from "@prisma/client";
 import slugify from "slugify";
 import sharp from "sharp";
 
+
 const s3 = new S3Client({
-  region: process.env.NEXT_AWS_S3_REGION!,
+  region: process.env.NEXT_AWS_S3_REGION,  // ✅ Düzeltildi
   credentials: {
-    accessKeyId: process.env.NEXT_AWS_S3_ACCESS_KEY_ID!,
-    secretAccessKey: process.env.NEXT_AWS_S3_SECRET_ACCESS_KEY!,
+    accessKeyId: process.env.NEXT_AWS_S3_ACCESS_KEY_ID!,        // ✅ Düzeltildi
+    secretAccessKey: process.env.NEXT_AWS_S3_SECRET_ACCESS_KEY!, // ✅ Düzeltildi
   },
 });
 
