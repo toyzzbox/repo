@@ -238,22 +238,22 @@ export default function LoginForm() {
         {/* Ana İçerik */}
         <div className="relative z-10 text-center">
           <div className="mb-10">
-            <div className="text-9xl mb-8 animate-bounce">
+            <div className="text-5xl mb-8 animate-bounce">
               🎨
             </div>
             <div className="flex justify-center gap-8 mb-10">
-              <span className="text-7xl animate-pulse drop-shadow-lg">🧸</span>
-              <span className="text-7xl animate-pulse drop-shadow-lg" style={{animationDelay: '0.2s'}}>🚗</span>
-              <span className="text-7xl animate-pulse drop-shadow-lg" style={{animationDelay: '0.4s'}}>🎮</span>
+              <span className="text-3xl animate-pulse drop-shadow-lg">🧸</span>
+              <span className="text-3xl animate-pulse drop-shadow-lg" style={{animationDelay: '0.2s'}}>🚗</span>
+              <span className="text-3xl animate-pulse drop-shadow-lg" style={{animationDelay: '0.4s'}}>🎮</span>
             </div>
             <div className="flex justify-center gap-8">
-              <span className="text-6xl animate-bounce drop-shadow-lg" style={{animationDelay: '0.1s'}}>🎪</span>
-              <span className="text-6xl animate-bounce drop-shadow-lg" style={{animationDelay: '0.3s'}}>🎯</span>
-              <span className="text-6xl animate-bounce drop-shadow-lg" style={{animationDelay: '0.5s'}}>🎭</span>
+              <span className="text-2xl animate-bounce drop-shadow-lg" style={{animationDelay: '0.1s'}}>🎪</span>
+              <span className="text-2xl animate-bounce drop-shadow-lg" style={{animationDelay: '0.3s'}}>🎯</span>
+              <span className="text-2xl animate-bounce drop-shadow-lg" style={{animationDelay: '0.5s'}}>🎭</span>
             </div>
           </div>
           
-          <h2 className="text-5xl font-extrabold mb-6 text-gray-900 drop-shadow-md">
+          <h2 className="text-2xl font-extrabold mb-6 text-gray-900 drop-shadow-md">
             Hayal Gücünün Sınırı Yok!
           </h2>
           <p className="text-2xl font-medium text-gray-800 max-w-lg mx-auto drop-shadow-sm leading-relaxed">
