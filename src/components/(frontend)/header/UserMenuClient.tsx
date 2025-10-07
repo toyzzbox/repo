@@ -1,18 +1,8 @@
-// components/(frontend)/header/UserMenuClient.tsx
 "use client";
 
-import { LogOut, Settings, User } from "lucide-react";
+import { useState, useCallback } from "react";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { User } from "lucide-react";
 import { logout } from "@/lib/logout";
 
 interface UserMenuClientProps {
@@ -20,75 +10,85 @@ interface UserMenuClientProps {
 }
 
 export default function UserMenuClient({ session }: UserMenuClientProps) {
-  if (!session) {
-    return (
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button size="logo" variant={"user"} className="flex items-center gap-2 py-2 px-4 rounded">
-            <User />
-            Giriş Yap
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-56 bg-white text-black">
-          <DropdownMenuLabel>Hoş geldiniz</DropdownMenuLabel>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem asChild>
-            <Link href="/login" className="flex items-center gap-2">
-              <User className="w-4 h-4" />
-              Giriş Yap
-            </Link>
-          </DropdownMenuItem>
-          <DropdownMenuItem asChild>
-            <Link href="/register" className="flex items-center gap-2">
-              <User className="w-4 h-4" />
-              Üye Ol
-            </Link>
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    );
-  }
+  const [isOpen, setIsOpen] = useState(false);
+
+  const toggleOpen = useCallback(() => {
+    setIsOpen((prev) => !prev);
+  }, []);
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button size="logo" variant={"user"} className="flex items-center gap-2 py-2 px-4 rounded">
-          <User />
-          {session.user.name || session.user.email}
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-56 bg-white text-black">
-        <DropdownMenuLabel>
-          <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium">{session.user.name || "Kullanıcı"}</p>
-            <p className="text-xs text-muted-foreground">{session.user.email}</p>
-          </div>
-        </DropdownMenuLabel>
-        <DropdownMenuSeparator />
-        <DropdownMenuGroup>
-          <DropdownMenuItem asChild>
-            <Link href="/dashboard" className="flex items-center gap-2">
-              <User className="w-4 h-4" />
-              Hesabım
-            </Link>
-          </DropdownMenuItem>
-          <DropdownMenuItem asChild>
-            <Link href="/profile" className="flex items-center gap-2">
-              <Settings className="w-4 h-4" />
-              Profil Ayarları
-            </Link>
-          </DropdownMenuItem>
-        </DropdownMenuGroup>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem asChild>
-          <form action={logout} className="w-full">
-            <button type="submit" className="flex items-center gap-2 w-full">
-              <LogOut className="w-4 h-4" />
-              Çıkış Yap
-            </button>
-          </form>
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <div className="relative z-30">
+      {/* Dropdown tetikleyici */}
+      <div
+        onClick={toggleOpen}
+        className="p-2 flex items-center gap-1 rounded-full cursor-pointer hover:shadow-md transition text-gray-700"
+      >
+        <User className="w-5 h-5" />
+        {session ? session.user?.name || "Hesabım" : "Giriş Yap"}
+      </div>
+
+      {/* Dropdown içeriği */}
+      {isOpen && (
+        <div className="absolute right-0 top-12 w-[170px] bg-white shadow-md rounded-md overflow-hidden text-sm flex flex-col cursor-pointer">
+          {session ? (
+            <>
+              <Link href="/orders">
+                <div
+                  className="px-4 py-2 hover:bg-gray-100"
+                  onClick={toggleOpen}
+                >
+                  Siparişlerim
+                </div>
+              </Link>
+              <Link href="/admin">
+                <div
+                  className="px-4 py-2 hover:bg-gray-100"
+                  onClick={toggleOpen}
+                >
+                  Admin Yönetimi
+                </div>
+              </Link>
+              <hr />
+              <div
+                className="px-4 py-2 hover:bg-gray-100"
+                onClick={() => {
+                  toggleOpen();
+                  logout();
+                }}
+              >
+                Çıkış Yap
+              </div>
+            </>
+          ) : (
+            <>
+              <Link href="/login">
+                <div
+                  className="px-4 py-2 hover:bg-gray-100"
+                  onClick={toggleOpen}
+                >
+                  Login
+                </div>
+              </Link>
+              <Link href="/register">
+                <div
+                  className="px-4 py-2 hover:bg-gray-100"
+                  onClick={toggleOpen}
+                >
+                  Register
+                </div>
+              </Link>
+            </>
+          )}
+        </div>
+      )}
+
+      {/* Tıklayınca dropdown kapanması için overlay */}
+      {isOpen && (
+        <div
+          onClick={toggleOpen}
+          className="fixed inset-0 bg-black/20 z-20"
+        />
+      )}
+    </div>
   );
 }
