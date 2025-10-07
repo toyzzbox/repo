@@ -57,12 +57,17 @@ export default function UserMenuClient({ session }: UserMenuClientProps) {
         <>
           <Link href="/login">
             <div className="px-4 py-2 hover:bg-gray-100" onClick={toggleOpen}>
-              Login
+              <button className="bg-orange-500 p-2 m-2 text-white">
+                Giriş Yap
+              </button>
+       
             </div>
           </Link>
           <Link href="/register">
             <div className="px-4 py-2 hover:bg-gray-100" onClick={toggleOpen}>
-              Register
+            <button className="p-2 m-2 text-orange">
+                Üye Ol
+              </button>
             </div>
           </Link>
         </>
