@@ -29,7 +29,7 @@ export default function LoginForm() {
   return (
     <div className="min-h-screen flex">
       {/* Sol Taraf - Login Form */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-white">
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-8 gap-6 bg-white">
         <div className="w-full max-w-md">
           {/* Password Reset Success Message */}
           {message === 'password-reset-success' && (
@@ -51,8 +51,8 @@ export default function LoginForm() {
 
           {/* Logo/Başlık */}
           <div className="mb-8">
-            <h1 className="text-4xl font-bold text-orange-600 mb-2">
-              🧸 Toyz Box
+            <h1 className="text-4xl font-bold text-black mb-3">
+              🧸 Toyzz Box
             </h1>
             <p className="text-gray-600">Hesabınıza giriş yapın</p>
           </div>
@@ -238,46 +238,42 @@ export default function LoginForm() {
         
         {/* Ana İçerik */}
         <div className="relative z-10 text-center text-white">
-          <div className="mb-8">
-            <div className="text-8xl mb-6 animate-bounce">
-              🎨
-            </div>
-            <div className="flex justify-center gap-6 mb-8">
-              <span className="text-6xl animate-pulse">🧸</span>
-              <span className="text-6xl animate-pulse" style={{animationDelay: '0.2s'}}>🚗</span>
-              <span className="text-6xl animate-pulse" style={{animationDelay: '0.4s'}}>🎮</span>
-            </div>
-            <div className="flex justify-center gap-6">
-              <span className="text-5xl animate-bounce" style={{animationDelay: '0.1s'}}>🎪</span>
-              <span className="text-5xl animate-bounce" style={{animationDelay: '0.3s'}}>🎯</span>
-              <span className="text-5xl animate-bounce" style={{animationDelay: '0.5s'}}>🎭</span>
-            </div>
-          </div>
-          
-          <h2 className="text-4xl font-bold mb-4 drop-shadow-lg">
-            Hayal Gücünün Sınırı Yok!
-          </h2>
-          <p className="text-xl opacity-90 max-w-md mx-auto drop-shadow">
-            Çocuklarınız için en özel oyuncakları keşfedin ve mutluluğu kapınıza getirin
-          </p>
-          
-          {/* İstatistikler */}
-          <div className="mt-12 flex justify-center gap-8">
-            <div className="text-center">
-              <div className="text-3xl font-bold">10K+</div>
-              <div className="text-sm opacity-80">Mutlu Aile</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold">500+</div>
-              <div className="text-sm opacity-80">Oyuncak Çeşidi</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold">%100</div>
-              <div className="text-sm opacity-80">Güvenli Ürün</div>
-            </div>
-          </div>
-        </div>
-      </div>
+  <div className="mb-6">
+    <div className="text-7xl mb-4 animate-bounce">🎨</div>
+    <div className="flex justify-center gap-4 mb-6">
+      <span className="text-5xl animate-pulse">🧸</span>
+      <span className="text-5xl animate-pulse" style={{animationDelay: '0.2s'}}>🚗</span>
+      <span className="text-5xl animate-pulse" style={{animationDelay: '0.4s'}}>🎮</span>
+      <span className="text-5xl animate-bounce" style={{animationDelay: '0.1s'}}>🎪</span>
+      <span className="text-5xl animate-bounce" style={{animationDelay: '0.3s'}}>🎯</span>
+      <span className="text-5xl animate-bounce" style={{animationDelay: '0.5s'}}>🎭</span>
+    </div>
+  </div>
+
+  <h2 className="text-3xl font-bold mb-2 drop-shadow-lg">
+    Hayal Gücünün Sınırı Yok!
+  </h2>
+  <p className="text-lg opacity-90 max-w-md mx-auto drop-shadow">
+    Çocuklarınız için en özel oyuncakları keşfedin ve mutluluğu kapınıza getirin
+  </p>
+
+  {/* İstatistikler */}
+  <div className="mt-8 flex justify-center gap-6">
+    <div className="text-center">
+      <div className="text-2xl font-bold">10K+</div>
+      <div className="text-sm opacity-80">Mutlu Aile</div>
+    </div>
+    <div className="text-center">
+      <div className="text-2xl font-bold">500+</div>
+      <div className="text-sm opacity-80">Oyuncak Çeşidi</div>
+    </div>
+    <div className="text-center">
+      <div className="text-2xl font-bold">%100</div>
+      <div className="text-sm opacity-80">Güvenli Ürün</div>
+    </div>
+  </div>
+</div>
+</div>
     </div>
   );
 }
