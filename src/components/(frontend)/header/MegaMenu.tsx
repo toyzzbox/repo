@@ -75,10 +75,15 @@ const MegaMenu: React.FC<MegaMenuProps> = ({ initialCategories }) => {
               </button>
             </div>
           ))}
+          
           <div className="flex-1" />
-          <button className="px-6 py-4 bg-gradient-to-r from-red-500 to-pink-500 text-white font-bold rounded-lg hover:from-red-600 hover:to-pink-600 transition-all duration-200 shadow-lg">
+          <button className="px-6 py-4  font-bold rounded-lg transition-all duration-200 shadow-lg">
+            Markalar
+          </button>
+          <button className="px-6 py-4 bg-gradient-to-r from-red-500 to-orange-500 text-white font-bold rounded-lg hover:from-red-600 hover:to-pink-600 transition-all duration-200 shadow-lg">
             Fırsatlar
           </button>
+     
         </div>
       </div>
 
