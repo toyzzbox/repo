@@ -27,7 +27,8 @@ export default async function BrandsPage() {
 
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
         {brands.map((brand) => {
-          const logo = brand.medias[0]?.urls?.[0] || "/placeholder.png";
+    
+          const logo = brand.medias?.[0]?.urls?.[0] || "/placeholder.png";
 
           return (
             <Link
