@@ -237,7 +237,7 @@ export default function LoginForm() {
         
         {/* Ana İçerik */}
         <div className="relative z-10 text-center">
-          <div className="mb-10">
+          <div className="">
             <div className="text-5xl mb-8 animate-bounce">
               🎨
             </div>
