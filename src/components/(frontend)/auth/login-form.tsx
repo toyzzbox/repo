@@ -29,7 +29,7 @@ export default function LoginForm() {
   return (
     <div className="min-h-screen flex">
       {/* Sol Taraf - Login Form */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-8 gap-6 bg-white">
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-white">
         <div className="w-full max-w-md">
           {/* Password Reset Success Message */}
           {message === 'password-reset-success' && (
@@ -70,7 +70,7 @@ export default function LoginForm() {
                 type="email"
                 autoComplete="email"
                 required
-                className="appearance-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                className="appearance-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
                 placeholder="ornek@email.com"
                 disabled={isPending}
               />
@@ -87,7 +87,7 @@ export default function LoginForm() {
                 type="password"
                 autoComplete="current-password"
                 required
-                className="appearance-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                className="appearance-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
                 placeholder="Şifrenizi girin"
                 disabled={isPending}
               />
@@ -134,7 +134,7 @@ export default function LoginForm() {
                   id="rememberMe"
                   name="rememberMe"
                   type="checkbox"
-                  className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
+                  className="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded"
                 />
                 <label htmlFor="rememberMe" className="ml-2 block text-sm text-gray-900">
                   Beni hatırla
@@ -155,8 +155,8 @@ export default function LoginForm() {
             <div>
               <button
                 type="submit"
-                disabled={isPending} border-transpa
-                className="group relative w-full flex justify-center py-3 px-4 borderrent text-sm font-semibold rounded-lg text-white bg-orange-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                disabled={isPending}
+                className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-semibold rounded-lg text-white bg-orange-500 hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
               >
                 {isPending ? (
                   <div className="flex items-center">
@@ -210,10 +210,8 @@ export default function LoginForm() {
                   <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
                   <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
                 </svg>
-                Google
+                Google ile devam et
               </button>
-
-           
             </div>
 
             {/* Sign Up Link */}
@@ -231,49 +229,54 @@ export default function LoginForm() {
       </div>
 
       {/* Sağ Taraf - Görsel */}
-      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-orange-400 via-red-400 to-yellow-300 items-center justify-center p-12 relative overflow-hidden">
+      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-orange-400 via-amber-400 to-yellow-400 items-center justify-center p-12 relative overflow-hidden">
         {/* Dekoratif Arka Plan Şekilleri */}
-        <div className="absolute top-10 left-10 w-32 h-32 bg-white bg-opacity-20 rounded-full blur-2xl"></div>
-        <div className="absolute bottom-20 right-20 w-40 h-40 bg-white bg-opacity-20 rounded-full blur-2xl"></div>
+        <div className="absolute top-10 left-10 w-32 h-32 bg-white bg-opacity-30 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-20 right-20 w-40 h-40 bg-white bg-opacity-30 rounded-full blur-2xl"></div>
+        <div className="absolute top-1/2 right-10 w-24 h-24 bg-orange-300 bg-opacity-40 rounded-full blur-2xl"></div>
         
         {/* Ana İçerik */}
-        <div className="relative z-10 text-center text-white">
-  <div className="mb-6">
-    <div className="text-7xl mb-4 animate-bounce">🎨</div>
-    <div className="flex justify-center gap-4 mb-6">
-      <span className="text-5xl animate-pulse">🧸</span>
-      <span className="text-5xl animate-pulse" style={{animationDelay: '0.2s'}}>🚗</span>
-      <span className="text-5xl animate-pulse" style={{animationDelay: '0.4s'}}>🎮</span>
-      <span className="text-5xl animate-bounce" style={{animationDelay: '0.1s'}}>🎪</span>
-      <span className="text-5xl animate-bounce" style={{animationDelay: '0.3s'}}>🎯</span>
-      <span className="text-5xl animate-bounce" style={{animationDelay: '0.5s'}}>🎭</span>
-    </div>
-  </div>
-
-  <h2 className="text-3xl font-bold mb-2 drop-shadow-lg">
-    Hayal Gücünün Sınırı Yok!
-  </h2>
-  <p className="text-lg opacity-90 max-w-md mx-auto drop-shadow">
-    Çocuklarınız için en özel oyuncakları keşfedin ve mutluluğu kapınıza getirin
-  </p>
-
-  {/* İstatistikler */}
-  <div className="mt-8 flex justify-center gap-6">
-    <div className="text-center">
-      <div className="text-2xl font-bold">10K+</div>
-      <div className="text-sm opacity-80">Mutlu Aile</div>
-    </div>
-    <div className="text-center">
-      <div className="text-2xl font-bold">500+</div>
-      <div className="text-sm opacity-80">Oyuncak Çeşidi</div>
-    </div>
-    <div className="text-center">
-      <div className="text-2xl font-bold">%100</div>
-      <div className="text-sm opacity-80">Güvenli Ürün</div>
-    </div>
-  </div>
-</div>
-</div>
+        <div className="relative z-10 text-center">
+          <div className="mb-10">
+            <div className="text-9xl mb-8 animate-bounce">
+              🎨
+            </div>
+            <div className="flex justify-center gap-8 mb-10">
+              <span className="text-7xl animate-pulse drop-shadow-lg">🧸</span>
+              <span className="text-7xl animate-pulse drop-shadow-lg" style={{animationDelay: '0.2s'}}>🚗</span>
+              <span className="text-7xl animate-pulse drop-shadow-lg" style={{animationDelay: '0.4s'}}>🎮</span>
+            </div>
+            <div className="flex justify-center gap-8">
+              <span className="text-6xl animate-bounce drop-shadow-lg" style={{animationDelay: '0.1s'}}>🎪</span>
+              <span className="text-6xl animate-bounce drop-shadow-lg" style={{animationDelay: '0.3s'}}>🎯</span>
+              <span className="text-6xl animate-bounce drop-shadow-lg" style={{animationDelay: '0.5s'}}>🎭</span>
+            </div>
+          </div>
+          
+          <h2 className="text-5xl font-extrabold mb-6 text-gray-900 drop-shadow-md">
+            Hayal Gücünün Sınırı Yok!
+          </h2>
+          <p className="text-2xl font-medium text-gray-800 max-w-lg mx-auto drop-shadow-sm leading-relaxed">
+            Çocuklarınız için en özel oyuncakları keşfedin ve mutluluğu kapınıza getirin
+          </p>
+          
+          {/* İstatistikler */}
+          <div className="mt-16 flex justify-center gap-12">
+            <div className="text-center bg-white bg-opacity-25 backdrop-blur-sm rounded-2xl px-6 py-4 shadow-lg">
+              <div className="text-4xl font-extrabold text-gray-900">10K+</div>
+              <div className="text-base font-semibold text-gray-800 mt-1">Mutlu Aile</div>
+            </div>
+            <div className="text-center bg-white bg-opacity-25 backdrop-blur-sm rounded-2xl px-6 py-4 shadow-lg">
+              <div className="text-4xl font-extrabold text-gray-900">500+</div>
+              <div className="text-base font-semibold text-gray-800 mt-1">Oyuncak Çeşidi</div>
+            </div>
+            <div className="text-center bg-white bg-opacity-25 backdrop-blur-sm rounded-2xl px-6 py-4 shadow-lg">
+              <div className="text-4xl font-extrabold text-gray-900">%100</div>
+              <div className="text-base font-semibold text-gray-800 mt-1">Güvenli Ürün</div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
