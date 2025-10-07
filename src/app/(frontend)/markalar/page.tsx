@@ -1,46 +1,28 @@
 // src/app/brands/page.tsx
-
-import Image from "next/image";
 import Link from "next/link";
-
 import { apiClient } from "@/lib/api-client";
+import { BrandCard } from "@/components/(frontend)/product/BrandCard";
 
 export const metadata = {
   title: "Markalar",
 };
 
 export default async function BrandsPage() {
-  // Tüm markaları güvenli şekilde al
   const brands = (await apiClient.getBrands().catch(() => [])) || [];
 
   return (
     <main className="max-w-6xl mx-auto p-6">
       <h1 className="text-3xl font-bold mb-6">Markalar</h1>
-
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
-        {brands.map((brand: any) => {
-          const logo = brand.medias?.[0]?.urls?.[0] || "/placeholder.png";
-
-          return (
-            <Link
-              key={brand.id}
-              href={`/brands/${brand.slug}`}
-              className="border rounded-lg p-4 hover:shadow-md flex flex-col items-center transition"
-            >
-              <div className="w-20 h-20 relative mb-2">
-                <Image
-                  src={logo}
-                  alt={brand.name}
-                  fill
-                  className="object-contain"
-                  sizes="80px"
-                />
-              </div>
-              <span className="text-sm font-medium text-center">{brand.name}</span>
-            </Link>
-          );
-        })}
-      </div>
+      
+      {brands.length === 0 ? (
+        <p className="text-gray-500">Henüz marka bulunmamaktadır.</p>
+      ) : (
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
+          {brands.map((brand: any) => (
+            <BrandCard key={brand.id} brand={brand} />
+          ))}
+        </div>
+      )}
     </main>
   );
 }
