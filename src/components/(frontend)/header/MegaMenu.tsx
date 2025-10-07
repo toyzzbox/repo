@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { ChevronDown, Star } from 'lucide-react';
+import Link from 'next/link';
 
 // Prisma tiplerini yansıtan interface'ler
 interface Category {
@@ -77,11 +78,13 @@ const MegaMenu: React.FC<MegaMenuProps> = ({ initialCategories }) => {
           ))}
           
           <div className="flex-1" />
-          <button className="px-6 py-4  font-bold rounded-lg transition-all duration-200 shadow-lg">
-            Markalar
+          <button className="px-6 py-4 font-bold rounded-lg transition-all duration-200">
+            <Link href="/brands">Markalar
+            </Link>
           </button>
           <button className="px-6 py-4 bg-gradient-to-r from-red-500 to-orange-500 text-white font-bold rounded-lg hover:from-red-600 hover:to-pink-600 transition-all duration-200 shadow-lg">
-            Fırsatlar
+          <Link href="/brands">Fırsatlar
+            </Link>
           </button>
      
         </div>
