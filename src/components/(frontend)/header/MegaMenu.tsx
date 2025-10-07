@@ -73,7 +73,7 @@ const MegaMenu: React.FC<MegaMenuProps> = ({ initialCategories }) => {
               onMouseEnter={() => setActiveMenu(category.id)}
               onMouseLeave={() => setActiveMenu(null)}
             >
-              <button className="flex items-center space-x-2 px-6 py-4 hover:bg-blue-50 hover:text-orange-600 transition-all duration-200 rounded-lg group">
+              <button className="flex items-center space-x-2 px-6 py-4 hover:bg-white hover:text-orange-600 transition-all duration-200 rounded-lg group">
                 <span className="text-sm font-medium whitespace-nowrap">
                   {category.name}
                 </span>
@@ -147,7 +147,7 @@ const MegaMenu: React.FC<MegaMenuProps> = ({ initialCategories }) => {
                             <li key={itemIndex}>
                               <Link
                                 href={`/categories/${item.slug}`}
-                                className="text-gray-600 hover:text-blue-600 transition-colors hover:underline underline-offset-4 block"
+                                className="text-gray-600 transition-colors hover:underline underline-offset-4 block"
                               >
                                 {item.name}
                               </Link>
