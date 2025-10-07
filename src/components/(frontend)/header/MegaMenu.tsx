@@ -2,7 +2,6 @@
 
 import React, { useState } from 'react';
 import { ChevronDown, Star } from 'lucide-react';
-import Link from 'next/link';
 
 // Prisma tiplerini yansıtan interface'ler
 interface Category {
@@ -23,7 +22,6 @@ interface MegaMenuCategory {
   subcategories: {
     title: string;
     items: string[];
-    slug: string;
   }[];
   featured?: {
     title: string;
@@ -45,6 +43,7 @@ const MegaMenu: React.FC<MegaMenuProps> = ({ initialCategories }) => {
       // Alt kategorileri grupla
       const subcategories = parent.children?.map(child => ({
         title: child.name,
+        slug: child.slug, // slug'ı ekle
         items: child.children?.map(grandchild => grandchild.name) || []
       })) || [];
 
@@ -77,17 +76,10 @@ const MegaMenu: React.FC<MegaMenuProps> = ({ initialCategories }) => {
               </button>
             </div>
           ))}
-          
           <div className="flex-1" />
-          <button className="px-6 py-4 font-bold rounded-lg transition-all duration-200">
-            <Link href="/brands">Markalar
-            </Link>
+          <button className="px-6 py-4 bg-gradient-to-r from-red-500 to-pink-500 text-white font-bold rounded-lg hover:from-red-600 hover:to-pink-600 transition-all duration-200 shadow-lg">
+            Fırsatlar
           </button>
-          <button className="px-6 py-4 bg-gradient-to-r from-red-500 to-orange-500 text-white font-bold rounded-lg hover:from-red-600 hover:to-pink-600 transition-all duration-200 shadow-lg">
-          <Link href="/brands">Fırsatlar
-            </Link>
-          </button>
-     
         </div>
       </div>
 
@@ -108,15 +100,9 @@ const MegaMenu: React.FC<MegaMenuProps> = ({ initialCategories }) => {
                        style={{ gridTemplateColumns: `repeat(${Math.min(category.subcategories.length, 5)}, minmax(0, 1fr))` }}>
                     {category.subcategories.map((subcat, index) => (
                       <div key={index} className="space-y-4">
-              
-                        <h3 className="font-bold text-gray-900 pb-3 mb-4">
-  <Link
-   href={`/categories/${subcat.slug}`}
-    className="hover:text-blue-600 transition-colors"
-  >
-    {subcat.title}
-  </Link>
-</h3>
+                        <h3 className="font-bold text-gray-900 border-b-2 border-blue-200 pb-3 mb-4">
+                          {subcat.title}
+                        </h3>
                         <ul className="space-y-3">
                           {subcat.items.map((item, itemIndex) => (
                             <li key={itemIndex}>
