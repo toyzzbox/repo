@@ -47,7 +47,7 @@ interface MediaModalProps {
   onClose: () => void;
   medias: Media[];
   onSelectedMediasChange?: (selectedMedias: Media[]) => void;
-  onNewMediaUploaded?: (newMedias: Media[]) => void; // 🆕 Parent’a yeni medyaları bildir
+  onNewMediaUploaded?: (newMedias: Media[]) => void;
   selectedMediaIds?: string[];
 }
 
@@ -160,13 +160,15 @@ export default function MediaModal({
     if (!files || files.length === 0) return;
 
     setIsUploading(true);
-    const tempId = `temp-${Date.now()}`;
 
     startTransition(async () => {
+      const tempMedias: Media[] = [];
+
       try {
         const formData = new FormData();
 
-        Array.from(files).forEach((file) => {
+        // ✅ Her dosya için temp media oluştur
+        Array.from(files).forEach((file, index) => {
           const ext = file.name.split(".").pop();
           const base = file.name.replace(/\.[^/.]+$/, "");
           const newName = slugify(base) + "." + ext;
@@ -176,42 +178,90 @@ export default function MediaModal({
           });
 
           formData.append("files", renamedFile);
+
+          // Her dosya için ayrı temp ID
+          const tempMedia: Media = {
+            id: `temp-${Date.now()}-${index}`,
+            urls: [URL.createObjectURL(file)],
+          };
+
+          tempMedias.push(tempMedia);
+
+          // ✅ Her temp media'yı ayrı ayrı ekle
+          updateOptimisticMedias({ type: "add", payload: tempMedia });
         });
 
-        const tempMedia: Media = {
-          id: tempId,
-          urls: [URL.createObjectURL(files[0])],
-        };
-
-        updateOptimisticMedias({ type: "add", payload: tempMedia });
-
-        const result = await uploadMedia(formData); // ✅ FormData gönderiliyor
+        const result = await uploadMedia(formData);
 
         if (result.success && result.media) {
-          updateOptimisticMedias({
-            type: "replace",
-            payload: { tempId: tempMedia.id, realMedia: result.media },
+          // ✅ Başarılı olan her medya için temp'i değiştir
+          result.media.forEach((realMedia, index) => {
+            if (tempMedias[index]) {
+              updateOptimisticMedias({
+                type: "replace",
+                payload: {
+                  tempId: tempMedias[index].id,
+                  realMedia: realMedia,
+                },
+              });
+            }
           });
 
+          // ✅ Başarısız olan temp medyaları sil
+          if (result.media.length < tempMedias.length) {
+            const failedTempIds = tempMedias
+              .slice(result.media.length)
+              .map((t) => t.id);
+
+            failedTempIds.forEach((id) => {
+              updateOptimisticMedias({
+                type: "delete",
+                payload: [id],
+              });
+            });
+          }
+
+          // ✅ Parent'a tüm yeni medyaları bildir
           if (onNewMediaUploaded) {
-            onNewMediaUploaded([result.media]); // ✅ Parent'a bildir
+            onNewMediaUploaded(result.media);
+          }
+
+          // ✅ Kullanıcıya bilgi ver
+          if (result.errors && result.errors.length > 0) {
+            alert(
+              `✅ ${result.media.length} dosya yüklendi\n❌ ${result.errors.length} dosya başarısız:\n${result.errors.join("\n")}`
+            );
+          } else {
+            alert(`✅ ${result.media.length} dosya başarıyla yüklendi`);
           }
         } else {
+          // ✅ Tamamen başarısız - tüm temp medyaları sil
           console.error("Upload failed:", result.error);
-          updateOptimisticMedias({
-            type: "delete",
-            payload: [tempMedia.id],
+          alert(`❌ ${result.error}`);
+
+          tempMedias.forEach((tempMedia) => {
+            updateOptimisticMedias({
+              type: "delete",
+              payload: [tempMedia.id],
+            });
           });
         }
       } catch (error) {
         console.error("Upload error:", error);
-        updateOptimisticMedias({
-          type: "delete",
-          payload: [tempId],
+        alert("❌ Yükleme sırasında bir hata oluştu");
+
+        // ✅ Hata durumunda tüm temp medyaları temizle
+        tempMedias.forEach((tempMedia) => {
+          updateOptimisticMedias({
+            type: "delete",
+            payload: [tempMedia.id],
+          });
         });
       } finally {
         setIsUploading(false);
-        event.target.value = "";
+        if (fileInputRef.current) {
+          fileInputRef.current.value = "";
+        }
       }
     });
   };
