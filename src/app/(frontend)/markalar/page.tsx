@@ -1,33 +1,24 @@
 // src/app/brands/page.tsx
-import { prisma } from "@/lib/prisma";
+
 import Image from "next/image";
 import Link from "next/link";
+
+import { apiClient } from "@/lib/api-client";
 
 export const metadata = {
   title: "Markalar",
 };
 
 export default async function BrandsPage() {
-  const brands = await prisma.brand.findMany({
-    orderBy: { name: "asc" },
-    select: {
-      id: true,
-      name: true,
-      slug: true,
-      medias: {
-        select: { urls: true },
-        take: 1, // sadece ilk medya yeterli
-      },
-    },
-  });
+  // Tüm markaları güvenli şekilde al
+  const brands = (await apiClient.getBrands().catch(() => [])) || [];
 
   return (
     <main className="max-w-6xl mx-auto p-6">
       <h1 className="text-3xl font-bold mb-6">Markalar</h1>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
-        {brands.map((brand) => {
-    
+        {brands.map((brand: any) => {
           const logo = brand.medias?.[0]?.urls?.[0] || "/placeholder.png";
 
           return (
