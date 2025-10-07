@@ -17,11 +17,11 @@ export default function UserMenuClient({ session }: UserMenuClientProps) {
   }, []);
 
   return (
-    <div className="relative z-60 overflow-visible">
+    <div className="relative z-70 overflow-visible">
       {/* Tetikleyici */}
       <div
         onClick={toggleOpen}
-        className="p-2 flex items-center gap-1 rounded-full cursor-pointer hover:shadow-md transition text-gray-700"
+        className="p-2 flex items-center gap-1 rounded-full cursor-pointer hover:shadow-md transition text-black"
       >
         <User className="w-5 h-5" />
         {session ? session.user?.name || "Hesabım" : "Giriş Yap"}
