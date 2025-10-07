@@ -23,6 +23,7 @@ interface MegaMenuCategory {
   subcategories: {
     title: string;
     items: string[];
+    slug: string;
   }[];
   featured?: {
     title: string;
@@ -110,7 +111,7 @@ const MegaMenu: React.FC<MegaMenuProps> = ({ initialCategories }) => {
               
                         <h3 className="font-bold text-gray-900 pb-3 mb-4">
   <Link
-    href={`/categories/${subcat.title}`}
+   href={`/categories/${subcat.slug}`}
     className="hover:text-blue-600 transition-colors"
   >
     {subcat.title}
