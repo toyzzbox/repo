@@ -17,7 +17,7 @@ export default function UserMenuClient({ session }: UserMenuClientProps) {
   }, []);
 
   return (
-<div className="relative z-30 overflow-visible">
+<div className="relative z-60 overflow-visible">
   {/* Tetikleyici */}
   <div
     onClick={toggleOpen}
