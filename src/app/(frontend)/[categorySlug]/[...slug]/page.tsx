@@ -10,6 +10,7 @@ import MobileFilterButton from "./MobileFilterButton";
 type DeepCategory = Prisma.CategoryGetPayload<{
   include: { children: { include: { children: { include: { children: true } } } } };
 }>;
+
 const collectCategoryIds = (c: DeepCategory): string[] => [
   c.id,
   ...c.children.flatMap(collectCategoryIds),
@@ -20,14 +21,17 @@ export default async function CategoryPage({
   params,
   searchParams = {},
 }: {
-  params: { slug: string[] };
+  params: { categorySlug: string; slug?: string[] };
   searchParams?: { [k: string]: string | string[] | undefined };
 }) {
-  const slug = params.slug.at(-1)!;
+  const { categorySlug, slug = [] } = params;
+
+  // URL’deki son segment kategoriyi temsil ediyor
+  const finalSlug = slug.length ? slug.at(-1)! : categorySlug;
 
   /* 1. Kategori + hiyerarşi */
   const category = await prisma.category.findUnique({
-    where: { slug },
+    where: { slug: finalSlug },
     include: { children: { include: { children: { include: { children: true } } } } },
   });
   if (!category) return notFound();
@@ -134,38 +138,42 @@ export default async function CategoryPage({
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-2xl font-semibold mb-6">{category.name}</h1>
+
+      {/* Filtre + sıralama */}
       <div className="flex flex-col sm:flex-row justify-between items-center gap-2 mb-6">
-  <div className="w-full sm:w-auto">
-    <MobileFilterButton
-      subcategories={subcategories}
-      brands={brands}
-      attributeGroups={attributeGroups}
-    />
-  </div>
-  <div className="w-full sm:w-auto sm:ml-auto">
-    <SortSelect />
-  </div>
-</div>
-  
+        <div className="w-full sm:w-auto">
+          <MobileFilterButton
+            subcategories={subcategories}
+            brands={brands}
+            attributeGroups={attributeGroups}
+          />
+        </div>
+        <div className="w-full sm:w-auto sm:ml-auto">
+          <SortSelect />
+        </div>
+      </div>
 
       <div className="grid lg:grid-cols-[260px_1fr] gap-8">
         {/* SOL: Filtre paneli */}
         <div className="hidden lg:block">
-  <CategoryFilters
-    subcategories={subcategories}
-    brands={brands}
-    attributeGroups={attributeGroups}
-  />
-</div>
+          <CategoryFilters
+            subcategories={subcategories}
+            brands={brands}
+            attributeGroups={attributeGroups}
+          />
+        </div>
+
         {/* SAĞ: Ürün listesi */}
         {products.length ? (
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 items-start">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 items-start">
             {products.map((p) => (
               <ProductCard key={p.id} product={p} />
             ))}
           </div>
         ) : (
-          <p className="text-muted-foreground">Filtrelere uyan ürün bulunamadı.</p>
+          <p className="text-muted-foreground">
+            Filtrelere uyan ürün bulunamadı.
+          </p>
         )}
       </div>
     </div>
