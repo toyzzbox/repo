@@ -20,7 +20,7 @@ const Footer = () => {
             <ul className="mt-8 space-y-4 text-sm">
               {["Oyuncaklar", "Anne & Bebek", "Spor & Outdoor", "Okul & Kırtasiye", "Karakterler"].map((item) => (
                 <li key={item}>
-                  <Link href="/" className="text-gray-700 transition hover:text-gray-700/75">
+                  <Link href="/oyuncaklar" className="text-gray-700 transition hover:text-gray-700/75">
                     {item}
                   </Link>
                 </li>
@@ -49,19 +49,19 @@ const Footer = () => {
             <span className="h-px w-10 bg-red-500 block m-1 rounded" />
             <ul className="mt-8 space-y-4 text-sm">
               <li>
-                <Link href="/" className="text-gray-700 transition hover:text-gray-700/75">Oyuncak Bebekler</Link>
+                <Link href="/oyuncak-bebekler" className="text-gray-700 transition hover:text-gray-700/75">Oyuncak Bebekler</Link>
               </li>
               <li>
-                <Link href="/" className="text-gray-700 transition hover:text-gray-700/75">Oyuncak Arabalar</Link>
+                <Link href="/oyuncak-arabalar" className="text-gray-700 transition hover:text-gray-700/75">Oyuncak Arabalar</Link>
               </li>
               <li>
-                <Link href="/" className="text-gray-700 transition hover:text-gray-700/75">Kutu Oyunları</Link>
+                <Link href="/kutu-oyunlari" className="text-gray-700 transition hover:text-gray-700/75">Kutu Oyunları</Link>
               </li>
               <li>
-                <a href="/" className="text-gray-700 transition hover:text-gray-700/75">Downloads</a>
+              <Link href="/oyuncak-silahlar" className="text-gray-700 transition hover:text-gray-700/75">Oyuncak Silahlar</Link>
               </li>
               <li>
-                <a href="/" className="text-gray-700 transition hover:text-gray-700/75">Upcoming Events</a>
+              <Link href="/pelus-oyuncaklar" className="text-gray-700 transition hover:text-gray-700/75">Peluş Oyuncaklar</Link>
               </li>
             </ul>
           </div>
@@ -71,11 +71,11 @@ const Footer = () => {
             <p className="text-lg font-medium text-gray-900">Müşteri Hizmetleri</p>
             <span className="h-px w-10 bg-red-500 block m-1 rounded" />
             <ul className="mt-8 space-y-4 text-sm">
-              <li><a href="/" className="text-gray-700 transition hover:text-gray-700/75">FAQs</a></li>
-              <li><a href="/" className="text-gray-700 transition hover:text-gray-700/75">Support</a></li>
+              <li><a href="/" className="text-gray-700 transition hover:text-gray-700/75">Sıkça Sorulan Sorular</a></li>
+              <li><a href="/" className="text-gray-700 transition hover:text-gray-700/75">Destek & Yardım</a></li>
               <li>
                 <a href="/" className="group flex justify-center gap-1.5 sm:justify-start">
-                  <span className="text-gray-700 transition group-hover:text-gray-700/75">Live Chat</span>
+                  <span className="text-gray-700 transition group-hover:text-gray-700/75">Müşteri Hizmetleri</span>
                   <span className="relative flex h-2 w-2">
                     <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-teal-400 opacity-75" />
                     <span className="relative inline-flex h-2 w-2 rounded-full bg-teal-500" />
@@ -117,7 +117,7 @@ const Footer = () => {
         {/* Alt Bilgi */}
         <div className="mt-16 border-t border-gray-100 pt-6 sm:flex sm:items-center sm:justify-between">
           <p className="text-center text-sm text-gray-500 sm:text-left">
-            &copy; 2022. Tüm hakları saklıdır.
+            &copy; 1999. Tüm hakları saklıdır.
           </p>
           <ul className="mt-4 flex justify-center gap-6 sm:mt-0 sm:justify-start">
             {/* Sosyal Medya simgeleri (simgeler burada kısaltıldı) */}
