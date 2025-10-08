@@ -86,7 +86,7 @@ const MegaMenu: React.FC<MegaMenuProps> = ({ initialCategories }) => {
 
           {/* Markalar */}
           <Link
-            href="/brands"
+            href="/markalar"
             className="px-6 py-4 font-bold rounded-lg hover:underline underline-offset-4 transition-all duration-200"
           >
             Markalar
@@ -94,7 +94,7 @@ const MegaMenu: React.FC<MegaMenuProps> = ({ initialCategories }) => {
 
           {/* Fırsatlar */}
           <Link
-            href="/offers"
+            href="/firsatlar"
             className="px-6 py-4 bg-gradient-to-r from-red-500 to-orange-500 text-white font-bold rounded-lg hover:from-red-600 hover:to-pink-600 transition-all duration-200 shadow-lg"
           >
             Fırsatlar
@@ -135,7 +135,7 @@ const MegaMenu: React.FC<MegaMenuProps> = ({ initialCategories }) => {
                       <div key={index} className="space-y-4">
                         <h3 className="font-bold text-gray-900 pb-3 mb-4">
                           <Link
-                            href={`/categories/${subcat.slug}`}
+                            href={`/${subcat.slug}`}
                             className="transition-colors hover:underline underline-offset-4"
                           >
                             {subcat.title}
@@ -146,7 +146,7 @@ const MegaMenu: React.FC<MegaMenuProps> = ({ initialCategories }) => {
                           {subcat.items.map((item, itemIndex) => (
                             <li key={itemIndex}>
                               <Link
-                                href={`/categories/${item.slug}`}
+                                href={`/${item.slug}`}
                                 className="text-gray-600 transition-colors hover:underline underline-offset-4 block"
                               >
                                 {item.name}
