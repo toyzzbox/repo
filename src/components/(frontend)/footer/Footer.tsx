@@ -18,14 +18,23 @@ const Footer = () => {
             <p className="text-lg font-medium text-gray-900">Tüm Kategoriler</p>
             <span className="h-px w-10 bg-red-500 block m-1 rounded" />
             <ul className="mt-8 space-y-4 text-sm">
-              {["Oyuncaklar", "Anne & Bebek", "Spor & Outdoor", "Okul & Kırtasiye", "Karakterler"].map((item) => (
-                <li key={item}>
-                  <Link href="/oyuncaklar" className="text-gray-700 transition hover:text-gray-700/75">
-                    {item}
-                  </Link>
-                </li>
-              ))}
-            </ul>
+  {[
+    { name: "Oyuncaklar", slug: "oyuncaklar" },
+    { name: "Anne & Bebek", slug: "anne-bebek" },
+    { name: "Spor & Outdoor", slug: "spor-outdoor" },
+    { name: "Okul & Kırtasiye", slug: "okul-kirtasiye" },
+    { name: "Karakterler", slug: "karakterler" },
+  ].map((item) => (
+    <li key={item.slug}>
+      <Link 
+        href={`/${item.slug}`} 
+        className="text-gray-700 transition hover:text-gray-700/75"
+      >
+        {item.name}
+      </Link>
+    </li>
+  ))}
+</ul>
           </div>
 
           {/* Popüler Markalar */}
