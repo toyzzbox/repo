@@ -6,7 +6,7 @@ import { getRelatedProducts } from "@/actions/getRelatedProducts";
 import SortSelect from "@/components/(frontend)/category/SortSelect";
 import CategoryFilters from "@/components/(frontend)/category/CategoryFilters";
 import { ProductCard } from "@/components/(frontend)/product/ProductCard";
-import MobileFilterButton from "@/components/(frontend)/category/MobileFilterButton";
+import MobileFilterButton from "../category/MobileFilterButton";
 
 type PageProps = {
   params: { slug: string };
