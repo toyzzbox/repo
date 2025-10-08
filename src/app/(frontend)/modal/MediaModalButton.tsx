@@ -71,14 +71,14 @@ function SortableMediaItem({ media, index, onRemove }: SortableMediaItemProps) {
         {...listeners}
         className="cursor-move w-full h-full"
       >
-        <Image
-          src={media.urls[0]}
-          alt="Selected media"
-          width={120}
-          height={90}
-          className="object-cover w-full h-full pointer-events-none"
-          unoptimized
-        />
+    <Image
+  src={media.urls[0]?.replace(/[{}]/g, "")}
+  alt="Selected media"
+  width={120}
+  height={90}
+  className="object-cover w-full h-full pointer-events-none"
+  unoptimized
+/>
       </div>
 
       <div className="absolute top-1 left-1 bg-blue-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold shadow-md">
