@@ -1,49 +1,9 @@
-export const dynamic = "force-dynamic";
-import { redirect } from "next/navigation";
-import { getSession } from "@/lib/session";
-import Link from "next/link";
+// src/app/(frontend)/hesabim/page.tsx
+import { getSession } from "@/lib/auth";
+import { AccountPageClient } from "./AccountPageClient";
 
-export default async function Hesabim() {
+export default async function HesabimPage() {
   const session = await getSession();
 
-  if (!session) {
-    redirect("/login");
-  }
-
-  return (
-    <div className="space-y-4">
-      <h1 className="text-2xl font-bold">
-        Merhaba, {session.user.name || session.user.email} 👋
-      </h1>
-
-      <p className="text-gray-600">
-        Hesabına hoş geldin! Buradan siparişlerini takip edebilir, adreslerini yönetebilir,
-        favori ürünlerine göz atabilir ve çok daha fazlasını yapabilirsin.
-      </p>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-6">
-      <Link href="/hesabim/siparislerim">
-  <div className="bg-white p-4 rounded shadow border cursor-pointer hover:bg-gray-50 transition">
-    <p className="font-medium">📦 Siparişlerim</p>
-    <p className="text-sm text-gray-500">Geçmiş siparişlerini görüntüle.</p>
-  </div>
-</Link>
-  <Link href="/hesabim/favorilerim">
-    <div className="bg-white p-4 rounded shadow border cursor-pointer hover:bg-gray-50 transition">
-      <p className="font-medium">❤️ Favorilerim</p>
-      <p className="text-sm text-gray-500">Beğendiğin ürünleri incele.</p>
-    </div>
-  </Link>
-
-  <Link href="/hesabim/adreslerim">
-    <div className="bg-white p-4 rounded shadow border cursor-pointer hover:bg-gray-50 transition">
-      <p className="font-medium">🏠 Adreslerim</p>
-      <p className="text-sm text-gray-500">Adreslerini güncelle ve yönet.</p>
-    </div>
-  </Link>
-  </div>
-</div>
-
-
-  );
+  return <AccountPageClient session={session} />;
 }
