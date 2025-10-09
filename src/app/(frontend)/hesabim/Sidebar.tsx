@@ -48,7 +48,7 @@ export const AccountSidebar: React.FC<AccountSidebarProps> = ({
     { id: "kart-programi", label: "Kart Programı", icon: <CreditCard size={20} />, badge: "0 Puan", href: "/hesabim/kart-programi" },
     { id: "siparislerim", label: "Siparişlerim", icon: <ShoppingBag size={20} />, href: "/hesabim/siparislerim" },
     { id: "favorilerim", label: "Favorilerim", icon: <Heart size={20} />, href: "/hesabim/favorilerim" },
-    { id: "iletisim", label: "İletişim Tercihlerim", icon: <MessageSquare size={20} />, href: "/hesabim/iletisim" },
+    { id: "iletisim", label: "İletişim Tercihlerim", icon: <MessageSquare size={20} />, href: "/iletisim" },
     { id: "magaza", label: "Favori Mağazam", icon: <Store size={20} />, href: "/hesabim/magaza" },
     {
       id: "ayarlar",
@@ -61,7 +61,7 @@ export const AccountSidebar: React.FC<AccountSidebarProps> = ({
       ],
     },
     { id: "sifre", label: "Şifre Değiştir", icon: <Lock size={20} />, href: "/hesabim/sifre" },
-    { id: "yardim", label: "Yardıma mı İhtiyacınız Var?", icon: <HelpCircle size={20} />, href: "/hesabim/yardim" },
+    { id: "yardim", label: "Yardıma mı İhtiyacınız Var?", icon: <HelpCircle size={20} />, href: "/yardim" },
   ];
 
   const toggleSubmenu = (id: string) => {
