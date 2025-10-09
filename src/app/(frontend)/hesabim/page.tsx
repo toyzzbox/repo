@@ -1,5 +1,5 @@
 // src/app/(frontend)/hesabim/page.tsx
-import { getSession } from "@/lib/auth";
+import { getSession } from "@/lib/session";
 import { AccountPageClient } from "./AccountPageClient";
 
 export default async function HesabimPage() {
@@ -7,3 +7,4 @@ export default async function HesabimPage() {
 
   return <AccountPageClient session={session} />;
 }
+
