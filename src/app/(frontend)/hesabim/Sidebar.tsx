@@ -1,3 +1,4 @@
+"use clien"
 import React, { useState } from 'react';
 import { 
   User, 
@@ -24,7 +25,7 @@ interface MenuItem {
 }
 
 interface AccountSidebarProps {
-  userName?: string;
+  userName?: string;  // Session'dan gelecek
   membershipLevel?: string;
   activeMenu: string;
   onMenuChange: (menuId: string) => void;
@@ -32,7 +33,7 @@ interface AccountSidebarProps {
 }
 
 export const AccountSidebar: React.FC<AccountSidebarProps> = ({
-  userName = 'MEHMET',
+  userName = 'KULLANICI', // Default değer
   membershipLevel = 'BLACK',
   activeMenu,
   onMenuChange,
@@ -86,7 +87,7 @@ export const AccountSidebar: React.FC<AccountSidebarProps> = ({
       <div className="mb-8">
         <div className="flex items-center gap-3 mb-4">
           <div className="w-12 h-12 bg-black text-white flex items-center justify-center font-bold text-[10px] leading-tight">
-            SEPHORA<br/>{membershipLevel}
+            Toyzz Box<br/>{membershipLevel}
           </div>
           <div>
             <h2 className="font-semibold text-lg">HOŞ GELDİN {userName}</h2>
