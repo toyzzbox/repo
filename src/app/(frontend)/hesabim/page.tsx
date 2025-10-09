@@ -1,4 +1,5 @@
 // src/app/(frontend)/hesabim/page.tsx
+export const dynamic = "force-dynamic";
 import { getSession } from "@/lib/session";
 import { AccountPageClient } from "./AccountPageClient";
 
@@ -7,4 +8,3 @@ export default async function HesabimPage() {
 
   return <AccountPageClient session={session} />;
 }
-
