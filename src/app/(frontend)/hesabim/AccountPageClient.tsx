@@ -1,27 +1,17 @@
-// src/app/(frontend)/hesabim/layout-client.tsx
 "use client";
 
 import { useState } from "react";
 import { AccountSidebar } from "./Sidebar";
 
-export default function AccountLayoutClient({
-  userName,
-  children,
-}: {
-  userName: string;
-  children: React.ReactNode;
-}) {
+export default function AccountPageClient({ session, children }: any) {
   const [activeMenu, setActiveMenu] = useState("hesabim");
 
-  const handleLogout = () => {
-    console.log("Çıkış yapılıyor...");
-    // logout endpoint çağrısı yapılabilir
-  };
+  const handleLogout = () => console.log("Çıkış yapılıyor...");
 
   return (
     <div className="flex min-h-screen bg-gray-50">
       <AccountSidebar
-        userName={userName}
+        userName={session.user?.name || session.user?.email || "KULLANICI"}
         membershipLevel="BLACK"
         activeMenu={activeMenu}
         onMenuChange={setActiveMenu}
