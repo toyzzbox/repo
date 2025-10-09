@@ -1,8 +1,6 @@
 "use client";
 
 import React, { useState } from "react";
-import { redirect } from "next/navigation";
-import { getSession } from "@/lib/session"; // server tarafı fonksiyonu
 import { 
   User, 
   CreditCard, 
