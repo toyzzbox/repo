@@ -13,6 +13,7 @@ import CheckoutSummary from "./steps/CheckoutSummary";
 import { FormData } from "./types";
 import { createOrderAction } from "@/actions/order.actions";
 import AddressSelector from "./steps/AddressSection";
+import AddressSection from "../account/adress/AddressSection";
 
 type CheckoutFormProps = {
   cartData?: {
@@ -98,12 +99,9 @@ export default function CheckoutForm({ cartData }: CheckoutFormProps) {
       <div className="grid lg:grid-cols-3 gap-6">
         {/* Sol taraf - Form */}
         <div className="lg:col-span-2 space-y-6">
-          {/* Adres Seçimi */}
-          <AddressSelector
-            data={formData.address}
-            onChange={data => setFormData(prev => ({ ...prev, address: data }))}
-            errors={errors}
-          />
+
+             <AddressSection/>
+           </div>
 
           {/* Kargo Seçimi */}
           <div className="bg-white rounded-lg shadow-sm border p-6">
