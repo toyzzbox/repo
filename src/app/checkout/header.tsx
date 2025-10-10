@@ -6,9 +6,9 @@ const Header = () => {
         <div className="flex justify-between">
             <Logo/>
             <div>
-                Güvenli Ödeme
+              <h1 className="font-bold text-white text-3xl"> Güvenli Ödeme</h1> 
             </div>
-            <div>
+            <div className="text-2xl font-bold text-white">
                 cart
             </div>
         </div>
