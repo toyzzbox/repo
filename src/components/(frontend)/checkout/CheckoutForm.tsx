@@ -6,13 +6,13 @@ import { useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
-import AddressSection from "./steps/AddressSection";
 import DeliverySection from "./steps/DeliverySection";
 import PaymentSection from "./steps/PaymentSection";
 import CheckoutSummary from "./steps/CheckoutSummary";
 
 import { FormData } from "./types";
 import { createOrderAction } from "@/actions/order.actions";
+import AddressSelector from "./steps/AddressSection";
 
 type CheckoutFormProps = {
   cartData?: {
@@ -101,10 +101,8 @@ export default function CheckoutForm({ cartData }: CheckoutFormProps) {
           {/* Adres Bilgileri */}
           <div className="bg-white rounded-lg shadow-sm border p-6">
             <h2 className="text-xl font-semibold mb-4">Teslimat Adresi</h2>
-            <AddressSection
-              data={formData.address}
-              onChange={data => setFormData(prev => ({ ...prev, address: data }))}
-              errors={errors}
+            <AddressSelector
+             
             />
           </div>
 
