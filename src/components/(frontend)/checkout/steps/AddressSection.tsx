@@ -6,25 +6,31 @@ type AddressData = {
   name: string;
   phone: string;
   address: string;
-  addressLine2?: string;
   city: string;
   district: string;
-  neighborhood?: string;
   postalCode: string;
 };
 
-type SavedAddress = AddressData & {
+type SavedAddress = {
   id: string;
   title: string;
+  name: string;
+  phone: string;
+  address: string;
+  addressLine2?: string;
+  city: string;
+  district: string;
+  neighborhood: string;
+  postalCode: string;
   isDefault?: boolean;
 };
 
 type AddressSelectorProps = {
-  data: AddressData | null;
+  data: AddressData;
   onChange: (data: AddressData) => void;
   errors?: Record<string, string>;
   savedAddresses?: SavedAddress[];
-  onSaveAddress?: (address: SavedAddress) => void;
+  onSaveAddress?: (address: AddressData & { title: string; isDefault: boolean }) => void;
 };
 
 export default function AddressSelector({
@@ -35,8 +41,7 @@ export default function AddressSelector({
   onSaveAddress,
 }: AddressSelectorProps) {
   const [showModal, setShowModal] = useState(false);
-  const [newAddress, setNewAddress] = useState<SavedAddress>({
-    id: "",
+  const [newAddress, setNewAddress] = useState<AddressData & { title: string; isDefault: boolean }>({
     title: "",
     name: "",
     phone: "",
@@ -52,25 +57,20 @@ export default function AddressSelector({
     savedAddresses.find((a) => a.isDefault)?.id || null
   );
 
-  // ✅ Kayıtlı adres seçimi
   const handleSelectAddress = (address: SavedAddress) => {
     setSelectedAddressId(address.id);
     onChange({
       name: address.name,
       phone: address.phone,
       address: address.address,
-      addressLine2: address.addressLine2,
       city: address.city,
       district: address.district,
-      neighborhood: address.neighborhood,
       postalCode: address.postalCode,
     });
   };
 
-  // ✅ Modal açma
   const handleOpenModal = () => {
     setNewAddress({
-      id: "",
       title: "",
       name: "",
       phone: "",
@@ -85,19 +85,8 @@ export default function AddressSelector({
     setShowModal(true);
   };
 
-  // ✅ Yeni adres kaydetme
   const handleSaveNewAddress = () => {
-    if (!newAddress.name || !newAddress.address || !newAddress.city) {
-      alert("Lütfen zorunlu alanları doldurun.");
-      return;
-    }
-
-    const id = Math.random().toString(36).substring(2, 9);
-    const finalAddress = { ...newAddress, id };
-
-    onSaveAddress?.(finalAddress);
-    onChange(finalAddress);
-    setSelectedAddressId(id);
+    if (onSaveAddress) onSaveAddress(newAddress);
     setShowModal(false);
   };
 
@@ -122,12 +111,7 @@ export default function AddressSelector({
             className="flex items-center gap-1 text-sm font-medium hover:underline"
           >
             Yeni Adres Ekle
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -149,11 +133,10 @@ export default function AddressSelector({
                   onClick={() => handleSelectAddress(address)}
                   className={`w-full text-left p-4 rounded-lg border-2 transition-all relative ${
                     isSelected
-                      ? "border-black bg-white"
+                      ? "border-black bg-gray-50"
                       : "border-gray-200 hover:border-gray-300"
                   }`}
                 >
-                  {/* Radio seçimi */}
                   <div className="absolute top-4 right-4">
                     <div
                       className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
@@ -192,11 +175,9 @@ export default function AddressSelector({
                     </p>
 
                     {address.isDefault && (
-                      <div className="mt-3">
-                        <span className="inline-block bg-green-100 text-green-700 text-xs px-3 py-1 rounded">
-                          Varsayılan
-                        </span>
-                      </div>
+                      <span className="inline-block mt-3 bg-green-100 text-green-700 text-xs px-3 py-1 rounded">
+                        Varsayılan
+                      </span>
                     )}
                   </div>
                 </button>
@@ -219,18 +200,16 @@ export default function AddressSelector({
       {/* Modal */}
       {showModal && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-[100] p-4"
+          className="fixed inset-0 flex items-center justify-center z-[100] backdrop-blur-sm bg-black/60 grayscale"
           onClick={() => setShowModal(false)}
         >
           <div
-            className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+            className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-xl"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="p-6">
               <div className="flex items-center justify-between mb-6">
-                <h3 className="text-xl font-semibold">
-                  Yeni Teslimat Adresi
-                </h3>
+                <h3 className="text-xl font-semibold">Yeni Teslimat Adresi</h3>
                 <button
                   onClick={() => setShowModal(false)}
                   className="text-gray-400 hover:text-gray-600 text-2xl leading-none"
@@ -239,47 +218,37 @@ export default function AddressSelector({
                 </button>
               </div>
 
-              {/* Form */}
               <div className="space-y-4">
                 {[
-                  { label: "Adres Başlığı", key: "title" },
-                  { label: "Tam Ad", key: "name" },
-                  { label: "Telefon", key: "phone" },
-                  { label: "Adres Satırı 1", key: "address" },
-                  { label: "Adres Satırı 2", key: "addressLine2" },
+                  { label: "Tam ad", key: "name", placeholder: "Ad Soyad" },
+                  { label: "Telefon", key: "phone", placeholder: "05xx xxx xx xx" },
+                  { label: "Adres", key: "address", placeholder: "Cadde, sokak, bina" },
+                  { label: "Adres 2", key: "addressLine2", placeholder: "Daire, kat, blok" },
                   { label: "Şehir", key: "city" },
                   { label: "İlçe", key: "district" },
-                  { label: "Mahalle/Köy", key: "neighborhood" },
+                  { label: "Mahalle", key: "neighborhood" },
                   { label: "Posta Kodu", key: "postalCode" },
-                ].map((field) => (
-                  <div key={field.key}>
-                    <label className="block text-sm font-medium mb-1">
-                      {field.label}
-                    </label>
+                ].map(({ label, key, placeholder }) => (
+                  <div key={key}>
+                    <label className="block text-sm font-medium mb-1">{label}</label>
                     <input
                       type="text"
-                      value={(newAddress as any)[field.key] || ""}
+                      value={(newAddress as any)[key] || ""}
                       onChange={(e) =>
-                        setNewAddress({
-                          ...newAddress,
-                          [field.key]: e.target.value,
-                        })
+                        setNewAddress({ ...newAddress, [key]: e.target.value })
                       }
+                      placeholder={placeholder}
                       className="w-full px-3 py-2 border border-gray-300 rounded focus:border-gray-400 focus:outline-none"
                     />
                   </div>
                 ))}
 
-                {/* Varsayılan adres seçimi */}
-                <label className="flex items-center gap-2 mt-2">
+                <label className="flex items-center gap-2">
                   <input
                     type="checkbox"
                     checked={newAddress.isDefault}
                     onChange={(e) =>
-                      setNewAddress({
-                        ...newAddress,
-                        isDefault: e.target.checked,
-                      })
+                      setNewAddress({ ...newAddress, isDefault: e.target.checked })
                     }
                     className="w-4 h-4"
                   />
@@ -287,7 +256,6 @@ export default function AddressSelector({
                 </label>
               </div>
 
-              {/* Butonlar */}
               <div className="flex gap-3 mt-6">
                 <button
                   onClick={handleSaveNewAddress}
@@ -305,11 +273,6 @@ export default function AddressSelector({
             </div>
           </div>
         </div>
-      )}
-
-      {/* Hata mesajı */}
-      {errors?.address && (
-        <p className="text-red-500 text-sm mt-2">{errors.address}</p>
       )}
     </>
   );
