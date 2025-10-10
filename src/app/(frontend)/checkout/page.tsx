@@ -30,6 +30,7 @@ export default async function CheckoutPage() {
           itemCount: cart.summary.itemCount,
         }}
         addresses={addresses}
+        
       />
     </main>
   );

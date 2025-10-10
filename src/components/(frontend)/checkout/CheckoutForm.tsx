@@ -4,14 +4,15 @@ import { useState, useEffect, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { HomeIcon } from "lucide-react";
 
 import DeliverySection from "./steps/DeliverySection";
 import PaymentSection from "./steps/PaymentSection";
 import CheckoutSummary from "./steps/CheckoutSummary";
-import AddressSection from "../account/adress/AddressSection";
 import { createOrderAction } from "@/actions/order.actions";
 import { FormData } from "./types";
 import AddAddressDialog from "../account/adress/AddAddressDialog";
+import AddressCard from "../account/adress/AddressCard";
 
 type Address = {
   id: string;
@@ -21,7 +22,6 @@ type Address = {
   city: string;
   district: string;
   postalCode: string;
-  // diğer adres alanlarınız varsa ekleyin
 };
 
 type CheckoutFormProps = {
@@ -29,7 +29,7 @@ type CheckoutFormProps = {
     subtotal: number;
     itemCount: number;
   };
-  addresses?: Address[]; // yeni prop
+  addresses?: Address[];
 };
 
 export default function CheckoutForm({ cartData, addresses = [] }: CheckoutFormProps) {
@@ -107,10 +107,11 @@ export default function CheckoutForm({ cartData, addresses = [] }: CheckoutFormP
   };
 
   // ⏳ Yükleniyor durumu
-  if (!cartData)
+  if (!cartData) {
     return (
       <div className="max-w-6xl mx-auto p-6 text-center">Yükleniyor...</div>
     );
+  }
 
   const shippingCost =
     formData.delivery.method === "express"
@@ -127,7 +128,23 @@ export default function CheckoutForm({ cartData, addresses = [] }: CheckoutFormP
         <div className="lg:col-span-2 space-y-6">
           {/* Adres Bilgileri */}
           <div className="bg-gray-50 border rounded-lg p-6">
-          <AddAddressDialog />
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-lg font-semibold">Teslimat Adresi</h2>
+              <AddAddressDialog />
+            </div>
+
+            {addresses.length === 0 ? (
+              <div className="flex items-center gap-4 bg-muted p-6 rounded-md border text-muted-foreground">
+                <HomeIcon className="w-6 h-6" />
+                Henüz bir adres eklemediniz.
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {addresses.map((address) => (
+                  <AddressCard key={address.id} address={address} />
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Kargo Seçimi */}
