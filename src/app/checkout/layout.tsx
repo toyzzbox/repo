@@ -7,10 +7,8 @@ export const metadata = {
 
 export default function CheckoutLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="tr">
-      <body className="bg-gray-50">
+
         <main className="min-h-screen flex flex-col">{children}</main>
-      </body>
-    </html>
+
   );
 }
