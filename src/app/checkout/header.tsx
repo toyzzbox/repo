@@ -1,5 +1,4 @@
 import Logo from '@/components/(frontend)/header/Logo'
-import CartCount from '@/components/(frontend)/header/CartCount'
 
 const Header = () => {
   return (
@@ -10,7 +9,7 @@ const Header = () => {
                 Güvenli Ödeme
             </div>
             <div>
-                <CartCount/>
+                cart
             </div>
         </div>
     </div>
