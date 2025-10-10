@@ -113,12 +113,7 @@ export default function CheckoutForm({ cartData, addresses = [] }: CheckoutFormP
     );
   }
 
-  const shippingCost =
-    formData.delivery.method === "express"
-      ? 39.9
-      : formData.delivery.method === "standard"
-      ? 19.9
-      : 0;
+  const shippingCost = 0; 
   const total = (cartData.subtotal || 0) + shippingCost;
 
   return (
