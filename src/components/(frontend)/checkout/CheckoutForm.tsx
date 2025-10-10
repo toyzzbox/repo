@@ -13,6 +13,7 @@ import CheckoutSummary from "./steps/CheckoutSummary";
 import { FormData } from "./types";
 import { createOrderAction } from "@/actions/order.actions";
 import AddressSelector from "./steps/AddressSection";
+import AddressSection from "../account/adress/AddressSection";
 
 type CheckoutFormProps = {
   cartData?: {
@@ -99,9 +100,8 @@ export default function CheckoutForm({ cartData }: CheckoutFormProps) {
         {/* Sol taraf - Form */}
         <div className="lg:col-span-2 space-y-6">
 
-            <AddressSelector
-             
-            />
+             <AddressSection/>
+           </div>
 
           {/* Kargo Seçimi */}
           <div className="bg-white rounded-lg shadow-sm border p-6">
