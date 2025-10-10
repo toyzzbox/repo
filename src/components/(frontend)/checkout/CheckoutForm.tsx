@@ -98,17 +98,13 @@ export default function CheckoutForm({ cartData }: CheckoutFormProps) {
       <div className="grid lg:grid-cols-3 gap-6">
         {/* Sol taraf - Form */}
         <div className="lg:col-span-2 space-y-6">
-          {/* Adres Bilgileri */}
-          <div className="bg-white rounded-lg shadow-sm border p-6">
-            <h2 className="text-xl font-semibold mb-4">Teslimat Adresi</h2>
+
             <AddressSelector
              
             />
-          </div>
 
           {/* Kargo Seçimi */}
           <div className="bg-white rounded-lg shadow-sm border p-6">
-            <h2 className="text-xl font-semibold mb-4">Kargo Seçimi</h2>
             <DeliverySection
               data={formData.delivery}
               onChange={data => setFormData(prev => ({ ...prev, delivery: data }))}
@@ -120,7 +116,6 @@ export default function CheckoutForm({ cartData }: CheckoutFormProps) {
 
           {/* Ödeme Yöntemi */}
           <div className="bg-white rounded-lg shadow-sm border p-6">
-            <h2 className="text-xl font-semibold mb-4">Ödeme Yöntemi</h2>
             <PaymentSection
               data={formData.payment}
               onChange={data => setFormData(prev => ({ ...prev, payment: data }))}
