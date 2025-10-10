@@ -3,14 +3,11 @@
 import { useState } from "react";
 
 type AddressData = {
-  id?: string;
   name: string;
   phone: string;
   address: string;
-  addressLine2?: string;
   city: string;
   district: string;
-  neighborhood: string;
   postalCode: string;
 };
 
@@ -57,20 +54,17 @@ export default function AddressSelector({
     isDefault: false,
   });
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(
-    data.id || (savedAddresses.find(a => a.isDefault)?.id || null)
+    savedAddresses.find(a => a.isDefault)?.id || null
   );
 
   const handleSelectAddress = (address: SavedAddress) => {
     setSelectedAddressId(address.id);
     onChange({
-      id: address.id,
       name: address.name,
       phone: address.phone,
       address: address.address,
-      addressLine2: address.addressLine2,
       city: address.city,
       district: address.district,
-      neighborhood: address.neighborhood,
       postalCode: address.postalCode,
     });
   };
