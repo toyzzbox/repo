@@ -1,5 +1,6 @@
 // app/(frontend)/checkout/layout.tsx
 import { ReactNode } from "react";
+import Header from "./header";
 
 export const metadata = {
   title: "Checkout",
@@ -8,7 +9,9 @@ export const metadata = {
 export default function CheckoutLayout({ children }: { children: ReactNode }) {
   return (
 
-        <main className="min-h-screen flex flex-col">{children}</main>
+        <main className="min-h-screen">
+          <Header/>
+          {children}</main>
 
   );
 }
