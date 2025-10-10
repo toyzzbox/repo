@@ -9,31 +9,7 @@ export default function CheckoutSummary({
   formData 
 }: CheckoutSummaryProps) {
   
-  const getDeliveryMethodText = () => {
-    switch (formData.delivery.method) {
-      case "standard":
-        return "Standart Kargo (3-5 iş günü)";
-      case "express":
-        return "Hızlı Kargo (1-2 iş günü)";
-      case "same-day":
-        return "Aynı Gün Teslimat";
-      default:
-        return "Kargo seçilmedi";
-    }
-  };
-
-  const getPaymentMethodText = () => {
-    switch (formData.payment.method) {
-      case "card":
-        return "Kredi/Banka Kartı";
-      case "transfer":
-        return "Havale/EFT";
-      case "cash":
-        return "Kapıda Ödeme";
-      default:
-        return "Ödeme yöntemi seçilmedi";
-    }
-  };
+  
 
   // Kargo maliyetini al
   const actualShipping = shipping || 0;
@@ -41,7 +17,6 @@ export default function CheckoutSummary({
 
   return (
     <div className="space-y-6">
-      <h2 className="text-xl font-semibold">Sipariş Özeti</h2>
       <div className="grid grid-cols-1 lg:grid-cols-1 gap-6">
         {/* Sağ Taraf - Fiyat Özeti */}
         <div className="p-4 bg-gray-50 rounded-lg h-fit">

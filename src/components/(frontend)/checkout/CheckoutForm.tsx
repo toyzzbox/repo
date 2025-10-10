@@ -176,7 +176,6 @@ export default function CheckoutForm({ cartData, addresses = [] }: CheckoutFormP
         {/* 🧾 Sağ Kısım - Sipariş Özeti */}
         <div className="lg:col-span-1">
           <div className="bg-gray-50 border rounded-lg p-6 sticky top-6">
-            <h2 className="text-xl font-semibold mb-4">Sipariş Özeti</h2>
             <CheckoutSummary
               subtotal={cartData.subtotal}
               shipping={shippingCost}
@@ -187,7 +186,7 @@ export default function CheckoutForm({ cartData, addresses = [] }: CheckoutFormP
             <Button
               onClick={handleComplete}
               disabled={isPending}
-              className="w-full mt-6 bg-black text-white hover:bg-gray-800"
+              className="w-full mt-6 p-4 bg-black text-white hover:bg-orange-800"
             >
               {isPending ? "İşleniyor..." : "Siparişi Onayla ✓"}
             </Button>
