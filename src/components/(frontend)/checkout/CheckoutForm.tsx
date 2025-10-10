@@ -10,9 +10,8 @@ import AddressSection from "./steps/AddressSection";
 import DeliverySection from "./steps/DeliverySection";
 import PaymentSection from "./steps/PaymentSection";
 import CheckoutSummary from "./steps/CheckoutSummary";
-import ProgressBar from "./ProgressBar";
 
-import { FormData, Step, steps } from "./types";
+import { FormData } from "./types";
 import { createOrderAction } from "@/actions/order.actions";
 
 type CheckoutFormProps = {
@@ -25,7 +24,6 @@ type CheckoutFormProps = {
 export default function CheckoutForm({ cartData }: CheckoutFormProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
-  const [stepIndex, setStepIndex] = useState(0);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [formData, setFormData] = useState<FormData>({
     address: { name: '', phone: '', address: '', city: '', district: '', postalCode: '' },
@@ -41,57 +39,38 @@ export default function CheckoutForm({ cartData }: CheckoutFormProps) {
     }
   }, [cartData, router]);
 
-  const step = steps[stepIndex];
-
-  const validateStep = (currentStep: Step) => {
+  const validateForm = () => {
     const newErrors: Record<string, string> = {};
-    switch (currentStep) {
-      case 'address':
-        if (!formData.address.name.trim()) newErrors.name = 'Ad soyad gerekli';
-        if (!formData.address.phone.trim()) newErrors.phone = 'Telefon gerekli';
-        if (!formData.address.address.trim()) newErrors.address = 'Adres gerekli';
-        if (!formData.address.city.trim()) newErrors.city = 'Şehir gerekli';
-        if (formData.address.phone && !/^[0-9]{10,11}$/.test(formData.address.phone.replace(/\s/g, ''))) {
-          newErrors.phone = 'Geçerli bir telefon numarası giriniz';
-        }
-        break;
+    
+    // Adres validasyonu
+    if (!formData.address.name.trim()) newErrors.name = 'Ad soyad gerekli';
+    if (!formData.address.phone.trim()) newErrors.phone = 'Telefon gerekli';
+    if (!formData.address.address.trim()) newErrors.address = 'Adres gerekli';
+    if (!formData.address.city.trim()) newErrors.city = 'Şehir gerekli';
+    if (formData.address.phone && !/^[0-9]{10,11}$/.test(formData.address.phone.replace(/\s/g, ''))) {
+      newErrors.phone = 'Geçerli bir telefon numarası giriniz';
+    }
 
-      case 'delivery':
-        if (!formData.delivery.method) {
-          toast.error('Lütfen bir kargo seçeneği seçiniz');
-          return false;
-        }
-        break;
+    // Kargo validasyonu
+    if (!formData.delivery.method) {
+      newErrors.delivery = 'Lütfen bir kargo seçeneği seçiniz';
+    }
 
-      case 'payment':
-        if (!formData.payment.method) {
-          toast.error('Lütfen bir ödeme yöntemi seçiniz');
-          return false;
-        }
-        break;
+    // Ödeme validasyonu
+    if (!formData.payment.method) {
+      newErrors.payment = 'Lütfen bir ödeme yöntemi seçiniz';
     }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const next = () => {
-    if (validateStep(step)) {
-      if (stepIndex < steps.length - 1) {
-        setStepIndex(i => i + 1);
-        setErrors({});
-      }
-    }
-  };
-
-  const back = () => {
-    if (stepIndex > 0) {
-      setStepIndex(i => i - 1);
-      setErrors({});
-    }
-  };
-
   const handleComplete = () => {
+    if (!validateForm()) {
+      toast.error('Lütfen tüm zorunlu alanları doldurun');
+      return;
+    }
+
     startTransition(async () => {
       const result = await createOrderAction({
         address: formData.address,
@@ -109,62 +88,71 @@ export default function CheckoutForm({ cartData }: CheckoutFormProps) {
   };
 
   // Sepet yoksa loading
-  if (!cartData) return <div className="max-w-4xl mx-auto p-6 text-center">Yükleniyor...</div>;
+  if (!cartData) return <div className="max-w-6xl mx-auto p-6 text-center">Yükleniyor...</div>;
 
   const shippingCost = formData.delivery.method === 'express' ? 39.9 : formData.delivery.method === 'standard' ? 19.9 : 0;
   const total = (cartData.subtotal || 0) + shippingCost;
 
   return (
-    <div className="max-w-4xl mx-auto p-6 space-y-6">
-      <ProgressBar step={step} />
+    <div className="max-w-6xl mx-auto p-6">
+      <div className="grid lg:grid-cols-3 gap-6">
+        {/* Sol taraf - Form */}
+        <div className="lg:col-span-2 space-y-6">
+          {/* Adres Bilgileri */}
+          <div className="bg-white rounded-lg shadow-sm border p-6">
+            <h2 className="text-xl font-semibold mb-4">Teslimat Adresi</h2>
+            <AddressSection
+              data={formData.address}
+              onChange={data => setFormData(prev => ({ ...prev, address: data }))}
+              errors={errors}
+            />
+          </div>
 
-      <div className="bg-white rounded-lg shadow-sm border p-6">
-        {step === 'address' && (
-          <AddressSection
-            data={formData.address}
-            onChange={data => setFormData(prev => ({ ...prev, address: data }))}
-            errors={errors}
-          />
-        )}
-        {step === 'delivery' && (
-          <DeliverySection
-            data={formData.delivery}
-            onChange={data => setFormData(prev => ({ ...prev, delivery: data }))}
-          />
-        )}
-        {step === 'payment' && (
-          <PaymentSection
-            data={formData.payment}
-            onChange={data => setFormData(prev => ({ ...prev, payment: data }))}
-            errors={errors}
-          />
-        )}
-        {step === 'summary' && (
-          <CheckoutSummary
-            subtotal={cartData.subtotal}
-            shipping={shippingCost}
-            total={total}
-            formData={formData}
-          />
-        )}
-      </div>
+          {/* Kargo Seçimi */}
+          <div className="bg-white rounded-lg shadow-sm border p-6">
+            <h2 className="text-xl font-semibold mb-4">Kargo Seçimi</h2>
+            <DeliverySection
+              data={formData.delivery}
+              onChange={data => setFormData(prev => ({ ...prev, delivery: data }))}
+            />
+            {errors.delivery && (
+              <p className="text-red-500 text-sm mt-2">{errors.delivery}</p>
+            )}
+          </div>
 
-      <div className="flex justify-between">
-        {stepIndex > 0 && (
-          <Button variant="outline" onClick={back} disabled={isPending}>
-            ← Geri
-          </Button>
-        )}
-        <div className="ml-auto">
-          {stepIndex < steps.length - 1 ? (
-            <Button onClick={next} disabled={isPending}>
-              Devam Et →
-            </Button>
-          ) : (
-            <Button onClick={handleComplete} disabled={isPending} className="bg-green-600 hover:bg-green-700">
+          {/* Ödeme Yöntemi */}
+          <div className="bg-white rounded-lg shadow-sm border p-6">
+            <h2 className="text-xl font-semibold mb-4">Ödeme Yöntemi</h2>
+            <PaymentSection
+              data={formData.payment}
+              onChange={data => setFormData(prev => ({ ...prev, payment: data }))}
+              errors={errors}
+            />
+            {errors.payment && (
+              <p className="text-red-500 text-sm mt-2">{errors.payment}</p>
+            )}
+          </div>
+        </div>
+
+        {/* Sağ taraf - Özet */}
+        <div className="lg:col-span-1">
+          <div className="bg-white rounded-lg shadow-sm border p-6 sticky top-6">
+            <h2 className="text-xl font-semibold mb-4">Sipariş Özeti</h2>
+            <CheckoutSummary
+              subtotal={cartData.subtotal}
+              shipping={shippingCost}
+              total={total}
+              formData={formData}
+            />
+            
+            <Button 
+              onClick={handleComplete} 
+              disabled={isPending}
+              className="w-full mt-6 bg-green-600 hover:bg-green-700"
+            >
               {isPending ? 'İşleniyor...' : 'Siparişi Onayla ✓'}
             </Button>
-          )}
+          </div>
         </div>
       </div>
     </div>
