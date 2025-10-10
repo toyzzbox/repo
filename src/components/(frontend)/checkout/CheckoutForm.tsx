@@ -11,15 +11,28 @@ import CheckoutSummary from "./steps/CheckoutSummary";
 import AddressSection from "../account/adress/AddressSection";
 import { createOrderAction } from "@/actions/order.actions";
 import { FormData } from "./types";
+import AddAddressDialog from "../account/adress/AddAddressDialog";
+
+type Address = {
+  id: string;
+  name: string;
+  phone: string;
+  address: string;
+  city: string;
+  district: string;
+  postalCode: string;
+  // diğer adres alanlarınız varsa ekleyin
+};
 
 type CheckoutFormProps = {
   cartData?: {
     subtotal: number;
     itemCount: number;
   };
+  addresses?: Address[]; // yeni prop
 };
 
-export default function CheckoutForm({ cartData }: CheckoutFormProps) {
+export default function CheckoutForm({ cartData, addresses = [] }: CheckoutFormProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -114,7 +127,7 @@ export default function CheckoutForm({ cartData }: CheckoutFormProps) {
         <div className="lg:col-span-2 space-y-6">
           {/* Adres Bilgileri */}
           <div className="bg-gray-50 border rounded-lg p-6">
-            <AddressSection />
+          <AddAddressDialog />
           </div>
 
           {/* Kargo Seçimi */}
