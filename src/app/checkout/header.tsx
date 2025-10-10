@@ -2,7 +2,7 @@ import Logo from '@/components/(frontend)/header/Logo'
 
 const Header = () => {
   return (
-    <div className="bg-orange-400">
+    <div className="bg-orange-400 items-center">
         <div className="flex justify-between">
             <Logo/>
             <div>

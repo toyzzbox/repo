@@ -20,8 +20,8 @@ export default async function CheckoutPage() {
   const addresses = await getAddresses();
 
   return (
-    <main className="max-w-5xl mx-auto px-4 py-10">
-      <h1 className="text-2xl font-bold mb-6">Siparişi Tamamla</h1>
+    <main className="">
+
       <CheckoutForm
         cartData={{
           subtotal: cart.summary.subtotal,
