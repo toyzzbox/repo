@@ -117,7 +117,7 @@ export default function CheckoutForm({ cartData, addresses = [] }: CheckoutFormP
   const total = (cartData.subtotal || 0) + shippingCost;
 
   return (
-    <div className="max-w-6xl mx-auto p-6 bg-white text-black min-h-screen">
+    <div className="">
       <div className="grid lg:grid-cols-3 gap-6">
         {/* 🧩 Sol Kısım */}
         <div className="lg:col-span-2 space-y-6">
@@ -142,6 +142,21 @@ export default function CheckoutForm({ cartData, addresses = [] }: CheckoutFormP
             )}
           </div>
 
+
+
+     {/* Ödeme Yöntemi */}
+     <div className="bg-gray-50 border rounded-lg p-6">
+            <PaymentSection
+              data={formData.payment}
+              onChange={(data) =>
+                setFormData((prev) => ({ ...prev, payment: data }))
+              }
+              errors={errors}
+            />
+            {errors.payment && (
+              <p className="text-red-500 text-sm mt-2">{errors.payment}</p>
+            )}
+          </div>
           {/* Kargo Seçimi */}
           <div className="bg-gray-50 border rounded-lg p-6">
             <DeliverySection
@@ -155,19 +170,7 @@ export default function CheckoutForm({ cartData, addresses = [] }: CheckoutFormP
             )}
           </div>
 
-          {/* Ödeme Yöntemi */}
-          <div className="bg-gray-50 border rounded-lg p-6">
-            <PaymentSection
-              data={formData.payment}
-              onChange={(data) =>
-                setFormData((prev) => ({ ...prev, payment: data }))
-              }
-              errors={errors}
-            />
-            {errors.payment && (
-              <p className="text-red-500 text-sm mt-2">{errors.payment}</p>
-            )}
-          </div>
+     
         </div>
 
         {/* 🧾 Sağ Kısım - Sipariş Özeti */}
