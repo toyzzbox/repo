@@ -134,11 +134,11 @@ export default function CheckoutForm({ cartData, addresses = [] }: CheckoutFormP
                 Henüz bir adres eklemediniz.
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {addresses.map((address) => (
+              {addresses
+                .filter((address) => address.isDefault)
+                .map((address) => (
                   <AddressCard key={address.id} address={address} />
-                ))}
-              </div>
+                )
             )}
           </div>
 
