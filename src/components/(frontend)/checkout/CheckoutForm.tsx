@@ -22,6 +22,8 @@ type Address = {
   city: string;
   district: string;
   postalCode: string;
+  isDefault?: boolean; // ✅ Burada eklendi
+
 };
 
 type CheckoutFormProps = {
@@ -117,7 +119,7 @@ export default function CheckoutForm({ cartData, addresses = [] }: CheckoutFormP
   const total = (cartData.subtotal || 0) + shippingCost;
 
   return (
-    <div className="">
+    <div>
       <div className="grid lg:grid-cols-3 gap-6">
         {/* 🧩 Sol Kısım */}
         <div className="lg:col-span-2 space-y-6">
@@ -127,24 +129,26 @@ export default function CheckoutForm({ cartData, addresses = [] }: CheckoutFormP
               <h2 className="text-lg font-semibold">Teslimat Adresi</h2>
               <AddAddressDialog />
             </div>
-
+  
             {addresses.length === 0 ? (
-  <div className="flex items-center gap-4 bg-muted p-6 rounded-md border text-muted-foreground">
-    <HomeIcon className="w-6 h-6" />
-    Henüz bir adres eklemediniz.
-  </div>
-) : addresses.find((address) => address.isDefault) ? (
-  <AddressCard address={addresses.find((address) => address.isDefault)!} />
-) : (
-  <div className="flex items-center gap-4 bg-muted p-6 rounded-md border text-muted-foreground">
-    <HomeIcon className="w-6 h-6" />
-    Lütfen bir varsayılan adres seçiniz.
-  </div>
-)}
-
-
-     {/* Ödeme Yöntemi */}
-     <div className="bg-gray-50 border rounded-lg p-6">
+              <div className="flex items-center gap-4 bg-muted p-6 rounded-md border text-muted-foreground">
+                <HomeIcon className="w-6 h-6" />
+                Henüz bir adres eklemediniz.
+              </div>
+            ) : addresses.find((address) => address.isDefault) ? (
+              <AddressCard
+                address={addresses.find((address) => address.isDefault)!}
+              />
+            ) : (
+              <div className="flex items-center gap-4 bg-muted p-6 rounded-md border text-muted-foreground">
+                <HomeIcon className="w-6 h-6" />
+                Lütfen bir varsayılan adres seçiniz.
+              </div>
+            )}
+          </div>
+  
+          {/* Ödeme Yöntemi */}
+          <div className="bg-gray-50 border rounded-lg p-6">
             <PaymentSection
               data={formData.payment}
               onChange={(data) =>
@@ -156,6 +160,7 @@ export default function CheckoutForm({ cartData, addresses = [] }: CheckoutFormP
               <p className="text-red-500 text-sm mt-2">{errors.payment}</p>
             )}
           </div>
+  
           {/* Kargo Seçimi */}
           <div className="bg-gray-50 border rounded-lg p-6">
             <DeliverySection
@@ -168,10 +173,8 @@ export default function CheckoutForm({ cartData, addresses = [] }: CheckoutFormP
               <p className="text-red-500 text-sm mt-2">{errors.delivery}</p>
             )}
           </div>
-
-     
         </div>
-
+  
         {/* 🧾 Sağ Kısım - Sipariş Özeti */}
         <div className="lg:col-span-1">
           <div className="bg-gray-50 border rounded-lg p-6 sticky top-6">
@@ -181,7 +184,7 @@ export default function CheckoutForm({ cartData, addresses = [] }: CheckoutFormP
               total={total}
               formData={formData}
             />
-
+  
             <Button
               onClick={handleComplete}
               disabled={isPending}
@@ -194,4 +197,4 @@ export default function CheckoutForm({ cartData, addresses = [] }: CheckoutFormP
       </div>
     </div>
   );
-}
+            };  
