@@ -129,19 +129,18 @@ export default function CheckoutForm({ cartData, addresses = [] }: CheckoutFormP
             </div>
 
             {addresses.length === 0 ? (
-              <div className="flex items-center gap-4 bg-muted p-6 rounded-md border text-muted-foreground">
-                <HomeIcon className="w-6 h-6" />
-                Henüz bir adres eklemediniz.
-              </div>
-            ) : (
-              {addresses
-                .filter((address) => address.isDefault)
-                .map((address) => (
-                  <AddressCard key={address.id} address={address} />
-                )
-            )}
-          </div>
-
+  <div className="flex items-center gap-4 bg-muted p-6 rounded-md border text-muted-foreground">
+    <HomeIcon className="w-6 h-6" />
+    Henüz bir adres eklemediniz.
+  </div>
+) : addresses.find((address) => address.isDefault) ? (
+  <AddressCard address={addresses.find((address) => address.isDefault)!} />
+) : (
+  <div className="flex items-center gap-4 bg-muted p-6 rounded-md border text-muted-foreground">
+    <HomeIcon className="w-6 h-6" />
+    Lütfen bir varsayılan adres seçiniz.
+  </div>
+)}
 
 
      {/* Ödeme Yöntemi */}
