@@ -29,6 +29,8 @@ model User {
   loginAttempts    LoginAttempt[]
   sessions         Session[]
   orders           Order[]        // Bu satırı ekleyin
+  invoices    Invoice[]
+
 
 
   @@map("users")
@@ -326,6 +328,10 @@ model Order {
 
   orderItems      OrderItem[]
 
+  invoiceId       String?      @unique
+  invoice         Invoice?     @relation("OrderInvoice", fields: [invoiceId], references: [id])
+
+
   createdAt       DateTime    @default(now())
   updatedAt DateTime @default(now())
 
@@ -361,6 +367,43 @@ model OrderItem {
   createdAt    DateTime @default(now())
 
   @@map("OrderItem")
+}
+
+
+
+enum InvoiceType {
+  INDIVIDUAL
+  CORPORATE
+}
+model Invoice {
+  id             String       @id @default(cuid())
+  userId         String
+  user           User         @relation(fields: [userId], references: [id])
+
+  // 🧾 Order ilişkisi (tek taraflı, sadece erişim)
+  order          Order?       @relation("OrderInvoice")
+
+  type           InvoiceType  @default(INDIVIDUAL)
+
+  // 👤 Bireysel fatura alanları
+  fullName       String?
+  tcNumber       String?
+
+  // 🏢 Kurumsal fatura alanları
+  companyName    String?
+  taxOffice      String?
+  taxNumber      String?
+
+  // 📍 Ortak adres alanları
+  addressLine    String
+  city           String
+  district       String
+  postalCode     String?
+  email          String?
+  phone          String?
+
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
 }
 enum Role {
   USER
