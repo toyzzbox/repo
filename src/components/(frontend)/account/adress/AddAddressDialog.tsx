@@ -128,6 +128,24 @@ export default function AddAddressDialog() {
                   required={isCorporate}
                   className="w-full border px-3 py-2 rounded text-sm"
                 />
+                      <input
+                  name="taxOffice"
+                  placeholder="Şehir"
+                  required={isCorporate}
+                  className="w-full border px-3 py-2 rounded text-sm"
+                />
+                <input
+                  name="taxNumber"
+                  placeholder="İlçe"
+                  required={isCorporate}
+                  className="w-full border px-3 py-2 rounded text-sm"
+                />
+                   <input
+                  name="taxNumber"
+                  placeholder="Mahalle"
+                  required={isCorporate}
+                  className="w-full border px-3 py-2 rounded text-sm"
+                />
               </div>
             </div>
           )}
