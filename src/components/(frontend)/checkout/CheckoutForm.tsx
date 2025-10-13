@@ -176,8 +176,8 @@ export default function CheckoutForm({ cartData, addresses = [] }: CheckoutFormP
         </div>
   
         {/* 🧾 Sağ Kısım - Sipariş Özeti */}
-        <div className="lg:col-span-1">
-          <div className="bg-gray-50 border rounded-lg p-6 sticky top-6">
+        <div className="lg:col-span-1 p-2 m-2">
+          <div className="bg-gray-50 border rounded-lg sticky">
             <CheckoutSummary
               subtotal={cartData.subtotal}
               shipping={shippingCost}
