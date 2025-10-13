@@ -1,8 +1,8 @@
 "use client";
 
-import Logo from '@/components/(frontend)/header/Logo';
 import { useRouter } from 'next/navigation';
 import { CiShoppingCart } from 'react-icons/ci';
+import Logo from './Logo';
 
 const Header = () => {
   const router = useRouter();
@@ -13,7 +13,7 @@ const Header = () => {
         <div className="flex justify-between items-center">
           {/* Logo */}
           <div className="flex-shrink-0">
-            <Logo />
+            <Logo/>
           </div>
 
           {/* Başlık */}
