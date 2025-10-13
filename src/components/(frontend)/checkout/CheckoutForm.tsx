@@ -122,7 +122,7 @@ export default function CheckoutForm({ cartData, addresses = [] }: CheckoutFormP
     <div>
       <div className="grid lg:grid-cols-3 gap-6">
         {/* 🧩 Sol Kısım */}
-        <div className="lg:col-span-2 space-y-6">
+        <div className="lg:col-span-2 space-y-6 p-2 m-2">
           {/* Adres Bilgileri */}
           <div className="bg-gray-50 border rounded-lg p-6">
             <div className="flex justify-between items-center mb-4">
@@ -188,7 +188,7 @@ export default function CheckoutForm({ cartData, addresses = [] }: CheckoutFormP
             <Button
               onClick={handleComplete}
               disabled={isPending}
-              className="w-full mt-6 p-4 bg-black text-white hover:bg-orange-800"
+              className="w-full mt-2 p-4 bg-orange-400 text-white hover:bg-orange-500"
             >
               {isPending ? "İşleniyor..." : "Siparişi Onayla ✓"}
             </Button>
