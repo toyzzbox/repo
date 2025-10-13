@@ -120,7 +120,7 @@ export default function CheckoutForm({ cartData, addresses = [] }: CheckoutFormP
 
   return (
     <div>
-      <div className="grid lg:grid-cols-3 gap-6">
+      <div className="grid lg:grid-cols-3 gap-2">
         {/* 🧩 Sol Kısım */}
         <div className="lg:col-span-2 space-y-6 p-2 m-2">
           {/* Adres Bilgileri */}
