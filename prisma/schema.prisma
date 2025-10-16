@@ -235,6 +235,9 @@ model Media {
   id           String         @id @default(cuid())
   type         MediaType
   urls         String[]
+  altText String?
+  title String?
+  description String?
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
   productMedia ProductMedia[]
@@ -244,6 +247,9 @@ model Media {
 
   @@map("Media")
 }
+
+
+
 
 model Product {
   id           String         @id @default(cuid())
