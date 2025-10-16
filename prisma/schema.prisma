@@ -258,7 +258,7 @@ model MediaFile {
   size      Int?
   quality   String?   // örn: “high”, “medium”, “thumbnail”
   mediaId   String
-  media     Media     @relation(fields: [mediaId], references: [id])
+  media     Media    @relation(fields: [mediaId], references: [id], onDelete: Cascade)
 }
 
 model Product {
