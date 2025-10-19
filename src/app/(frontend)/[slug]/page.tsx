@@ -36,31 +36,23 @@ export default async function DynamicPage({ params, searchParams = {} }: PagePro
           orderBy: { order: "asc" },
           include: {
             media: {
-              select: {
-                urls: true,
+              include: {
+                files: {
+                  select: { url: true },
+                },
               },
             },
           },
         },
         brands: {
-          select: {
-            id: true,
-            name: true,
-            slug: true,
-          },
+          select: { id: true, name: true, slug: true },
         },
         categories: {
           select: {
             id: true,
             name: true,
             slug: true,
-            parent: {
-              select: {
-                id: true,
-                name: true,
-                slug: true,
-              },
-            },
+            parent: { select: { id: true, name: true, slug: true } },
           },
         },
         group: {
@@ -78,8 +70,10 @@ export default async function DynamicPage({ params, searchParams = {} }: PagePro
                   orderBy: { order: "asc" },
                   include: {
                     media: {
-                      select: {
-                        urls: true,
+                      include: {
+                        files: {
+                          select: { url: true },
+                        },
                       },
                     },
                   },
@@ -95,23 +89,7 @@ export default async function DynamicPage({ params, searchParams = {} }: PagePro
           orderBy: { createdAt: "desc" },
         },
       },
-    }),
-
-    // KATEGORİ SORGUSU
-    prisma.category.findUnique({
-      where: { slug },
-      include: {
-        children: {
-          include: {
-            children: {
-              include: {
-                children: true,
-              },
-            },
-          },
-        },
-      },
-    }),
+    })    
   ]);
 
   /* ========== ÜRÜN SAYFASI ========== */
@@ -229,8 +207,10 @@ export default async function DynamicPage({ params, searchParams = {} }: PagePro
         medias: {
           include: {
             media: {
-              select: {
-                urls: true,
+              include: {
+                files: {
+                  select: { url: true },
+                },
               },
             },
           },
