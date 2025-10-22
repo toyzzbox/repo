@@ -1,4 +1,5 @@
 "use client";
+
 import { useRouter } from "next/navigation";
 import { formatPrice } from "@/utils/formatPrice";
 import type { Product } from "@/types/product";
@@ -10,16 +11,17 @@ type ProductCardProps = {
 
 export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const router = useRouter();
-  
+
   const handleClick = () => {
     if (product.slug) {
       router.push(`/${product.slug}`);
     }
   };
 
-  // ✅ Doğru erişim: ProductMedia → Media → urls
-  const imageUrl = product.medias?.[0]?.media?.urls?.[0] ?? null;
-  
+  // ✅ Yeni Media yapısına uygun: ProductMedia → Media → Files → url
+  const imageUrl =
+    product.medias?.[0]?.media?.files?.[0]?.url ?? "/placeholder.png";
+
   const displayName = product.group?.name
     ? `${product.group.name} – ${product.name}`
     : product.name;
@@ -30,8 +32,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     product.discount < product.price;
 
   const discountedPrice = hasDiscount ? product.discount : null;
-  
-  // İndirim yüzdesi hesaplama
+
+  // 💡 İndirim yüzdesi hesaplama
   const discountPercentage = hasDiscount
     ? Math.round(((product.price - product.discount) / product.price) * 100)
     : 0;
@@ -41,7 +43,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       className="bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-lg cursor-pointer transition-all duration-300 hover:border-orange-400 hover:-translate-y-1 group overflow-hidden h-full flex flex-col"
       onClick={handleClick}
     >
-      {/* Resim Kısmı */}
+      {/* 🖼️ Resim Kısmı */}
       <div className="relative overflow-hidden rounded-t-xl bg-gray-50">
         {/* İndirim Badge */}
         {/* {hasDiscount && (
@@ -51,7 +53,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             </span>
           </div>
         )} */}
-        
+
         {imageUrl ? (
           <div className="aspect-square overflow-hidden">
             <Image
@@ -60,6 +62,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
               height={400}
               alt={displayName}
               className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+              priority={false}
             />
           </div>
         ) : (
@@ -69,7 +72,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         )}
       </div>
 
-      {/* İçerik Kısmı */}
+      {/* İçerik */}
       <div className="flex-1 p-4 flex flex-col justify-between">
         <div>
           <h3
@@ -80,11 +83,11 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           </h3>
         </div>
 
-        {/* Fiyat Kısmı - Sabit yükseklik */}
+        {/* 💰 Fiyat Alanı */}
         <div className="h-16 flex flex-col justify-end space-y-1">
           {hasDiscount && discountedPrice !== null ? (
             <>
-              {/* Eski fiyat ve indirim oranı - YUKARDA */}
+              {/* Eski fiyat + indirim yüzdesi */}
               <div className="flex items-center justify-between">
                 <span className="text-xs line-through text-gray-400">
                   {formatPrice(product.price)}
@@ -93,8 +96,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                   %{discountPercentage}
                 </span>
               </div>
-              
-              {/* İndirimli fiyat - AŞAĞIDA */}
+
+              {/* Yeni fiyat */}
               <div>
                 <span className="text-lg font-bold text-red-600">
                   {formatPrice(discountedPrice)}
@@ -103,8 +106,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             </>
           ) : (
             <div className="flex flex-col justify-end h-full">
-              {/* Boş alan - yükseklik tutarlılığı için */}
-              <div className="h-6"></div>
+              <div className="h-6" />
               <span className="text-lg font-bold text-gray-800">
                 {formatPrice(product.price)}
               </span>
@@ -113,8 +115,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         </div>
       </div>
 
-      {/* Hover Efekti için Alt Border */}
-      <div className="h-1 bg-gradient-to-r from-orange-400 to-red-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></div>
+      {/* Hover alt çizgi efekti */}
+      <div className="h-1 bg-gradient-to-r from-orange-400 to-red-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
     </div>
   );
 };
