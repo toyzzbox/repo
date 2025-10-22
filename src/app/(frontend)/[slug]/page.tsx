@@ -9,7 +9,7 @@ import { ProductCard } from "@/components/(frontend)/product/ProductCard";
 import MobileFilterButton from "../category/MobileFilterButton";
 
 type PageProps = {
-  params: { slug: string };
+  params: Promise<{ slug: string }>; // 👈 Next.js 15: params artık Promise
   searchParams?: { [k: string]: string | string[] | undefined };
 };
 
@@ -24,13 +24,13 @@ const collectCategoryIds = (c: DeepCategory): string[] => [
 ];
 
 /* ==========================================
-   ANA SAYFA BİLEŞENİ
+   DİNAMİK ÜRÜN / KATEGORİ SAYFASI
 ========================================== */
 export default async function DynamicPage({ params, searchParams = {} }: PageProps) {
-  const { slug } = params;
+  const { slug } = await params; // ✅ await eklendi!
 
-  /* Paralel sorgular: ürün + kategori */
-  const [product, category] = await Promise.all([
+  // Ürün ve kategori sorgularını paralel çalıştır
+  const [productResult, categoryResult] = await Promise.allSettled([
     prisma.product.findUnique({
       where: { slug },
       include: {
@@ -39,9 +39,7 @@ export default async function DynamicPage({ params, searchParams = {} }: PagePro
           include: {
             media: {
               include: {
-                files: {
-                  select: { url: true },
-                },
+                files: { select: { url: true } },
               },
             },
           },
@@ -90,6 +88,7 @@ export default async function DynamicPage({ params, searchParams = {} }: PagePro
         },
       },
     }),
+
     prisma.category.findUnique({
       where: { slug },
       include: {
@@ -98,11 +97,16 @@ export default async function DynamicPage({ params, searchParams = {} }: PagePro
     }),
   ]);
 
+  const product =
+    productResult.status === "fulfilled" ? productResult.value : null;
+  const category =
+    categoryResult.status === "fulfilled" ? categoryResult.value : null;
+
   /* ========== ÜRÜN SAYFASI ========== */
   if (product) {
     if (!product.isActive) notFound();
 
-    // View sayısını artır (arka planda)
+    // View sayısını artır (arka planda, beklemeden)
     prisma.product
       .update({
         where: { id: product.id },
@@ -111,9 +115,10 @@ export default async function DynamicPage({ params, searchParams = {} }: PagePro
       .catch(() => {});
 
     const categoryIds = product.categories?.map((cat) => cat.id) || [];
-    const relatedProducts = categoryIds.length
-      ? await getRelatedProducts(product.id, categoryIds)
-      : [];
+    const relatedProducts =
+      categoryIds.length > 0
+        ? await getRelatedProducts(product.id, categoryIds)
+        : [];
 
     return (
       <ProductDetailsWrapper
@@ -129,8 +134,8 @@ export default async function DynamicPage({ params, searchParams = {} }: PagePro
   if (category) {
     const categoryIds = collectCategoryIds(category);
 
-    /* URL'den filtreleri al */
-    const arr = (v: unknown) => (Array.isArray(v) ? v : v ? [v] : []) as string[];
+    const arr = (v: unknown) =>
+      (Array.isArray(v) ? v : v ? [v] : []) as string[];
     const selectedCatIds = arr(searchParams.category);
     const selectedBrands = arr(searchParams.brand);
     const selectedAttrIds = arr(searchParams.attribute);
@@ -138,13 +143,18 @@ export default async function DynamicPage({ params, searchParams = {} }: PagePro
     const minPrice = Number(searchParams.minPrice) || undefined;
     const maxPrice = Number(searchParams.maxPrice) || undefined;
 
-    /* Alt kategoriler */
+    // Alt kategoriler
     const subcategories = await prisma.category.findMany({
       where: { parentId: category.id },
-      select: { id: true, name: true, slug: true, _count: { select: { products: true } } },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        _count: { select: { products: true } },
+      },
     });
 
-    /* İlgili markalar */
+    // Markalar
     const brands = await prisma.brand.findMany({
       where: {
         products: {
@@ -155,12 +165,14 @@ export default async function DynamicPage({ params, searchParams = {} }: PagePro
       orderBy: { name: "asc" },
     });
 
-    /* Attribute grupları */
+    // Attribute grupları
     const attributeGroups = await prisma.attributeGroup.findMany({
       where: {
         attributes: {
           some: {
-            products: { some: { categories: { some: { id: { in: categoryIds } } } } },
+            products: {
+              some: { categories: { some: { id: { in: categoryIds } } } },
+            },
           },
         },
       },
@@ -172,7 +184,7 @@ export default async function DynamicPage({ params, searchParams = {} }: PagePro
       orderBy: { name: "asc" },
     });
 
-    /* Sıralama */
+    // Sıralama
     const { sort = "newest" } = searchParams;
     const orderBy =
       sort === "price_asc"
@@ -185,7 +197,7 @@ export default async function DynamicPage({ params, searchParams = {} }: PagePro
         ? { name: "desc" }
         : { createdAt: "desc" };
 
-    /* WHERE koşulu */
+    // WHERE koşulu
     const where: Prisma.ProductWhereInput = {
       isActive: true,
       categories: {
@@ -194,15 +206,17 @@ export default async function DynamicPage({ params, searchParams = {} }: PagePro
         },
       },
     };
-    if (selectedBrands.length) where.brands = { some: { slug: { in: selectedBrands } } };
-    if (selectedAttrIds.length) where.attributes = { some: { id: { in: selectedAttrIds } } };
+    if (selectedBrands.length)
+      where.brands = { some: { slug: { in: selectedBrands } } };
+    if (selectedAttrIds.length)
+      where.attributes = { some: { id: { in: selectedAttrIds } } };
     if (minPrice || maxPrice)
       where.price = {
         ...(minPrice && { gte: minPrice }),
         ...(maxPrice && { lte: maxPrice }),
       };
 
-    /* Ürünleri getir */
+    // Ürünleri getir
     const products = await prisma.product.findMany({
       where,
       orderBy,
@@ -223,7 +237,7 @@ export default async function DynamicPage({ params, searchParams = {} }: PagePro
       },
     });
 
-    /* KATEGORİ UI */
+    // Kategori sayfa UI
     return (
       <div className="container mx-auto px-4 py-8">
         <h1 className="text-2xl font-semibold mb-6">{category.name}</h1>
@@ -257,7 +271,9 @@ export default async function DynamicPage({ params, searchParams = {} }: PagePro
               ))}
             </div>
           ) : (
-            <p className="text-muted-foreground">Filtrelere uyan ürün bulunamadı.</p>
+            <p className="text-muted-foreground">
+              Filtrelere uyan ürün bulunamadı.
+            </p>
           )}
         </div>
       </div>
