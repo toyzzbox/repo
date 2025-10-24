@@ -95,7 +95,7 @@ export default function RegisterForm() {
             </div>
 
             {/* Durum mesajları */}
-            {state.message && (
+            {state?.message && (
               <div
                 className={`rounded-lg p-4 ${
                   state.success
