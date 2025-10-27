@@ -32,6 +32,8 @@ async function main() {
     create: {
       name: "Oyuncaklar",
       slug: "oyuncaklar",
+     description: 'Tüm oyuncak çeşitlerinin bulunduğu ana kategori.',
+
     },
   });
 
