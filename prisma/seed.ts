@@ -11,7 +11,7 @@ async function main() {
       slug: 'lego',
       medias: {
         create: {
-          type: 'IMAGE',
+            type: "image",
           files: {
             create: [
               {
