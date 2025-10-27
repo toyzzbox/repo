@@ -48,7 +48,7 @@ async function main() {
   // --- Media (Product Image) ---
   const productMedia = await prisma.media.create({
     data: {
-      type: 'IMAGE',
+      type: 'image',
       files: {
         create: [
           {
