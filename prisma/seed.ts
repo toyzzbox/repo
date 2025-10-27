@@ -1,22 +1,22 @@
 import { prisma } from "@/lib/prisma";
 
-
 async function main() {
-  // --- Brand ---
+  // --- Marka ---
   const lego = await prisma.brand.upsert({
-    where: { slug: 'lego' },
+    where: { slug: "lego" },
     update: {},
     create: {
-      name: 'LEGO',
-      slug: 'lego',
+      name: "LEGO",
+      slug: "lego",
       medias: {
         create: {
-            type: "image",
+          type: "image",
           files: {
             create: [
               {
-                url: 'https://toyzzbox.s3.eu-north-1.amazonaws.com/seed/lego-logo.png',
-                key: 'seed/lego-logo.png',
+                url: "https://toyzzbox.s3.eu-north-1.amazonaws.com/seed/lego-logo.png",
+                format: "png",
+                quality: "high",
               },
             ],
           },
@@ -25,50 +25,54 @@ async function main() {
     },
   });
 
-  // --- Category ---
+  // --- Kategori ---
   const toys = await prisma.category.upsert({
-    where: { slug: 'oyuncaklar' },
+    where: { slug: "oyuncaklar" },
     update: {},
     create: {
-      name: 'Oyuncaklar',
-      slug: 'oyuncaklar',
+      name: "Oyuncaklar",
+      slug: "oyuncaklar",
     },
   });
 
-  // --- Product Group ---
+  // --- Ürün Grubu ---
   const legoCityGroup = await prisma.productGroup.upsert({
-    where: { slug: 'lego-city' },
+    where: { slug: "lego-city" },
     update: {},
     create: {
-      name: 'LEGO City Setleri',
-      slug: 'lego-city',
+      name: "LEGO City Setleri",
+      slug: "lego-city",
     },
   });
 
-  // --- Media (Product Image) ---
+  // --- Ürün görseli (Media) ---
   const productMedia = await prisma.media.create({
     data: {
-      type: 'image',
+      type: "image",
       files: {
         create: [
           {
-            url: 'https://toyzzbox.s3.eu-north-1.amazonaws.com/seed/lego-city-car.jpg',
-            key: 'seed/lego-city-car.jpg',
+            url: "https://toyzzbox.s3.eu-north-1.amazonaws.com/seed/lego-city-car.jpg",
+            format: "jpg",
+            width: 800,
+            height: 600,
+            size: 240000,
+            quality: "high",
           },
         ],
       },
     },
   });
 
-  // --- Product ---
+  // --- Ürün ---
   await prisma.product.create({
     data: {
-      name: 'LEGO City Spor Araba',
-      slug: 'lego-city-spor-araba',
+      name: "LEGO City Spor Araba",
+      slug: "lego-city-spor-araba",
       price: 499.9,
       stock: 12,
-      description: 'LEGO City serisinden mükemmel bir spor araba!',
-      barcode: '1234567890123',
+      description: "LEGO City serisinden mükemmel bir spor araba seti!",
+      barcode: "1234567890123",
       isActive: true,
       groupId: legoCityGroup.id,
       brands: { connect: [{ id: lego.id }] },
@@ -84,7 +88,7 @@ async function main() {
     },
   });
 
-  console.log('✅ Seed data başarıyla eklendi!');
+  console.log("✅ Seed data başarıyla eklendi!");
 }
 
 main()
