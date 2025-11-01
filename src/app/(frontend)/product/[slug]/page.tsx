@@ -40,7 +40,15 @@ export default async function ProductPage({ params }: PageProps) {
               price: true,
               description: true,
               stock: true,
-              medias: { select: { urls: true } },
+              medias: {
+                include: {
+                  media: {
+                    select: {
+                      urls: true
+                    }
+                  }
+                }
+              }
             },
           },
         },
