@@ -232,36 +232,92 @@ model Favorite {
   @@map("Favorite")
 }
 
+
+
+
+
+
 model Media {
-  id           String         @id @default(cuid())
-  type         MediaType
-  files        MediaFile[]   // ✅ urls yerine ilişkisel yapı
-  altText String?
-  title String?
+  id          String @id @default(cuid())
+  type        MediaType
+  title       String?
   description String?
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
+  altText     String?
+  metadata    Json? // renk, oran, yüz tespiti, pozlama gibi
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
   productMedia ProductMedia[]
   attributes   Attribute[]    @relation("AttributeToMedia")
   brands       Brand[]        @relation("BrandToMedia")
   categories   Category[]     @relation("CategoryToMedia")
 
-  @@map("Media")
+  variants    MediaVariant[]
+  tags        MediaTag[]
+  relations   MediaRelation[] // ürün, kategori, kampanya ilişkileri
 }
 
-
-model MediaFile {
-  id        String   @id @default(cuid())
-  url       String
-  format    String?   // örn: webp, jpg, mp4
+model MediaVariant {
+  id        String @id @default(cuid())
+  key       String
+  cdnUrl    String
+  format    String?
   width     Int?
   height    Int?
   size      Int?
-  quality   String?   // örn: “high”, “medium”, “thumbnail”
+  type      VariantType
   mediaId   String
-  media     Media    @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+  media     Media @relation(fields: [mediaId], references: [id], onDelete: Cascade)
 }
 
+model MediaTag {
+  id        String @id @default(cuid())
+  name      String
+  confidence Float? // AI doğruluk oranı
+  type      TagType // COLOR, OBJECT, SCENE, THEME
+  mediaId   String
+  media     Media @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+}
+
+model MediaRelation {
+  id         String @id @default(cuid())
+  mediaId    String
+  entityType RelationType // PRODUCT, CATEGORY, BRAND, CAMPAIGN, BLOG
+  entityId   String
+  media      Media @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+}
+
+enum MediaType {
+  IMAGE
+  VIDEO
+  DOCUMENT
+  BANNER
+  ICON
+  LOGO
+}
+
+enum VariantType {
+  ORIGINAL
+  WEBP
+  MOBILE
+  THUMBNAIL
+  OG_IMAGE
+  AVIF
+}
+
+enum TagType {
+  COLOR
+  OBJECT
+  THEME
+  SCENE
+}
+
+enum RelationType {
+  PRODUCT
+  CATEGORY
+  BRAND
+  CAMPAIGN
+  BLOG
+}
 model Product {
   id           String         @id @default(cuid())
   slug         String         @unique
@@ -431,11 +487,6 @@ enum VerificationType {
   EMAIL_VERIFICATION
   PASSWORD_RESET
   TWO_FACTOR
-}
-
-enum MediaType {
-  image
-  video
 }
 
 enum CartStatus {
