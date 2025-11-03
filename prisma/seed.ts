@@ -4,8 +4,8 @@ import { MediaType, VariantType } from "@prisma/client";
 async function main() {
   console.log("🌱 Seeding...");
 
-  // --- Marka için medya (LOGO) ---
-  const legoLogoMedia = await prisma.media.create({
+  // --- Marka logosu için Media oluştur ---
+  const legoLogo = await prisma.media.create({
     data: {
       type: MediaType.LOGO,
       title: "LEGO Logo",
@@ -14,7 +14,8 @@ async function main() {
         create: [
           {
             key: "main",
-            cdnUrl: "https://toyzzbox.s3.eu-north-1.amazonaws.com/seed/lego-logo.png",
+            cdnUrl:
+              "https://toyzzbox.s3.eu-north-1.amazonaws.com/seed/lego-logo.png",
             format: "png",
             width: 512,
             height: 512,
@@ -26,7 +27,7 @@ async function main() {
     },
   });
 
-  // --- Marka ---
+  // --- Marka oluştur ---
   const lego = await prisma.brand.upsert({
     where: { slug: "lego" },
     update: {},
@@ -34,7 +35,7 @@ async function main() {
       name: "LEGO",
       slug: "lego",
       medias: {
-        connect: [{ id: legoLogoMedia.id }],
+        connect: [{ id: legoLogo.id }],
       },
     },
   });
@@ -70,7 +71,8 @@ async function main() {
         create: [
           {
             key: "original",
-            cdnUrl: "https://toyzzbox.s3.eu-north-1.amazonaws.com/seed/lego-city-car.jpg",
+            cdnUrl:
+              "https://toyzzbox.s3.eu-north-1.amazonaws.com/seed/lego-city-car.jpg",
             format: "jpg",
             width: 800,
             height: 600,
@@ -79,7 +81,8 @@ async function main() {
           },
           {
             key: "webp",
-            cdnUrl: "https://toyzzbox.s3.eu-north-1.amazonaws.com/seed/lego-city-car.webp",
+            cdnUrl:
+              "https://toyzzbox.s3.eu-north-1.amazonaws.com/seed/lego-city-car.webp",
             format: "webp",
             width: 800,
             height: 600,
@@ -115,12 +118,12 @@ async function main() {
     },
   });
 
-  console.log("✅ Seed data başarıyla eklendi!");
+  console.log("✅ Seed işlemi başarıyla tamamlandı!");
 }
 
 main()
   .catch((e) => {
-    console.error("❌ Seed error:", e);
+    console.error("❌ Seed hatası:", e);
     process.exit(1);
   })
   .finally(async () => {
