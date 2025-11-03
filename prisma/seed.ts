@@ -1,6 +1,31 @@
 import { prisma } from "@/lib/prisma";
+import { MediaType, VariantType } from "@prisma/client";
 
 async function main() {
+  console.log("🌱 Seeding...");
+
+  // --- Marka için medya (LOGO) ---
+  const legoLogoMedia = await prisma.media.create({
+    data: {
+      type: MediaType.LOGO,
+      title: "LEGO Logo",
+      altText: "LEGO markasının logosu",
+      variants: {
+        create: [
+          {
+            key: "main",
+            cdnUrl: "https://toyzzbox.s3.eu-north-1.amazonaws.com/seed/lego-logo.png",
+            format: "png",
+            width: 512,
+            height: 512,
+            size: 100000,
+            type: VariantType.ORIGINAL,
+          },
+        ],
+      },
+    },
+  });
+
   // --- Marka ---
   const lego = await prisma.brand.upsert({
     where: { slug: "lego" },
@@ -9,18 +34,7 @@ async function main() {
       name: "LEGO",
       slug: "lego",
       medias: {
-        create: {
-          type: "IMAGE",
-          files: {
-            create: [
-              {
-                url: "https://toyzzbox.s3.eu-north-1.amazonaws.com/seed/lego-logo.png",
-                format: "png",
-                quality: "high",
-              },
-            ],
-          },
-        },
+        connect: [{ id: legoLogoMedia.id }],
       },
     },
   });
@@ -32,8 +46,7 @@ async function main() {
     create: {
       name: "Oyuncaklar",
       slug: "oyuncaklar",
-     description: 'Tüm oyuncak çeşitlerinin bulunduğu ana kategori.',
-
+      description: "Tüm oyuncak çeşitlerinin bulunduğu ana kategori.",
     },
   });
 
@@ -50,16 +63,28 @@ async function main() {
   // --- Ürün görseli (Media) ---
   const productMedia = await prisma.media.create({
     data: {
-      type: "IMAGE",
-      files: {
+      type: MediaType.IMAGE,
+      title: "LEGO City Spor Araba",
+      altText: "LEGO City serisinden kırmızı spor araba",
+      variants: {
         create: [
           {
-            url: "https://toyzzbox.s3.eu-north-1.amazonaws.com/seed/lego-city-car.jpg",
+            key: "original",
+            cdnUrl: "https://toyzzbox.s3.eu-north-1.amazonaws.com/seed/lego-city-car.jpg",
             format: "jpg",
             width: 800,
             height: 600,
             size: 240000,
-            quality: "high",
+            type: VariantType.ORIGINAL,
+          },
+          {
+            key: "webp",
+            cdnUrl: "https://toyzzbox.s3.eu-north-1.amazonaws.com/seed/lego-city-car.webp",
+            format: "webp",
+            width: 800,
+            height: 600,
+            size: 120000,
+            type: VariantType.WEBP,
           },
         ],
       },
@@ -94,9 +119,10 @@ async function main() {
 }
 
 main()
-  .then(() => prisma.$disconnect())
   .catch((e) => {
-    console.error(e);
-    prisma.$disconnect();
+    console.error("❌ Seed error:", e);
     process.exit(1);
+  })
+  .finally(async () => {
+    await prisma.$disconnect();
   });
