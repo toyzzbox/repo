@@ -10,7 +10,7 @@ async function main() {
       slug: "lego",
       medias: {
         create: {
-          type: "image",
+          type: "IMAGE",
           files: {
             create: [
               {
@@ -50,7 +50,7 @@ async function main() {
   // --- Ürün görseli (Media) ---
   const productMedia = await prisma.media.create({
     data: {
-      type: "image",
+      type: "IMAGE",
       files: {
         create: [
           {
