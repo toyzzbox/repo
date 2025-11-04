@@ -1,4 +1,3 @@
-
 import { prisma } from "@/lib/prisma";
 import { getRelatedProducts } from "@/actions/getRelatedProducts";
 import ProductDetailsWrapper from "@/components/(frontend)/product/ProductDetailsWrapper";
@@ -11,8 +10,6 @@ type PageProps = {
 };
 
 export default async function ProductPage({ params }: PageProps) {
- 
-
   const product = await prisma.product.update({
     where: { slug: params.slug },
     data: {
@@ -21,7 +18,22 @@ export default async function ProductPage({ params }: PageProps) {
       },
     },
     include: {
-      medias: { select: { urls: true } },
+      medias: {
+        orderBy: { order: "asc" },
+        include: {
+          media: {
+            include: {
+              variants: {
+                select: {
+                  cdnUrl: true,
+                  key: true,
+                  format: true,
+                },
+              },
+            },
+          },
+        },
+      },
       brands: {
         select: {
           id: true,
@@ -29,7 +41,13 @@ export default async function ProductPage({ params }: PageProps) {
           slug: true,
         },
       },
-      categories: { select: { id: true, name: true, slug: true } },
+      categories: {
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+        },
+      },
       group: {
         include: {
           products: {
@@ -41,24 +59,25 @@ export default async function ProductPage({ params }: PageProps) {
               description: true,
               stock: true,
               medias: {
+                orderBy: { order: "asc" },
                 include: {
                   media: {
-                    select: {
-                      urls: true
-                    }
-                  }
-                }
-              }
+                    include: {
+                      variants: {
+                        select: {
+                          cdnUrl: true,
+                          key: true,
+                          format: true,
+                        },
+                      },
+                    },
+                  },
+                },
+              },
             },
           },
         },
       },
-      // favorites: session?.user?.id
-      //   ? {
-      //       where: { userId: session.user.id },
-      //       select: { id: true },
-      //     }
-      //   : undefined,
       comments: {
         include: {
           user: { select: { name: true, image: true } },
