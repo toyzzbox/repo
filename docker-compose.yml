@@ -1,18 +1,61 @@
 version: "3.8"
-
 services:
+  nginx:
+    image: nginx:alpine
+    container_name: nginx_proxy
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - /etc/letsencrypt/live/toyzzbox.com/fullchain.pem:/etc/ssl/toyzzbox/fullchain.pem:ro
+      - /etc/letsencrypt/live/toyzzbox.com/privkey.pem:/etc/ssl/toyzzbox/privkey.pem:ro
+    networks:
+      - app-network
+    depends_on:
+      - repo
+      - nestjs_backend
+      - db
+      - pgbouncer
+    restart: unless-stopped
   db:
     image: postgres:15
     container_name: postgres_db
     ports:
       - "5432:5432"
       - "5555:5555"
+    expose:
+      - "5432"
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: ruveyda
       POSTGRES_DB: mydb
+      POSTGRES_INITDB_ARGS: "--auth-host=md5 --auth-local=md5"
     volumes:
       - pgdata:/var/lib/postgresql/data
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  nestjs_backend:
+    build:
+      context: ../ecommerce-backend
+      dockerfile: Dockerfile
+    container_name: nestjs_backend
+    ports:
+      - "3001:3001"
+    environment:
+      DATABASE_URL: postgresql://postgres:ruveyda@pgbouncer:6432/mydb?pgbouncer=true&preparedStatements=false
+      NODE_ENV: development
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - app-network
 
   repo:
     build:
@@ -23,10 +66,47 @@ services:
       - "3000:3000"
     env_file:
       - .env
+    environment:
+      DATABASE_URL: postgresql://postgres:ruveyda@pgbouncer:6432/mydb?pgbouncer=true&preparedStatements=false
+      NEXT_PUBLIC_API_URL: http://nestjs_backend:3001
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+      nestjs_backend:
+        condition: service_started
+    networks:
+      - app-network
     command: pnpm dev
+
+
+  pgbouncer:
+    image: edoburu/pgbouncer
+    container_name: pgbouncer
+    restart: always
+    ports:
+      - "6432:6432"
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: ruveyda
+      DB_NAME: mydb
+      POOL_MODE: transaction
+      MAX_CLIENT_CONN: 100
+      DEFAULT_POOL_SIZE: 20
+      AUTH_TYPE: md5
+      LISTEN_PORT: 6432 
+      POSTGRES_INITDB_ARGS: "--auth-host=md5"  # 🔹 BURAYI EKLE
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - app-network
+
+
+networks:
+  app-network:
+    driver: bridge
 
 volumes:
   pgdata:
-
