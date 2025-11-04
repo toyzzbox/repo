@@ -9,7 +9,7 @@ import { ProductCard } from "@/components/(frontend)/product/ProductCard";
 import MobileFilterButton from "../category/MobileFilterButton";
 
 type PageProps = {
-  params: Promise<{ slug: string }>; // 👈 Next.js 15: params artık Promise
+  params: Promise<{ slug: string }>;
   searchParams?: { [k: string]: string | string[] | undefined };
 };
 
@@ -27,7 +27,7 @@ const collectCategoryIds = (c: DeepCategory): string[] => [
    DİNAMİK ÜRÜN / KATEGORİ SAYFASI
 ========================================== */
 export default async function DynamicPage({ params, searchParams = {} }: PageProps) {
-  const { slug } = await params; // ✅ await eklendi!
+  const { slug } = await params;
 
   // Ürün ve kategori sorgularını paralel çalıştır
   const [productResult, categoryResult] = await Promise.allSettled([
@@ -39,7 +39,16 @@ export default async function DynamicPage({ params, searchParams = {} }: PagePro
           include: {
             media: {
               include: {
-                files: { select: { url: true } },
+                variants: {
+                  select: {
+                    cdnUrl: true,
+                    key: true,
+                    format: true,
+                    width: true,
+                    height: true,
+                    type: true,
+                  },
+                },
               },
             },
           },
@@ -71,7 +80,14 @@ export default async function DynamicPage({ params, searchParams = {} }: PagePro
                   include: {
                     media: {
                       include: {
-                        files: { select: { url: true } },
+                        variants: {
+                          select: {
+                            cdnUrl: true,
+                            key: true,
+                            format: true,
+                            type: true,
+                          },
+                        },
                       },
                     },
                   },
@@ -106,7 +122,7 @@ export default async function DynamicPage({ params, searchParams = {} }: PagePro
   if (product) {
     if (!product.isActive) notFound();
 
-    // View sayısını artır (arka planda, beklemeden)
+    // Görüntülenme sayısını arka planda artır
     prisma.product
       .update({
         where: { id: product.id },
@@ -229,7 +245,14 @@ export default async function DynamicPage({ params, searchParams = {} }: PagePro
           include: {
             media: {
               include: {
-                files: { select: { url: true } },
+                variants: {
+                  select: {
+                    cdnUrl: true,
+                    key: true,
+                    format: true,
+                    type: true,
+                  },
+                },
               },
             },
           },
