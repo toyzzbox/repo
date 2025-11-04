@@ -6,7 +6,13 @@ import { cookies } from "next/headers";
 import { randomUUID } from "crypto";
 import { getCurrentUser } from "./auth";
 
-// Types
+// ✅ Types
+type MediaVariant = {
+  cdnUrl: string;
+  key: string;
+  format?: string | null;
+};
+
 type CartItem = {
   id: string;
   quantity: number;
@@ -20,7 +26,7 @@ type CartItem = {
     stock: number | null;
     medias: Array<{
       media: {
-        urls: string[];
+        variants: MediaVariant[];
       };
     }>;
   };
@@ -50,34 +56,33 @@ type CartWithItems = {
   items: CartItem[];
 };
 
-// Helper: Session ID'yi al veya oluştur
+// ✅ Helper: Session ID'yi al veya oluştur
 async function getOrCreateSessionId(): Promise<string> {
   const cookieStore = await cookies();
-  let sessionId = cookieStore.get('cart_session_id')?.value;
-  
+  let sessionId = cookieStore.get("cart_session_id")?.value;
+
   if (!sessionId) {
     sessionId = randomUUID();
-    cookieStore.set('cart_session_id', sessionId, {
+    cookieStore.set("cart_session_id", sessionId, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
       maxAge: 60 * 60 * 24 * 30, // 30 gün
     });
   }
-  
+
   return sessionId;
 }
 
-// Helper: Aktif sepeti bul veya oluştur
+// ✅ Helper: Aktif sepeti bul veya oluştur
 async function getOrCreateCart(): Promise<{ id: string; userId: string | null; sessionId: string | null }> {
   const user = await getCurrentUser();
-  
+
   if (user) {
-    // Kullanıcı girişi yapmış - kullanıcı sepetini bul
     let cart = await prisma.cart.findFirst({
       where: { userId: user.id, status: "ACTIVE" },
     });
-    
+
     if (!cart) {
       cart = await prisma.cart.create({
         data: {
@@ -86,34 +91,33 @@ async function getOrCreateCart(): Promise<{ id: string; userId: string | null; s
         },
       });
     }
-    
+
     return cart;
   } else {
-    // Misafir kullanıcı - session sepetini bul
     const sessionId = await getOrCreateSessionId();
-    
+
     let cart = await prisma.cart.findFirst({
       where: { sessionId, status: "ACTIVE" },
     });
-    
+
     if (!cart) {
       cart = await prisma.cart.create({
         data: {
           sessionId,
           status: "ACTIVE",
-          expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 gün
+          expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
         },
       });
     }
-    
+
     return cart;
   }
 }
 
-// Helper: Sepet özetini hesapla
+// ✅ Helper: Sepet özetini hesapla
 function calculateSummary(items: CartItem[]): CartSummary {
   const itemCount = items.reduce((total, item) => total + item.quantity, 0);
-  const subtotal = items.reduce((total, item) => total + (item.price * item.quantity), 0);
+  const subtotal = items.reduce((total, item) => total + item.price * item.quantity, 0);
   const freeShippingThreshold = 500;
   const shippingCost = subtotal >= freeShippingThreshold ? 0 : 50;
   const total = subtotal + shippingCost;
@@ -129,28 +133,22 @@ function calculateSummary(items: CartItem[]): CartSummary {
   };
 }
 
-// Sepete ürün ekleme
+// ✅ Sepete ürün ekleme
 export async function addToCart(productId: string, quantity: number = 1) {
   try {
-    // Ürünü ve fiyatını al
     const product = await prisma.product.findUnique({
       where: { id: productId },
-      select: { id: true, price: true, stock: true, name: true }
+      select: { id: true, price: true, stock: true, name: true },
     });
 
-    if (!product) {
-      throw new Error("Ürün bulunamadı");
-    }
+    if (!product) throw new Error("Ürün bulunamadı");
 
-    // Stok kontrolü
     if (product.stock !== null && quantity > product.stock) {
       throw new Error("Yetersiz stok");
     }
 
-    // Sepeti al veya oluştur
     const cart = await getOrCreateCart();
 
-    // Mevcut sepet öğesini kontrol et
     const existingItem = await prisma.cartItem.findUnique({
       where: {
         cartId_productId: {
@@ -161,39 +159,29 @@ export async function addToCart(productId: string, quantity: number = 1) {
     });
 
     if (existingItem) {
-      // Toplam quantity'yi kontrol et
       const newQuantity = existingItem.quantity + quantity;
       if (product.stock !== null && newQuantity > product.stock) {
         throw new Error("Stok miktarını aştınız");
       }
 
-      // Mevcut öğeyi güncelle
       await prisma.cartItem.update({
-        where: {
-          cartId_productId: {
-            cartId: cart.id,
-            productId,
-          },
-        },
-        data: {
-          quantity: newQuantity,
-        },
+        where: { cartId_productId: { cartId: cart.id, productId } },
+        data: { quantity: newQuantity },
       });
     } else {
-      // Yeni öğe oluştur
       await prisma.cartItem.create({
         data: {
           cartId: cart.id,
           productId,
           quantity,
-          price: product.price, // Mevcut fiyatı kaydet
+          price: product.price,
         },
       });
     }
 
     revalidatePath("/sepet");
     revalidatePath("/");
-    
+
     return { success: true, message: "Ürün sepete eklendi" };
   } catch (error: any) {
     console.error("Add to cart error:", error);
@@ -201,40 +189,29 @@ export async function addToCart(productId: string, quantity: number = 1) {
   }
 }
 
-// Sepet öğesi miktarını güncelleme
+// ✅ Sepet öğesi miktarını güncelleme
 export async function updateCartItemQuantity(itemId: string, quantity: number) {
   try {
-    if (quantity < 1) {
-      throw new Error("Miktar 1'den az olamaz");
-    }
+    if (quantity < 1) throw new Error("Miktar 1'den az olamaz");
 
-    // Öğeyi ve ürün bilgisini al
     const cartItem = await prisma.cartItem.findUnique({
       where: { id: itemId },
-      include: {
-        product: {
-          select: { stock: true, name: true }
-        }
-      }
+      include: { product: { select: { stock: true, name: true } } },
     });
 
-    if (!cartItem) {
-      throw new Error("Sepet öğesi bulunamadı");
-    }
+    if (!cartItem) throw new Error("Sepet öğesi bulunamadı");
 
-    // Stok kontrolü
     if (cartItem.product.stock !== null && quantity > cartItem.product.stock) {
       throw new Error(`${cartItem.product.name} için maksimum ${cartItem.product.stock} adet ekleyebilirsiniz`);
     }
 
-    // Miktarı güncelle
     await prisma.cartItem.update({
       where: { id: itemId },
       data: { quantity },
     });
 
     revalidatePath("/sepet");
-    
+
     return { success: true, message: "Miktar güncellendi" };
   } catch (error: any) {
     console.error("Update cart item error:", error);
@@ -242,15 +219,11 @@ export async function updateCartItemQuantity(itemId: string, quantity: number) {
   }
 }
 
-// Sepetten ürün kaldırma
+// ✅ Sepetten ürün kaldırma
 export async function removeFromCart(itemId: string) {
   try {
-    await prisma.cartItem.delete({
-      where: { id: itemId },
-    });
-
+    await prisma.cartItem.delete({ where: { id: itemId } });
     revalidatePath("/sepet");
-    
     return { success: true, message: "Ürün sepetten kaldırıldı" };
   } catch (error: any) {
     console.error("Remove from cart error:", error);
@@ -258,17 +231,12 @@ export async function removeFromCart(itemId: string) {
   }
 }
 
-// Sepeti temizleme
+// ✅ Sepeti temizleme
 export async function clearCart() {
   try {
     const cart = await getOrCreateCart();
-    
-    await prisma.cartItem.deleteMany({
-      where: { cartId: cart.id },
-    });
-
+    await prisma.cartItem.deleteMany({ where: { cartId: cart.id } });
     revalidatePath("/sepet");
-    
     return { success: true, message: "Sepet temizlendi" };
   } catch (error: any) {
     console.error("Clear cart error:", error);
@@ -276,65 +244,54 @@ export async function clearCart() {
   }
 }
 
-// Sepeti getirme - CartState formatında
+// ✅ Sepeti getirme - CartState formatında
 export async function getCart(): Promise<CartState> {
   try {
     const user = await getCurrentUser();
-    
     let cart;
-    
+
+    const baseInclude = {
+      items: {
+        include: {
+          product: {
+            include: {
+              medias: {
+                include: {
+                  media: {
+                    include: {
+                      variants: {
+                        select: {
+                          cdnUrl: true,
+                          key: true,
+                          format: true,
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    };
+
     if (user) {
-      // Kullanıcı girişi yapmış
       cart = await prisma.cart.findFirst({
         where: { userId: user.id, status: "ACTIVE" },
-        include: {
-          items: {
-            include: {
-              product: {
-                include: {
-                  medias: {
-                    include: {
-                      media: {
-                        select: { urls: true }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
+        include: baseInclude,
       });
     } else {
-      // Misafir kullanıcı
       const cookieStore = await cookies();
-      const sessionId = cookieStore.get('cart_session_id')?.value;
-      
+      const sessionId = cookieStore.get("cart_session_id")?.value;
       if (sessionId) {
         cart = await prisma.cart.findFirst({
           where: { sessionId, status: "ACTIVE" },
-          include: {
-            items: {
-              include: {
-                product: {
-                  include: {
-                    medias: {
-                      include: {
-                        media: {
-                          select: { urls: true }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
+          include: baseInclude,
         });
       }
     }
 
-    // Boş sepet durumu
     if (!cart || !cart.items.length) {
       return {
         items: [],
@@ -349,14 +306,12 @@ export async function getCart(): Promise<CartState> {
       };
     }
 
-    // Sepet verisini formatla
     return {
       items: cart.items,
       summary: calculateSummary(cart.items),
     };
   } catch (error) {
     console.error("Get cart error:", error);
-    // Hata durumunda boş sepet döndür
     return {
       items: [],
       summary: {
@@ -371,7 +326,7 @@ export async function getCart(): Promise<CartState> {
   }
 }
 
-// Sepet sayısını getirme
+// ✅ Sepet sayısını getirme
 export async function getCartCount(): Promise<number> {
   try {
     const cartState = await getCart();
@@ -382,23 +337,21 @@ export async function getCartCount(): Promise<number> {
   }
 }
 
-// Kullanıcı girişi yaptığında misafir sepetini birleştirme
+// ✅ Kullanıcı girişi yaptığında misafir sepetini birleştirme
 export async function mergeGuestCartToUser(userId: string) {
   try {
     const cookieStore = await cookies();
-    const sessionId = cookieStore.get('cart_session_id')?.value;
-    
+    const sessionId = cookieStore.get("cart_session_id")?.value;
+
     if (!sessionId) return;
 
-    // Misafir sepetini bul
     const guestCart = await prisma.cart.findFirst({
       where: { sessionId, status: "ACTIVE" },
-      include: { items: true }
+      include: { items: true },
     });
 
     if (!guestCart || guestCart.items.length === 0) return;
 
-    // Kullanıcının sepetini bul veya oluştur
     let userCart = await prisma.cart.findFirst({
       where: { userId, status: "ACTIVE" },
     });
@@ -409,7 +362,6 @@ export async function mergeGuestCartToUser(userId: string) {
       });
     }
 
-    // Misafir sepetindeki öğeleri kullanıcı sepetine taşı
     for (const item of guestCart.items) {
       await prisma.cartItem.upsert({
         where: {
@@ -430,14 +382,8 @@ export async function mergeGuestCartToUser(userId: string) {
       });
     }
 
-    // Misafir sepetini sil
-    await prisma.cart.delete({
-      where: { id: guestCart.id },
-    });
-
-    // Session cookie'sini temizle
-    cookieStore.delete('cart_session_id');
-
+    await prisma.cart.delete({ where: { id: guestCart.id } });
+    cookieStore.delete("cart_session_id");
     revalidatePath("/sepet");
   } catch (error) {
     console.error("Merge guest cart error:", error);
