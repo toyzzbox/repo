@@ -6,8 +6,11 @@ async function main() {
   console.log("🌱 Seeding started...");
 
   // --- Marka logosu (Media + Variant) ---
-  const legoLogo = await prisma.media.create({
-    data: {
+  const legoLogo = await prisma.media.upsert({
+    where: { id: "media_lego_logo" }, // ✅ unique id kullanıldı
+    update: {},
+    create: {
+      id: "media_lego_logo",
       type: MediaType.LOGO,
       title: "LEGO Logo",
       altText: "LEGO markasının logosu",
@@ -60,9 +63,12 @@ async function main() {
   });
 
   // --- Ürün görseli (Media + Variant) ---
-  const productMedia = await prisma.media.create({
-    data: {
-      type: MediaType.IMAGE, // ✅ Düzeltildi: artık enum
+  const productMedia = await prisma.media.upsert({
+    where: { id: "media_lego_city_car" }, // ✅ unique id kullanıldı
+    update: {},
+    create: {
+      id: "media_lego_city_car",
+      type: MediaType.IMAGE,
       title: "LEGO City Spor Araba",
       altText: "LEGO City serisinden kırmızı spor araba",
       variants: {
@@ -90,7 +96,7 @@ async function main() {
     },
   });
 
-  // --- Ürün oluşturma (slug unique olduğu için create yeterli) ---
+  // --- Ürün ---
   await prisma.product.upsert({
     where: { slug: "lego-city-spor-araba" },
     update: {},
