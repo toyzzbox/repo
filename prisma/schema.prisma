@@ -3,10 +3,14 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider          = "postgresql"
+  url               = env("DATABASE_URL")
   shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
 }
+
+/* =======================
+   🧑 USER & AUTH MODELLERİ
+======================= */
 
 model User {
   id               String         @id @default(cuid())
@@ -22,6 +26,7 @@ model User {
   lockedUntil      DateTime?
   lastLoginAt      DateTime?
   lastLoginIp      String?
+
   addresses        Address[]
   carts            Cart[]
   favorites        Favorite[]
@@ -29,20 +34,18 @@ model User {
   comments         Comment[]
   loginAttempts    LoginAttempt[]
   sessions         Session[]
-  orders           Order[]        // Bu satırı ekleyin
-  invoices    Invoice[]
-
-
+  orders           Order[]
+  invoices         Invoice[]
 
   @@map("users")
 }
 
 model Account {
+  id                    String    @id @default(cuid())
   userId                String
   scope                 String?
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @updatedAt
-  id                    String    @id @default(cuid())
   accessToken           String?
   accessTokenExpiresAt  DateTime?
   accountId             String?
@@ -57,11 +60,11 @@ model Account {
 }
 
 model Session {
+  id           String   @id @default(cuid())
   userId       String
   expiresAt    DateTime
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
-  id           String   @id @default(cuid())
   ipAddress    String?
   userAgent    String?
   sessionToken String?  @unique
@@ -101,223 +104,14 @@ model Verification {
   type       VerificationType?
   used       Boolean?  @default(false)
 
-  @@unique([identifier, type])
+  @@unique([identifier])
   @@map("verifications")
 }
 
-model Comment {
-  id        String   @id @default(cuid())
-  content   String
-  rating    Int
-  userId    String
-  productId String
-  createdAt DateTime @default(now())
-  product   Product  @relation(fields: [productId], references: [id])
-  user      User     @relation(fields: [userId], references: [id])
+/* =======================
+   📦 ÜRÜN, MARKA, KATEGORİ
+======================= */
 
-  @@map("comments")
-}
-
-model Attribute {
-  id       String         @id @default(cuid())
-  name     String
-  groupId  String
-  group    AttributeGroup @relation("GroupAttributes", fields: [groupId], references: [id])
-  medias   Media[]        @relation("AttributeToMedia")
-  products Product[]      @relation("ProductAttribute")
-
-  @@map("Attribute")
-}
-
-model Brand {
-  id          String    @id @default(cuid())
-  name        String
-  slug        String    @unique
-  description String?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  medias      Media[]   @relation("BrandToMedia")
-  products    Product[] @relation("ProductToBrand")
-
-  @@map("Brand")
-}
-
-model Category {
-  id          String     @id @default(cuid())
-  slug        String     @unique
-  name        String
-  description String
-  parentId    String?
-  order       Int         @default(0)          // 👈 Sıralama alanı eklendi
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-  parent      Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  children    Category[] @relation("CategoryHierarchy")
-  medias      Media[]    @relation("CategoryToMedia")
-  products    Product[]  @relation("ProductToCategory")
-
-  @@map("Category")
-}
-
-model Address {
-  id          String   @id @default(cuid())
-  userId      String
-  user        User     @relation(fields: [userId], references: [id])
-
-  fullName    String
-  phone       String
-  addressLine String
-  city        String
-  district    String
-  postalCode  String
-  isDefault   Boolean  @default(false)
-
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  orders      Order[]  // Opsiyonel: referans için
-
-  @@map("Address")
-}
-
-model AttributeGroup {
-  id         String      @id @default(cuid())
-  name       String
-  attributes Attribute[] @relation("GroupAttributes")
-
-  @@map("AttributeGroup")
-}
-
-model Cart {
-  id        String     @id @default(cuid())
-  userId    String?
-  sessionId String?    // Bu satırı ekleyin
-  expiresAt DateTime?  // Bu satırı ekleyin
-  status    CartStatus @default(ACTIVE)
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-  user      User?      @relation(fields: [userId], references: [id])
-  items     CartItem[]
-
-  @@index([userId])
-  @@index([sessionId])           // Bu satırı ekleyin
-  @@index([status, expiresAt])   // Bu satırı ekleyin
-  @@map("Cart")
-}
-
-model CartItem {
-  id        String   @id @default(cuid())
-  cartId    String
-  productId String
-  quantity  Int      @default(1)
-  price     Float    // Bu satırı ekleyin
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  cart      Cart     @relation(fields: [cartId], references: [id])
-  product   Product  @relation(fields: [productId], references: [id])
-
-  @@unique([cartId, productId])
-  @@map("CartItem")
-}
-
-model Favorite {
-  id        String   @id @default(cuid())
-  userId    String
-  productId String
-  createdAt DateTime @default(now())
-  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, productId])
-  @@map("Favorite")
-}
-
-
-
-
-
-
-model Media {
-  id          String @id @default(cuid())
-  type        MediaType
-  title       String?
-  description String?
-  altText     String?
-  metadata    Json? // renk, oran, yüz tespiti, pozlama gibi
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  productMedia ProductMedia[]
-  attributes   Attribute[]    @relation("AttributeToMedia")
-  brands       Brand[]        @relation("BrandToMedia")
-  categories   Category[]     @relation("CategoryToMedia")
-
-  variants    MediaVariant[]
-  tags        MediaTag[]
-  relations   MediaRelation[] // ürün, kategori, kampanya ilişkileri
-}
-
-model MediaVariant {
-  id        String @id @default(cuid())
-  key       String
-  cdnUrl    String
-  format    String?
-  width     Int?
-  height    Int?
-  size      Int?
-  type      VariantType
-  mediaId   String
-  media     Media @relation(fields: [mediaId], references: [id], onDelete: Cascade)
-}
-
-model MediaTag {
-  id        String @id @default(cuid())
-  name      String
-  confidence Float? // AI doğruluk oranı
-  type      TagType // COLOR, OBJECT, SCENE, THEME
-  mediaId   String
-  media     Media @relation(fields: [mediaId], references: [id], onDelete: Cascade)
-}
-
-model MediaRelation {
-  id         String @id @default(cuid())
-  mediaId    String
-  entityType RelationType // PRODUCT, CATEGORY, BRAND, CAMPAIGN, BLOG
-  entityId   String
-  media      Media @relation(fields: [mediaId], references: [id], onDelete: Cascade)
-}
-
-enum MediaType {
-  IMAGE
-  VIDEO
-  DOCUMENT
-  BANNER
-  ICON
-  LOGO
-}
-
-enum VariantType {
-  ORIGINAL
-  WEBP
-  MOBILE
-  THUMBNAIL
-  OG_IMAGE
-  AVIF
-}
-
-enum TagType {
-  COLOR
-  OBJECT
-  THEME
-  SCENE
-}
-
-enum RelationType {
-  PRODUCT
-  CATEGORY
-  BRAND
-  CAMPAIGN
-  BLOG
-}
 model Product {
   id           String         @id @default(cuid())
   slug         String         @unique
@@ -334,6 +128,7 @@ model Product {
   description  String?        @db.Text
   views        Int            @default(0)
   barcode      String?        @unique
+
   cartItems    CartItem[]
   favorites    Favorite[]
   group        ProductGroup?  @relation(fields: [groupId], references: [id])
@@ -370,114 +165,270 @@ model ProductMedia {
   @@map("ProductMedia")
 }
 
+model Brand {
+  id          String    @id @default(cuid())
+  name        String
+  slug        String    @unique
+  description String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  medias      Media[]   @relation("BrandToMedia")
+  products    Product[] @relation("ProductToBrand")
 
+  @@map("Brand")
+}
+
+model Category {
+  id          String     @id @default(cuid())
+  slug        String     @unique
+  name        String
+  description String
+  parentId    String?
+  order       Int         @default(0)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  parent      Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  children    Category[] @relation("CategoryHierarchy")
+  medias      Media[]    @relation("CategoryToMedia")
+  products    Product[]  @relation("ProductToCategory")
+
+  @@map("Category")
+}
+
+/* =======================
+   🧾 FAV, YORUM, ATTRIBUTES
+======================= */
+
+model Favorite {
+  id        String   @id @default(cuid())
+  userId    String
+  productId String
+  createdAt DateTime @default(now())
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId])
+  @@map("Favorite")
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  content   String
+  rating    Int
+  userId    String
+  productId String
+  createdAt DateTime @default(now())
+  product   Product  @relation(fields: [productId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@map("comments")
+}
+
+model AttributeGroup {
+  id         String      @id @default(cuid())
+  name       String
+  attributes Attribute[] @relation("GroupAttributes")
+
+  @@map("AttributeGroup")
+}
+
+model Attribute {
+  id       String         @id @default(cuid())
+  name     String
+  groupId  String
+  group    AttributeGroup @relation("GroupAttributes", fields: [groupId], references: [id])
+  medias   Media[]        @relation("AttributeToMedia")
+  products Product[]      @relation("ProductAttribute")
+
+  @@map("Attribute")
+}
+
+/* =======================
+   🛒 CART, ORDER, INVOICE
+======================= */
+
+model Cart {
+  id        String     @id @default(cuid())
+  userId    String?
+  sessionId String?
+  expiresAt DateTime?
+  status    CartStatus @default(ACTIVE)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  user      User?      @relation(fields: [userId], references: [id])
+  items     CartItem[]
+
+  @@index([userId])
+  @@index([sessionId])
+  @@index([status, expiresAt])
+  @@map("Cart")
+}
+
+model CartItem {
+  id        String   @id @default(cuid())
+  cartId    String
+  productId String
+  quantity  Int      @default(1)
+  price     Float
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  cart      Cart     @relation(fields: [cartId], references: [id])
+  product   Product  @relation(fields: [productId], references: [id])
+
+  @@unique([cartId, productId])
+  @@map("CartItem")
+}
+
+model Address {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  fullName    String
+  phone       String
+  addressLine String
+  city        String
+  district    String
+  postalCode  String
+  isDefault   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  orders      Order[]
+
+  @@map("Address")
+}
 
 model Order {
   id              String      @id @default(cuid())
   userId          String
   user            User        @relation(fields: [userId], references: [id])
-
   subtotal        Float
   shippingCost    Float
   total           Float
-
   status          OrderStatus @default(PENDING)
-
-  // Adres bilgisi snapshot ve isteğe bağlı referans
-  addressId       String?     
+  addressId       String?
   address         Address?    @relation(fields: [addressId], references: [id])
-
-  shippingName       String      // snapshot: fullName
-  shippingPhone      String      // snapshot: phone
-  shippingAddress    String      // snapshot: addressLine
-  shippingCity       String      // snapshot: city
-  shippingDistrict   String      // snapshot: district
-  shippingPostalCode String      // snapshot: postalCode
-
+  shippingName       String
+  shippingPhone      String
+  shippingAddress    String
+  shippingCity       String
+  shippingDistrict   String
+  shippingPostalCode String
   deliveryMethod  String
   deliveryDate    DateTime?
-
   paymentMethod   String
-
   orderItems      OrderItem[]
-
   invoiceId       String?      @unique
   invoice         Invoice?     @relation("OrderInvoice", fields: [invoiceId], references: [id])
-
-
-  createdAt       DateTime    @default(now())
-  updatedAt DateTime @default(now())
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
 
   @@index([userId])
   @@index([status])
   @@map("Order")
 }
 
-
-
-
-enum OrderStatus {
-  PENDING      // sipariş oluşturuldu, ödeme bekleniyor
-  PAID         // ödeme alındı
-  SHIPPED      // kargoya verildi
-  COMPLETED    // teslim edildi
-  CANCELED     // iptal edildi
-  RETURNED     // iade edildi (ürün geri geldi, iade süreci tamamlandı)
-  REFUNDED     // ücret iade edildi (ödeme iadesi tamamlandı)
-}
-
 model OrderItem {
   id           String   @id @default(cuid())
   orderId      String
-  order        Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
   productId    String
-  product      Product  @relation(fields: [productId], references: [id])
   quantity     Int
   price        Float
   productName  String
   productImage String?
-  
   createdAt    DateTime @default(now())
+  order        Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product      Product  @relation(fields: [productId], references: [id])
 
   @@map("OrderItem")
 }
 
-
-
-enum InvoiceType {
-  INDIVIDUAL
-  CORPORATE
-}
 model Invoice {
   id             String       @id @default(cuid())
   userId         String
   user           User         @relation(fields: [userId], references: [id])
-
-  // 🧾 Order ilişkisi (tek taraflı, sadece erişim)
   order          Order?       @relation("OrderInvoice")
-
   type           InvoiceType  @default(INDIVIDUAL)
-
-  // 👤 Bireysel fatura alanları
   fullName       String?
   tcNumber       String?
-
-  // 🏢 Kurumsal fatura alanları
   companyName    String?
   taxOffice      String?
   taxNumber      String?
-
-  // 📍 Ortak adres alanları
   addressLine    String
   city           String
   district       String
   postalCode     String?
   email          String?
   phone          String?
-
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
 }
+
+/* =======================
+   🖼️ MEDIA & VARIANT
+======================= */
+
+model Media {
+  id          String         @id @default(cuid())
+  type        MediaType
+  title       String?
+  description String?
+  altText     String?
+  metadata    Json?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  productMedia ProductMedia[]
+  attributes   Attribute[]    @relation("AttributeToMedia")
+  brands       Brand[]        @relation("BrandToMedia")
+  categories   Category[]     @relation("CategoryToMedia")
+
+  variants     MediaVariant[] @relation("MediaToVariant")
+  tags         MediaTag[]     @relation("MediaToTag")
+  relations    MediaRelation[] @relation("MediaToRelation")
+
+  @@map("Media")
+}
+
+model MediaVariant {
+  id        String   @id @default(cuid())
+  key       String
+  cdnUrl    String
+  format    String?
+  width     Int?
+  height    Int?
+  size      Int?
+  type      VariantType
+  mediaId   String
+  media     Media @relation("MediaToVariant", fields: [mediaId], references: [id], onDelete: Cascade)
+
+  @@map("MediaVariant")
+}
+
+model MediaTag {
+  id         String   @id @default(cuid())
+  name       String
+  confidence Float?
+  type       TagType
+  mediaId    String
+  media      Media @relation("MediaToTag", fields: [mediaId], references: [id], onDelete: Cascade)
+
+  @@map("MediaTag")
+}
+
+model MediaRelation {
+  id         String   @id @default(cuid())
+  mediaId    String
+  entityType RelationType
+  entityId   String
+  media      Media @relation("MediaToRelation", fields: [mediaId], references: [id], onDelete: Cascade)
+
+  @@map("MediaRelation")
+}
+
+/* =======================
+   🔢 ENUM TANIMLARI
+======================= */
+
 enum Role {
   USER
   ADMIN
@@ -489,10 +440,58 @@ enum VerificationType {
   TWO_FACTOR
 }
 
+enum MediaType {
+  IMAGE
+  VIDEO
+  DOCUMENT
+  BANNER
+  ICON
+  LOGO
+}
+
+enum VariantType {
+  ORIGINAL
+  WEBP
+  MOBILE
+  THUMBNAIL
+  OG_IMAGE
+  AVIF
+}
+
+enum TagType {
+  COLOR
+  OBJECT
+  THEME
+  SCENE
+}
+
+enum RelationType {
+  PRODUCT
+  CATEGORY
+  BRAND
+  CAMPAIGN
+  BLOG
+}
+
 enum CartStatus {
   ACTIVE
   ABANDONED
   SAVED
   CHECKEDOUT
   COMPLETED
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  SHIPPED
+  COMPLETED
+  CANCELED
+  RETURNED
+  REFUNDED
+}
+
+enum InvoiceType {
+  INDIVIDUAL
+  CORPORATE
 }
