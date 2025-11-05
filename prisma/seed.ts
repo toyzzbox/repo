@@ -1,28 +1,26 @@
-import { prisma } from "@/lib/prisma";
-import { MediaType, VariantType } from "@prisma/client";
+import { PrismaClient, MediaType, VariantType } from "@prisma/client";
+
+const prisma = new PrismaClient();
 
 async function main() {
   console.log("🌱 Seeding started...");
 
   // --- Marka logosu (Media + Variant) ---
-  const legoLogo = await prisma.media.upsert({
-    where: { title: "LEGO Logo" },
-    update: {},
-    create: {
-      type: MediaType.LOGO, // ✅ Enum güvenli kullanım
+  const legoLogo = await prisma.media.create({
+    data: {
+      type: MediaType.LOGO,
       title: "LEGO Logo",
       altText: "LEGO markasının logosu",
       variants: {
         create: [
           {
             key: "main",
-            cdnUrl:
-              "https://toyzzbox.s3.eu-north-1.amazonaws.com/seed/lego-logo.png",
+            cdnUrl: "https://toyzzbox.s3.eu-north-1.amazonaws.com/seed/lego-logo.png",
             format: "png",
             width: 512,
             height: 512,
             size: 100_000,
-            type: VariantType.ORIGINAL, // ✅ Enum güvenli kullanım
+            type: VariantType.ORIGINAL,
           },
         ],
       },
@@ -36,9 +34,7 @@ async function main() {
     create: {
       name: "LEGO",
       slug: "lego",
-      medias: {
-        connect: [{ id: legoLogo.id }],
-      },
+      medias: { connect: [{ id: legoLogo.id }] },
     },
   });
 
@@ -64,19 +60,16 @@ async function main() {
   });
 
   // --- Ürün görseli (Media + Variant) ---
-  const productMedia = await prisma.media.upsert({
-    where: { title: "LEGO City Spor Araba" },
-    update: {},
-    create: {
-      type: MediaType.IMAGE,
+  const productMedia = await prisma.media.create({
+    data: {
+      type: MediaType.IMAGE, // ✅ Düzeltildi: artık enum
       title: "LEGO City Spor Araba",
       altText: "LEGO City serisinden kırmızı spor araba",
       variants: {
         create: [
           {
             key: "original",
-            cdnUrl:
-              "https://toyzzbox.s3.eu-north-1.amazonaws.com/seed/lego-city-car.jpg",
+            cdnUrl: "https://toyzzbox.s3.eu-north-1.amazonaws.com/seed/lego-city-car.jpg",
             format: "jpg",
             width: 800,
             height: 600,
@@ -85,8 +78,7 @@ async function main() {
           },
           {
             key: "thumbnail",
-            cdnUrl:
-              "https://toyzzbox.s3.eu-north-1.amazonaws.com/seed/lego-city-car-thumb.jpg",
+            cdnUrl: "https://toyzzbox.s3.eu-north-1.amazonaws.com/seed/lego-city-car-thumb.jpg",
             format: "jpg",
             width: 300,
             height: 200,
@@ -98,10 +90,10 @@ async function main() {
     },
   });
 
-  // --- Ürün oluşturma (upsert ile güvenli hale getirildi) ---
+  // --- Ürün oluşturma (slug unique olduğu için create yeterli) ---
   await prisma.product.upsert({
     where: { slug: "lego-city-spor-araba" },
-    update: {}, // varsa güncelleme yapılmaz
+    update: {},
     create: {
       name: "LEGO City Spor Araba",
       slug: "lego-city-spor-araba",
@@ -111,12 +103,8 @@ async function main() {
       barcode: "1234567890123",
       isActive: true,
       groupId: legoCityGroup.id,
-      brands: {
-        connect: [{ id: lego.id }],
-      },
-      categories: {
-        connect: [{ id: toys.id }],
-      },
+      brands: { connect: [{ id: lego.id }] },
+      categories: { connect: [{ id: toys.id }] },
       medias: {
         create: [{ mediaId: productMedia.id, order: 0 }],
       },
@@ -126,7 +114,6 @@ async function main() {
   console.log("✅ Seed işlemi başarıyla tamamlandı!");
 }
 
-// --- Ana işlem ---
 main()
   .catch((e) => {
     console.error("❌ Seed hatası:", e);
