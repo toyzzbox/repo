@@ -5,8 +5,10 @@ async function main() {
   console.log("🌱 Seeding started...");
 
   // --- Marka logosu (Media + Variant) ---
-  const legoLogo = await prisma.media.create({
-    data: {
+  const legoLogo = await prisma.media.upsert({
+    where: { title: "LEGO Logo" },
+    update: {},
+    create: {
       type: MediaType.LOGO, // ✅ Enum güvenli kullanım
       title: "LEGO Logo",
       altText: "LEGO markasının logosu",
@@ -62,8 +64,10 @@ async function main() {
   });
 
   // --- Ürün görseli (Media + Variant) ---
-  const productMedia = await prisma.media.create({
-    data: {
+  const productMedia = await prisma.media.upsert({
+    where: { title: "LEGO City Spor Araba" },
+    update: {},
+    create: {
       type: MediaType.IMAGE,
       title: "LEGO City Spor Araba",
       altText: "LEGO City serisinden kırmızı spor araba",
@@ -94,9 +98,11 @@ async function main() {
     },
   });
 
-  // --- Ürün oluşturma ---
-  await prisma.product.create({
-    data: {
+  // --- Ürün oluşturma (upsert ile güvenli hale getirildi) ---
+  await prisma.product.upsert({
+    where: { slug: "lego-city-spor-araba" },
+    update: {}, // varsa güncelleme yapılmaz
+    create: {
       name: "LEGO City Spor Araba",
       slug: "lego-city-spor-araba",
       price: 499.9,
