@@ -1,16 +1,16 @@
 "use server";
+
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { prisma } from "@/lib/prisma";
 import { MediaType } from "@prisma/client";
 import slugify from "slugify";
 import sharp from "sharp";
 
-
 const s3 = new S3Client({
-  region: process.env.NEXT_AWS_S3_REGION,  // ✅ Düzeltildi
+  region: process.env.NEXT_AWS_S3_REGION!,
   credentials: {
-    accessKeyId: process.env.NEXT_AWS_S3_ACCESS_KEY_ID!,        // ✅ Düzeltildi
-    secretAccessKey: process.env.NEXT_AWS_S3_SECRET_ACCESS_KEY!, // ✅ Düzeltildi
+    accessKeyId: process.env.NEXT_AWS_S3_ACCESS_KEY_ID!,
+    secretAccessKey: process.env.NEXT_AWS_S3_SECRET_ACCESS_KEY!,
   },
 });
 
@@ -54,7 +54,9 @@ export async function uploadMedia(formData: FormData): Promise<UploadResult> {
 
         const buffer = await file.arrayBuffer();
 
+        // ✅ Optimize edilmiş resize + webp dönüşümü
         const webpBuffer = await sharp(Buffer.from(buffer))
+          .resize({ width: 1600, withoutEnlargement: true })
           .webp({ quality: 80 })
           .toBuffer();
 
@@ -77,7 +79,9 @@ export async function uploadMedia(formData: FormData): Promise<UploadResult> {
         const media = await prisma.media.create({
           data: {
             urls: [publicUrl],
-            type: MediaType.image,
+            type: MediaType.IMAGE, // ✅ Enum fix
+            title: safeName.replace(/-/g, " "),
+            altText: `${safeName} görseli`,
           },
         });
 
@@ -100,7 +104,7 @@ export async function uploadMedia(formData: FormData): Promise<UploadResult> {
       };
     }
 
-    // En az 1 dosya başarılı olduysa success: true döndür
+    // ✅ En az 1 başarılı dosya varsa success döndür
     return {
       success: true,
       media: created,
