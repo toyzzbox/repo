@@ -2,7 +2,7 @@
 
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { prisma } from "@/lib/prisma";
-import { MediaType } from "@prisma/client";
+import { MediaType, VariantType } from "@prisma/client";
 import slugify from "slugify";
 import sharp from "sharp";
 
@@ -30,10 +30,8 @@ type UploadResult =
 export async function uploadMedia(formData: FormData): Promise<UploadResult> {
   try {
     const files = formData.getAll("files") as File[];
-
-    if (!files || files.length === 0) {
+    if (!files || files.length === 0)
       return { success: false, error: "Yüklenecek dosya bulunamadı" };
-    }
 
     const created: Media[] = [];
     const errors: string[] = [];
@@ -41,7 +39,6 @@ export async function uploadMedia(formData: FormData): Promise<UploadResult> {
     for (const file of files) {
       try {
         const ext = file.name.split(".").pop()?.toLowerCase();
-
         if (!["png", "jpg", "jpeg", "webp"].includes(ext || "")) {
           errors.push(`${file.name}: Geçersiz dosya formatı`);
           continue;
@@ -51,19 +48,12 @@ export async function uploadMedia(formData: FormData): Promise<UploadResult> {
         const safeName = slugify(baseName, { lower: true, strict: true });
         const finalFileName = `${safeName}-${Date.now()}.webp`;
         const key = `uploads/${finalFileName}`;
-
         const buffer = await file.arrayBuffer();
 
-        // ✅ Optimize edilmiş resize + webp dönüşümü
         const webpBuffer = await sharp(Buffer.from(buffer))
           .resize({ width: 1600, withoutEnlargement: true })
           .webp({ quality: 80 })
           .toBuffer();
-
-        if (!webpBuffer || webpBuffer.length === 0) {
-          errors.push(`${file.name}: Dönüştürme başarısız`);
-          continue;
-        }
 
         const command = new PutObjectCommand({
           Bucket: BUCKET,
@@ -71,54 +61,54 @@ export async function uploadMedia(formData: FormData): Promise<UploadResult> {
           Body: webpBuffer,
           ContentType: "image/webp",
         });
-
         await s3.send(command);
 
         const publicUrl = `https://${BUCKET}.s3.${REGION}.amazonaws.com/${key}`;
 
         const media = await prisma.media.create({
           data: {
-            urls: [publicUrl],
-            type: MediaType.IMAGE, // ✅ Enum fix
+            type: MediaType.IMAGE,
             title: safeName.replace(/-/g, " "),
             altText: `${safeName} görseli`,
+            variants: {
+              create: {
+                key: "main",
+                cdnUrl: publicUrl,
+                format: "webp",
+                type: VariantType.ORIGINAL,
+              },
+            },
+          },
+          include: {
+            variants: true,
           },
         });
 
-        created.push(media);
+        created.push({
+          id: media.id,
+          urls: media.variants.map((v) => v.cdnUrl),
+          type: media.type,
+        });
       } catch (fileError) {
-        const errorMsg =
+        const msg =
           fileError instanceof Error ? fileError.message : "Bilinmeyen hata";
-        errors.push(`${file.name}: ${errorMsg}`);
-        console.error(`File upload error for ${file.name}:`, fileError);
+        errors.push(`${file.name}: ${msg}`);
       }
     }
 
-    if (created.length === 0) {
-      return {
-        success: false,
-        error:
-          errors.length > 0
-            ? `Hiçbir dosya yüklenemedi. Hatalar: ${errors.join(", ")}`
-            : "Dosya yükleme başarısız oldu",
-      };
-    }
+    if (created.length === 0)
+      return { success: false, error: `Yükleme başarısız: ${errors.join(", ")}` };
 
-    // ✅ En az 1 başarılı dosya varsa success döndür
     return {
       success: true,
       media: created,
       errors: errors.length > 0 ? errors : undefined,
     };
   } catch (error) {
-    const errorMessage =
-      error instanceof Error ? error.message : "Bilinmeyen bir hata oluştu";
-
-    console.error("uploadMedia error:", error);
-
     return {
       success: false,
-      error: `Yükleme başarısız: ${errorMessage}`,
+      error:
+        error instanceof Error ? error.message : "Bilinmeyen bir hata oluştu",
     };
   }
 }
