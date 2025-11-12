@@ -20,7 +20,9 @@ import clsx from "clsx";
 import { deleteMedias } from "@/actions/deleteMedias";
 import { uploadMedia } from "@/actions/uploadMedia";
 
-// ✅ SEO uyumlu isim oluşturucu
+/* -----------------------------
+   ✅ SEO uyumlu slugify fonksiyonu
+----------------------------- */
 function slugify(text: string) {
   return text
     .toLowerCase()
@@ -65,16 +67,20 @@ export default function MediaModal({
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  /* -----------------------------
+     ✅ Modal açık/kapalı değişince seçimleri yenile
+  ----------------------------- */
   useEffect(() => {
     setSelectedIds(selectedMediaIds);
   }, [selectedMediaIds]);
 
   useEffect(() => {
-    if (open) {
-      setSelectedIds(selectedMediaIds);
-    }
+    if (open) setSelectedIds(selectedMediaIds);
   }, [open, selectedMediaIds]);
 
+  /* -----------------------------
+     ✅ Optimistik medya state
+  ----------------------------- */
   const [optimisticMedias, updateOptimisticMedias] = useOptimistic(
     medias,
     (
@@ -94,13 +100,19 @@ export default function MediaModal({
     }
   );
 
+  /* -----------------------------
+     ✅ Arama filtresi
+  ----------------------------- */
   const filtered = optimisticMedias.filter(
     (m) =>
-      m.urls &&
+      Array.isArray(m.urls) &&
       m.urls[0] &&
       m.urls[0].toLowerCase().includes(search.toLowerCase())
   );
 
+  /* -----------------------------
+     ✅ Medya seçme / kaldırma
+  ----------------------------- */
   const toggleSelect = (id: string) => {
     const newSelectedIds = selectedIds.includes(id)
       ? selectedIds.filter((i) => i !== id)
@@ -108,13 +120,19 @@ export default function MediaModal({
     setSelectedIds(newSelectedIds);
 
     if (onSelectedMediasChange) {
-      const selectedMedias = optimisticMedias.filter((media) =>
-        newSelectedIds.includes(media.id)
-      );
+      const selectedMedias = optimisticMedias
+        .filter((media) => newSelectedIds.includes(media.id))
+        .map((m) => ({
+          id: m.id,
+          urls: Array.isArray(m.urls) ? m.urls : [],
+        }));
       onSelectedMediasChange(selectedMedias);
     }
   };
 
+  /* -----------------------------
+     ✅ Medya silme
+  ----------------------------- */
   const handleDelete = async () => {
     if (selectedIds.length === 0) return;
 
@@ -128,9 +146,12 @@ export default function MediaModal({
         setSelectedIds(remainingSelectedIds);
 
         if (onSelectedMediasChange) {
-          const remainingSelectedMedias = optimisticMedias.filter((media) =>
-            remainingSelectedIds.includes(media.id)
-          );
+          const remainingSelectedMedias = optimisticMedias
+            .filter((media) => remainingSelectedIds.includes(media.id))
+            .map((m) => ({
+              id: m.id,
+              urls: Array.isArray(m.urls) ? m.urls : [],
+            }));
           onSelectedMediasChange(remainingSelectedMedias);
         }
       } catch (error) {
@@ -139,16 +160,25 @@ export default function MediaModal({
     });
   };
 
+  /* -----------------------------
+     ✅ Seçimi onayla
+  ----------------------------- */
   const handleConfirmSelection = () => {
     if (onSelectedMediasChange) {
-      const selectedMedias = optimisticMedias.filter((media) =>
-        selectedIds.includes(media.id)
-      );
+      const selectedMedias = optimisticMedias
+        .filter((media) => selectedIds.includes(media.id))
+        .map((m) => ({
+          id: m.id,
+          urls: Array.isArray(m.urls) ? m.urls : [],
+        }));
       onSelectedMediasChange(selectedMedias);
     }
     onClose();
   };
 
+  /* -----------------------------
+     ✅ Dosya yükleme işlemleri
+  ----------------------------- */
   const handleFileButtonClick = () => {
     fileInputRef.current?.click();
   };
@@ -167,7 +197,6 @@ export default function MediaModal({
       try {
         const formData = new FormData();
 
-        // ✅ Her dosya için temp media oluştur
         Array.from(files).forEach((file, index) => {
           const ext = file.name.split(".").pop();
           const base = file.name.replace(/\.[^/.]+$/, "");
@@ -179,93 +208,61 @@ export default function MediaModal({
 
           formData.append("files", renamedFile);
 
-          // Her dosya için ayrı temp ID
           const tempMedia: Media = {
             id: `temp-${Date.now()}-${index}`,
             urls: [URL.createObjectURL(file)],
           };
 
           tempMedias.push(tempMedia);
-
-          // ✅ Her temp media'yı ayrı ayrı ekle
           updateOptimisticMedias({ type: "add", payload: tempMedia });
         });
 
         const result = await uploadMedia(formData);
 
         if (result.success && result.media) {
-          // ✅ Başarılı olan her medya için temp'i değiştir
           result.media.forEach((realMedia, index) => {
             if (tempMedias[index]) {
               updateOptimisticMedias({
                 type: "replace",
                 payload: {
                   tempId: tempMedias[index].id,
-                  realMedia: realMedia,
+                  realMedia: {
+                    id: realMedia.id,
+                    urls: Array.isArray(realMedia.urls)
+                      ? realMedia.urls
+                      : [],
+                  },
                 },
               });
             }
           });
 
-          // ✅ Başarısız olan temp medyaları sil
-          if (result.media.length < tempMedias.length) {
-            const failedTempIds = tempMedias
-              .slice(result.media.length)
-              .map((t) => t.id);
-
-            failedTempIds.forEach((id) => {
-              updateOptimisticMedias({
-                type: "delete",
-                payload: [id],
-              });
-            });
+          if (onNewMediaUploaded && result.media?.length) {
+            const normalized = result.media.map((m: any) => ({
+              id: m.id,
+              urls: Array.isArray(m.urls) ? m.urls : [],
+            }));
+            onNewMediaUploaded(normalized);
           }
 
-          // ✅ Parent'a tüm yeni medyaları bildir
-          if (onNewMediaUploaded) {
-            onNewMediaUploaded(result.media);
-          }
-
-          // ✅ Kullanıcıya bilgi ver
-          if (result.errors && result.errors.length > 0) {
-            alert(
-              `✅ ${result.media.length} dosya yüklendi\n❌ ${result.errors.length} dosya başarısız:\n${result.errors.join("\n")}`
-            );
-          } else {
-            alert(`✅ ${result.media.length} dosya başarıyla yüklendi`);
-          }
+          alert(`✅ ${result.media.length} dosya başarıyla yüklendi`);
         } else {
-          // ✅ Tamamen başarısız - tüm temp medyaları sil
           console.error("Upload failed:", result.error);
           alert(`❌ ${result.error}`);
-
-          tempMedias.forEach((tempMedia) => {
-            updateOptimisticMedias({
-              type: "delete",
-              payload: [tempMedia.id],
-            });
-          });
         }
       } catch (error) {
         console.error("Upload error:", error);
         alert("❌ Yükleme sırasında bir hata oluştu");
-
-        // ✅ Hata durumunda tüm temp medyaları temizle
-        tempMedias.forEach((tempMedia) => {
-          updateOptimisticMedias({
-            type: "delete",
-            payload: [tempMedia.id],
-          });
-        });
       } finally {
         setIsUploading(false);
-        if (fileInputRef.current) {
-          fileInputRef.current.value = "";
-        }
+        if (fileInputRef.current) fileInputRef.current.value = "";
       }
     });
   };
 
+  /* -----------------------------
+     ✅ UI
+  ----------------------------- */
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="w-[1400px] max-h-[90vh] overflow-y-auto p-0">
@@ -274,7 +271,7 @@ export default function MediaModal({
             <DialogTitle>Medya Yöneticisi</DialogTitle>
           </DialogHeader>
 
-          {/* Kontrol Bar */}
+          {/* Üst kontrol barı */}
           <div className="sticky top-0 bg-white z-10 px-6 pb-4 pt-2 border-b">
             <div className="flex justify-between items-center gap-2">
               <div className="flex gap-2">
@@ -322,7 +319,7 @@ export default function MediaModal({
             </div>
           </div>
 
-          {/* Medya Listesi */}
+          {/* Medya grid */}
           <div className="grid grid-cols-3 gap-4 p-6">
             {filtered.map((media) => (
               <div
@@ -333,7 +330,7 @@ export default function MediaModal({
                 )}
                 onClick={() => toggleSelect(media.id)}
               >
-                {media.urls[0] && (
+                {Array.isArray(media.urls) && media.urls[0] && (
                   <Image
                     src={media.urls[0]}
                     alt="media"

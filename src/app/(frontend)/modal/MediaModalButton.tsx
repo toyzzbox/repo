@@ -11,15 +11,15 @@ import {
   useSensor,
   useSensors,
   DragEndEvent,
-} from '@dnd-kit/core';
+} from "@dnd-kit/core";
 import {
   arrayMove,
   SortableContext,
   sortableKeyboardCoordinates,
   horizontalListSortingStrategy,
-} from '@dnd-kit/sortable';
-import { useSortable } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
+} from "@dnd-kit/sortable";
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import { useState } from "react";
 
 interface Media {
@@ -31,7 +31,7 @@ interface MediaModalButtonProps {
   medias: Media[];
   selectedMedias: Media[];
   onSelectedMediasChange: (selectedMedias: Media[]) => void;
-  onMediasChange?: (updated: Media[]) => void; // ✅ ? ile opsiyonel yapıldı
+  onMediasChange?: (updated: Media[]) => void;
 }
 
 interface SortableMediaItemProps {
@@ -40,45 +40,42 @@ interface SortableMediaItemProps {
   onRemove: (id: string) => void;
 }
 
+/* -----------------------------
+   ✅ Sürüklenebilir medya kutusu
+----------------------------- */
 function SortableMediaItem({ media, index, onRemove }: SortableMediaItemProps) {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: media.id });
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
+    useSortable({ id: media.id });
 
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.5 : 1,
-    width: '120px',
-    height: '90px',
+    width: "120px",
+    height: "90px",
   };
+
+  const imageUrl = Array.isArray(media.urls) && media.urls.length > 0
+    ? media.urls[0].replace(/[{}]/g, "")
+    : "/no-image.png"; // ✅ fallback
 
   return (
     <div
       ref={setNodeRef}
       style={style}
       className={`relative border rounded overflow-hidden transition-all hover:scale-105 ${
-        isDragging ? 'z-50 rotate-3 shadow-2xl' : 'shadow-md'
+        isDragging ? "z-50 rotate-3 shadow-2xl" : "shadow-md"
       }`}
     >
-      <div
-        {...attributes}
-        {...listeners}
-        className="cursor-move w-full h-full"
-      >
-    <Image
-  src={media.urls[0]?.replace(/[{}]/g, "")}
-  alt="Selected media"
-  width={120}
-  height={90}
-  className="object-cover w-full h-full pointer-events-none"
-  unoptimized
-/>
+      <div {...attributes} {...listeners} className="cursor-move w-full h-full">
+        <Image
+          src={imageUrl}
+          alt="Selected media"
+          width={120}
+          height={90}
+          className="object-cover w-full h-full pointer-events-none"
+          unoptimized
+        />
       </div>
 
       <div className="absolute top-1 left-1 bg-blue-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold shadow-md">
@@ -92,23 +89,17 @@ function SortableMediaItem({ media, index, onRemove }: SortableMediaItemProps) {
           onRemove(media.id);
         }}
         className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600 transition-colors shadow-md z-20 cursor-pointer"
-        style={{ pointerEvents: 'auto', touchAction: 'none' }}
+        style={{ pointerEvents: "auto", touchAction: "none" }}
       >
         ×
       </button>
-
-      <div className="absolute bottom-1 right-1 text-white bg-black bg-opacity-50 rounded p-1">
-        <svg width="12" height="12" viewBox="0 0 12 12">
-          <circle cx="3" cy="3" r="1" fill="currentColor" />
-          <circle cx="9" cy="3" r="1" fill="currentColor" />
-          <circle cx="3" cy="9" r="1" fill="currentColor" />
-          <circle cx="9" cy="9" r="1" fill="currentColor" />
-        </svg>
-      </div>
     </div>
   );
 }
 
+/* -----------------------------
+   ✅ Ana Bileşen
+----------------------------- */
 export default function MediaModalButton({
   medias,
   selectedMedias,
@@ -117,6 +108,7 @@ export default function MediaModalButton({
 }: MediaModalButtonProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  // DnD Sensörleri
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
@@ -124,33 +116,59 @@ export default function MediaModalButton({
     })
   );
 
+  /* -----------------------------
+     ✅ Modal Aç / Kapat
+  ----------------------------- */
   const handleOpenModal = () => setIsModalOpen(true);
   const handleCloseModal = () => setIsModalOpen(false);
 
+  /* -----------------------------
+     ✅ Medya Silme
+  ----------------------------- */
   const removeMedia = (mediaId: string) => {
     const updated = selectedMedias.filter((m) => m.id !== mediaId);
     onSelectedMediasChange(updated);
   };
 
+  /* -----------------------------
+     ✅ Sürükle-bırak sıralama
+  ----------------------------- */
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
-    if (active.id !== over?.id) {
-      const oldIndex = selectedMedias.findIndex((item) => item.id === active.id);
-      const newIndex = selectedMedias.findIndex((item) => item.id === over?.id);
-      const reordered = arrayMove(selectedMedias, oldIndex, newIndex);
-      onSelectedMediasChange(reordered);
-    }
+    if (!over || active.id === over.id) return;
+
+    const oldIndex = selectedMedias.findIndex((item) => item.id === active.id);
+    const newIndex = selectedMedias.findIndex((item) => item.id === over.id);
+    const reordered = arrayMove(selectedMedias, oldIndex, newIndex);
+    onSelectedMediasChange(reordered);
   };
 
-  const handleSelectedMediasChange = (medias: Media[]) => {
-    onSelectedMediasChange(medias);
+  /* -----------------------------
+     ✅ Modal’dan Seçilen Medyaları Alma
+  ----------------------------- */
+  const handleSelectedMediasChange = (incoming: Media[]) => {
+    const normalized = incoming.map((m) => ({
+      id: m.id,
+      urls: Array.isArray(m.urls) ? m.urls : [],
+    }));
+    onSelectedMediasChange(normalized);
   };
 
+  /* -----------------------------
+     ✅ Yeni Upload Edilen Medyaları Listeye Ekleme
+  ----------------------------- */
   const handleNewMediaUploaded = (newItems: Media[]) => {
-    const updated = [...newItems, ...medias];
-    onMediasChange?.(updated); 
+    const normalized = newItems.map((m) => ({
+      id: m.id,
+      urls: Array.isArray(m.urls) ? m.urls : [],
+    }));
+    const updated = [...normalized, ...medias];
+    onMediasChange?.(updated);
   };
 
+  /* -----------------------------
+     ✅ UI
+  ----------------------------- */
   return (
     <div className="space-y-4">
       <Button onClick={handleOpenModal}>Medya Seç</Button>
@@ -159,6 +177,7 @@ export default function MediaModalButton({
         <h3 className="text-lg font-semibold">
           Seçili Medyalar ({selectedMedias.length})
         </h3>
+
         <div className="p-4 border-2 border-dashed border-gray-300 rounded-lg min-h-[120px] bg-gray-50">
           {selectedMedias.length === 0 ? (
             <div className="flex items-center justify-center w-full h-full text-gray-500 text-sm">
@@ -190,20 +209,25 @@ export default function MediaModalButton({
         </div>
       </div>
 
+      {/* ✅ Modal */}
       <MediaModal
         open={isModalOpen}
         onClose={handleCloseModal}
         medias={medias}
         onSelectedMediasChange={handleSelectedMediasChange}
         selectedMediaIds={selectedMedias.map((m) => m.id)}
-        onNewMediaUploaded={handleNewMediaUploaded} // ✅ Yeni medya geldiğinde ekle
+        onNewMediaUploaded={handleNewMediaUploaded}
       />
 
-      {/* ✅ Form'a sıralı şekilde medya bilgilerini yolla */}
+      {/* ✅ Form hidden alanları */}
       {selectedMedias.map((media, index) => (
         <div key={media.id}>
           <input type="hidden" name={`mediaIds[${index}].id`} value={media.id} />
-          <input type="hidden" name={`mediaIds[${index}].order`} value={index} />
+          <input
+            type="hidden"
+            name={`mediaIds[${index}].order`}
+            value={index}
+          />
         </div>
       ))}
     </div>
