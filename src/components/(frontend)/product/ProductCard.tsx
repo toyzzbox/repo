@@ -18,9 +18,15 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     }
   };
 
-  // ✅ Yeni Media yapısına uygun erişim:
-  const imageUrl =
-    product.medias?.[0]?.media?.variants?.[0]?.cdnUrl ?? "/placeholder.png";
+  /* 🧩 Akıllı görsel seçimi:
+     1️⃣ "main" varyant varsa onu al.
+     2️⃣ Yoksa ilk varyantı al.
+     3️⃣ Hiçbiri yoksa placeholder kullan. */
+  const mainVariant =
+    product.medias?.[0]?.media?.variants?.find((v) => v.key === "main") ??
+    product.medias?.[0]?.media?.variants?.[0];
+
+  const imageUrl = mainVariant?.cdnUrl ?? "/placeholder.png";
 
   const displayName = product.group?.name
     ? `${product.group.name} – ${product.name}`
@@ -44,6 +50,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     >
       {/* 🖼️ Ürün görseli */}
       <div className="relative overflow-hidden rounded-t-xl bg-gray-50">
+        {/* 🎯 Opsiyonel indirim etiketi */}
         {/* {hasDiscount && (
           <div className="absolute top-3 left-3 z-10">
             <span className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-md">
@@ -58,7 +65,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
               src={imageUrl}
               width={400}
               height={400}
-              alt={displayName || "Ürün"}
+              alt={displayName || "Ürün görseli"}
               className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
               priority={false}
             />
@@ -70,7 +77,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         )}
       </div>
 
-      {/* İçerik */}
+      {/* 🧾 Ürün Bilgileri */}
       <div className="flex-1 p-4 flex flex-col justify-between">
         <div>
           <h3
@@ -110,6 +117,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         </div>
       </div>
 
+      {/* 🟧 Hover efekti */}
       <div className="h-1 bg-gradient-to-r from-orange-400 to-red-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
     </div>
   );
