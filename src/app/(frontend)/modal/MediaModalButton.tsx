@@ -221,15 +221,11 @@ export default function MediaModalButton({
 
       {/* ✅ Form hidden alanları */}
       {selectedMedias.map((media, index) => (
-        <div key={media.id}>
-          <input type="hidden" name={`mediaIds[${index}].id`} value={media.id} />
-          <input
-            type="hidden"
-            name={`mediaIds[${index}].order`}
-            value={index}
-          />
-        </div>
-      ))}
+  <div key={media.id}>
+    <input type="hidden" name="mediaIds[]" value={media.id} />
+    <input type="hidden" name="mediaOrders[]" value={index} />
+  </div>
+))}
     </div>
   );
 }
