@@ -30,6 +30,7 @@ export default function ProductForm({
   attributes
 }: ProductFormProps) {
   const [state, formAction, isPending] = useActionState(createProduct, null);
+
   const [descriptionHtml, setDescriptionHtml] = useState("");
   const [selectedMedias, setSelectedMedias] = useState<Media[]>([]);
 
@@ -41,53 +42,63 @@ export default function ProductForm({
     <form action={formAction} className="space-y-4">
       <h1 className="text-2xl font-bold">Ürün Ekle</h1>
 
+      {/* Ürün Adı */}
       <div>
         <Label htmlFor="name">Ürün Adı</Label>
         <Input type="text" id="name" name="name" required />
       </div>
 
+      {/* Seri */}
       <div>
         <Label htmlFor="serial">Seri Numarası</Label>
         <Input type="text" id="serial" name="serial" />
       </div>
 
+      {/* Barkod */}
       <div>
         <Label htmlFor="barcode">Barkod</Label>
         <Input type="text" id="barcode" name="barcode" />
       </div>
 
+      {/* Stok */}
       <div>
         <Label htmlFor="stock">Stok</Label>
         <Input type="number" id="stock" name="stock" required min={0} />
       </div>
 
+      {/* Fiyat */}
       <div>
         <Label htmlFor="price">Fiyat</Label>
         <Input type="number" step="0.01" id="price" name="price" required />
       </div>
 
+      {/* İndirim */}
       <div>
         <Label htmlFor="discount">İndirimli Fiyat</Label>
         <Input type="number" step="0.01" id="discount" name="discount" />
       </div>
 
+      {/* Ürün Grubu */}
       <div>
         <Label htmlFor="groupId">Ürün Grubu</Label>
         <select id="groupId" name="groupId" className="border px-2 py-1 rounded w-full">
           <option value="">— Grupsuz Ürün —</option>
           {productGroups.map((group) => (
-            <option key={group.id} value={group.id}>{group.name}</option>
+            <option key={group.id} value={group.id}>
+              {group.name}
+            </option>
           ))}
         </select>
       </div>
 
+      {/* Açıklama */}
       <div>
         <Label>Açıklama</Label>
         <RichTextEditor onChange={setDescriptionHtml} />
         <input type="hidden" name="description" value={descriptionHtml} />
       </div>
 
-      {/* MULTISELECTLER */}
+      {/* MultiSelect Category */}
       <MultiSelect
         items={categories}
         selected={selectedCategoryIds}
@@ -96,6 +107,7 @@ export default function ProductForm({
         label="Kategoriler"
       />
 
+      {/* MultiSelect Brand */}
       <MultiSelect
         items={brands}
         selected={selectedBrandIds}
@@ -112,13 +124,15 @@ export default function ProductForm({
         label="Özellikler"
       />
 
-      {/* Hidden Inputs */}
+      {/* Hidden selects */}
       {selectedBrandIds.map((id) => (
         <input key={id} type="hidden" name="brandIds[]" value={id} />
       ))}
+
       {selectedCategoryIds.map((id) => (
         <input key={id} type="hidden" name="categoryIds[]" value={id} />
       ))}
+
       {selectedAttributeIds.map((id) => (
         <input key={id} type="hidden" name="attributeIds[]" value={id} />
       ))}
@@ -133,7 +147,7 @@ export default function ProductForm({
           selectedMedias={selectedMedias}
         />
 
-        {/* ✔✔✔ CRITICAL PART — DOĞRU INPUTLAR */}
+        {/* ⭐⭐⭐ EN KRİTİK KISIM — DOĞRU HIDDEN INPUTLAR ⭐⭐⭐ */}
         {selectedMedias.map((media, index) => (
           <div key={media.id}>
             <input type="hidden" name="mediaIds[]" value={media.id} />
@@ -142,6 +156,7 @@ export default function ProductForm({
         ))}
       </div>
 
+      {/* Submit */}
       <button
         type="submit"
         disabled={isPending}
