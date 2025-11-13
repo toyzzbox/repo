@@ -116,6 +116,7 @@ export default function ProductForm({
         label="Markalar"
       />
 
+      {/* MultiSelect Attribute */}
       <MultiSelect
         items={attributes}
         selected={selectedAttributeIds}
@@ -147,7 +148,7 @@ export default function ProductForm({
           selectedMedias={selectedMedias}
         />
 
-        {/* ⭐⭐⭐ EN KRİTİK KISIM — DOĞRU HIDDEN INPUTLAR ⭐⭐⭐ */}
+        {/* 👇 SADECE BU HIDDEN INPUTLAR — başka yerde olmayacak */}
         {selectedMedias.map((media, index) => (
           <div key={media.id}>
             <input type="hidden" name="mediaIds[]" value={media.id} />
