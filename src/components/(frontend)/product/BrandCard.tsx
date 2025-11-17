@@ -17,8 +17,9 @@ export const BrandCard: React.FC<BrandCardProps> = ({ brand }) => {
     }
   };
 
-  // İlk medya içindeki ilk URL'i al
-  const imageUrl = brand.medias?.[0]?.urls?.[0] ?? null;
+  // 🔥 Doğru erişim yolu
+  const imageUrl =
+    brand.medias?.[0]?.media?.files?.[0]?.url ?? null;
 
   return (
     <div
@@ -38,8 +39,6 @@ export const BrandCard: React.FC<BrandCardProps> = ({ brand }) => {
           No Image Available
         </div>
       )}
-
-     
     </div>
   );
 };
