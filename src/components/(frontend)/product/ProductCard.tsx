@@ -18,15 +18,15 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     }
   };
 
-  /* 🧩 Akıllı görsel seçimi:
-     1️⃣ "main" varyant varsa onu al.
-     2️⃣ Yoksa ilk varyantı al.
-     3️⃣ Hiçbiri yoksa placeholder kullan. */
-  const mainVariant =
-    product.medias?.[0]?.media?.variants?.find((v) => v.key === "main") ??
-    product.medias?.[0]?.media?.variants?.[0];
+  /* 🧩 Yeni medya modeline göre görsel seçimi:
+     1️⃣ İlk medya bağlantısını al (ProductMedia).
+     2️⃣ Oradaki Media'yı al.
+     3️⃣ Media.files içinden ilk dosyayı al.
+  */
+  const firstFile =
+    product.medias?.[0]?.media?.files?.[0] ?? null;
 
-  const imageUrl = mainVariant?.cdnUrl ?? "/placeholder.png";
+  const imageUrl = firstFile?.url ?? "/placeholder.png";
 
   const displayName = product.group?.name
     ? `${product.group.name} – ${product.name}`
@@ -50,14 +50,6 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     >
       {/* 🖼️ Ürün görseli */}
       <div className="relative overflow-hidden rounded-t-xl bg-gray-50">
-        {/* 🎯 Opsiyonel indirim etiketi */}
-        {/* {hasDiscount && (
-          <div className="absolute top-3 left-3 z-10">
-            <span className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-md">
-              %{discountPercentage} İNDİRİM
-            </span>
-          </div>
-        )} */}
 
         {imageUrl ? (
           <div className="aspect-square overflow-hidden">

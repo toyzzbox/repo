@@ -12,14 +12,19 @@ export function BrandDetails({ brand }: { brand: any }) {
     switch (sortOption) {
       case "price_asc":
         return a.price - b.price;
+
       case "price_desc":
         return b.price - a.price;
+
       case "date_desc":
-        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+        return new Date(b.createdAt ?? 0).getTime() - new Date(a.createdAt ?? 0).getTime();
+
       case "stock_desc":
         return (b.stock ?? 0) - (a.stock ?? 0);
+
       case "name_asc":
         return a.name.localeCompare(b.name);
+
       default:
         return 0;
     }
@@ -28,6 +33,7 @@ export function BrandDetails({ brand }: { brand: any }) {
   return (
     <div className="container mx-auto px-4 py-6">
       <h1 className="text-3xl font-bold mb-2">{brand.name}</h1>
+
       {brand.description && (
         <p className="text-gray-600 mb-4">{brand.description}</p>
       )}

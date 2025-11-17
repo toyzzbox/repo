@@ -17,11 +17,25 @@ export default async function BrandPage({ params, searchParams = {} }: PageProps
       slug: true,
       name: true,
       description: true,
+
+      // BRAND MEDIAS
       medias: {
         select: {
-          urls: true, // ✅ Doğrudan erişim
+          id: true,
+          title: true,
+          altText: true,
+          files: {
+            select: {
+              url: true,
+              format: true,
+              width: true,
+              height: true,
+            },
+          },
         },
       },
+
+      // BRAND PRODUCTS
       products: {
         where: {
           price: {
@@ -38,7 +52,15 @@ export default async function BrandPage({ params, searchParams = {} }: PageProps
             select: {
               media: {
                 select: {
-                  urls: true,
+                  id: true,
+                  files: {
+                    select: {
+                      url: true,
+                      format: true,
+                      width: true,
+                      height: true,
+                    },
+                  },
                 },
               },
             },
@@ -47,7 +69,6 @@ export default async function BrandPage({ params, searchParams = {} }: PageProps
       },
     },
   });
-  
 
   if (!brand) return <div>Brand not found</div>;
 
