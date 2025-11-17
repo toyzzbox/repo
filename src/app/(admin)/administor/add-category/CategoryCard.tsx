@@ -3,22 +3,15 @@
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 
-type CategoryCardProps = {
-  category: Category;
-};
-
-export const CategoryCard: React.FC<CategoryCardProps> = ({ category }) => {
+export const CategoryCard = ({ category }) => {
   const router = useRouter();
 
-  const handleClick = () => {
-    if (category.slug) {
-      router.push(`/category/${category.slug}`);
-    }
-  };
-
-  // ✔ ilk media → ilk variant → cdnUrl
   const imageUrl =
     category.medias?.[0]?.variants?.[0]?.cdnUrl ?? null;
+
+  const handleClick = () => {
+    router.push(`/category/${category.slug}`);
+  };
 
   return (
     <div
