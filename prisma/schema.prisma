@@ -166,17 +166,34 @@ model ProductMedia {
 }
 
 model Brand {
-  id          String    @id @default(cuid())
+  id          String        @id @default(cuid())
   name        String
-  slug        String    @unique
+  slug        String        @unique
   description String?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  medias      Media[]   @relation("BrandToMedia")
-  products    Product[] @relation("ProductToBrand")
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  // 🔥 Marka bir veya birden fazla görsel alabilir
+  medias      BrandMedia[]
+
+  products    Product[]     @relation("ProductToBrand")
 
   @@map("Brand")
 }
+
+model BrandMedia {
+  brandId String
+  mediaId String
+  order   Int      @default(0)
+  label   String?
+
+  brand   Brand @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  media   Media @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+
+  @@id([brandId, mediaId])
+  @@map("BrandMedia")
+}
+
 
 model Category {
   id          String     @id @default(cuid())
@@ -379,8 +396,10 @@ model Media {
 
   productMedia ProductMedia[]
   attributes   Attribute[]    @relation("AttributeToMedia")
-  brands       Brand[]        @relation("BrandToMedia")
   categories   Category[]     @relation("CategoryToMedia")
+
+  // 🔥 Brand ile ilişki artık BrandMedia üzerinden
+  brands       BrandMedia[]
 
   variants     MediaVariant[] @relation("MediaToVariant")
   tags         MediaTag[]     @relation("MediaToTag")
