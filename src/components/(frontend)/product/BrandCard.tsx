@@ -5,7 +5,7 @@ import Image from "next/image";
 import { Brand } from "@/types/brand";
 
 type BrandCardProps = {
-  brand: Brand
+  brand: Brand;
 };
 
 export const BrandCard: React.FC<BrandCardProps> = ({ brand }) => {
@@ -17,9 +17,9 @@ export const BrandCard: React.FC<BrandCardProps> = ({ brand }) => {
     }
   };
 
-  // 🔥 Doğru erişim yolu
+  // ✔ Variant içinden ilk görseli al
   const imageUrl =
-    brand.medias?.[0]?.media?.files?.[0]?.url ?? null;
+    brand.medias?.[0]?.variants?.[0]?.cdnUrl ?? null;
 
   return (
     <div
