@@ -2,26 +2,16 @@ import { prisma } from "@/lib/prisma";
 import CreateAttributeForm from "./CreateAttributeForm";
 
 async function getAttributeGroups() {
-  try {
-    return await prisma.attributeGroup.findMany();
-  } catch (error) {
-    console.error("Error fetching attribute groups:", error);
-    return [];
-  }
+  return prisma.attributeGroup.findMany();
 }
 
 async function getMedias() {
-  try {
-    return await prisma.media.findMany({
-      select: {
-        id: true,
-        urls: true,
-      },
-    });
-  } catch (error) {
-    console.error("Error fetching medias:", error);
-    return [];
-  }
+  return prisma.media.findMany({
+    include: {
+      variants: true, // ✔ S3 URL buradan geliyor
+    },
+    orderBy: { createdAt: "desc" },
+  });
 }
 
 export default async function CreateAttribute() {
@@ -30,10 +20,20 @@ export default async function CreateAttribute() {
     getMedias(),
   ]);
 
+  // Frontend'e sade formatla gönder
+  const safeMedias = medias.map((m) => ({
+    id: m.id,
+    urls: m.variants.map((v) => v.cdnUrl), // ✔ modal için URL dizisi
+  }));
+
   return (
     <div className="w-full max-w-6xl mx-auto text-center h-screen">
       <h1 className="font-bold text-2xl mt-20 mb-10">Yeni Nitelik Oluştur</h1>
-      <CreateAttributeForm attributeGroups={attributeGroups} medias={medias} />
+
+      <CreateAttributeForm
+        attributeGroups={attributeGroups}
+        medias={safeMedias}
+      />
     </div>
   );
 }

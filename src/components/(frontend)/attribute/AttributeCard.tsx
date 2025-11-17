@@ -17,7 +17,9 @@ export const AttributeCard: React.FC<AttributeCardProps> = ({ attribute }) => {
     }
   };
 
-  const imageUrl = attribute.medias?.[0]?.urls?.[0] ?? null;
+  // 🔥 variant bulundu → resmi doğru al
+  const imageUrl =
+    attribute.medias?.[0]?.variants?.[0]?.cdnUrl ?? null;
 
   return (
     <div
@@ -40,7 +42,9 @@ export const AttributeCard: React.FC<AttributeCardProps> = ({ attribute }) => {
         </div>
       )}
 
-    
+      <div className="mt-3 text-center">
+        <h3 className="font-semibold">{attribute.name}</h3>
+      </div>
     </div>
   );
 };
