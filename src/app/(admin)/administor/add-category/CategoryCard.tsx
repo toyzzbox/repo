@@ -3,9 +3,8 @@
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 
-
 type CategoryCardProps = {
-  category: Category
+  category: Category;
 };
 
 export const CategoryCard: React.FC<CategoryCardProps> = ({ category }) => {
@@ -17,8 +16,9 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({ category }) => {
     }
   };
 
-  // İlk medya içindeki ilk URL'i al
-  const imageUrl = category.medias?.[0]?.urls?.[0] ?? null;
+  // ✔ ilk media → ilk variant → cdnUrl
+  const imageUrl =
+    category.medias?.[0]?.variants?.[0]?.cdnUrl ?? null;
 
   return (
     <div
