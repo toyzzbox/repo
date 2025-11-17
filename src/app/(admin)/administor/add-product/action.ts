@@ -6,9 +6,6 @@ import { redirect } from "next/navigation";
 
 export async function createProduct(prevState: any, formData: FormData) {
   try {
-    // -------------------------------------
-    // 1) Basit alanlar
-    // -------------------------------------
     const name = formData.get("name") as string;
     const description = formData.get("description") as string;
     const price = parseFloat(formData.get("price") as string);
@@ -24,22 +21,33 @@ export async function createProduct(prevState: any, formData: FormData) {
     const serial = (formData.get("serial") as string) || undefined;
     const groupId = (formData.get("groupId") as string) || undefined;
 
-    // -------------------------------------
-    // 2) Multi-select alanlar
-    // -------------------------------------
     const brandIds = formData.getAll("brandIds[]") as string[];
     const categoryIds = formData.getAll("categoryIds[]") as string[];
     const attributeIds = formData.getAll("attributeIds[]") as string[];
 
-    // -------------------------------------
-    // 3) Medya alanları (ID + Order)
-    // -------------------------------------
+    // -----------------------------
+    // ⭐ Medya: Duplicate temizleme
+    // -----------------------------
     const mediaIds = formData.getAll("mediaIds[]") as string[];
-    const mediaOrders = formData.getAll("mediaOrders[]").map((v) => Number(v));
+    const mediaOrders = formData
+      .getAll("mediaOrders[]")
+      .map((v) => Number(v));
 
-    // -------------------------------------
-    // 4) NestJS API'nin beklediği JSON
-    // -------------------------------------
+    // 1) Tekilleştir — aynı mediaId birden fazla gelmişse at
+    const uniqueMediaMap = new Map<string, number>();
+
+    mediaIds.forEach((id, index) => {
+      if (!uniqueMediaMap.has(id)) {
+        uniqueMediaMap.set(id, mediaOrders[index]);
+      }
+    });
+
+    const uniqueMediaIds = Array.from(uniqueMediaMap.keys());
+    const uniqueMediaOrders = Array.from(uniqueMediaMap.values());
+
+    // -----------------------------
+    // ⭐ NestJS API'ye gönderilecek payload
+    // -----------------------------
     const productData = {
       name,
       description,
@@ -53,21 +61,15 @@ export async function createProduct(prevState: any, formData: FormData) {
       categoryIds,
       attributeIds,
 
-      // ⭐ NestJS ile birebir uyumlu payload
-      mediaIds,
-      mediaOrders,
+      // 🔥 Artık yalnızca tekil medya ID + order gönderiyoruz
+      mediaIds: uniqueMediaIds,
+      mediaOrders: uniqueMediaOrders,
     };
 
     console.log("📤 API’ye gönderilen veri:", productData);
 
-    // -------------------------------------
-    // 5) API isteği
-    // -------------------------------------
     await apiClient.createProduct(productData);
 
-    // -------------------------------------
-    // 6) Sayfa yenile + yönlendir
-    // -------------------------------------
     revalidatePath("/administor/add-product");
     redirect("/administor/products");
 
