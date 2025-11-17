@@ -1,13 +1,14 @@
-import { Media } from "./product";
+import { Media } from "./media";
 
 export type Category = {
-    id: string;
-    name: string;
-    slug: string;
-    description: string | null;
-    createdAt: Date;
-    parentId: string | null;  // Media ID
-    parent?: Category | null; // ✅ bunu ekle!
-    medias: Media[]; // ✅ doğru isimlendirme
-    children?: Category[]; // Recursive tip
-  };
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  createdAt: string;
+  parentId: string | null;
+
+  parent?: Category | null;
+  medias: Media[];
+  children?: Category[];
+};
