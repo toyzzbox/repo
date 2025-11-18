@@ -8,36 +8,16 @@ export async function searchProducts(query: string) {
   return await prisma.product.findMany({
     where: {
       OR: [
-        {
-          name: {
-            contains: query,
-            mode: "insensitive",
-          },
-        },
-        {
-          description: {
-            contains: query,
-            mode: "insensitive",
-          },
-        },
+        { name: { contains: query, mode: "insensitive" } },
+        { description: { contains: query, mode: "insensitive" } },
         {
           categories: {
-            some: {
-              name: {
-                contains: query,
-                mode: "insensitive",
-              },
-            },
+            some: { name: { contains: query, mode: "insensitive" } },
           },
         },
         {
           brands: {
-            some: {
-              name: {
-                contains: query,
-                mode: "insensitive",
-              },
-            },
+            some: { name: { contains: query, mode: "insensitive" } },
           },
         },
       ],
@@ -47,14 +27,10 @@ export async function searchProducts(query: string) {
       name: true,
       slug: true,
       brands: {
-        select: {
-          name: true,
-        },
+        select: { name: true },
       },
       categories: {
-        select: {
-          name: true,
-        },
+        select: { name: true },
       },
       medias: {
         orderBy: { order: "asc" },
@@ -62,7 +38,15 @@ export async function searchProducts(query: string) {
         include: {
           media: {
             select: {
-              urls: true,
+              variants: {
+                select: {
+                  cdnUrl: true,
+                  key: true,
+                  width: true,
+                  height: true,
+                  format: true,
+                },
+              },
             },
           },
         },
