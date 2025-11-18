@@ -18,18 +18,19 @@ export default async function BrandPage({ params, searchParams = {} }: PageProps
       name: true,
       description: true,
 
-      // BRAND MEDIAS
+      // BRAND MEDIAS (LOGO, GÖRSELLER)
       medias: {
         select: {
           id: true,
           title: true,
           altText: true,
-          files: {
+          variants: {
             select: {
-              url: true,
-              format: true,
+              cdnUrl: true,
+              key: true,
               width: true,
               height: true,
+              format: true,
             },
           },
         },
@@ -38,10 +39,7 @@ export default async function BrandPage({ params, searchParams = {} }: PageProps
       // BRAND PRODUCTS
       products: {
         where: {
-          price: {
-            gte: minPrice,
-            lte: maxPrice,
-          },
+          price: { gte: minPrice, lte: maxPrice },
         },
         select: {
           id: true,
@@ -49,16 +47,17 @@ export default async function BrandPage({ params, searchParams = {} }: PageProps
           slug: true,
           price: true,
           medias: {
-            select: {
+            orderBy: { order: "asc" },
+            include: {
               media: {
                 select: {
-                  id: true,
-                  files: {
+                  variants: {
                     select: {
-                      url: true,
-                      format: true,
+                      cdnUrl: true,
+                      key: true,
                       width: true,
                       height: true,
+                      format: true,
                     },
                   },
                 },
