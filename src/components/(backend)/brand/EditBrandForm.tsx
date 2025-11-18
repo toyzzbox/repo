@@ -8,8 +8,15 @@ import { Label } from "@/components/ui/label";
 
 interface Media {
   id: string;
-  urls: string[];
+  variants: {
+    cdnUrl: string;
+    key: string;
+    width?: number;
+    height?: number;
+    format?: string;
+  }[];
 }
+
 interface Props {
   brand: Brand & { mediaIds: string[] };
   medias: Media[];
@@ -21,8 +28,9 @@ export default function EditBrandForm({ brand, medias }: Props) {
   const [name, setName] = useState(brand.name);
   const [description, setDescription] = useState(brand.description ?? "");
 
+  // ✔ Modal'ın çalışması için doğru yapı: variants gerekiyor
   const [selectedMedias, setSelectedMedias] = useState<Media[]>(
-    medias.filter(media => brand.mediaIds.includes(media.id))
+    medias.filter((media) => brand.mediaIds.includes(media.id))
   );
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -32,6 +40,7 @@ export default function EditBrandForm({ brand, medias }: Props) {
     const formData = new FormData();
     formData.append("name", name);
     formData.append("description", description);
+
     selectedMedias.forEach((media) =>
       formData.append("mediaIds[]", media.id)
     );
@@ -68,22 +77,25 @@ export default function EditBrandForm({ brand, medias }: Props) {
           required
         />
 
-<div className="space-y-2">
-        <Label>Ürün Medyaları</Label>
-        <MediaModalButton
-          medias={medias}
-          onSelectedMediasChange={setSelectedMedias}
-          selectedMedias={selectedMedias}
-        />
-        {selectedMedias.map((media) => (
-          <input
-            key={media.id}
-            type="hidden"
-            name="mediaIds[]"
-            value={media.id}
+        {/* ---------------- MEDIA MODAL ---------------- */}
+        <div className="space-y-2">
+          <Label>Marka Görselleri</Label>
+
+          <MediaModalButton
+            medias={medias}                 // ✔ DOĞRU FORMAT
+            selectedMedias={selectedMedias} // ✔ VARIANT YAPISINA UYGUN
+            onSelectedMediasChange={setSelectedMedias}
           />
-        ))}
-      </div>
+
+          {selectedMedias.map((media) => (
+            <input
+              key={media.id}
+              type="hidden"
+              name="mediaIds[]"
+              value={media.id}
+            />
+          ))}
+        </div>
 
         <button
           type="submit"
