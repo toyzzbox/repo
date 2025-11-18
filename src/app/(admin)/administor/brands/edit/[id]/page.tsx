@@ -3,7 +3,6 @@ import { prisma } from "@/lib/prisma";
 import { Brand } from "@/types/brand";
 import { Media } from "@/types/product";
 
-
 type BrandWithMedias = Brand & {
   medias: Media[];
 };
@@ -16,9 +15,22 @@ export default async function EditPage({ params }: { params: { id: string } }) {
     },
   });
 
-  const medias = await prisma.media.findMany();
-
   if (!brand) return <div>Marka bulunamadı.</div>;
+
+  // 📌 BURAYA DÜZELTİLMİŞ MEDIA GETİRME KODU GELİYOR
+  const medias = await prisma.media.findMany({
+    include: {
+      variants: {
+        select: {
+          cdnUrl: true,
+          key: true,
+          width: true,
+          height: true,
+          format: true,
+        },
+      },
+    },
+  });
 
   const typedBrand = brand as BrandWithMedias;
 
