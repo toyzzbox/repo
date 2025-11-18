@@ -28,7 +28,7 @@ export default function EditBrandForm({ brand, medias }: Props) {
   const [name, setName] = useState(brand.name);
   const [description, setDescription] = useState(brand.description ?? "");
 
-  // ✔ Modal'ın çalışması için doğru yapı: variants gerekiyor
+  // ✔ Brand'e bağlı medyaları başlangıç olarak işaretle
   const [selectedMedias, setSelectedMedias] = useState<Media[]>(
     medias.filter((media) => brand.mediaIds.includes(media.id))
   );
@@ -59,6 +59,7 @@ export default function EditBrandForm({ brand, medias }: Props) {
       <h1 className="text-xl font-bold mb-4">Marka Güncelle</h1>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-4 w-full">
+        
         <input
           type="text"
           name="name"
@@ -77,13 +78,13 @@ export default function EditBrandForm({ brand, medias }: Props) {
           required
         />
 
-        {/* ---------------- MEDIA MODAL ---------------- */}
+        {/* --- MEDIA MODAL --- */}
         <div className="space-y-2">
           <Label>Marka Görselleri</Label>
 
           <MediaModalButton
-            medias={medias}                 // ✔ DOĞRU FORMAT
-            selectedMedias={selectedMedias} // ✔ VARIANT YAPISINA UYGUN
+            medias={medias}
+            selectedMedias={selectedMedias}
             onSelectedMediasChange={setSelectedMedias}
           />
 
