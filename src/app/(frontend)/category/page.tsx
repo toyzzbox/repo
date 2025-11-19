@@ -126,7 +126,14 @@ export default async function CategoryPage({
         include: {
           media: {
             select: {
-              urls: true,
+              files: {
+                select: {
+                  url: true,
+                  format: true,
+                  width: true,
+                  height: true,
+                },
+              },
             },
           },
         },
