@@ -33,9 +33,16 @@ export default async function EditCategoryPage({
     select: { id: true, name: true },
   });
 
-  // 3. Tüm medya kayıtlarını getir (name yoksa urls kullanılmalı!)
+  // 3. Tüm medya kayıtlarını getir (Artık files üzerinden geliyor!)
   const allMedias = await prisma.media.findMany({
-    select: { id: true, urls: true }, // ✅ "name" yerine "urls"
+    select: {
+      id: true,
+      files: {
+        select: {
+          url: true,
+        },
+      },
+    },
   });
 
   // 4. Form bileşenine verileri aktar
