@@ -8,12 +8,9 @@ type CategoryWithRelations = Category & {
   parent?: Category | null;
 };
 
-export default async function EditCategoryPage({
-  params,
-}: {
-  params: { id: string };
-}) {
-  // 1. Kategoriyi ilişkili verileriyle birlikte getir
+export default async function EditCategoryPage({ params }: { params: { id: string } }) {
+  
+  // 1. Kategori + ilişkiler
   const category = await prisma.category.findUnique({
     where: { id: params.id },
     include: {
@@ -22,30 +19,32 @@ export default async function EditCategoryPage({
     },
   });
 
-  if (!category) {
-    return <div>Kategori bulunamadı.</div>;
-  }
+  if (!category) return <div>Kategori bulunamadı.</div>;
 
   const fullCategory = category as CategoryWithRelations;
 
-  // 2. Tüm kategorileri üst kategori seçimi için al
+  // 2. Tüm kategoriler
   const allCategories = await prisma.category.findMany({
     select: { id: true, name: true },
   });
 
-  // 3. Tüm medya kayıtlarını getir (Artık files üzerinden geliyor!)
+  // 3. Tüm Medialar (Artık variants üzerinden geliyor)
   const allMedias = await prisma.media.findMany({
     select: {
       id: true,
-      files: {
+      variants: {
         select: {
-          url: true,
+          cdnUrl: true,
+          key: true,
+          width: true,
+          height: true,
+          format: true,
         },
       },
     },
   });
 
-  // 4. Form bileşenine verileri aktar
+  // 4. Forma gönder
   return (
     <EditCategoryForm
       category={{
