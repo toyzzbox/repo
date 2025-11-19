@@ -1,5 +1,3 @@
-// src/actions/productActions.ts
-
 import { prisma } from "@/lib/prisma";
 
 export async function getRelatedProducts(productId: string, categoryIds: string[]) {
@@ -27,12 +25,14 @@ export async function getRelatedProducts(productId: string, categoryIds: string[
         include: {
           media: {
             select: {
-              files: {
+              variants: {
                 select: {
-                  url: true,
-                  format: true,
+                  cdnUrl: true,
+                  key: true,
                   width: true,
                   height: true,
+                  format: true,
+                  type: true,
                 },
               },
             },
