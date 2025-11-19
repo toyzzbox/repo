@@ -7,7 +7,7 @@ import MediaModal from "@/app/(frontend)/modal/MediaModal";
 
 interface Media {
   id: string;
-  urls: string[];
+  files: { url: string }[];   // 🔥 artık files üzerinden geliyor
 }
 
 interface Category {
@@ -26,7 +26,7 @@ interface CategoryOption {
 
 interface EditCategoryFormProps {
   category: Category;
-  allCategories: CategoryOption[]; // üst kategori listesi
+  allCategories: CategoryOption[];
   medias: Media[];
 }
 
@@ -51,8 +51,6 @@ export default function EditCategoryForm({
     setError(null);
 
     const formData = new FormData();
-
-    // 🔑 Gerekli tüm alanları gönderiyoruz
     formData.append("id", category.id);
     formData.append("name", name);
     formData.append("slug", slug);
@@ -81,7 +79,6 @@ export default function EditCategoryForm({
         type="text"
         value={name}
         onChange={(e) => setName(e.target.value)}
-        placeholder="Kategori Adı"
         className="py-2 px-3 border rounded"
         required
       />
@@ -91,7 +88,6 @@ export default function EditCategoryForm({
         type="text"
         value={slug}
         onChange={(e) => setSlug(e.target.value)}
-        placeholder="kategori-slug"
         className="py-2 px-3 border rounded"
         required
       />
@@ -99,7 +95,7 @@ export default function EditCategoryForm({
       <label className="font-medium">Açıklama</label>
       <RichTextEditor value={description} onChange={setDescription} />
 
-      <label className="font-medium">Üst Kategori (Varsa)</label>
+      <label className="font-medium">Üst Kategori</label>
       <select
         value={parentId ?? ""}
         onChange={(e) => setParentId(e.target.value || undefined)}
@@ -107,7 +103,7 @@ export default function EditCategoryForm({
       >
         <option value="">— Üst kategori yok —</option>
         {allCategories
-          .filter((c) => c.id !== category.id) // Kendisini seçemesin
+          .filter((c) => c.id !== category.id)
           .map((c) => (
             <option key={c.id} value={c.id}>
               {c.name}
@@ -120,7 +116,7 @@ export default function EditCategoryForm({
         <button
           type="button"
           onClick={() => setIsMediaModalOpen(true)}
-          className="bg-gray-200 py-2 px-4 rounded hover:bg-gray-300 transition text-left"
+          className="bg-gray-200 py-2 px-4 rounded hover:bg-gray-300 transition"
         >
           Medya Seç ({mediaIds.length})
         </button>
@@ -131,7 +127,7 @@ export default function EditCategoryForm({
             .map((media) => (
               <img
                 key={media.id}
-                src={media.urls[0]}
+                src={media.files?.[0]?.url || ""}
                 alt="selected"
                 className="w-16 h-16 object-cover rounded"
               />
@@ -148,7 +144,6 @@ export default function EditCategoryForm({
 
       {error && <p className="text-red-500">{error}</p>}
 
-      {/* 🔥 Media Modal */}
       <MediaModal
         open={isMediaModalOpen}
         onClose={() => setIsMediaModalOpen(false)}
