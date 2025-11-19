@@ -29,7 +29,7 @@ export default function ProductBreadcrumb({
           <>
             <li>
               <Link
-                href={`/categories/${parentCategory.slug}`}
+                href={`/${parentCategory.slug}`}
                 className="hover:text-gray-800"
               >
                 {parentCategory.name}
