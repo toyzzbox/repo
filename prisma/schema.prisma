@@ -1,13 +1,24 @@
+// generator client {
+//   provider      = "prisma-client-js"
+//   binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+// }
+
+// datasource db {
+//   provider = "postgresql"
+//   url      = env("DATABASE_URL")
+// }
+
+
 generator client {
   provider      = "prisma-client-js"
   binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider          = "postgresql"
+  url               = env("DATABASE_URL")
+  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
 }
-
 /* =======================
    🧑 USER & AUTH MODELLERİ
 ======================= */
