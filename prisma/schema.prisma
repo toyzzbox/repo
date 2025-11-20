@@ -196,6 +196,8 @@ model Category {
   children    Category[] @relation("CategoryHierarchy")
   medias      Media[]    @relation("CategoryToMedia")
   products    Product[]  @relation("ProductToCategory")
+  banners   Banner[]  // 👈 kategoriye bağlı banner'lar
+
 
   @@map("Category")
 }
@@ -386,6 +388,7 @@ model Media {
   attributes   Attribute[]    @relation("AttributeToMedia")
   brands       Brand[]      @relation("BrandToMedia")
   categories   Category[]     @relation("CategoryToMedia")
+  banners   Banner[] 
 
   variants     MediaVariant[] @relation("MediaToVariant")
   tags         MediaTag[]     @relation("MediaToTag")
@@ -428,6 +431,54 @@ model MediaRelation {
   media      Media @relation("MediaToRelation", fields: [mediaId], references: [id], onDelete: Cascade)
 
   @@map("MediaRelation")
+}
+
+
+
+
+
+model Banner {
+  id          String          @id @default(cuid())
+
+  // Metin içerikleri
+  title       String?
+  subtitle    String?
+  description String?
+
+  // Görsel
+  mediaId     String
+  media       Media           @relation(fields: [mediaId], references: [id])
+
+  // Hangi sayfada / konumda?
+  placement   BannerPlacement @default(HOME)
+
+  // Eğer CATEGORY ise, hangi kategori?
+  categoryId  String?
+  category    Category?       @relation(fields: [categoryId], references: [id])
+
+  // Link bilgisi
+  linkType    BannerLinkType  @default(NONE)
+  linkUrl     String?         // /product/...  /category/...  /brand/...  veya tam URL
+
+  // Cihaz kırılımı
+  device      BannerDevice    @default(ALL)
+
+  // Sıralama
+  order       Int             @default(0)
+
+  // Zamanlama (kampanya için)
+  startsAt    DateTime?
+  endsAt      DateTime?
+
+  // Aktif / pasif
+  isActive    Boolean         @default(true)
+
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  @@index([placement, device, isActive, order])
+  @@index([placement, categoryId, device, isActive, order])
+  @@map("banners")
 }
 
 /* =======================
@@ -499,4 +550,24 @@ enum OrderStatus {
 enum InvoiceType {
   INDIVIDUAL
   CORPORATE
+}
+
+
+enum BannerPlacement {
+  HOME      // Ana sayfa
+  CATEGORY  // Kategori sayfası
+}
+
+enum BannerDevice {
+  ALL
+  DESKTOP
+  MOBILE
+}
+
+enum BannerLinkType {
+  NONE
+  PRODUCT
+  CATEGORY
+  BRAND
+  CUSTOM // Tam URL (https://... veya /path)
 }
