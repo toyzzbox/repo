@@ -123,3 +123,53 @@ export default function EditProductForm({
         setSelected={setSelectedCategoryIds}
         placeholder="Kategori seç..."
         label="Kategoriler"
+      />
+
+      {/* Markalar */}
+      <MultiSelect
+        items={brands}
+        selected={selectedBrandIds}
+        setSelected={setSelectedBrandIds}
+        placeholder="Marka seç..."
+        label="Markalar"
+      />
+
+      {/* Hidden categoryIds & brandIds */}
+      {selectedCategoryIds.map((id) => (
+        <input key={id} type="hidden" name="categoryIds[]" value={id} />
+      ))}
+      {selectedBrandIds.map((id) => (
+        <input key={id} type="hidden" name="brandIds[]" value={id} />
+      ))}
+
+      {/* Medya */}
+      <div className="space-y-2">
+        <Label>Ürün Medyaları</Label>
+
+        <MediaModalButton
+          medias={medias}
+          selectedMedias={selectedMedias}
+          onSelectedMediasChange={setSelectedMedias}
+        />
+
+        {selectedMedias.map((media, index) => (
+          <div key={media.id}>
+            <input type="hidden" name="mediaIds[]" value={media.id} />
+            <input type="hidden" name="mediaOrders[]" value={index} />
+          </div>
+        ))}
+      </div>
+
+      {/* Submit */}
+      <button type="submit" disabled={isPending} className="bg-blue-600 text-white px-4 py-2 rounded">
+        {isPending ? "Güncelleniyor..." : "Ürünü Güncelle"}
+      </button>
+
+      {state?.message && (
+        <div className={`p-2 rounded text-sm ${state.ok ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}>
+          {state.message}
+        </div>
+      )}
+    </form>
+  );
+}
