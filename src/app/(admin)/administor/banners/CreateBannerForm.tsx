@@ -1,104 +1,146 @@
 "use client";
 
-import React, { useActionState, useState } from "react";
-import { Button } from "@/components/ui/button";
-import BannerMediaPicker from "./BannerMediaPicker";
+import { useActionState, useState } from "react";
 import { createBanner } from "@/actions/createBanner";
+import MediaModalButton from "@/app/(frontend)/modal/MediaModalButton";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 
-export default function CreateBannerForm() {
-  // ✅ React 19 uyumlu kullanım
+interface Media {
+  id: string;
+  urls: string[];
+}
+
+export default function CreateBannerForm({
+  medias,
+}: {
+  medias: Media[];
+}) {
   const [state, formAction, isPending] = useActionState(createBanner, null);
 
-  const [media, setMedia] = useState<any>(null);
+  // ✅ Banner için TEK medya ama yine ARRAY olarak tutuyoruz (product mantığı)
+  const [selectedMedias, setSelectedMedias] = useState<Media[]>([]);
+
   const [placement, setPlacement] = useState<"HOME" | "CATEGORY">("HOME");
   const [linkType, setLinkType] = useState<
     "NONE" | "PRODUCT" | "CATEGORY" | "BRAND" | "CUSTOM"
   >("NONE");
 
   return (
-    <form
-      action={formAction}
-      className="max-w-2xl space-y-6 bg-white p-6 rounded-xl shadow"
-    >
-      {/* ✅ Server Action Hatası */}
-      {state && <div className="text-red-500 text-sm">{state}</div>}
+    <form action={formAction} className="space-y-4">
+      <h1 className="text-2xl font-bold">Banner Ekle</h1>
 
-      <input
-        name="title"
-        placeholder="Başlık"
-        className="border p-2 w-full rounded"
-      />
+      {/* ✅ Başlık */}
+      <div>
+        <Label htmlFor="title">Başlık</Label>
+        <Input type="text" id="title" name="title" />
+      </div>
 
-      <input
-        name="subtitle"
-        placeholder="Alt Başlık"
-        className="border p-2 w-full rounded"
-      />
+      {/* ✅ Alt Başlık */}
+      <div>
+        <Label htmlFor="subtitle">Alt Başlık</Label>
+        <Input type="text" id="subtitle" name="subtitle" />
+      </div>
 
-      <textarea
-        name="description"
-        placeholder="Açıklama"
-        className="border p-2 w-full rounded"
-      />
+      {/* ✅ Açıklama */}
+      <div>
+        <Label htmlFor="description">Açıklama</Label>
+        <textarea
+          id="description"
+          name="description"
+          className="border w-full p-2 rounded"
+        />
+      </div>
 
-      <input
-        type="number"
-        name="order"
-        defaultValue={0}
-        className="border p-2 w-full rounded"
-        placeholder="Sıra"
-      />
+      {/* ✅ Sıra */}
+      <div>
+        <Label htmlFor="order">Sıra</Label>
+        <Input type="number" id="order" name="order" defaultValue={0} />
+      </div>
 
       {/* ✅ Placement */}
-      <select
-        name="placement"
-        className="border p-2 w-full rounded"
-        value={placement}
-        onChange={(e) => setPlacement(e.target.value as any)}
-      >
-        <option value="HOME">Ana Sayfa</option>
-        <option value="CATEGORY">Kategori</option>
-      </select>
+      <div>
+        <Label htmlFor="placement">Konum</Label>
+        <select
+          id="placement"
+          name="placement"
+          value={placement}
+          onChange={(e) => setPlacement(e.target.value as any)}
+          className="border px-2 py-1 rounded w-full"
+        >
+          <option value="HOME">Ana Sayfa</option>
+          <option value="CATEGORY">Kategori</option>
+        </select>
+      </div>
 
       {/* ✅ Device */}
-      <select name="device" className="border p-2 w-full rounded">
-        <option value="ALL">Tümü</option>
-        <option value="DESKTOP">Desktop</option>
-        <option value="MOBILE">Mobile</option>
-      </select>
+      <div>
+        <Label htmlFor="device">Cihaz</Label>
+        <select
+          id="device"
+          name="device"
+          className="border px-2 py-1 rounded w-full"
+        >
+          <option value="ALL">Tümü</option>
+          <option value="DESKTOP">Desktop</option>
+          <option value="MOBILE">Mobile</option>
+        </select>
+      </div>
 
-      {/* ✅ Link Type */}
-      <select
-        name="linkType"
-        className="border p-2 w-full rounded"
-        value={linkType}
-        onChange={(e) => setLinkType(e.target.value as any)}
-      >
-        <option value="NONE">Yok</option>
-        <option value="PRODUCT">Ürün</option>
-        <option value="CATEGORY">Kategori</option>
-        <option value="BRAND">Marka</option>
-        <option value="CUSTOM">Özel URL</option>
-      </select>
+      {/* ✅ Link Türü */}
+      <div>
+        <Label htmlFor="linkType">Link Türü</Label>
+        <select
+          id="linkType"
+          name="linkType"
+          value={linkType}
+          onChange={(e) => setLinkType(e.target.value as any)}
+          className="border px-2 py-1 rounded w-full"
+        >
+          <option value="NONE">Yok</option>
+          <option value="PRODUCT">Ürün</option>
+          <option value="CATEGORY">Kategori</option>
+          <option value="BRAND">Marka</option>
+          <option value="CUSTOM">Özel URL</option>
+        </select>
+      </div>
 
-      {/* ✅ Custom URL */}
       {linkType === "CUSTOM" && (
-        <input
-          name="linkUrl"
-          className="border p-2 w-full rounded"
-          placeholder="/kampanya/black-friday"
-        />
+        <div>
+          <Label htmlFor="linkUrl">Link URL</Label>
+          <Input type="text" id="linkUrl" name="linkUrl" />
+        </div>
       )}
 
-      {/* ✅ Banner Görsel Seçici */}
-      <BannerMediaPicker value={media} onChange={setMedia} />
+      {/* ✅✅✅ MEDIA SECTION — PRODUCT FORM İLE BİREBİR */}
+      <div className="space-y-2">
+        <Label>Banner Görseli</Label>
 
-      {/* ✅ Media ID Gizli Input */}
-      {media && <input type="hidden" name="mediaId" value={media.id} />}
+        <MediaModalButton
+          medias={medias}
+          selectedMedias={selectedMedias}
+          onSelectedMediasChange={(items) => {
+            // ✅ SADECE 1 TANE MEDYA TUT
+            setSelectedMedias(items.slice(0, 1));
+          }}
+        />
 
-      <Button type="submit" disabled={isPending}>
+        {/* ✅ SADECE 1 ADET hidden mediaId gönderiyoruz */}
+        {selectedMedias[0] && (
+          <input type="hidden" name="mediaId" value={selectedMedias[0].id} />
+        )}
+      </div>
+
+      {/* ✅ Submit */}
+      <button
+        type="submit"
+        disabled={isPending}
+        className="bg-blue-600 text-white px-4 py-2 rounded"
+      >
         {isPending ? "Kaydediliyor..." : "Banner Kaydet"}
-      </Button>
+      </button>
+
+      {state && <div className="text-red-500">{state}</div>}
     </form>
   );
 }
