@@ -8,17 +8,11 @@ import { Label } from "@/components/ui/label";
 
 interface Media {
   id: string;
-  variants: {
-    cdnUrl: string;
-    key: string;
-    width?: number;
-    height?: number;
-    format?: string;
-  }[];
+  urls: string[]; // ✔ Artık MediaModalButton ile uyumlu format
 }
 
 interface Props {
-  brand: Brand & { mediaIds: string[] };
+  brand: Brand & { mediaIds: string[]; medias?: Media[] };
   medias: Media[];
 }
 
@@ -28,9 +22,9 @@ export default function EditBrandForm({ brand, medias }: Props) {
   const [name, setName] = useState(brand.name);
   const [description, setDescription] = useState(brand.description ?? "");
 
-  // ✔ Brand'e bağlı medyaları başlangıç olarak işaretle
+  // ✔ Marka mevcut medyaları başlangıçta seçili gelsin
   const [selectedMedias, setSelectedMedias] = useState<Media[]>(
-    medias.filter((media) => brand.mediaIds.includes(media.id))
+    medias.filter((m) => brand.mediaIds.includes(m.id))
   );
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -47,10 +41,7 @@ export default function EditBrandForm({ brand, medias }: Props) {
 
     startTransition(async () => {
       const result = await updateBrand(brand.id, formData);
-
-      if (result?.error) {
-        setError(result.error);
-      }
+      if (result?.error) setError(result.error);
     });
   }
 
@@ -59,7 +50,6 @@ export default function EditBrandForm({ brand, medias }: Props) {
       <h1 className="text-xl font-bold mb-4">Marka Güncelle</h1>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-4 w-full">
-        
         <input
           type="text"
           name="name"
@@ -75,10 +65,9 @@ export default function EditBrandForm({ brand, medias }: Props) {
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           className="py-2 px-3 border rounded w-full"
-          required
         />
 
-        {/* --- MEDIA MODAL --- */}
+        {/* MEDIA MODAL */}
         <div className="space-y-2">
           <Label>Marka Görselleri</Label>
 
