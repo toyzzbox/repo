@@ -20,7 +20,7 @@ const FavoritesClient = ({ session }: FavoritesClientProps) => {
       <div className="text-3xl">
         <Heart />
       </div>
-      <span className="ml-2">Favorilerim</span>
+      <span className="ml-2 hidden md:flex">Favorilerim</span>
     </Link>
   );
 };
