@@ -44,7 +44,7 @@ export default function ProductBreadcrumb({
           <>
             <li>
               <Link
-                href={`/categories/${category.slug}`}
+                href={`${category.slug}`}
                 className="hover:text-gray-800"
               >
                 {category.name}
