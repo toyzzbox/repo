@@ -70,6 +70,9 @@ class ApiClient {
           body: JSON.stringify(bannerData),
         });
       }   
+      async getBanners() {
+        return this.request('/banners');
+      }
   }
   
   export const apiClient = new ApiClient();

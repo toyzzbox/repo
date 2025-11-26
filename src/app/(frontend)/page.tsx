@@ -4,10 +4,12 @@ import { CustomCarousel } from "@/components/(frontend)/home/CustomCarousel";
 import { BrandCard } from "@/components/(frontend)/product/BrandCard";
 import { CategoryCard } from "@/components/(frontend)/product/CategoryCard";
 import { ProductCard } from "@/components/(frontend)/product/ProductCard";
+import HomeBannerCarousel from "@/components/frontend/HomeBannerCarousel";
 
 export default async function Home() {
   try {
     const [
+      banners,
       productNew,
       products,
       brands,
@@ -15,6 +17,7 @@ export default async function Home() {
       attributes,
       discountProducts,
     ] = await Promise.all([
+      apiClient.getBanners().catch(() => []),
       apiClient.getProducts().catch(() => []),
       apiClient.getPopularProducts().catch(() => []),
       apiClient.getBrands().catch(() => []),
@@ -24,20 +27,18 @@ export default async function Home() {
     ]);
 
     return (
-      <main className="container mx-auto p-4 space-y-6">
+      <main className="container mx-auto p-4 space-y-10">
+
+        {/* ✅ BANNER SLIDER */}
+        <HomeBannerCarousel banners={banners} />
+
         {/* En Popüler Ürünler */}
         <Section title="En Popüler Ürünler">
-          <CustomCarousel 
-            itemsPerView={{
-              mobile: 2,
-              sm: 2,
-              md: 3,
-              lg: 4,
-              xl: 6
-            }}
-            showDots={true}
-            showArrows={true}
-            autoPlay={true}
+          <CustomCarousel
+            itemsPerView={{ mobile: 2, sm: 2, md: 3, lg: 4, xl: 6 }}
+            showDots
+            showArrows
+            autoPlay
             autoPlayInterval={4000}
           >
             {products.map((product) => (
@@ -48,17 +49,11 @@ export default async function Home() {
 
         {/* En İndirimli Ürünler */}
         <Section title="En İndirimli Ürünler">
-          <CustomCarousel 
-            itemsPerView={{
-              mobile: 2,
-              sm: 2,
-              md: 3,
-              lg: 4,
-              xl: 6
-            }}
-            showDots={true}
-            showArrows={true}
-            autoPlay={true}
+          <CustomCarousel
+            itemsPerView={{ mobile: 2, sm: 2, md: 3, lg: 4, xl: 6 }}
+            showDots
+            showArrows
+            autoPlay
             autoPlayInterval={4000}
           >
             {discountProducts.map((product) => (
@@ -69,16 +64,10 @@ export default async function Home() {
 
         {/* En Yeni Ürünler */}
         <Section title="En Yeni Ürünler">
-          <CustomCarousel 
-            itemsPerView={{
-              mobile: 2,
-              sm: 2,
-              md: 3,
-              lg: 4,
-              xl: 6
-            }}
+          <CustomCarousel
+            itemsPerView={{ mobile: 2, sm: 2, md: 3, lg: 4, xl: 6 }}
             showDots={false}
-            showArrows={true}
+            showArrows
           >
             {productNew.map((product) => (
               <ProductCard key={product.id} product={product} />
@@ -88,16 +77,10 @@ export default async function Home() {
 
         {/* Popüler Markalar */}
         <Section title="En Popüler Markalar">
-          <CustomCarousel 
-            itemsPerView={{
-              mobile: 2,
-              sm: 3,
-              md: 4,
-              lg: 6,
-              xl: 8
-            }}
-            showDots={true}
-            showArrows={true}
+          <CustomCarousel
+            itemsPerView={{ mobile: 2, sm: 3, md: 4, lg: 6, xl: 8 }}
+            showDots
+            showArrows
           >
             {brands.map((brand) => (
               <BrandCard key={brand.id} brand={brand} />
@@ -107,16 +90,10 @@ export default async function Home() {
 
         {/* Popüler Kategoriler */}
         <Section title="En Popüler Kategoriler">
-          <CustomCarousel 
-            itemsPerView={{
-              mobile: 2,
-              sm: 3,
-              md: 4,
-              lg: 5,
-              xl: 6,
-            }}
-            showDots={true}
-            showArrows={true}
+          <CustomCarousel
+            itemsPerView={{ mobile: 2, sm: 3, md: 4, lg: 5, xl: 6 }}
+            showDots
+            showArrows
           >
             {categories.map((category) => (
               <CategoryCard key={category.id} category={category} />
@@ -126,26 +103,21 @@ export default async function Home() {
 
         {/* Yaş Aralığına Göre Oyuncaklar */}
         <Section title="Yaş Aralığına Göre Oyuncaklar">
-          <CustomCarousel 
-            itemsPerView={{
-              mobile: 2,
-              sm: 3,
-              md: 4,
-              lg: 6,
-              xl: 6
-            }}
-            showDots={true}
-            showArrows={true}
+          <CustomCarousel
+            itemsPerView={{ mobile: 2, sm: 3, md: 4, lg: 6, xl: 6 }}
+            showDots
+            showArrows
           >
             {attributes.map((attribute) => (
               <AttributeCard key={attribute.id} attribute={attribute} />
             ))}
           </CustomCarousel>
         </Section>
+
       </main>
     );
   } catch (error) {
-    console.error('Ana sayfa yüklenirken hata:', error);
+    console.error("Ana sayfa yüklenirken hata:", error);
     return (
       <main className="container mx-auto p-4">
         <div className="text-center py-10">
@@ -161,10 +133,15 @@ export default async function Home() {
   }
 }
 
-/* ---------------- Yardımcı Bileşenler ---------------- */
+/* ---------------- Yardımcı Bileşen ---------------- */
 
-// Her bölüm başlığı ve içeriği
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
+function Section({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) {
   return (
     <section className="space-y-6">
       <div className="text-center">
