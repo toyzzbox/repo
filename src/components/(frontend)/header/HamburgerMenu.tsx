@@ -84,7 +84,7 @@ export default function HamburgerMenu({ categories = [] }: HamburgerMenuProps) {
         ${isMenuOpen ? 'translate-x-0' : '-translate-x-full'}
       `}>
         {/* Menu Header */}
-        <div className="bg-gradient-to-r from-yellow-50-600 to-orange-600 text-white p-4 flex items-center justify-between">
+        <div className="bg-gray-100 p-4 flex items-center justify-between">
           {!isMainMenu && (
             <button
               onClick={handleBack}
