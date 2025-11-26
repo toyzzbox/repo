@@ -4,6 +4,7 @@ import LiveSearch from '../search/LiveSearch';
 import MobileLogo from './MobileLogo';
 import HamburgerMenuWrapper from './HamburgerMenuWrapper';
 import UserMobileMenuClient from './UserMobileMenuClient';
+import FavoritesClient from './FavoritesClient';
 
 interface MobileHeaderProps {
   session: any;
@@ -19,6 +20,7 @@ export default function MobileHeader({ session, categories }: MobileHeaderProps)
           <HamburgerMenuWrapper categories={categories} />
           <MobileLogo />
           <div className="flex items-center gap-4">
+          <FavoritesClient session={session} />
             <UserMobileMenuClient session={session} />
             <CartCountMobile />
           </div>
