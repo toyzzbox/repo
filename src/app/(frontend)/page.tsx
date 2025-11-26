@@ -4,7 +4,7 @@ import { CustomCarousel } from "@/components/(frontend)/home/CustomCarousel";
 import { BrandCard } from "@/components/(frontend)/product/BrandCard";
 import { CategoryCard } from "@/components/(frontend)/product/CategoryCard";
 import { ProductCard } from "@/components/(frontend)/product/ProductCard";
-import HomeBannerCarousel from "@/components/frontend/HomeBannerCarousel";
+import HomeBannerCarousel from "@/components/(frontend)/home/HomeBannerCarousel";
 
 export default async function Home() {
   try {
