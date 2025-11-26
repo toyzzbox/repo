@@ -1,27 +1,7 @@
+// app/(backend)/administor/products/[id]/page.tsx
+
 import { prisma } from "@/lib/prisma";
 import EditProductForm from "@/components/(backend)/product/EditProductForm";
-import { Media, Product } from "@/types/product";
-import { Brand } from "@/types/brand";
-import { Category } from "@/types/category";
-import { Attribute } from "@/types/attribute";
-
-interface ProductGroup {
-  id: string;
-  name: string;
-  slug: string;
-  description?: string;
-}
-
-type ProductWithRelations = Product & {
-  brands: Brand[];
-  categories: Category[];
-  medias: {
-    media: Media;
-    order: number;
-  }[];
-  attributes: Attribute[];
-  group?: ProductGroup;
-};
 
 export default async function EditProductPage({ params }: { params: { id: string } }) {
   const product = await prisma.product.findUnique({
@@ -36,7 +16,7 @@ export default async function EditProductPage({ params }: { params: { id: string
         include: {
           media: {
             include: {
-              variants: true, // ✅ Ürün medyaları cdnUrl ile geliyor
+              variants: true, // cdnUrl
             },
           },
         },
@@ -44,49 +24,54 @@ export default async function EditProductPage({ params }: { params: { id: string
     },
   });
 
-  if (!product) {
-    return <div>Ürün bulunamadı.</div>;
-  }
+  if (!product) return <div>Ürün bulunamadı.</div>;
 
-  const fullProduct = product as ProductWithRelations;
+  // Ürüne ait medyalar -> Edit form için dönüştürme
+  const productMedias = product.medias.map((m) => ({
+    id: m.media.id,
+    urls: m.media.variants.map((v) => v.cdnUrl),
+  }));
 
-  // Tüm seçenekleri çek (ve variants'ı dahil et)
-  const brands = await prisma.brand.findMany();
-  const categories = await prisma.category.findMany();
-
-  const medias = await prisma.media.findMany({
+  // Tüm medya listesi (modal için)
+  const mediasRaw = await prisma.media.findMany({
     include: {
-      variants: true, // ✅ Edit ekranındaki medya galerisi için zorunlu
+      variants: true,
     },
-    orderBy: {
-      createdAt: "desc",
-    },
+    orderBy: { createdAt: "desc" },
   });
 
+  const medias = mediasRaw.map((m) => ({
+    id: m.id,
+    urls: m.variants.map((v) => v.cdnUrl),
+  }));
+
+  const brands = await prisma.brand.findMany();
+  const categories = await prisma.category.findMany();
   const attributes = await prisma.attribute.findMany();
   const productGroups = await prisma.productGroup.findMany();
 
   return (
     <EditProductForm
       product={{
-        id: fullProduct.id,
-        name: fullProduct.name,
-        description: fullProduct.description ?? "",
-        serial: fullProduct.serial ?? "",
-        stock: fullProduct.stock ?? 0,
-        price: fullProduct.price,
-        discount: fullProduct.discount ?? 0,
-        groupId: fullProduct.groupId ?? "",
-        brandIds: fullProduct.brands.map((b) => b.id),
-        categoryIds: fullProduct.categories.map((c) => c.id),
-        mediaIds: fullProduct.medias.map((m) => m.media.id), // Ürünün kendi medyaları
-        attributeIds: fullProduct.attributes.map((a) => a.id),
+        id: product.id,
+        name: product.name,
+        serial: product.serial || "",
+        barcode: product.barcode || "",
+        stock: product.stock,
+        price: product.price,
+        discount: product.discount || 0,
+        groupId: product.groupId || "",
+        description: product.description || "",
+        brandIds: product.brands.map((b) => b.id),
+        categoryIds: product.categories.map((c) => c.id),
+        mediaIds: productMedias.map((m) => m.id), // sadece id
       }}
+      medias={medias}
+      productMedias={productMedias}            // 👈 ürünün kendi medyaları
       brands={brands}
       categories={categories}
-      medias={medias} // ✅ cdnUrl içeriyor
-      attributes={attributes}
       productGroups={productGroups}
+      attributes={attributes}
     />
   );
 }

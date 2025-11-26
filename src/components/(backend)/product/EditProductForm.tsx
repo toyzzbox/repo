@@ -8,44 +8,32 @@ import { Input } from "@/components/ui/input";
 import MultiSelect from "@/components/ui/MultiSelect";
 import { updateProduct } from "@/actions/updateProduct";
 
-interface Brand {
-  id: string;
-  name: string;
-}
-interface Category {
-  id: string;
-  name: string;
-}
 interface Media {
   id: string;
   urls: string[];
 }
-interface ProductGroup {
-  id: string;
-  name: string;
-}
 
-interface Product {
-  id: string;
-  name: string;
-  serial?: string;
-  stock: number;
-  price: number;
-  discount?: number;
-  barcode?: string,
-  groupId?: string;
-  description?: string;
-  brandIds: string[];
-  categoryIds: string[];
-  mediaIds: string[];
-}
-
-interface ProductUpdateFormProps {
-  product: Product;
-  brands: Brand[];
-  categories: Category[];
+interface ProductFormProps {
+  product: {
+    id: string;
+    name: string;
+    serial?: string;
+    barcode?: string;
+    stock: number;
+    price: number;
+    discount?: number;
+    groupId?: string;
+    description?: string;
+    brandIds: string[];
+    categoryIds: string[];
+    mediaIds: string[];
+  };
+  brands: { id: string; name: string }[];
+  categories: { id: string; name: string }[];
   medias: Media[];
-  productGroups: ProductGroup[];
+  productMedias: Media[];
+  productGroups: { id: string; name: string }[];
+  attributes?: { id: string; name: string }[];
 }
 
 export default function EditProductForm({
@@ -53,14 +41,16 @@ export default function EditProductForm({
   brands,
   categories,
   medias,
+  productMedias,
   productGroups,
-}: ProductUpdateFormProps) {
+}: ProductFormProps) {
   const [state, formAction, isPending] = useActionState(updateProduct, null);
 
   const [descriptionHtml, setDescriptionHtml] = useState(product.description || "");
-  const [selectedMedias, setSelectedMedias] = useState<Media[]>(
-    product.mediaIds.map((id) => medias.find((m) => m.id === id)!).filter(Boolean)
-  );
+
+  // Ürünün mevcut medyaları başlangıç değeri
+  const [selectedMedias, setSelectedMedias] = useState<Media[]>(productMedias);
+
   const [selectedCategoryIds, setSelectedCategoryIds] = useState<string[]>(product.categoryIds);
   const [selectedBrandIds, setSelectedBrandIds] = useState<string[]>(product.brandIds);
 
@@ -70,119 +60,66 @@ export default function EditProductForm({
 
       <input type="hidden" name="id" value={product.id} />
 
+      {/* Ürün Adı */}
       <div>
         <Label htmlFor="name">Ürün Adı</Label>
-        <Input type="text" id="name" name="name" required defaultValue={product.name} />
+        <Input type="text" id="name" name="name" defaultValue={product.name} required />
       </div>
 
+      {/* Seri */}
       <div>
-        <Label htmlFor="serial">Seri Numarası (opsiyonel)</Label>
-        <Input type="text" id="serial" name="serial" defaultValue={product.serial || ""} />
-      </div>
-      <div className="flex flex-col gap-2">
-  <label htmlFor="barcode" className="font-medium text-sm">Barkod</label>
-  <input
-    type="text"
-    id="barcode"
-    name="barcode"
-    defaultValue={product.barcode || ""}
-    className="input"
-    minLength={8}
-    maxLength={20}
-  />
-</div>
-      <div>
-        <Label htmlFor="stock">Stok</Label>
-        <Input type="number" id="stock" name="stock" required min={0} defaultValue={product.stock} />
+        <Label>Seri Numarası</Label>
+        <Input type="text" name="serial" defaultValue={product.serial || ""} />
       </div>
 
+      {/* Barkod */}
       <div>
-        <Label htmlFor="price">Fiyat</Label>
-        <Input type="number" step="0.01" id="price" name="price" required defaultValue={product.price} />
+        <Label>Barkod</Label>
+        <Input type="text" name="barcode" defaultValue={product.barcode || ""} />
       </div>
 
+      {/* Stok */}
       <div>
-        <Label htmlFor="discount">İndirimli Fiyat</Label>
-        <Input
-          type="number"
-          step="0.01"
-          id="discount"
-          name="discount"
-          defaultValue={product.discount || ""}
-        />
+        <Label>Stok</Label>
+        <Input type="number" name="stock" min={0} defaultValue={product.stock} />
       </div>
 
+      {/* Fiyat */}
       <div>
-        <Label htmlFor="groupId">Ürün Grubu (opsiyonel)</Label>
-        <select id="groupId" name="groupId" className="border px-2 py-1 rounded w-full" defaultValue={product.groupId || ""}>
-          <option value="">— Grupsuz Ürün —</option>
-          {productGroups.map((group) => (
-            <option key={group.id} value={group.id}>
-              {group.name}
+        <Label>Fiyat</Label>
+        <Input type="number" step="0.01" name="price" defaultValue={product.price} />
+      </div>
+
+      {/* İndirim */}
+      <div>
+        <Label>İndirimli Fiyat</Label>
+        <Input type="number" step="0.01" name="discount" defaultValue={product.discount || ""} />
+      </div>
+
+      {/* Grup */}
+      <div>
+        <Label>Ürün Grubu</Label>
+        <select name="groupId" className="border px-2 py-1 rounded w-full" defaultValue={product.groupId || ""}>
+          <option value="">— Grupsuz —</option>
+          {productGroups.map((g) => (
+            <option key={g.id} value={g.id}>
+              {g.name}
             </option>
           ))}
         </select>
       </div>
 
+      {/* Açıklama */}
       <div>
         <Label>Açıklama</Label>
-        <RichTextEditor onChange={setDescriptionHtml} initialContent={product.description || ""} />
+        <RichTextEditor initialContent={product.description || ""} onChange={setDescriptionHtml} />
         <input type="hidden" name="description" value={descriptionHtml} />
       </div>
 
+      {/* Kategoriler */}
       <MultiSelect
         items={categories}
         selected={selectedCategoryIds}
         setSelected={setSelectedCategoryIds}
-        placeholder="Kategori ara..."
+        placeholder="Kategori seç..."
         label="Kategoriler"
-      />
-
-      <MultiSelect
-        items={brands}
-        selected={selectedBrandIds}
-        setSelected={setSelectedBrandIds}
-        placeholder="Marka ara..."
-        label="Markalar"
-      />
-
-      {selectedBrandIds.map((id) => (
-        <input key={id} type="hidden" name="brandIds[]" value={id} />
-      ))}
-      {selectedCategoryIds.map((id) => (
-        <input key={id} type="hidden" name="categoryIds[]" value={id} />
-      ))}
-
-      <div className="space-y-2">
-        <Label>Ürün Medyaları</Label>
-        <MediaModalButton
-          medias={medias}
-          onSelectedMediasChange={setSelectedMedias}
-          selectedMedias={selectedMedias}
-          
-        />
-        {selectedMedias.map((media, index) => (
-          <div key={media.id}>
-            <input type="hidden" name="mediaIds[]" value={media.id} />
-            <input type="hidden" name="mediaOrders[]" value={index} />
-          </div>
-        ))}
-      </div>
-
-      <button type="submit" disabled={isPending} className="bg-blue-600 text-white px-4 py-2 rounded">
-        {isPending ? "Güncelleniyor..." : "Ürünü Güncelle"}
-      </button>
-
-
-      {state?.message && (
-  <div
-    className={`p-2 rounded text-sm ${
-      state.ok ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
-    }`}
-  >
-    {state.message}
-  </div>
-)}
-    </form>
-  );
-}
