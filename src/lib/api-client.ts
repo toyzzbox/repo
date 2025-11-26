@@ -64,6 +64,12 @@ class ApiClient {
           body: JSON.stringify(productData),
         });
       }  
+      async createBanner(bannerData: any) {
+        return this.request('/banners', {
+          method: 'POST',
+          body: JSON.stringify(bannerData),
+        });
+      }   
   }
   
   export const apiClient = new ApiClient();
