@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import CreateBannerForm from "@/components/admin/banners/CreateBannerForm";
+import CreateBannerForm from "../CreateBannerForm";
 
 export default async function Page() {
   const medias = await prisma.media.findMany({
