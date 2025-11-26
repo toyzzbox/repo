@@ -1,13 +1,13 @@
 "use client";
 
-import { useFormState } from "react-dom";
+import React, { useActionState, useState } from "react";
 import { Button } from "@/components/ui/button";
 import BannerMediaPicker from "./BannerMediaPicker";
 import { createBanner } from "@/actions/createBanner";
-import { useState } from "react";
 
 export default function CreateBannerForm() {
-  const [state, formAction] = useFormState(createBanner, null);
+  // ✅ React 19 uyumlu kullanım
+  const [state, formAction, isPending] = useActionState(createBanner, null);
 
   const [media, setMedia] = useState<any>(null);
   const [placement, setPlacement] = useState<"HOME" | "CATEGORY">("HOME");
@@ -16,26 +16,43 @@ export default function CreateBannerForm() {
   >("NONE");
 
   return (
-    <form action={formAction} className="max-w-2xl space-y-6 bg-white p-6 rounded-xl shadow">
-      {/* ✅ Hata */}
+    <form
+      action={formAction}
+      className="max-w-2xl space-y-6 bg-white p-6 rounded-xl shadow"
+    >
+      {/* ✅ Server Action Hatası */}
       {state && <div className="text-red-500 text-sm">{state}</div>}
 
-      <input name="title" placeholder="Başlık" className="border p-2 w-full" />
-      <input name="subtitle" placeholder="Alt Başlık" className="border p-2 w-full" />
-      <textarea name="description" placeholder="Açıklama" className="border p-2 w-full" />
+      <input
+        name="title"
+        placeholder="Başlık"
+        className="border p-2 w-full rounded"
+      />
+
+      <input
+        name="subtitle"
+        placeholder="Alt Başlık"
+        className="border p-2 w-full rounded"
+      />
+
+      <textarea
+        name="description"
+        placeholder="Açıklama"
+        className="border p-2 w-full rounded"
+      />
 
       <input
         type="number"
         name="order"
         defaultValue={0}
-        className="border p-2 w-full"
+        className="border p-2 w-full rounded"
         placeholder="Sıra"
       />
 
       {/* ✅ Placement */}
       <select
         name="placement"
-        className="border p-2 w-full"
+        className="border p-2 w-full rounded"
         value={placement}
         onChange={(e) => setPlacement(e.target.value as any)}
       >
@@ -44,7 +61,7 @@ export default function CreateBannerForm() {
       </select>
 
       {/* ✅ Device */}
-      <select name="device" className="border p-2 w-full">
+      <select name="device" className="border p-2 w-full rounded">
         <option value="ALL">Tümü</option>
         <option value="DESKTOP">Desktop</option>
         <option value="MOBILE">Mobile</option>
@@ -53,7 +70,7 @@ export default function CreateBannerForm() {
       {/* ✅ Link Type */}
       <select
         name="linkType"
-        className="border p-2 w-full"
+        className="border p-2 w-full rounded"
         value={linkType}
         onChange={(e) => setLinkType(e.target.value as any)}
       >
@@ -64,10 +81,11 @@ export default function CreateBannerForm() {
         <option value="CUSTOM">Özel URL</option>
       </select>
 
+      {/* ✅ Custom URL */}
       {linkType === "CUSTOM" && (
         <input
           name="linkUrl"
-          className="border p-2 w-full"
+          className="border p-2 w-full rounded"
           placeholder="/kampanya/black-friday"
         />
       )}
@@ -75,10 +93,12 @@ export default function CreateBannerForm() {
       {/* ✅ Banner Görsel Seçici */}
       <BannerMediaPicker value={media} onChange={setMedia} />
 
-      {/* ✅ Media gizli input */}
+      {/* ✅ Media ID Gizli Input */}
       {media && <input type="hidden" name="mediaId" value={media.id} />}
 
-      <Button type="submit">Banner Kaydet</Button>
+      <Button type="submit" disabled={isPending}>
+        {isPending ? "Kaydediliyor..." : "Banner Kaydet"}
+      </Button>
     </form>
   );
 }
