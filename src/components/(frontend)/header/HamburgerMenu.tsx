@@ -110,6 +110,9 @@ export default function HamburgerMenu({ categories = [] }: HamburgerMenuProps) {
         {/* Menu Content */}
         <div className="flex-1 overflow-y-auto">
           <nav className="py-2" role="navigation" aria-label="Kategori menüsü">
+          <div className="px-6 py-8 text-center text-gray-500">
+                <p><Link href="/firsatlar">Fırsatlar</Link>
+              </div> 
             {currentCategories.length > 0 ? (
               currentCategories.map((category) => (
                 <button
@@ -131,7 +134,8 @@ export default function HamburgerMenu({ categories = [] }: HamburgerMenuProps) {
                 <p>Bu kategoride alt kategori bulunmuyor.</p>
               </div>
             )}
-             <Link href="/firsatlar">Fırsatlar</Link>
+            
+         
           </nav>
         </div>
 
