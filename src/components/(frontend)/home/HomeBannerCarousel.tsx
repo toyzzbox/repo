@@ -47,14 +47,17 @@ export default function HomeBannerCarousel({ banners }: Props) {
             const imageUrl = banner.media?.variants?.[0]?.cdnUrl;
 
             const content = (
-                <div className="relative w-full aspect-video overflow-hidden rounded-xl">
-                <Image
-                  src={imageUrl}
-                  alt="banner"
-                  fill
-                  className="object-cover"
-                />
-              
+              <div className="relative w-full h-[260px] md:h-[420px] overflow-hidden rounded-xl">
+                {imageUrl && (
+                  <Image
+                    src={imageUrl}
+                    alt={banner.title || "banner"}
+                    fill
+                    className="object-contain"
+                    priority
+                  />
+                )}
+
                 {/* ✅ Overlay */}
                 <div className="absolute inset-0 bg-black/30 flex flex-col justify-center px-6 md:px-16">
                   {banner.title && (
