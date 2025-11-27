@@ -120,7 +120,7 @@ export default function HamburgerMenu({ categories = [] }: HamburgerMenuProps) {
                   <span className="text-gray-800 font-medium">
                     {category.name}
                   </span>
-                  <Link href="/firsatlar">Fırsatlar</Link>
+                 
                   {category.children?.length > 0 && (
                     <ChevronRight size={18} className="text-gray-400" />
                   )}
@@ -131,6 +131,7 @@ export default function HamburgerMenu({ categories = [] }: HamburgerMenuProps) {
                 <p>Bu kategoride alt kategori bulunmuyor.</p>
               </div>
             )}
+             <Link href="/firsatlar">Fırsatlar</Link>
           </nav>
         </div>
 
