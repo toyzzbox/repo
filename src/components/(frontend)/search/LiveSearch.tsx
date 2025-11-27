@@ -130,7 +130,7 @@ export default function LiveSearch() {
   }, []);
 
   return (
-    <div className="relative w-full max-w-xl mx-auto z-50">
+    <div className="relative w-full max-w-xl mx-auto z-60">
       <form onSubmit={onSubmit} className="relative">
         <div className="flex w-full">
           <input
