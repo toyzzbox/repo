@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { ChevronRight, ChevronLeft, Menu, X } from 'lucide-react';
+import Link from 'next/link';
 
 // Type definitions
 type Category = {
@@ -119,7 +120,7 @@ export default function HamburgerMenu({ categories = [] }: HamburgerMenuProps) {
                   <span className="text-gray-800 font-medium">
                     {category.name}
                   </span>
-                  
+                  <Link href="/firsatlar">Fırsatlar</Link>
                   {category.children?.length > 0 && (
                     <ChevronRight size={18} className="text-gray-400" />
                   )}
