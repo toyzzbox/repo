@@ -1,10 +1,9 @@
 "use client";
 
-import React, { useState } from 'react';
-import { ChevronRight, ChevronLeft, Menu, X } from 'lucide-react';
-import Link from 'next/link';
+import React, { useState } from "react";
+import { ChevronRight, ChevronLeft, Menu, X } from "lucide-react";
+import Link from "next/link";
 
-// Type definitions
 type Category = {
   id: string;
   name: string;
@@ -16,23 +15,36 @@ interface HamburgerMenuProps {
   categories: Category[];
 }
 
+// ✅ Fırsatlar kontrol helper'ı
+const isOpportunity = (category: Category) =>
+  category.slug === "firsatlar";
+
 export default function HamburgerMenu({ categories = [] }: HamburgerMenuProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [menuStack, setMenuStack] = useState<Category[]>([]);
-  
+
   const currentMenu = menuStack[menuStack.length - 1];
-  const currentCategories = currentMenu?.children || categories || [];
+
+  // ✅ Fırsatlar sadece ANA MENÜDE görünür
+  const currentCategories = (currentMenu?.children || categories || []).filter(
+    (category) => !(menuStack.length > 0 && isOpportunity(category))
+  );
+
   const isMainMenu = menuStack.length === 0;
 
+  // ✅ Tıklama yönetimi + özel fırsatlar yönlendirme
   const handleCategoryClick = (category: Category) => {
+    if (isOpportunity(category)) {
+      window.location.href = "/firsatlar"; // ✅ özel sayfa
+      setIsMenuOpen(false);
+      setMenuStack([]);
+      return;
+    }
+
     if (category.children?.length > 0) {
       setMenuStack((prev) => [...prev, category]);
     } else {
-      // Router navigation burada yapılacak
-      console.log(`Navigating to: /categories/${category.slug}`);
-      // router.push(`/categories/${category.slug}`);
-      
-      // Menüyü kapat ve reset yap
+      window.location.href = `/categories/${category.slug}`;
       setIsMenuOpen(false);
       setMenuStack([]);
     }
@@ -50,15 +62,12 @@ export default function HamburgerMenu({ categories = [] }: HamburgerMenuProps) {
   };
 
   const getMenuTitle = () => {
-    if (currentMenu) {
-      return currentMenu.name;
-    }
-    return "Kategoriler";
+    return currentMenu ? currentMenu.name : "Kategoriler";
   };
 
   return (
     <div className="relative">
-      {/* Header */}
+      {/* ✅ HEADER TOGGLE */}
       <header className="p-4 flex justify-between items-center">
         <button
           onClick={toggleMenu}
@@ -69,64 +78,78 @@ export default function HamburgerMenu({ categories = [] }: HamburgerMenuProps) {
         </button>
       </header>
 
-      {/* Overlay */}
+      {/* ✅ OVERLAY */}
       {isMenuOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-black bg-opacity-50 z-40 transition-opacity duration-300"
           onClick={toggleMenu}
           aria-hidden="true"
         />
       )}
 
-      {/* Sliding Menu */}
-      <div className={`
+      {/* ✅ SLIDING MENU */}
+      <div
+        className={`
         fixed top-0 left-0 h-full w-80 max-w-[85vw] bg-white shadow-2xl z-50 
         transform transition-transform duration-300 ease-in-out
-        ${isMenuOpen ? 'translate-x-0' : '-translate-x-full'}
-      `}>
-        {/* Menu Header */}
+        ${isMenuOpen ? "translate-x-0" : "-translate-x-full"}
+      `}
+      >
+        {/* ✅ MENU HEADER */}
         <div className="bg-gray-100 p-4 flex items-center justify-between">
           {!isMainMenu && (
             <button
               onClick={handleBack}
               className="p-2 hover:bg-white hover:bg-opacity-10 rounded-lg transition-colors duration-200 mr-2"
-              aria-label="Geri git"
             >
               <ChevronLeft size={20} />
             </button>
           )}
+
           <h2 className="text-lg font-semibold flex-1 truncate">
             {getMenuTitle()}
           </h2>
+
           <button
             onClick={toggleMenu}
             className="p-2 hover:bg-white hover:bg-opacity-10 rounded-lg transition-colors duration-200"
-            aria-label="Menüyü kapat"
           >
             <X size={20} />
           </button>
         </div>
 
-        {/* Menu Content */}
-        <div>
-          <Link href="">Fırsatlar</Link>
-        </div>
+        {/* ✅ MENU CONTENT */}
         <div className="flex-1 overflow-y-auto">
-          <nav className="py-2" role="navigation" aria-label="Kategori menüsü">
+          <nav className="py-2">
             {currentCategories.length > 0 ? (
               currentCategories.map((category) => (
                 <button
                   key={category.id}
                   onClick={() => handleCategoryClick(category)}
-                  className="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-50 transition-colors duration-200 border-b border-gray-100 last:border-b-0 text-left"
+                  className={`w-full px-6 py-4 flex items-center justify-between transition-colors duration-200 border-b border-gray-100 last:border-b-0 text-left
+                    ${
+                      isOpportunity(category)
+                        ? "bg-red-50 hover:bg-red-100 text-red-600 font-bold"
+                        : "hover:bg-gray-50 text-gray-800 font-medium"
+                    }
+                  `}
                 >
-                  <span className="text-gray-800 font-medium">
+                  {/* ✅ SOL TARAF */}
+                  <span className="flex items-center gap-2">
                     {category.name}
+
+                    {isOpportunity(category) && (
+                      <span className="text-[10px] bg-red-500 text-white px-2 py-0.5 rounded-full">
+                        🔥
+                      </span>
+                    )}
                   </span>
-                  
-                  {category.children?.length > 0 && (
-                    <ChevronRight size={18} className="text-gray-400" />
-                  )}
+
+                  {/* ✅ SAĞ TARAF (SADECE NORMAL KATEGORİLER) */}
+                  {!isOpportunity(category) &&
+                    category.children?.length > 0 && (
+                      <ChevronRight size={18} className="text-gray-400" />
+                    )}
                 </button>
               ))
             ) : (
@@ -137,11 +160,12 @@ export default function HamburgerMenu({ categories = [] }: HamburgerMenuProps) {
           </nav>
         </div>
 
-        {/* Menu Footer */}
+        {/* ✅ FOOTER */}
         <div className="border-t border-gray-200 p-4 bg-gray-50">
           <div className="text-sm text-gray-600 text-center">
             {currentCategories.length} kategori
           </div>
+
           {!isMainMenu && currentMenu && (
             <div className="text-xs text-gray-500 text-center mt-1">
               {currentMenu.name}
