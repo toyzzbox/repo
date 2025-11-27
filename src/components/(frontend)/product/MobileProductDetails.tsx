@@ -288,17 +288,7 @@ const DesktopProductDetails: React.FC<ProductDetailsProps> = ({
             <FavoriteButton productId={activeVariant.id} initialIsFavorite={favorited} />
           </div>
 
-          {/* 🔥 YENİ: Misafir kullanıcı uyarısı */}
-          {!userId && (
-            <div className="bg-blue-50 border border-blue-200 rounded p-3 text-sm">
-              <p className="text-blue-700">
-                💡 Sepetiniz geçici olarak kaydedildi. Giriş yaparak kalıcı hale getirin ve tüm özelliklerden yararlanın!
-                <Link href="/login" className="ml-2 text-blue-600 hover:underline font-medium">
-                  Giriş Yap
-                </Link>
-              </p>
-            </div>
-          )}
+         
 
           <h2 className="p-2">En geç <b className="text-orange-400">yarın</b> kargoda.</h2>
         </div>
