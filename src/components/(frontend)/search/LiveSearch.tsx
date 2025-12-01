@@ -1,5 +1,4 @@
-// src/components/(frontend)/search/LiveSearch.tsx
-"use client";
+'use client';
 
 import { useEffect, useRef, useState, useTransition } from "react";
 import { searchProducts } from "@/actions/searchProducts";
@@ -17,7 +16,7 @@ const POPULAR_SEARCHES = [
   "Bebek",
   "Oyuncak Araba",
   "Eğitici Oyuncak",
-  "Peluş Oyuncak",
+  "Peluş Oyuncak"
 ];
 
 export default function LiveSearch() {
@@ -64,18 +63,12 @@ export default function LiveSearch() {
 
   // ⌨️ Klavye kontrolleri
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (!results.length) return;
-
     if (e.key === "ArrowDown") {
       e.preventDefault();
-      setHighlightIndex((prev) =>
-        prev < results.length - 1 ? prev + 1 : 0,
-      );
+      setHighlightIndex((prev) => (prev + 1) % results.length);
     } else if (e.key === "ArrowUp") {
       e.preventDefault();
-      setHighlightIndex((prev) =>
-        prev > 0 ? prev - 1 : results.length - 1,
-      );
+      setHighlightIndex((prev) => (prev - 1 + results.length) % results.length);
     } else if (e.key === "Enter") {
       if (highlightIndex >= 0 && results[highlightIndex]) {
         saveSearchToLocal(results[highlightIndex].name);
@@ -105,7 +98,7 @@ export default function LiveSearch() {
   };
 
   const removeRecentSearch = (searchToRemove: string) => {
-    const updated = recentSearches.filter((search) => search !== searchToRemove);
+    const updated = recentSearches.filter(search => search !== searchToRemove);
     localStorage.setItem("recentSearches", JSON.stringify(updated));
     setRecentSearches(updated);
   };
@@ -131,7 +124,10 @@ export default function LiveSearch() {
 
   return (
     <div className="relative w-full max-w-xl mx-auto z-60">
-      <form onSubmit={onSubmit} className="relative">
+      <form
+        onSubmit={onSubmit}
+        className="relative"
+      >
         <div className="flex w-full">
           <input
             ref={inputRef}
@@ -168,63 +164,44 @@ export default function LiveSearch() {
                 Arama Sonuçları
               </div>
               <ul className="space-y-1">
-                {results.map((product, i) => {
-                  const mainVariant =
-                    product.medias?.[0]?.media?.variants?.find(
-                      (v: any) => v.key === "main",
-                    ) ??
-                    product.medias?.[0]?.media?.variants?.[0];
-
-                  const imageUrl =
-                    mainVariant?.cdnUrl || "/placeholder.png";
-
-                  const primaryBrand = product.brands?.[0]?.name;
-                  const categoryNames = product.categories
-                    ?.map((c: any) => c.name)
-                    .join(", ");
-
-                  return (
-                    <li
-                      key={product.id}
-                      className={`rounded-md transition-colors ${
-                        i === highlightIndex
-                          ? "bg-orange-50"
-                          : "hover:bg-gray-50"
-                      }`}
+                {results.map((product, i) => (
+                  <li
+                    key={product.id}
+                    className={`rounded-md transition-colors ${
+                      i === highlightIndex ? "bg-orange-50" : "hover:bg-gray-50"
+                    }`}
+                  >
+                    <a
+                      href={`/${product.slug}`}
+                      className="flex items-center gap-3 p-2 w-full"
+                      onClick={() => saveSearchToLocal(product.name)}
                     >
-                      <a
-                        href={`/${product.slug}`}
-                        className="flex items-center gap-3 p-2 w-full"
-                        onClick={() => saveSearchToLocal(product.name)}
-                      >
-                        <Image
-                          src={imageUrl}
-                          alt={product.name}
-                          width={40}
-                          height={40}
-                          className="object-cover rounded border"
-                        />
-                        <div className="flex flex-col overflow-hidden flex-1">
-                          <span className="font-medium text-sm truncate text-gray-900">
-                            {product.name}
-                          </span>
-                          {(primaryBrand || categoryNames) && (
-                            <span className="text-xs text-gray-500 truncate">
-                              {primaryBrand || ""}
-                              {primaryBrand && categoryNames ? " • " : ""}
-                              {categoryNames || ""}
-                            </span>
-                          )}
-                        </div>
-                        {product.price && (
-                          <span className="text-sm font-semibold text-orange-600 whitespace-nowrap">
-                            {product.price} ₺
-                          </span>
-                        )}
-                      </a>
-                    </li>
-                  );
-                })}
+                      <Image
+                        src={product.medias?.[0]?.urls?.[0] || "/placeholder.png"}
+                        alt={product.name}
+                        width={40}
+                        height={40}
+                        className="object-cover rounded border"
+                      />
+                      <div className="flex flex-col overflow-hidden flex-1">
+                        <span className="font-medium text-sm truncate text-gray-900">
+                          {product.name}
+                        </span>
+                        <span className="text-xs text-gray-500 truncate">
+                          {product.brand?.name || ""}
+                          {product.categories?.length
+                            ? ` • ${product.categories.map((c: any) => c.name).join(", ")}`
+                            : ""}
+                        </span>
+                      </div>
+                      {product.price && (
+                        <span className="text-sm font-semibold text-orange-600 whitespace-nowrap">
+                          {product.price} ₺
+                        </span>
+                      )}
+                    </a>
+                  </li>
+                ))}
               </ul>
             </div>
           )}
@@ -260,9 +237,7 @@ export default function LiveSearch() {
                           className="flex items-center gap-2 p-2 flex-1 text-left"
                         >
                           <FaSearch className="text-gray-400 text-xs" />
-                          <span className="text-sm text-gray-700">
-                            {search}
-                          </span>
+                          <span className="text-sm text-gray-700">{search}</span>
                         </button>
                         <button
                           type="button"
@@ -306,8 +281,7 @@ export default function LiveSearch() {
                 <FaSearch className="h-8 w-8 mx-auto" />
               </div>
               <p className="text-sm text-gray-600 mb-1">
-                <span className="font-medium">"{query}"</span> için sonuç
-                bulunamadı
+                <span className="font-medium">"{query}"</span> için sonuç bulunamadı
               </p>
               <p className="text-xs text-gray-500">
                 Farklı anahtar kelimeler deneyebilirsiniz
