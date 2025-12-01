@@ -3,21 +3,27 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
-      // ✅ Google login avatarları için kalsın
+      // ✅ Google login avatarları
       {
         protocol: "https",
         hostname: "lh3.googleusercontent.com",
       },
 
-      // ✅ ARTIK GÖRSELLER BURADAN GELECEK (Cloudflare CDN → S3)
+      // ✅ Cloudflare CDN → S3
       {
         protocol: "https",
-        hostname: "cdn.toyzzbox.com", // 🔴 BURAYI KENDİ DOMAIN'İN İLE DEĞİŞTİR
+        hostname: "cdn.toyzzbox.com",
+        pathname: "/**",
+      },
+
+      // ✅ GEÇİCİ: Eski S3 URL'ler hata vermesin diye (birazdan bunu kaldıracağız)
+      {
+        protocol: "https",
+        hostname: "toyzzbox.s3.eu-north-1.amazonaws.com",
         pathname: "/**",
       },
     ],
 
-    // ✅ EN MODERN FORMATLAR
     formats: ["image/avif", "image/webp"],
   },
 
