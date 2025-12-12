@@ -1,8 +1,9 @@
+
 // lib/auth.ts
 import bcrypt from 'bcryptjs'
 import { prisma } from '@/lib/prisma'
-import { User } from '@prisma/client'
 import crypto from 'crypto'
+import { User } from '@prisma/client';
 
 // User operations
 export async function findUserByEmail(email: string): Promise<User | null> {
