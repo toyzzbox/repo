@@ -3,9 +3,15 @@
 import { prisma } from "@/lib/prisma";
 import EditProductForm from "@/components/(backend)/product/EditProductForm";
 
-export default async function EditProductPage({ params }: { params: { id: string } }) {
+type PageProps = {
+  params: Promise<{ id: string }>;
+};
+
+export default async function EditProductPage({ params }: PageProps) {
+  const { id } = await params;
+
   const product = await prisma.product.findUnique({
-    where: { id: params.id },
+    where: { id },
     include: {
       brands: true,
       categories: true,
@@ -64,10 +70,10 @@ export default async function EditProductPage({ params }: { params: { id: string
         description: product.description || "",
         brandIds: product.brands.map((b) => b.id),
         categoryIds: product.categories.map((c) => c.id),
-        mediaIds: productMedias.map((m) => m.id), // sadece id
+        mediaIds: productMedias.map((m) => m.id),
       }}
       medias={medias}
-      productMedias={productMedias}            // 👈 ürünün kendi medyaları
+      productMedias={productMedias}
       brands={brands}
       categories={categories}
       productGroups={productGroups}
