@@ -8,11 +8,16 @@ type CategoryWithRelations = Category & {
   parent?: Category | null;
 };
 
-export default async function EditCategoryPage({ params }: { params: { id: string } }) {
-  
+type PageProps = {
+  params: Promise<{ id: string }>;
+};
+
+export default async function EditCategoryPage({ params }: PageProps) {
+  const { id } = await params;
+
   // 1. Kategori + ilişkiler
   const category = await prisma.category.findUnique({
-    where: { id: params.id },
+    where: { id },
     include: {
       medias: true,
       parent: true,
