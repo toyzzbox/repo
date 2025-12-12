@@ -4,94 +4,96 @@ import ProductDetailsWrapper from "@/components/(frontend)/product/ProductDetail
 import { notFound } from "next/navigation";
 
 type PageProps = {
-  params: {
-    slug: string;
-  };
+  params: Promise<{ slug: string }>;
 };
 
 export default async function ProductPage({ params }: PageProps) {
+  const { slug } = await params;
+
   // 🧮 Görüntülenme sayısını artırarak ürünü getir
-  const product = await prisma.product.update({
-    where: { slug: params.slug },
-    data: {
-      views: { increment: 1 },
-    },
-    include: {
-      medias: {
-        orderBy: { order: "asc" },
-        include: {
-          media: {
-            include: {
-              variants: {
-                select: {
-                  cdnUrl: true,
-                  key: true,
-                  format: true,
-                  width: true,
-                  height: true,
-                  type: true,
+  let product: Awaited<ReturnType<typeof prisma.product.update>>;
+
+  try {
+    product = await prisma.product.update({
+      where: { slug },
+      data: { views: { increment: 1 } },
+      include: {
+        medias: {
+          orderBy: { order: "asc" },
+          include: {
+            media: {
+              include: {
+                variants: {
+                  select: {
+                    cdnUrl: true,
+                    key: true,
+                    format: true,
+                    width: true,
+                    height: true,
+                    type: true,
+                  },
                 },
-              },
-              tags: {
-                select: {
-                  name: true,
-                  confidence: true,
-                  type: true,
+                tags: {
+                  select: {
+                    name: true,
+                    confidence: true,
+                    type: true,
+                  },
                 },
               },
             },
           },
         },
-      },
 
-      // 🔹 Marka bilgisi
-      brands: {
-        select: {
-          id: true,
-          name: true,
-          slug: true,
+        // 🔹 Marka bilgisi
+        brands: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+          },
         },
-      },
 
-      // 🔹 Kategori bilgisi (parent dahil)
-      categories: {
-        select: {
-          id: true,
-          name: true,
-          slug: true,
-          parent: {
-            select: {
-              id: true,
-              name: true,
-              slug: true,
+        // 🔹 Kategori bilgisi (parent dahil)
+        categories: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+            parent: {
+              select: {
+                id: true,
+                name: true,
+                slug: true,
+              },
             },
           },
         },
-      },
 
-      // 🔹 Ürün grubu ve varyantları
-      group: {
-        include: {
-          products: {
-            select: {
-              id: true,
-              slug: true,
-              name: true,
-              price: true,
-              description: true,
-              stock: true,
-              barcode: true,
-              medias: {
-                orderBy: { order: "asc" },
-                include: {
-                  media: {
-                    include: {
-                      variants: {
-                        select: {
-                          cdnUrl: true,
-                          key: true,
-                          format: true,
-                          type: true,
+        // 🔹 Ürün grubu ve varyantları
+        group: {
+          include: {
+            products: {
+              select: {
+                id: true,
+                slug: true,
+                name: true,
+                price: true,
+                description: true,
+                stock: true,
+                barcode: true,
+                medias: {
+                  orderBy: { order: "asc" },
+                  include: {
+                    media: {
+                      include: {
+                        variants: {
+                          select: {
+                            cdnUrl: true,
+                            key: true,
+                            format: true,
+                            type: true,
+                          },
                         },
                       },
                     },
@@ -101,30 +103,28 @@ export default async function ProductPage({ params }: PageProps) {
             },
           },
         },
-      },
 
-      // 🔹 Yorumlar ve kullanıcı bilgisi
-      comments: {
-        include: {
-          user: {
-            select: {
-              name: true,
-              image: true,
+        // 🔹 Yorumlar ve kullanıcı bilgisi
+        comments: {
+          include: {
+            user: {
+              select: {
+                name: true,
+                image: true,
+              },
             },
           },
+          orderBy: { createdAt: "desc" },
         },
-        orderBy: { createdAt: "desc" },
-      },
 
-      // 🔹 Favori kontrolü için
-      favorites: {
-        select: { id: true },
+        // 🔹 Favori kontrolü için
+        favorites: {
+          select: { id: true },
+        },
       },
-    },
-  });
-
-  // ❌ Ürün bulunamazsa 404
-  if (!product) {
+    });
+  } catch {
+    // ❌ slug ile ürün yoksa (P2025) vb -> 404
     return notFound();
   }
 
