@@ -18,12 +18,14 @@ const helpArticles: Record<string, { title: string; content: string }> = {
   },
 };
 
-type Props = {
-  params: { slug: string };
+type PageProps = {
+  params: Promise<{ slug: string }>;
 };
 
-export default function HelpArticlePage({ params }: Props) {
-  const article = helpArticles[params.slug];
+export default async function HelpArticlePage({ params }: PageProps) {
+  const { slug } = await params;
+
+  const article = helpArticles[slug];
 
   if (!article) return notFound();
 
