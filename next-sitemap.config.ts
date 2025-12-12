@@ -13,45 +13,46 @@ const config: IConfig = {
   generateIndexSitemap: true,
   sitemapBaseFileName: "sitemaps/sitemap",
 
-  transform: async (_config: IConfig, path: string): Promise<ISitemapField | null> => {
+  transform: async (
+    _config: IConfig,
+    url: string
+  ): Promise<ISitemapField | undefined> => {
     // parametreli url'leri atla
-    if (path.includes("?")) return null;
+    if (url.includes("?")) return undefined;
 
-    if (path.startsWith("/products/")) {
+    // Ürünler
+    if (url.startsWith("/products/")) {
       return {
-        loc: path,
+        loc: url,
         changefreq: "weekly",
         priority: 1.0,
-        // Not: sitemap gruplama için next-sitemap sürümüne göre bu alan desteklenmeyebilir.
-        // Desteklenmiyorsa bu satırı kaldır.
-        sitemap: "sitemaps/products",
-      } as unknown as ISitemapField;
+      };
     }
 
-    if (path.startsWith("/categories/")) {
+    // Kategoriler
+    if (url.startsWith("/categories/")) {
       return {
-        loc: path,
+        loc: url,
         changefreq: "weekly",
         priority: 0.9,
-        sitemap: "sitemaps/categories",
-      } as unknown as ISitemapField;
+      };
     }
 
-    if (path.startsWith("/brands/")) {
+    // Markalar
+    if (url.startsWith("/brands/")) {
       return {
-        loc: path,
+        loc: url,
         changefreq: "monthly",
         priority: 0.8,
-        sitemap: "sitemaps/brands",
-      } as unknown as ISitemapField;
+      };
     }
 
+    // Diğerleri
     return {
-      loc: path,
+      loc: url,
       changefreq: "monthly",
       priority: 0.5,
-      sitemap: "sitemaps/contents",
-    } as unknown as ISitemapField;
+    };
   },
 };
 
