@@ -1,16 +1,23 @@
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import type { Prisma } from "@prisma/client";
+
 import ProductDetailsWrapper from "@/components/(frontend)/product/ProductDetailsWrapper";
 import { getRelatedProducts } from "@/actions/getRelatedProducts";
 import SortSelect from "@/components/(frontend)/category/SortSelect";
 import CategoryFilters from "@/components/(frontend)/category/CategoryFilters";
 import { ProductCard } from "@/components/(frontend)/product/ProductCard";
-import MobileFilterButton from "../category/MobileFilterButton";
+import MobileFilterButton from "@/app/(frontend)/category/MobileFilterButton";
+
+/* =====================
+   TYPES
+===================== */
+
+type SearchParams = Record<string, string | string[] | undefined>;
 
 type PageProps = {
   params: Promise<{ slug: string }>;
-  searchParams?: { [k: string]: string | string[] | undefined };
+  searchParams?: Promise<SearchParams>;
 };
 
 /* ----------- Tip & Yardımcı ----------- */
@@ -26,10 +33,13 @@ const collectCategoryIds = (c: DeepCategory): string[] => [
 /* ==========================================
    DİNAMİK ÜRÜN / KATEGORİ SAYFASI
 ========================================== */
-export default async function DynamicPage({ params, searchParams = {} }: PageProps) {
+export default async function DynamicPage({ params, searchParams }: PageProps) {
   const { slug } = await params;
+  const sp = (searchParams ? await searchParams : {}) as SearchParams;
 
-  // Ürün ve kategori sorgularını paralel çalıştır
+  /* =====================
+     ÜRÜN & KATEGORİ SORGUSU
+  ===================== */
   const [productResult, categoryResult] = await Promise.allSettled([
     prisma.product.findUnique({
       where: { slug },
@@ -118,11 +128,13 @@ export default async function DynamicPage({ params, searchParams = {} }: PagePro
   const category =
     categoryResult.status === "fulfilled" ? categoryResult.value : null;
 
-  /* ========== ÜRÜN SAYFASI ========== */
+  /* =====================
+     ÜRÜN SAYFASI
+  ===================== */
   if (product) {
     if (!product.isActive) notFound();
 
-    // Görüntülenme sayısını arka planda artır
+    // 🔁 Görüntülenme artır (arka plan)
     prisma.product
       .update({
         where: { id: product.id },
@@ -130,7 +142,7 @@ export default async function DynamicPage({ params, searchParams = {} }: PagePro
       })
       .catch(() => {});
 
-    const categoryIds = product.categories?.map((cat) => cat.id) || [];
+    const categoryIds = product.categories.map((c) => c.id);
     const relatedProducts =
       categoryIds.length > 0
         ? await getRelatedProducts(product.id, categoryIds)
@@ -146,20 +158,23 @@ export default async function DynamicPage({ params, searchParams = {} }: PagePro
     );
   }
 
-  /* ========== KATEGORİ SAYFASI ========== */
+  /* =====================
+     KATEGORİ SAYFASI
+  ===================== */
   if (category) {
     const categoryIds = collectCategoryIds(category);
 
     const arr = (v: unknown) =>
       (Array.isArray(v) ? v : v ? [v] : []) as string[];
-    const selectedCatIds = arr(searchParams.category);
-    const selectedBrands = arr(searchParams.brand);
-    const selectedAttrIds = arr(searchParams.attribute);
 
-    const minPrice = Number(searchParams.minPrice) || undefined;
-    const maxPrice = Number(searchParams.maxPrice) || undefined;
+    const selectedCatIds = arr(sp.category);
+    const selectedBrands = arr(sp.brand);
+    const selectedAttrIds = arr(sp.attribute);
 
-    // Alt kategoriler
+    const minPrice = Number(sp.minPrice) || undefined;
+    const maxPrice = Number(sp.maxPrice) || undefined;
+
+    /* Alt kategoriler */
     const subcategories = await prisma.category.findMany({
       where: { parentId: category.id },
       select: {
@@ -170,7 +185,7 @@ export default async function DynamicPage({ params, searchParams = {} }: PagePro
       },
     });
 
-    // Markalar
+    /* Markalar */
     const brands = await prisma.brand.findMany({
       where: {
         products: {
@@ -181,7 +196,7 @@ export default async function DynamicPage({ params, searchParams = {} }: PagePro
       orderBy: { name: "asc" },
     });
 
-    // Attribute grupları
+    /* Attribute grupları */
     const attributeGroups = await prisma.attributeGroup.findMany({
       where: {
         attributes: {
@@ -200,8 +215,8 @@ export default async function DynamicPage({ params, searchParams = {} }: PagePro
       orderBy: { name: "asc" },
     });
 
-    // Sıralama
-    const { sort = "newest" } = searchParams;
+    /* Sıralama */
+    const { sort = "newest" } = sp;
     const orderBy =
       sort === "price_asc"
         ? { price: "asc" }
@@ -213,7 +228,7 @@ export default async function DynamicPage({ params, searchParams = {} }: PagePro
         ? { name: "desc" }
         : { createdAt: "desc" };
 
-    // WHERE koşulu
+    /* WHERE */
     const where: Prisma.ProductWhereInput = {
       isActive: true,
       categories: {
@@ -222,17 +237,20 @@ export default async function DynamicPage({ params, searchParams = {} }: PagePro
         },
       },
     };
+
     if (selectedBrands.length)
       where.brands = { some: { slug: { in: selectedBrands } } };
+
     if (selectedAttrIds.length)
       where.attributes = { some: { id: { in: selectedAttrIds } } };
+
     if (minPrice || maxPrice)
       where.price = {
         ...(minPrice && { gte: minPrice }),
         ...(maxPrice && { lte: maxPrice }),
       };
 
-    // Ürünleri getir
+    /* Ürünler */
     const products = await prisma.product.findMany({
       where,
       orderBy,
@@ -260,22 +278,17 @@ export default async function DynamicPage({ params, searchParams = {} }: PagePro
       },
     });
 
-    // Kategori sayfa UI
     return (
       <div className="container mx-auto px-4 py-8">
         <h1 className="text-2xl font-semibold mb-6">{category.name}</h1>
 
         <div className="flex flex-col sm:flex-row justify-between items-center gap-2 mb-6">
-          <div className="w-full sm:w-auto">
-            <MobileFilterButton
-              subcategories={subcategories}
-              brands={brands}
-              attributeGroups={attributeGroups}
-            />
-          </div>
-          <div className="w-full sm:w-auto sm:ml-auto">
-            <SortSelect />
-          </div>
+          <MobileFilterButton
+            subcategories={subcategories}
+            brands={brands}
+            attributeGroups={attributeGroups}
+          />
+          <SortSelect />
         </div>
 
         <div className="grid lg:grid-cols-[260px_1fr] gap-8">
@@ -288,7 +301,7 @@ export default async function DynamicPage({ params, searchParams = {} }: PagePro
           </div>
 
           {products.length ? (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 items-start">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
               {products.map((p) => (
                 <ProductCard key={p.id} product={p} />
               ))}
@@ -303,6 +316,8 @@ export default async function DynamicPage({ params, searchParams = {} }: PagePro
     );
   }
 
-  /* ========== 404 ========== */
+  /* =====================
+     404
+  ===================== */
   notFound();
 }
