@@ -1,10 +1,22 @@
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import type { Prisma } from "@prisma/client";
+
 import SortSelect from "@/components/(frontend)/category/SortSelect";
 import CategoryFilters from "@/components/(frontend)/category/CategoryFilters";
 import { ProductCard } from "@/components/(frontend)/product/ProductCard";
 import MobileFilterButton from "./MobileFilterButton";
+
+/* =====================
+   TYPES
+===================== */
+
+type SearchParams = Record<string, string | string[] | undefined>;
+
+type PageProps = {
+  params: Promise<{ categorySlug: string; slug?: string[] }>;
+  searchParams?: Promise<SearchParams>;
+};
 
 /* ----------- tip & yardımcı ----------- */
 type DeepCategory = Prisma.CategoryGetPayload<{
@@ -17,17 +29,12 @@ const collectCategoryIds = (c: DeepCategory): string[] => [
 ];
 
 /* ------------- Page ------------- */
-export default async function CategoryPage({
-  params,
-  searchParams = {},
-}: {
-  params: { categorySlug: string; slug?: string[] };
-  searchParams?: { [k: string]: string | string[] | undefined };
-}) {
-  const { categorySlug, slug = [] } = params;
+export default async function CategoryPage({ params, searchParams }: PageProps) {
+  const { categorySlug, slug = [] } = await params;
+  const sp = (searchParams ? await searchParams : {}) as SearchParams;
 
   // URL’deki son segment kategoriyi temsil ediyor
-  const finalSlug = slug.length ? slug.at(-1)! : categorySlug;
+  const finalSlug = slug.length ? (slug.at(-1) as string) : categorySlug;
 
   /* 1. Kategori + hiyerarşi */
   const category = await prisma.category.findUnique({
@@ -40,12 +47,12 @@ export default async function CategoryPage({
 
   /* 2. URL’den filtreleri al */
   const arr = (v: unknown) => (Array.isArray(v) ? v : v ? [v] : []) as string[];
-  const selectedCatIds = arr(searchParams.category);
-  const selectedBrands = arr(searchParams.brand);
-  const selectedAttrIds = arr(searchParams.attribute);
+  const selectedCatIds = arr(sp.category);
+  const selectedBrands = arr(sp.brand);
+  const selectedAttrIds = arr(sp.attribute);
 
-  const minPrice = Number(searchParams.minPrice) || undefined;
-  const maxPrice = Number(searchParams.maxPrice) || undefined;
+  const minPrice = Number(sp.minPrice) || undefined;
+  const maxPrice = Number(sp.maxPrice) || undefined;
 
   /* 3. Alt kategoriler */
   const subcategories = await prisma.category.findMany({
@@ -82,17 +89,17 @@ export default async function CategoryPage({
   });
 
   /* 6. Sıralama */
-  const { sort = "newest" } = searchParams;
+  const { sort = "newest" } = sp;
   const orderBy =
     sort === "price_asc"
-      ? { price: "asc" }
+      ? { price: "asc" as const }
       : sort === "price_desc"
-      ? { price: "desc" }
+      ? { price: "desc" as const }
       : sort === "name_asc"
-      ? { name: "asc" }
+      ? { name: "asc" as const }
       : sort === "name_desc"
-      ? { name: "desc" }
-      : { createdAt: "desc" };
+      ? { name: "desc" as const }
+      : { createdAt: "desc" as const };
 
   /* 7. WHERE koşulu */
   const where: Prisma.ProductWhereInput = {
@@ -103,15 +110,15 @@ export default async function CategoryPage({
       },
     },
   };
-  if (selectedBrands.length)
-    where.brands = { some: { slug: { in: selectedBrands } } };
-  if (selectedAttrIds.length)
-    where.attributes = { some: { id: { in: selectedAttrIds } } };
-  if (minPrice || maxPrice)
+
+  if (selectedBrands.length) where.brands = { some: { slug: { in: selectedBrands } } };
+  if (selectedAttrIds.length) where.attributes = { some: { id: { in: selectedAttrIds } } };
+  if (minPrice || maxPrice) {
     where.price = {
       ...(minPrice && { gte: minPrice }),
       ...(maxPrice && { lte: maxPrice }),
     };
+  }
 
   /* 8. Ürünleri getir */
   const products = await prisma.product.findMany({
@@ -178,9 +185,7 @@ export default async function CategoryPage({
             ))}
           </div>
         ) : (
-          <p className="text-muted-foreground">
-            Filtrelere uyan ürün bulunamadı.
-          </p>
+          <p className="text-muted-foreground">Filtrelere uyan ürün bulunamadı.</p>
         )}
       </div>
     </div>
