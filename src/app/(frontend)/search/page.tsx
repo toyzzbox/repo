@@ -3,12 +3,17 @@ import { searchProducts } from "@/lib/searchProducts";
 
 export const dynamic = "force-dynamic";
 
-export default async function SearchPage({
-  searchParams,
-}: {
-  searchParams: { query?: string };
-}) {
-  const query = searchParams.query?.trim() || "";
+type SearchParams = Record<string, string | string[] | undefined>;
+
+type PageProps = {
+  searchParams?: Promise<SearchParams>;
+};
+
+export default async function SearchPage({ searchParams }: PageProps) {
+  const sp = (searchParams ? await searchParams : {}) as SearchParams;
+
+  const qRaw = sp.query;
+  const query = (Array.isArray(qRaw) ? qRaw[0] : qRaw)?.trim() || "";
 
   const products = query ? await searchProducts(query) : [];
 
