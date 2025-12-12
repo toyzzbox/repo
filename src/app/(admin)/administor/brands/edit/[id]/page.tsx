@@ -6,9 +6,15 @@ type BrandWithMedias = Brand & {
   medias: { id: string }[];
 };
 
-export default async function EditPage({ params }: { params: { id: string } }) {
+type PageProps = {
+  params: Promise<{ id: string }>;
+};
+
+export default async function EditPage({ params }: PageProps) {
+  const { id } = await params;
+
   const brand = await prisma.brand.findUnique({
-    where: { id: params.id },
+    where: { id },
     include: {
       medias: {
         include: {
@@ -45,10 +51,10 @@ export default async function EditPage({ params }: { params: { id: string } }) {
     <EditBrandForm
       brand={{
         ...typedBrand,
-        mediaIds: brandMedias.map((m) => m.id), // id listesi
-        medias: brandMedias,                    // edit form için urls içeren medya listesi
+        mediaIds: brandMedias.map((m) => m.id),
+        medias: brandMedias,
       }}
-      medias={medias} // modal için tüm medya listesi
+      medias={medias}
     />
   );
 }
