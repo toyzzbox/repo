@@ -1,44 +1,71 @@
 // app/forgot-password/ForgotPasswordForm.tsx
-'use client'
+"use client";
 
-import { ForgotPasswordResult } from '@/actions/auth'
-import { useFormState, useFormStatus } from 'react-dom'
+import { ForgotPasswordResult } from "@/actions/auth";
+import { useFormState, useFormStatus } from "react-dom";
 
 function SubmitButton() {
-  const { pending } = useFormStatus()
-  
+  const { pending } = useFormStatus();
+
   return (
-    <button 
-      type="submit" 
+    <button
+      type="submit"
       disabled={pending}
       className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
     >
       {pending ? (
         <>
-          <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          <svg
+            className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <circle
+              className="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              strokeWidth="4"
+            ></circle>
+            <path
+              className="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+            ></path>
           </svg>
           Gönderiliyor...
         </>
       ) : (
-        '📧 Şifre Sıfırlama Linki Gönder'
+        "📧 Şifre Sıfırlama Linki Gönder"
       )}
     </button>
-  )
+  );
 }
 
-export default function ForgotPasswordForm({ 
-  action 
-}: { 
-  action: (prevState: ForgotPasswordResult, formData: FormData) => Promise<ForgotPasswordResult> 
-}) {
-  const [state, formAction] = useFormState(action, {})
+type Props = {
+  action: (
+    prevState: ForgotPasswordResult,
+    formData: FormData
+  ) => Promise<ForgotPasswordResult>;
+};
+
+const initialState: ForgotPasswordResult = {
+  error: null,
+  success: null,
+};
+
+export default function ForgotPasswordForm({ action }: Props) {
+  const [state, formAction] = useFormState(action, initialState);
 
   return (
     <form className="space-y-6" action={formAction}>
       <div>
-        <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+        <label
+          htmlFor="email"
+          className="block text-sm font-medium text-gray-700 mb-2"
+        >
           E-posta Adresiniz
         </label>
         <input
@@ -65,7 +92,7 @@ export default function ForgotPasswordForm({
           </div>
         </div>
       )}
-      
+
       {/* Success Message */}
       {state?.success && (
         <div className="bg-green-50 border-l-4 border-green-400 p-4 rounded-md">
@@ -84,5 +111,5 @@ export default function ForgotPasswordForm({
         <SubmitButton />
       </div>
     </form>
-  )
+  );
 }
