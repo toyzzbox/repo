@@ -1,15 +1,17 @@
 import EditProductGroupForm from "@/components/(backend)/product/EditProductGroupForm";
 import { prisma } from "@/lib/prisma";
 
-interface Props {
-  params: {
+type PageProps = {
+  params: Promise<{
     id: string;
-  };
-}
+  }>;
+};
 
-export default async function EditProductGroupPage({ params }: Props) {
+export default async function EditProductGroupPage({ params }: PageProps) {
+  const { id } = await params;
+
   const group = await prisma.productGroup.findUnique({
-    where: { id: params.id },
+    where: { id },
   });
 
   if (!group) {
