@@ -3,9 +3,7 @@
 import bcrypt from 'bcryptjs'
 import { prisma } from '@/lib/prisma'
 import crypto from 'crypto'
-import type { Prisma } from "@prisma/client";
-
-type User = Prisma.UserGetPayload<{}>;
+import { User } from '@prisma/client';
 
 // User operations
 export async function findUserByEmail(email: string): Promise<User | null> {
