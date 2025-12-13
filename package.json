@@ -7,7 +7,9 @@
     "build": "next build",
     "postbuild": "next-sitemap",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "postinstall": "prisma generate"
+
   },
   "dependencies": {
     "@arcjet/next": "1.0.0-beta.9",
