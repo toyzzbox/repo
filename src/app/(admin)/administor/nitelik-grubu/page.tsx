@@ -1,12 +1,13 @@
-import React from 'react'
-import CreateAttributeGroup from './CreateAttributeForm'
+import { Suspense } from "react";
+import NitelikGrubuClient from "./NitelikGrubuClient";
 
-const page = () => {
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
+export default function Page() {
   return (
-    <div>
-      <CreateAttributeGroup/>
-    </div>
-  )
+    <Suspense fallback={<div className="p-6">Yükleniyor...</div>}>
+      <NitelikGrubuClient />
+    </Suspense>
+  );
 }
-
-export default page
