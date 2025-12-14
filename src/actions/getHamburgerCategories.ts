@@ -3,19 +3,17 @@
 import { prisma } from "@/lib/prisma";
 import type { Prisma } from "@prisma/client";
 
-/** Flat list + parent */
-export type CategoryFlat = Prisma.CategoryGetPayload<{
-  include: { parent: true };
-}>;
-
-/** 3 seviye children (parentId: null rootlar) */
-export type CategoryTree3 = Prisma.CategoryGetPayload<{
+/**
+ * Hamburger menüde kullanılacak minimum kategori tipi
+ * (Prisma payload tiplerinden türetiliyor)
+ */
+export type HamburgerCategory = Prisma.CategoryGetPayload<{
   include: {
     children: {
       include: {
         children: {
           include: {
-            children: true;
+            children: true; // 3. seviye
           };
         };
       };
@@ -23,31 +21,17 @@ export type CategoryTree3 = Prisma.CategoryGetPayload<{
   };
 }>;
 
-/** Single by slug + parent + children */
-export type CategoryBySlug = Prisma.CategoryGetPayload<{
-  include: { children: true; parent: true };
+/**
+ * Flat liste için parent dahil
+ */
+export type HamburgerCategoryFlat = Prisma.CategoryGetPayload<{
+  include: { parent: true };
 }>;
 
-export async function getAllCategoriesFlat(): Promise<CategoryFlat[]> {
-  try {
-    return await prisma.category.findMany({
-      include: {
-        parent: true,
-      },
-      orderBy: {
-        name: "asc",
-      },
-    });
-  } catch (error) {
-    console.error("getAllCategoriesFlat error:", error);
-    throw new Error("Kategoriler getirilemedi");
-  }
-}
-
 /**
- * Tüm kategorileri parent-child hiyerarşisiyle getirir (3 seviye)
+ * Hamburger: Root kategorileri (parentId: null) 3 seviye children ile getirir
  */
-export async function getAllCategories(): Promise<CategoryTree3[]> {
+export async function getHamburgerCategories(): Promise<HamburgerCategory[]> {
   try {
     const categories = await prisma.category.findMany({
       where: { parentId: null },
@@ -56,74 +40,103 @@ export async function getAllCategories(): Promise<CategoryTree3[]> {
           include: {
             children: {
               include: {
-                children: true, // 3. seviye
+                children: true,
               },
             },
           },
         },
       },
+      orderBy: { name: "asc" },
     });
 
-    const desiredOrder = [
-      "Oyuncaklar",
-      "Anne & Bebek",
-      "Spor & Outdoor",
-      "Okul & Kırtasiye",
-      "Hediyelik",
-      "Elektronik",
-    ];
-
-    const sorted = categories.sort((a, b) => {
-      const indexA = desiredOrder.indexOf(a.name);
-      const indexB = desiredOrder.indexOf(b.name);
-
-      if (indexA === -1 && indexB === -1) return a.name.localeCompare(b.name);
-      if (indexA === -1) return 1;
-      if (indexB === -1) return -1;
-
-      return indexA - indexB;
-    });
-
-    return sorted;
+    return categories;
   } catch (error) {
-    console.error("getAllCategories error:", error);
+    console.error("getHamburgerCategories error:", error);
+    throw new Error("Hamburger kategorileri getirilemedi");
+  }
+}
+
+/**
+ * Hamburger: Tüm kategorileri flat şekilde (parent dahil) getirir
+ */
+export async function getHamburgerCategoriesFlat(): Promise<HamburgerCategoryFlat[]> {
+  try {
+    return await prisma.category.findMany({
+      include: { parent: true },
+      orderBy: { name: "asc" },
+    });
+  } catch (error) {
+    console.error("getHamburgerCategoriesFlat error:", error);
     throw new Error("Kategoriler getirilemedi");
   }
 }
 
 /**
- * Belirli bir kategoriyi slug ile getirir
+ * Slug ile tek kategori + parent + children
  */
-export async function getCategoryBySlug(slug: string): Promise<CategoryBySlug | null> {
+export type HamburgerCategoryBySlug = Prisma.CategoryGetPayload<{
+  include: { parent: true; children: true };
+}>;
+
+export async function getHamburgerCategoryBySlug(
+  slug: string
+): Promise<HamburgerCategoryBySlug | null> {
   try {
     return await prisma.category.findUnique({
       where: { slug },
-      include: {
-        children: true,
-        parent: true,
-      },
+      include: { parent: true, children: true },
     });
   } catch (error) {
-    console.error("getCategoryBySlug error:", error);
+    console.error("getHamburgerCategoryBySlug error:", error);
     throw new Error("Kategori bulunamadı");
   }
 }
 
 /**
- * Yeni kategori oluşturur
+ * ✅ Kategori oluşturma (parentId null problemi burada çözülüyor)
+ * - parentId varsa: parent.connect
+ * - parentId yoksa/null ise: parent alanı hiç gönderilmez (root kategori)
  */
-export async function createCategory(data: {
+type CreateCategoryInput = {
   name: string;
   slug: string;
   description?: string;
   parentId?: string | null;
-}) {
+};
+
+export async function createCategory(input: CreateCategoryInput) {
   try {
+    const { parentId, ...rest } = input;
+
     return await prisma.category.create({
-      data,
+      data: {
+        ...rest,
+        ...(parentId ? { parent: { connect: { id: parentId } } } : {}),
+      },
     });
   } catch (error) {
     console.error("createCategory error:", error);
     throw new Error("Kategori oluşturulamadı");
+  }
+}
+
+/**
+ * Parent değiştirme (opsiyonel ama çok lazım oluyor)
+ * - parentId verirse connect
+ * - parentId null/undefined ise disconnect
+ */
+export async function updateCategoryParent(categoryId: string, parentId?: string | null) {
+  try {
+    return await prisma.category.update({
+      where: { id: categoryId },
+      data: {
+        ...(parentId
+          ? { parent: { connect: { id: parentId } } }
+          : { parent: { disconnect: true } }),
+      },
+    });
+  } catch (error) {
+    console.error("updateCategoryParent error:", error);
+    throw new Error("Kategori parent güncellenemedi");
   }
 }
