@@ -1,14 +1,41 @@
-import { prisma } from '@/lib/prisma';
-import CategoryForm from './CategoryForm';
+import { prisma } from "@/lib/prisma";
+import CategoryForm from "./CategoryForm";
 
-async function getCategories() {
-  return await prisma.category.findMany();
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
+/**
+ * Build sırasında DB yoksa patlamasın diye
+ * her şeyi try/catch ile koruyoruz
+ */
+async function getSafeCategories() {
+  try {
+    return await prisma.category.findMany({
+      orderBy: { createdAt: "desc" },
+    });
+  } catch (e) {
+    console.error("Category fetch failed:", e);
+    return [];
+  }
+}
+
+async function getSafeMedias() {
+  try {
+    const medias = await prisma.media.findMany({
+      orderBy: { createdAt: "desc" },
+    });
+    return JSON.parse(JSON.stringify(medias));
+  } catch (e) {
+    console.error("Media fetch failed:", e);
+    return [];
+  }
 }
 
 export default async function Page() {
-  const categories = await getCategories(); // Kategorileri çek
-  const medias = await prisma.media.findMany(); // Mediaları çek
-  const safeMedias = JSON.parse(JSON.stringify(medias)); // Serialize et
+  const [categories, medias] = await Promise.all([
+    getSafeCategories(),
+    getSafeMedias(),
+  ]);
 
-  return <CategoryForm categories={categories} medias={safeMedias} />;
+  return <CategoryForm categories={categories} medias={medias} />;
 }
