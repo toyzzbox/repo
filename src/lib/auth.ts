@@ -1,18 +1,18 @@
 // lib/auth.ts
-import bcrypt from 'bcryptjs'
-import { prisma } from '@/lib/prisma'
-import { User } from '@prisma/client'
-import crypto from 'crypto'
+import bcrypt from "bcryptjs";
+import crypto from "crypto";
+import { prisma } from "@/lib/prisma";
+import { User, SecurityEventType } from "@prisma/client";
 
 // User operations
 export async function findUserByEmail(email: string): Promise<User | null> {
   try {
     return await prisma.user.findUnique({
-      where: { email: email.toLowerCase() }
-    })
+      where: { email: email.toLowerCase() },
+    });
   } catch (error) {
-    console.error('Find user by email error:', error)
-    return null
+    console.error("Find user by email error:", error);
+    return null;
   }
 }
 
@@ -20,17 +20,17 @@ export async function findUserByEmail(email: string): Promise<User | null> {
 export async function generateResetToken(userId: string, email: string): Promise<string> {
   try {
     // Generate secure random token
-    const token = crypto.randomBytes(32).toString('hex')
-    const hashedToken = crypto.createHash('sha256').update(token).digest('hex')
-    
+    const token = crypto.randomBytes(32).toString("hex");
+    const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+
     // Token 1 saat geçerli
-    const expiresAt = new Date(Date.now() + 60 * 60 * 1000)
-    
+    const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
+
     // Önceki tokenları sil
     await prisma.passwordResetToken.deleteMany({
-      where: { userId }
-    })
-    
+      where: { userId },
+    });
+
     // Yeni token kaydet
     await prisma.passwordResetToken.create({
       data: {
@@ -38,119 +38,128 @@ export async function generateResetToken(userId: string, email: string): Promise
         email,
         token: hashedToken,
         expiresAt,
-      }
-    })
-    
+      },
+    });
+
     // Ham token'ı döndür (email'de kullanılacak)
-    return token
+    return token;
   } catch (error) {
-    console.error('Generate reset token error:', error)
-    throw new Error('Token oluşturulamadı')
+    console.error("Generate reset token error:", error);
+    throw new Error("Token oluşturulamadı");
   }
 }
 
-export async function validateResetToken(token: string): Promise<{ userId: string; email: string } | null> {
+export async function validateResetToken(
+  token: string
+): Promise<{ userId: string; email: string } | null> {
   try {
-    const hashedToken = crypto.createHash('sha256').update(token).digest('hex')
-    
+    const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+
     const resetToken = await prisma.passwordResetToken.findUnique({
-      where: { token: hashedToken }
-    })
-    
+      where: { token: hashedToken },
+    });
+
     if (!resetToken || resetToken.expiresAt < new Date() || resetToken.used) {
-      return null
+      return null;
     }
-    
+
     return {
       userId: resetToken.userId,
-      email: resetToken.email
-    }
+      email: resetToken.email,
+    };
   } catch (error) {
-    console.error('Validate reset token error:', error)
-    return null
+    console.error("Validate reset token error:", error);
+    return null;
   }
 }
 
 export async function updatePasswordSecure(
-  token: string, 
-  newPassword: string, 
-  ipAddress: string, 
+  token: string,
+  newPassword: string,
+  ipAddress: string,
   userAgent: string
 ): Promise<void> {
   try {
     // Token'ı validate et
-    const tokenData = await validateResetToken(token)
+    const tokenData = await validateResetToken(token);
     if (!tokenData) {
-      throw new Error('Geçersiz veya süresi dolmuş token')
+      throw new Error("Geçersiz veya süresi dolmuş token");
     }
-    
+
     // Şifreyi hash'le
-    const hashedPassword = await bcrypt.hash(newPassword, 12)
-    
+    const hashedPassword = await bcrypt.hash(newPassword, 12);
+
     // Transaction ile güncelle
     await prisma.$transaction(async (tx) => {
       // Şifreyi güncelle
       await tx.user.update({
         where: { id: tokenData.userId },
-        data: { 
+        data: {
           password: hashedPassword,
-          updatedAt: new Date()
-        }
-      })
-      
+          updatedAt: new Date(),
+        },
+      });
+
       // Token'ı kullanıldı olarak işaretle
-      const hashedToken = crypto.createHash('sha256').update(token).digest('hex')
+      const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
       await tx.passwordResetToken.update({
         where: { token: hashedToken },
-        data: { used: true }
-      })
-      
+        data: { used: true },
+      });
+
       // Kullanıcının tüm aktif sessionlarını sonlandır
       await tx.session.updateMany({
-        where: { 
+        where: {
           userId: tokenData.userId,
-          isActive: true 
+          isActive: true,
         },
-        data: { isActive: false }
-      })
-    })
-    
+        data: { isActive: false },
+      });
+    });
+
     // Security log
-    await logSecurityEvent('PASSWORD_RESET_COMPLETED', tokenData.userId, {}, ipAddress, userAgent, true)
-    
+    // Eğer enum'a PASSWORD_RESET_COMPLETED eklediysen burayı ona çevirebilirsin.
+    await logSecurityEvent(
+      SecurityEventType.PASSWORD_RESET,
+      tokenData.userId,
+      {},
+      ipAddress,
+      userAgent,
+      true
+    );
   } catch (error) {
-    console.error('Update password error:', error)
-    throw error
+    console.error("Update password error:", error);
+    throw error;
   }
 }
 
 // Rate limiting
 export async function checkResetRateLimit(userId: string): Promise<boolean> {
   try {
-    const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000)
-    
+    const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
+
     const recentRequests = await prisma.passwordResetToken.count({
       where: {
         userId,
-        createdAt: { gte: oneHourAgo }
-      }
-    })
-    
+        createdAt: { gte: oneHourAgo },
+      },
+    });
+
     // Saatte maksimum 3 talep
-    return recentRequests < 3
+    return recentRequests < 3;
   } catch (error) {
-    console.error('Check reset rate limit error:', error)
-    return false
+    console.error("Check reset rate limit error:", error);
+    return false;
   }
 }
 
 // Security logging
 export async function logSecurityEvent(
-  eventType: string,
+  eventType: SecurityEventType,
   userId?: string,
   metadata: Record<string, any> = {},
-  ipAddress: string = 'unknown',
-  userAgent: string = 'unknown',
+  ipAddress: string = "unknown",
+  userAgent: string = "unknown",
   success: boolean = true
 ): Promise<void> {
   try {
@@ -158,33 +167,33 @@ export async function logSecurityEvent(
       data: {
         eventType,
         userId,
-        ipAddress,
+        ip: ipAddress,      // ✅ DB alanı: ip
         userAgent,
-        metadata,
+        meta: metadata,     // ✅ DB alanı: meta
         success,
-      }
-    })
+      },
+    });
   } catch (error) {
-    console.error('Security log error:', error)
+    console.error("Security log error:", error);
     // Security log hatası diğer işlemleri etkilemez
   }
 }
 
 // Password utilities
 export async function hashPassword(password: string): Promise<string> {
-  return bcrypt.hash(password, 12)
+  return bcrypt.hash(password, 12);
 }
 
 export async function comparePassword(password: string, hashedPassword: string): Promise<boolean> {
-  return bcrypt.compare(password, hashedPassword)
+  return bcrypt.compare(password, hashedPassword);
 }
 
 // Session utilities
 export async function createSession(userId: string, ipAddress: string, userAgent: string): Promise<string> {
   try {
-    const sessionToken = crypto.randomBytes(32).toString('hex')
-    const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // 30 gün
-    
+    const sessionToken = crypto.randomBytes(32).toString("hex");
+    const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 gün
+
     await prisma.session.create({
       data: {
         sessionToken,
@@ -194,13 +203,13 @@ export async function createSession(userId: string, ipAddress: string, userAgent
         userAgent,
         isActive: true,
         lastAccessAt: new Date(),
-      }
-    })
-    
-    return sessionToken
+      },
+    });
+
+    return sessionToken;
   } catch (error) {
-    console.error('Create session error:', error)
-    throw new Error('Session oluşturulamadı')
+    console.error("Create session error:", error);
+    throw new Error("Session oluşturulamadı");
   }
 }
 
@@ -208,10 +217,10 @@ export async function invalidateSession(sessionToken: string): Promise<void> {
   try {
     await prisma.session.update({
       where: { sessionToken },
-      data: { isActive: false }
-    })
+      data: { isActive: false },
+    });
   } catch (error) {
-    console.error('Invalidate session error:', error)
+    console.error("Invalidate session error:", error);
   }
 }
 
@@ -219,26 +228,23 @@ export async function cleanupExpiredSessions(): Promise<void> {
   try {
     await prisma.session.deleteMany({
       where: {
-        OR: [
-          { expiresAt: { lt: new Date() } },
-          { isActive: false }
-        ]
-      }
-    })
+        OR: [{ expiresAt: { lt: new Date() } }, { isActive: false }],
+      },
+    });
   } catch (error) {
-    console.error('Cleanup sessions error:', error)
+    console.error("Cleanup sessions error:", error);
   }
 }
 
 // User session management
 export async function getCurrentUser(): Promise<User | null> {
   try {
-    const { cookies } = await import('next/headers');
+    const { cookies } = await import("next/headers");
     const cookieStore = await cookies();
-    
+
     // Session token'ı cookie'den al
-    const sessionToken = cookieStore.get('session-token')?.value;
-    
+    const sessionToken = cookieStore.get("session-token")?.value;
+
     if (!sessionToken) {
       return null;
     }
@@ -262,7 +268,7 @@ export async function getCurrentUser(): Promise<User | null> {
 
     return session.user;
   } catch (error) {
-    console.error('Get current user error:', error);
+    console.error("Get current user error:", error);
     return null;
   }
 }
@@ -275,7 +281,7 @@ export async function isAuthenticated(): Promise<boolean> {
 
 export async function isAdmin(): Promise<boolean> {
   const user = await getCurrentUser();
-  return user?.role === 'ADMIN';
+  return user?.role === "ADMIN";
 }
 
 // Protected action wrapper
@@ -283,16 +289,16 @@ export async function requireAuth<T>(
   callback: (user: User) => Promise<T>
 ): Promise<{ success: boolean; data?: T; error?: string }> {
   const user = await getCurrentUser();
-  
+
   if (!user) {
-    return { success: false, error: 'Bu işlem için giriş yapmalısınız' };
+    return { success: false, error: "Bu işlem için giriş yapmalısınız" };
   }
 
   try {
     const data = await callback(user);
     return { success: true, data };
   } catch (error: any) {
-    return { success: false, error: error.message || 'Bir hata oluştu' };
+    return { success: false, error: error.message || "Bir hata oluştu" };
   }
 }
 
@@ -301,19 +307,19 @@ export async function requireAdmin<T>(
   callback: (user: User) => Promise<T>
 ): Promise<{ success: boolean; data?: T; error?: string }> {
   const user = await getCurrentUser();
-  
+
   if (!user) {
-    return { success: false, error: 'Bu işlem için giriş yapmalısınız' };
+    return { success: false, error: "Bu işlem için giriş yapmalısınız" };
   }
 
-  if (user.role !== 'ADMIN') {
-    return { success: false, error: 'Bu işlem için yetkiniz yok' };
+  if (user.role !== "ADMIN") {
+    return { success: false, error: "Bu işlem için yetkiniz yok" };
   }
 
   try {
     const data = await callback(user);
     return { success: true, data };
   } catch (error: any) {
-    return { success: false, error: error.message || 'Bir hata oluştu' };
+    return { success: false, error: error.message || "Bir hata oluştu" };
   }
 }

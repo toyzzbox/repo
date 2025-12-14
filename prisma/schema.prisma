@@ -59,6 +59,7 @@ enum SecurityEventType {
   ACCOUNT_LOCKED
 }
 
+
 model SecurityLog {
   id        String            @id @default(cuid())
   eventType SecurityEventType

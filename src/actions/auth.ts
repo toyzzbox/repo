@@ -160,10 +160,10 @@ export async function logSecurityEvent(
       data: {
         eventType,
         userId,
-        ip: ipAddress,      // modelde ip
+        ip: ipAddress,      // ✅
         userAgent,
-        meta: metadata,     // modelde meta
-        success,             // ✅ boolean
+        meta: metadata,     // ✅
+        success,
       },
     })
   } catch (error) {
@@ -171,6 +171,8 @@ export async function logSecurityEvent(
     // log hatası auth akışını ASLA bozmaz
   }
 }
+
+
 
 // Password utilities
 export async function hashPassword(password: string): Promise<string> {
