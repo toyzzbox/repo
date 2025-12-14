@@ -1,9 +1,13 @@
+import { Suspense } from "react";
+import UnauthorizedClient from "./UnauthorizedClient";
+
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export default function UnauthorizedPage() {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center text-center">
-        <h1 className="text-3xl font-bold text-red-600">Yetkisiz Giriş 🚫</h1>
-        <p className="mt-2 text-gray-600">Bu sayfaya erişim izniniz bulunmamaktadır.</p>
-      </div>
-    );
-  }
-  
+  return (
+    <Suspense fallback={null}>
+      <UnauthorizedClient />
+    </Suspense>
+  );
+}
