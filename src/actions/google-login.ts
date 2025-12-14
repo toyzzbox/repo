@@ -1,6 +1,7 @@
+
 "use server";
 
-import { signIn } from "@/auth";
+import { signIn } from '@/auth';
 
 export async function googleAuthenticate() {
   try {
