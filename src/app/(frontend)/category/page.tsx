@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import type { Prisma } from "@prisma/client";
@@ -6,6 +7,10 @@ import SortSelect from "@/components/(frontend)/category/SortSelect";
 import CategoryFilters from "@/components/(frontend)/category/CategoryFilters";
 import { ProductCard } from "@/components/(frontend)/product/ProductCard";
 import MobileFilterButton from "./MobileFilterButton";
+
+/** ✅ Build sırasında prerender/SSG zorlamasını kapat */
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 /* =====================
    TYPES
@@ -156,25 +161,32 @@ export default async function CategoryPage({ params, searchParams }: PageProps) 
       {/* Filtre + sıralama */}
       <div className="flex flex-col sm:flex-row justify-between items-center gap-2 mb-6">
         <div className="w-full sm:w-auto">
-          <MobileFilterButton
-            subcategories={subcategories}
-            brands={brands}
-            attributeGroups={attributeGroups}
-          />
+          <Suspense fallback={null}>
+            <MobileFilterButton
+              subcategories={subcategories}
+              brands={brands}
+              attributeGroups={attributeGroups}
+            />
+          </Suspense>
         </div>
+
         <div className="w-full sm:w-auto sm:ml-auto">
-          <SortSelect />
+          <Suspense fallback={null}>
+            <SortSelect />
+          </Suspense>
         </div>
       </div>
 
       <div className="grid lg:grid-cols-[260px_1fr] gap-8">
         {/* SOL: Filtre paneli */}
         <div className="hidden lg:block">
-          <CategoryFilters
-            subcategories={subcategories}
-            brands={brands}
-            attributeGroups={attributeGroups}
-          />
+          <Suspense fallback={null}>
+            <CategoryFilters
+              subcategories={subcategories}
+              brands={brands}
+              attributeGroups={attributeGroups}
+            />
+          </Suspense>
         </div>
 
         {/* SAĞ: Ürün listesi */}
