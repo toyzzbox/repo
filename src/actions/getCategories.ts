@@ -1,21 +1,35 @@
-
 import { prisma } from "@/lib/prisma";
-import { Category } from "@/types/category";
+import type { Prisma } from "@prisma/client";
 
+export type CategoryWithMedia = Prisma.CategoryGetPayload<{
+  include: {
+    medias: {
+      include: {
+        variants: {
+          select: { cdnUrl: true; key: true; type: true };
+        };
+      };
+    };
+  };
+}>;
 
-
-
-export async function getCategories(): Promise<Category[]> {
+export async function getCategories(): Promise<CategoryWithMedia[]> {
   try {
     const categories = await prisma.category.findMany({
       include: {
-        medias: true,
+        medias: {
+          include: {
+            variants: {
+              select: { cdnUrl: true, key: true, type: true },
+            },
+          },
+        },
       },
     });
 
-    return categories as Category[];
+    return categories;
   } catch (error) {
-    console.error("Ürünler alınamadı:", error);
+    console.error("Kategoriler alınamadı:", error);
     return [];
   }
 }
