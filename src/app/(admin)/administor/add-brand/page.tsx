@@ -1,11 +1,12 @@
 import { prisma } from "@/lib/prisma";
 import BrandForm from "./BrandForm";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export default async function Page() {
   const medias = await prisma.media.findMany({
-    include: {
-      variants: true, // cdnUrl burada
-    },
+    include: { variants: true },
     orderBy: { createdAt: "desc" },
   });
 
