@@ -10,7 +10,7 @@ type SafeMedia = {
   urls: string[];
   title: string | null;
   altText: string | null;
-  type: string; // enum ise string tutmak yeterli
+  type: string;
 };
 
 export default async function Page() {
@@ -31,4 +31,16 @@ export default async function Page() {
     }));
   } catch (e) {
     console.error("Create banner medias fetch failed:", e);
-    // DB yoksa bile say
+    safeMedias = [];
+  }
+
+  return (
+    <div className="p-8">
+      <h1 className="text-2xl font-bold mb-6">Yeni Banner Ekle</h1>
+
+      <Suspense fallback={null}>
+        <CreateBannerForm medias={safeMedias} />
+      </Suspense>
+    </div>
+  );
+}
