@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { VariantType } from "@prisma/client";
 
 export async function getDiscountedProducts() {
   const products = await prisma.product.findMany({
@@ -22,7 +23,17 @@ export async function getDiscountedProducts() {
           media: {
             select: {
               id: true,
-              urls: true,
+              variants: {
+                where: {
+                  type: VariantType.ORIGINAL, // istersen WEBP yap
+                },
+                select: {
+                  cdnUrl: true,
+                  key: true,
+                  type: true,
+                },
+                take: 1,
+              },
             },
           },
         },
