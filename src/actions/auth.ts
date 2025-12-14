@@ -3,7 +3,8 @@
 import bcrypt from 'bcryptjs'
 import { prisma } from '@/lib/prisma'
 import crypto from 'crypto'
-import { User } from '@prisma/client';
+import { User ,SecurityEventType} from '@prisma/client';
+
 
 // User operations
 export async function findUserByEmail(email: string): Promise<User | null> {
@@ -158,7 +159,7 @@ export async function logSecurityEvent(
   try {
     await prisma.securityLog.create({
       data: {
-        eventType,
+        eventType: SecurityEventType.LOGIN_SUCCESS, // ✅
         userId,
         ip: ipAddress,      // ✅
         userAgent,
