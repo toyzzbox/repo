@@ -1,6 +1,7 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
+import { VariantType } from "@prisma/client";
 
 export async function getOrderById(orderId: string) {
   if (!orderId) {
@@ -18,7 +19,15 @@ export async function getOrderById(orderId: string) {
               include: {
                 medias: {
                   include: {
-                    media: true,
+                    media: {
+                      include: {
+                        variants: {
+                          where: { type: VariantType.ORIGINAL }, // istersen WEBP yap
+                          select: { cdnUrl: true, key: true, type: true },
+                          take: 1,
+                        },
+                      },
+                    },
                   },
                 },
               },
@@ -37,7 +46,6 @@ export async function getOrderById(orderId: string) {
 
     if (!order) return null;
 
-    // front-end ile uyumlu hale getirme
     return {
       id: order.id,
       createdAt: order.createdAt,
@@ -56,16 +64,21 @@ export async function getOrderById(orderId: string) {
       deliveryDate: order.deliveryDate,
       user: order.user,
       address: order.address ?? null,
-      // orderItems → items olarak rename
-      items:
-        order.orderItems.map((item) => ({
+
+      items: order.orderItems.map((item) => {
+        const firstMedia = item.product?.medias?.[0]?.media;
+        const image =
+          firstMedia?.variants?.[0]?.cdnUrl ?? null;
+
+        return {
           id: item.id,
           title: item.product?.name ?? "Bilinmeyen Ürün",
           sku: item.product?.sku ?? "",
           qty: item.quantity,
           price: item.price,
-          image: item.product?.medias?.[0]?.media?.urls?.[0] ?? null,
-        })) ?? [],
+          image,
+        };
+      }),
     };
   } catch (error) {
     console.error("🔥 getOrderById error:", error);
