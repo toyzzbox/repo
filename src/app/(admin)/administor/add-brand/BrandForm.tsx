@@ -4,10 +4,10 @@ import { useActionState, useState } from "react";
 import { createBrand } from "./action";
 import MediaModalButton from "@/app/(frontend)/modal/MediaModalButton";
 
-interface Media {
+type Media = {
   id: string;
-  urls: string[];
-}
+  variants: { cdnUrl: string; key: string; type: string }[];
+};
 
 interface BrandFormProps {
   medias: Media[];
