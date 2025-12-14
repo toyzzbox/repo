@@ -146,28 +146,29 @@ export async function checkResetRateLimit(userId: string): Promise<boolean> {
 }
 
 // Security logging
+// Security logging
 export async function logSecurityEvent(
   eventType: string,
   userId?: string,
   metadata: Record<string, any> = {},
   ipAddress: string = 'unknown',
   userAgent: string = 'unknown',
-  success: boolean = true
+  success: boolean = true,
 ): Promise<void> {
   try {
     await prisma.securityLog.create({
       data: {
         eventType,
         userId,
-        ipAddress,
+        ip: ipAddress,      // modelde ip
         userAgent,
-        metadata,
-        success,
-      }
+        meta: metadata,     // modelde meta
+        success,             // ✅ boolean
+      },
     })
   } catch (error) {
     console.error('Security log error:', error)
-    // Security log hatası diğer işlemleri etkilemez
+    // log hatası auth akışını ASLA bozmaz
   }
 }
 
