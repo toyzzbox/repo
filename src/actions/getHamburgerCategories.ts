@@ -110,10 +110,13 @@ export async function createCategory(input: CreateCategoryInput) {
 
     return await prisma.category.create({
       data: {
-        ...rest,
+        name: rest.name,
+        slug: rest.slug,
+        description: rest.description ?? "",
         ...(parentId ? { parent: { connect: { id: parentId } } } : {}),
       },
     });
+    
   } catch (error) {
     console.error("createCategory error:", error);
     throw new Error("Kategori oluşturulamadı");
@@ -140,3 +143,6 @@ export async function updateCategoryParent(categoryId: string, parentId?: string
     throw new Error("Kategori parent güncellenemedi");
   }
 }
+
+export const getAllCategories = getHamburgerCategories;
+
