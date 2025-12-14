@@ -7,13 +7,14 @@ import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { MediaType, VariantType } from "@prisma/client";
 import crypto from "crypto";
 
+
 const ACCEPTED_TYPES: Record<string, MediaType> = {
-  "image/jpeg": MediaType.image,
-  "image/png": MediaType.image,
-  "image/webp": MediaType.image,
-  "image/gif": MediaType.image,
-  "video/mp4": MediaType.video,
-  "video/webm": MediaType.video,
+  "image/jpeg": MediaType.IMAGE,
+  "image/png": MediaType.IMAGE,
+  "image/webp": MediaType.IMAGE,
+  "image/gif": MediaType.IMAGE,
+  "video/mp4": MediaType.VIDEO,
+  "video/webm": MediaType.VIDEO,
 };
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
