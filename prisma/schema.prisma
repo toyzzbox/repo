@@ -48,9 +48,25 @@ model User {
   orders           Order[]
   invoices         Invoice[]
   passwordResetTokens PasswordResetToken[]
-
+  securityLogs SecurityLog[]
   @@map("users")
 }
+
+model SecurityLog {
+  id        String   @id @default(cuid())
+  eventType String
+  userId    String?
+  ip        String?
+  userAgent String?
+  meta      Json?
+  createdAt DateTime @default(now())
+
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId, createdAt])
+  @@map("security_logs")
+}
+
 
 model PasswordResetToken {
   id        String   @id @default(cuid())
